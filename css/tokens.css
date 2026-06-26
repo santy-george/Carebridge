@@ -1,0 +1,129 @@
+/* ==========================================================================
+   Care Bridge Home — Design Tokens
+   Material 3 structure · MP079-derived palette · Urbanist typography.
+   ========================================================================== */
+
+/* ---- Fonts -------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ---- Primitive palette ---- */
+  --purple-50:#F4EFFA; --purple-100:#E9DEF5; --purple-200:#D5C2EC; --purple-300:#B89AD9;
+  --purple-400:#8D5EB7; --purple-500:#6E3E97; --purple-600:#57317E; --purple-700:#45266A;
+  --purple-800:#331C4F; --purple-900:#20143A;
+
+  --cyan-50:#E7FAFE; --cyan-100:#C5F2FB; --cyan-200:#8FE7F6; --cyan-300:#4FD7EE;
+  --cyan-400:#22C3E0; --cyan-500:#06B6D4; --cyan-600:#0894AE; --cyan-700:#0B7488; --cyan-800:#0C5C6C;
+
+  --blue-50:#EAF0FB; --blue-100:#CFE0F4; --blue-200:#A3C4E9; --blue-300:#6E9FD8;
+  --blue-400:#4480C6; --blue-500:#3E6FB8; --blue-600:#245A95; --blue-700:#1C4675; --blue-800:#14304F;
+
+  --mint-50:#E6FBF3; --mint-100:#C7F6E4; --mint-300:#66EEBB; --mint-500:#16B886; --mint-600:#0E9670; --mint-700:#0B7357;
+
+  --neutral-0:#FFFFFF; --neutral-25:#FAFAFB; --neutral-50:#F1F0EF; --neutral-100:#E9E8E9;
+  --neutral-200:#DFDDE0; --neutral-300:#C9C7CC; --neutral-400:#A8A6AE; --neutral-500:#84828E;
+  --neutral-600:#6A6B80; --neutral-700:#4A4B60; --neutral-800:#2A2B42; --neutral-900:#151632;
+
+  --green-50:#E6FBF3; --green-500:#0E9670; --green-600:#0B7357;
+  --amber-50:#FCF3E2; --amber-500:#C77D11; --amber-600:#92580A;
+  --red-50:#FCEAEA; --red-500:#E5484D; --red-600:#B4282D; --red-700:#8C1D21;
+
+  /* ---- Care model identity (NOT purple — purple stays brand/action) ------ */
+  --model-digital-wellness:#0EA5A4; --model-digital-wellness-soft:#E6FAF8; --model-digital-wellness-ink:#0A6E6D;
+  --model-virtual-care:#2563EB;     --model-virtual-care-soft:#EAF1FF;     --model-virtual-care-ink:#1D4ED8;
+  --model-direct-care:#F97316;      --model-direct-care-soft:#FFF3E8;      --model-direct-care-ink:#C2410C;
+
+  /* ---- Semantic surfaces / text / border ---- */
+  --surface-page:var(--neutral-0);
+  --surface:var(--neutral-0);
+  --surface-sunken:var(--neutral-50);
+  --surface-variant:var(--neutral-25);
+  --surface-inverse:var(--neutral-900);
+
+  --text-heading:var(--neutral-900);
+  --text-body:var(--neutral-700);
+  --text-muted:var(--neutral-600);
+  --text-subtle:var(--neutral-500);
+  --text-on-accent:var(--neutral-0);
+
+  --border:var(--neutral-200);
+  --border-strong:var(--neutral-300);
+
+  /* ---- Status (teal=clinical/positive, amber=warning/pending, red=critical) ---- */
+  --success:var(--mint-600); --success-soft:var(--mint-50); --success-text:var(--mint-700);
+  --warning:var(--amber-500); --warning-soft:var(--amber-50); --warning-text:var(--amber-600);
+  --danger:var(--red-500); --danger-soft:var(--red-50); --danger-strong:var(--red-600); --danger-text:var(--red-700);
+  --info:var(--blue-500); --info-soft:var(--blue-50); --info-text:var(--blue-600);
+
+  /* ---- Care models (canonical = model identity tokens above) -------------- */
+  --tier-1:var(--model-digital-wellness); --tier-1-soft:var(--model-digital-wellness-soft); --tier-1-text:var(--model-digital-wellness-ink);
+  --tier-2:var(--model-virtual-care);     --tier-2-soft:var(--model-virtual-care-soft);     --tier-2-text:var(--model-virtual-care-ink);
+  --tier-3:var(--model-direct-care);      --tier-3-soft:var(--model-direct-care-soft);      --tier-3-text:var(--model-direct-care-ink);
+
+  /* ---- Risk ---- */
+  --risk-low:var(--mint-600); --risk-medium:var(--amber-500); --risk-high:var(--red-500); --risk-urgent:var(--red-600);
+
+  /* ---- Brand accent (per-app, default = Admin / purple) ---- */
+  --accent:var(--purple-600);
+  --accent-hover:var(--purple-700);
+  --accent-soft:var(--purple-50);
+  --accent-soft-strong:var(--purple-100);
+  --accent-on:var(--neutral-0);
+  --accent-text:var(--purple-600);
+  --accent-emphasis:var(--purple-800);
+
+  /* ---- Typography ---- */
+  --font-heading:"Urbanist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-body:"Urbanist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+  /* ---- Spacing (4px grid) ---- */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
+  --space-6:24px; --space-7:28px; --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px; --space-20:80px;
+
+  /* ---- Radius ---- */
+  --radius-sm:4px; --radius:8px; --radius-base:12px; --radius-lg:16px; --radius-xl:18px; --radius-2xl:24px; --radius-full:999px;
+
+  /* ---- Elevation (soft, modern — avoid heavy shadows) -------------------- */
+  --shadow-xs:0 1px 2px rgba(21,22,50,.04);
+  --shadow-sm:0 1px 2px rgba(21,22,50,.05), 0 1px 3px rgba(21,22,50,.04);
+  --shadow-md:0 2px 8px rgba(21,22,50,.06);
+  --shadow-lg:0 6px 20px rgba(21,22,50,.08);
+  --shadow-xl:0 12px 32px rgba(21,22,50,.10);
+
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+/* ---- Per-app accent theming (mirrors Figma Brand collection modes) ------- */
+[data-app="field"] {
+  --accent:var(--cyan-500); --accent-hover:var(--cyan-600); --accent-soft:var(--cyan-50);
+  --accent-soft-strong:var(--cyan-100); --accent-on:var(--neutral-0); --accent-text:var(--cyan-700); --accent-emphasis:var(--cyan-700);
+}
+[data-app="family"] {
+  --accent:var(--blue-500); --accent-hover:var(--blue-600); --accent-soft:var(--blue-50);
+  --accent-soft-strong:var(--blue-100); --accent-on:var(--neutral-0); --accent-text:var(--blue-600); --accent-emphasis:var(--blue-700);
+}
+
+/* ---- Reset ------------------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
+body{ font-family:var(--font-body); color:var(--text-body); background:var(--surface-page); line-height:1.5 }
+button{ font:inherit; cursor:pointer; border:none; background:none; color:inherit }
+a{ color:inherit; text-decoration:none }
+svg{ display:block }
+
+/* ---- Type scale utilities --------------------------------------------- */
+.t-display-l{ font-family:var(--font-heading); font-weight:700; font-size:56px; line-height:1.08; letter-spacing:-1px; color:var(--text-heading) }
+.t-display-m{ font-family:var(--font-heading); font-weight:700; font-size:40px; line-height:1.12; letter-spacing:-.6px; color:var(--text-heading) }
+.t-heading-xl{ font-family:var(--font-heading); font-weight:700; font-size:32px; line-height:1.18; letter-spacing:-.4px; color:var(--text-heading) }
+.t-heading-l{ font-family:var(--font-heading); font-weight:600; font-size:26px; line-height:1.22; letter-spacing:-.3px; color:var(--text-heading) }
+.t-heading-m{ font-family:var(--font-heading); font-weight:600; font-size:22px; line-height:1.26; letter-spacing:-.2px; color:var(--text-heading) }
+.t-heading-s{ font-family:var(--font-heading); font-weight:600; font-size:18px; line-height:1.32; letter-spacing:-.1px; color:var(--text-heading) }
+.t-heading-xs{ font-family:var(--font-heading); font-weight:600; font-size:16px; line-height:1.36; color:var(--text-heading) }
+.t-title{ font-family:var(--font-body); font-weight:600; font-size:15px; line-height:1.4; color:var(--text-heading) }
+.t-body-l{ font-size:16px; line-height:1.5 }
+.t-body-m{ font-size:14px; line-height:1.48 }
+.t-body-s{ font-size:13px; line-height:1.46 }
+.t-label-l{ font-weight:500; font-size:14px; line-height:1.2 }
+.t-label-m{ font-weight:500; font-size:12px; line-height:1.2; letter-spacing:.2px }
+.t-label-s{ font-weight:600; font-size:11px; line-height:1.1; letter-spacing:.4px }
+.t-overline{ font-weight:600; font-size:11px; line-height:1.1; letter-spacing:.6px; text-transform:uppercase; color:var(--text-subtle) }

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Members</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<script src="js/icons.js"></script>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="members"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search">
+        <span class="icon"><svg><use href="#i-search"/></svg></span>
+        <input placeholder="Search members, visits, invoices…">
+      </div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="page-header reveal">
+        <div class="page-header__txt">
+          <h1>Members</h1>
+          <p>124 active members across the Care Bridge Home programme</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export XLS</button>
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export CSV</button>
+          <button class="btn btn--primary btn--sm"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Member</button>
+        </div>
+      </div>
+
+      <div class="metric-row reveal reveal-2">
+        <div class="metric metric--success"><div class="metric__label">Active members</div><div class="metric__num">124</div><div class="metric__sub">+6% vs last month</div></div>
+        <div class="metric"><div class="metric__label">New this month</div><div class="metric__num">9</div><div class="metric__sub">vs 7 last month</div></div>
+        <div class="metric metric--warn"><div class="metric__label">Needs assessment</div><div class="metric__num">7</div><div class="metric__sub">3 overdue</div></div>
+        <div class="metric"><div class="metric__label">Unassigned</div><div class="metric__num">2</div><div class="metric__sub">No care model</div></div>
+      </div>
+
+      <div class="toolbar reveal reveal-2">
+        <div class="toolbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members by name or ID…"></div>
+        <button class="filter">Care Model<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">District<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Plan<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Status<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <div class="toolbar__spacer"></div>
+        <button class="filter filter--active">Sort: Recently active<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+      </div>
+
+      <div class="table-card reveal reveal-3">
+        <table class="table">
+          <thead><tr>
+            <th>Member</th><th>Care Model</th><th>Plan</th><th>District</th><th>Assigned staff</th><th>Billing</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">KL</span><div class="u__txt"><div class="name cell-link">Kumari Lakshmi N.</div><div class="sub">CBH-C-0012 · F · 78y</div></div></div></td>
+              <td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td>
+              <td><span class="plan plan--premium">Premium</span></td>
+              <td>Kakkanad</td><td>Sree Rekha R.</td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Paid</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">AM</span><div class="u__txt"><div class="name cell-link">Anjali Mohan</div><div class="sub">CBH-C-0008 · F · 65y</div></div></div></td>
+              <td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td>
+              <td><span class="plan plan--standard">Standard</span></td>
+              <td>Aluva</td><td>Sree Rekha R.</td>
+              <td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">GN</span><div class="u__txt"><div class="name cell-link">Gopal Nair</div><div class="sub">CBH-C-0019 · M · 72y</div></div></div></td>
+              <td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td>
+              <td><span class="plan plan--premium">Premium</span></td>
+              <td>Irinjalakuda</td><td>Meera P.</td>
+              <td><span class="chip chip--missed"><span class="dot"></span>Overdue</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">RK</span><div class="u__txt"><div class="name cell-link">Radha Krishnan</div><div class="sub">CBH-C-0031 · F · 58y</div></div></div></td>
+              <td><span class="model-chip model-chip--digital"><span class="dot"></span>Digital Wellness</span></td>
+              <td><span class="plan">Basic</span></td>
+              <td>Guruvayur</td><td>—</td>
+              <td><span class="chip chip--scheduled"><span class="dot"></span>Invoiced</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">SP</span><div class="u__txt"><div class="name cell-link">Suresh Pillai</div><div class="sub">CBH-C-0044 · M · 55y</div></div></div></td>
+              <td><span class="model-chip model-chip--digital"><span class="dot"></span>Digital Wellness</span></td>
+              <td><span class="plan plan--standard">Standard</span></td>
+              <td>Changanacherry</td><td>—</td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Paid</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">LV</span><div class="u__txt"><div class="name cell-link">Leela Varma</div><div class="sub">CBH-C-0055 · F · 68y</div></div></div></td>
+              <td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td>
+              <td><span class="plan">Basic</span></td>
+              <td>Calicut</td><td>Divya M.</td>
+              <td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Active</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">BT</span><div class="u__txt"><div class="name cell-link">Babu Thomas</div><div class="sub">CBH-C-0061 · M · 80y</div></div></div></td>
+              <td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td>
+              <td><span class="plan plan--standard">Standard</span></td>
+              <td>Kottayam</td><td>Anitha K.</td>
+              <td><span class="chip chip--completed"><span class="dot"></span>Paid</span></td>
+              <td><span class="chip chip--pending"><span class="dot"></span>Review due</span></td>
+            </tr>
+            <tr data-href="member-profile.html">
+              <td><div class="u"><span class="avatar avatar--sm">MT</span><div class="u__txt"><div class="name cell-link">Mini Thomas</div><div class="sub">CBH-C-0063 · F · 62y</div></div></div></td>
+              <td><span class="mk muted" style="font-weight:600">Unassigned</span></td>
+              <td class="muted">—</td>
+              <td>Ernakulam</td><td>—</td>
+              <td class="muted">—</td>
+              <td><span class="chip chip--scheduled"><span class="dot"></span>New</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="pagination__info">Showing 1–8 of 124 members</div>
+          <div class="pagination__rows">
+            Rows per page
+            <select class="select-sm"><option>5</option><option selected>10</option><option>20</option></select>
+            <div class="pager">
+              <button disabled aria-label="Previous"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+              <button aria-label="Next"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/sidebar.js"></script>
+<script src="js/app.js"></script>
+<script>
+  (function(){ function tick(){ var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+    var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');
+    document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t}); }
+    tick(); setInterval(tick,1000);
+    document.querySelector('.pager button[aria-label=Previous]').style.transform='scaleX(-1)';
+  })();
+</script>
+</body>
+</html>

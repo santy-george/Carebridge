@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-app="family">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Care — Billing</title>
+<link rel="stylesheet" href="css/tokens.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+<script src="js/icons.js"></script>
+<a class="back-rs" href="index.html" style="position:fixed;top:18px;left:18px;font-size:13px;font-weight:600;color:var(--text-muted);display:inline-flex;gap:6px;align-items:center;z-index:5"><span class="icon" style="width:15px;height:15px;transform:scaleX(-1)"><svg><use href="#i-chevron"/></svg></span>All apps</a>
+<div class="stage">
+  <div class="device">
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-heart"/></svg></span><span class="icon"><svg><use href="#i-bell"/></svg></span></span></div>
+      <div class="hdr"><h1>Billing</h1><a class="iconbtn" href="#"><span class="icon"><svg><use href="#i-document"/></svg></span></a></div>
+
+      <div class="body-m">
+        <div class="mc" style="background:linear-gradient(150deg,var(--accent-emphasis),var(--accent));border:none;color:#fff">
+          <div style="font-size:13px;opacity:.9">Next bill · due 1 July</div>
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:34px;margin-top:2px">₹18,400</div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <a class="btn-lg" href="#" style="background:#fff;color:var(--accent-emphasis);padding:12px"><span class="icon"><svg><use href="#i-billing"/></svg></span>Pay now</a>
+            <a class="btn-lg" href="#" style="background:rgba(255,255,255,.18);color:#fff;padding:12px;border:1px solid rgba(255,255,255,.3)">Auto-pay</a>
+          </div>
+        </div>
+
+        <div class="mc">
+          <div class="mc__head"><span class="mc__title">Current plan</span><span class="model-chip" style="background:var(--model-direct-care-soft);color:var(--model-direct-care-ink)">Direct Care</span></div>
+          <div class="mrow" style="padding:8px 0"><div class="main"><div class="t">Essential plan</div><div class="s">Daily home nursing · 1 visit/day</div></div><span class="val">₹15,000<span class="muted" style="font-weight:400;font-size:12px">/mo</span></span></div>
+          <a class="mc__link" href="#" style="margin-top:6px;display:inline-flex">Change plan <span class="icon"><svg><use href="#i-chevron"/></svg></span></a>
+        </div>
+
+        <div class="mc">
+          <div class="mc__head"><span class="mc__title">Add-ons</span></div>
+          <div class="mrow" style="padding:9px 0"><div class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="main"><div class="t">Physiotherapy</div><div class="s">2 sessions / week</div></div><span class="val">₹2,800</span></div>
+          <div class="mrow" style="padding:9px 0;border-top:1px solid var(--border)"><div class="ic"><span class="icon"><svg><use href="#i-phone"/></svg></span></div><div class="main"><div class="t">Doctor teleconsults</div><div class="s">On demand</div></div><span class="val">₹600</span></div>
+          <a class="btn-lg btn-soft" href="#" style="margin-top:12px"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add a service</a>
+        </div>
+
+        <div class="sec-label">Invoices</div>
+        <div class="mc mc--flush">
+          <div class="mrow"><div class="ic"><span class="icon"><svg><use href="#i-billing"/></svg></span></div><div class="main"><div class="t">June 2026</div><div class="s">Due 1 Jul</div></div><span class="chip" style="background:var(--warning-soft);color:var(--warning-text)">Due</span></div>
+          <div class="mrow"><div class="ic"><span class="icon"><svg><use href="#i-billing"/></svg></span></div><div class="main"><div class="t">May 2026</div><div class="s">Paid 2 May · ₹17,800</div></div><span class="chip" style="background:var(--success-soft);color:var(--success-text)">Paid</span></div>
+          <div class="mrow"><div class="ic"><span class="icon"><svg><use href="#i-billing"/></svg></span></div><div class="main"><div class="t">April 2026</div><div class="s">Paid 2 Apr · ₹17,800</div></div><span class="chip" style="background:var(--success-soft);color:var(--success-text)">Paid</span></div>
+        </div>
+        <div style="height:6px"></div>
+      </div>
+
+      <nav class="tabbar">
+        <a class="tab-m" href="family-home.html"><span class="ti"><span class="icon"><svg><use href="#i-heart"/></svg></span></span>Home</a>
+        <a class="tab-m" href="family-visits.html"><span class="ti"><span class="icon"><svg><use href="#i-scheduler"/></svg></span></span>Visits</a>
+        <a class="tab-m" href="family-health.html"><span class="ti"><span class="icon"><svg><use href="#i-pulse"/></svg></span></span>Health</a>
+        <a class="tab-m is-active" href="family-billing.html"><span class="ti"><span class="icon"><svg><use href="#i-billing"/></svg></span></span>Billing</a>
+      </nav>
+    </div>
+  </div>
+</div>
+</body>
+</html>

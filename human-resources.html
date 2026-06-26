@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Human Resources</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<script src="js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="hr"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt"><h1>Human Resources</h1><p>Care team — nurses, caregivers, physios, doctors and coordinators</p></div>
+        <div class="page-header__actions">
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export</button>
+          <button class="btn btn--primary btn--sm"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add staff</button>
+        </div>
+      </div>
+      <div class="metric-row reveal reveal-2">
+        <div class="metric"><div class="metric__label">Total staff</div><div class="metric__num">28</div><div class="metric__sub">22 field · 6 office</div></div>
+        <div class="metric metric--success"><div class="metric__label">On duty</div><div class="metric__num">12</div><div class="metric__sub">8 field · 4 remote</div></div>
+        <div class="metric"><div class="metric__label">Available</div><div class="metric__num">4</div><div class="metric__sub">Ready to assign</div></div>
+        <div class="metric metric--warn"><div class="metric__label">Payment due</div><div class="metric__num">₹31.5K</div><div class="metric__sub">4 pending approval</div></div>
+      </div>
+      <div class="toolbar reveal reveal-2">
+        <div class="toolbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search staff…"></div>
+        <button class="filter">Role<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Area<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Availability<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Status<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+      </div>
+      <div class="table-card reveal reveal-3">
+        <table class="table">
+          <thead><tr><th>Staff</th><th>Role</th><th>Qualification</th><th>Area</th><th>Availability</th><th>Visits (mo)</th><th>Payment due</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm" style="background:var(--cyan-50);color:var(--cyan-700)">SR</span><span class="cell-link">Sree Rekha R.</span></div></td><td>Nurse</td><td>RN, PCC ✓</td><td>Kakkanad</td><td><span class="chip chip--inprogress"><span class="dot"></span>En route</span></td><td class="num">18</td><td class="num">₹8,100</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm" style="background:var(--cyan-50);color:var(--cyan-700)">MK</span><span class="cell-link">Manu Kumar</span></div></td><td>Caregiver</td><td>Caregiving cert, PCC ✓</td><td>Aluva</td><td><span class="chip chip--inprogress"><span class="dot"></span>On visit</span></td><td class="num">14</td><td class="num">₹6,300</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm" style="background:var(--green-50);color:var(--green-600)">AP</span><span class="cell-link">Arya Pradeep</span></div></td><td>Physiotherapist</td><td>BPT, PCC ✓</td><td>Thrissur</td><td><span class="chip chip--completed"><span class="dot"></span>Available</span></td><td class="num">22</td><td class="num">₹9,900</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm" style="background:var(--red-50);color:var(--red-600)">VN</span><span class="cell-link">Vijay Nair</span></div></td><td>Nurse</td><td>RN, PCC ✓</td><td>Irinjalakuda</td><td><span class="chip chip--missed"><span class="dot"></span>GPS flag</span></td><td class="num">16</td><td class="num">₹7,200</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm" style="background:var(--green-50);color:var(--green-600)">PS</span><span class="cell-link">Parvathi Suresh</span></div></td><td>Caregiver</td><td>Caregiving cert</td><td>Guruvayur</td><td><span class="chip chip--completed"><span class="dot"></span>Available</span></td><td class="num">12</td><td class="num">₹5,400</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm">MP</span><span class="cell-link">Meera P.</span></div></td><td>Nurse coordinator</td><td>RN, MSc</td><td>Ernakulam</td><td><span class="chip chip--scheduled"><span class="dot"></span>Office</span></td><td class="num">—</td><td class="num">—</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+            <tr data-href="hr-profile.html"><td><div class="u"><span class="avatar avatar--sm muted">DR</span><span class="cell-link">Dr. Nair</span></div></td><td>Doctor</td><td>MBBS, MD</td><td>Visiting</td><td><span class="chip chip--scheduled"><span class="dot"></span>On call</span></td><td class="num">6</td><td class="num">₹12,000</td><td><span class="chip chip--pending"><span class="dot"></span>Part-time</span></td></tr>
+          </tbody>
+        </table>
+        <div class="pagination"><div class="pagination__info">Showing 7 of 28 staff</div>
+          <div class="pagination__rows">Rows per page <select class="select-sm"><option>5</option><option selected>10</option><option>20</option></select>
+          <div class="pager"><button disabled><span class="icon" style="transform:scaleX(-1)"><svg><use href="#i-chevron"/></svg></span></button><button><span class="icon"><svg><use href="#i-chevron"/></svg></span></button></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/sidebar.js"></script>
+<script src="js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

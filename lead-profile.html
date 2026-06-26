@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Lead Profile</title>
+<link rel="stylesheet" href="css/tokens.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<script src="js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="leads"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right"><span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span><span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span></div>
+        <button class="btn btn--primary">Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="breadcrumb reveal"><a href="leads.html">Leads &amp; Enquiries</a><span class="icon"><svg><use href="#i-chevron"/></svg></span><span>Priya Suresh</span></div>
+      <div class="page-header reveal">
+        <div class="profile-hero"><span class="avatar-lg">PS</span><div><h2>Priya Suresh</h2><div class="meta">F · 64y · Thrissur · Enquiry · 21 Jun 2026</div></div></div>
+        <div class="page-header__actions"><span class="chip chip--scheduled"><span class="dot"></span>New lead</span><button class="btn btn--outline btn--sm">Log follow-up</button><button class="btn btn--primary btn--sm" onclick="openDrawer('addMember')">Convert to member</button></div>
+      </div>
+      <div class="detail-grid reveal reveal-2">
+        <div class="detail-main">
+          <div class="section-card">
+            <div class="section-card__head"><span class="section-card__title">Enquiry details</span><button class="btn btn--outline btn--sm">Edit</button></div>
+            <div class="field-grid">
+              <div class="field"><label>Lead source</label><select><option>WhatsApp</option><option>Phone</option><option>Website</option><option>Hospital referral</option></select></div>
+              <div class="field"><label>Urgency</label><select><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></div>
+              <div class="field"><label>Location (town)</label><div class="control"><input list="tw" value="Thrissur"></div><datalist id="tw"><option>Thrissur</option><option>Ernakulam</option></datalist></div>
+              <div class="field"><label>Landmark</label><div class="control"><input placeholder="Near…"></div></div>
+            </div>
+            <div class="field field--full" style="margin-top:16px"><label>Service interest</label>
+              <div class="checks"><label class="check is-on"><input type="checkbox" checked>Virtual Care</label><label class="check"><input type="checkbox">Direct Care</label><label class="check is-on"><input type="checkbox" checked>Medication monitoring</label><label class="check"><input type="checkbox">Physiotherapy</label></div></div>
+            <div class="field field--full" style="margin-top:16px"><label>Conversion probability</label>
+              <div class="slider-row"><input type="range" min="0" max="100" value="70" step="5" oninput="this.parentElement.querySelector('.val').value=this.value+'%'"><input class="val" value="70%"></div></div>
+            <div class="form-actions"><button class="btn btn--outline btn--sm">Cancel</button><button class="btn btn--primary btn--sm">Save changes</button></div>
+          </div>
+          <div class="section-card">
+            <div class="section-card__head"><span class="section-card__title">Follow-up history</span></div>
+            <div class="kv">
+              <div class="kv__row"><span class="kv__k">21 Jun · Call</span><span class="kv__v" style="font-weight:400;color:var(--text-body);text-align:left">Initial enquiry. Daughter called re: medication oversight for mother.</span></div>
+              <div class="kv__row"><span class="kv__k">22 Jun · WhatsApp</span><span class="kv__v" style="font-weight:400;color:var(--text-body);text-align:left">Sent Virtual Care plan details. Awaiting decision.</span></div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card__head"><span class="section-card__title">Attachments</span><button class="btn btn--outline btn--sm">Upload</button></div>
+            <p class="muted" style="font-size:13px">No attachments yet. Upload referral letters, prescriptions or photos.</p>
+          </div>
+        </div>
+        <aside class="detail-side">
+          <div class="section-card"><div class="section-card__title" style="margin-bottom:8px">Contacts</div>
+            <div class="kv">
+              <div class="kv__row"><span class="kv__k">Lead</span><span class="kv__v">+91 98001 11222</span></div>
+              <div class="kv__row"><span class="kv__k">Daughter</span><span class="kv__v">Anu Suresh · +91 90000 11222</span></div>
+              <div class="kv__row"><span class="kv__k">Email</span><span class="kv__v">priya@email.com</span></div>
+            </div>
+          </div>
+          <div class="section-card"><div class="section-card__title" style="margin-bottom:8px">Next steps</div>
+            <div class="kv">
+              <div class="kv__row"><span class="kv__k">Follow-up date</span><span class="kv__v">Today</span></div>
+              <div class="kv__row"><span class="kv__k">Recommended</span><span class="kv__v"><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></span></div>
+              <div class="kv__row"><span class="kv__k">Assessment</span><span class="kv__v"><button class="btn btn--secondary btn--sm">Schedule</button></span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/sidebar.js"></script><script src="js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

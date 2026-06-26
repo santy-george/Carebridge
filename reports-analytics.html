@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Reports & Analytics</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  .rep-grid{ display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); gap:20px; align-items:start }
+  .rep-grid3{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px }
+  @media(max-width:1100px){ .rep-grid,.rep-grid3{ grid-template-columns:1fr } }
+  .chart{ width:100%; height:200px; display:block; overflow:visible }
+  .xax{ display:flex; justify-content:space-between; margin-top:6px }
+  .xax span{ font-size:11px; color:var(--text-subtle); font-weight:500 }
+  .hbar{ display:flex; align-items:center; gap:12px; padding:8px 0 }
+  .hbar .lbl{ width:120px; font-size:13px; color:var(--text-body) }
+  .hbar .track{ flex:1 }
+  .hbar .v{ width:42px; text-align:right; font-weight:700; font-size:13px; color:var(--text-heading) }
+  .donut{ display:flex; align-items:center; gap:18px }
+  .legend-row{ display:flex; align-items:center; justify-content:space-between; padding:7px 0; font-size:13px }
+  .legend-row .dot{ width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:8px }
+</style>
+</head>
+<body>
+<script src="js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="analytics"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt"><h1>Reports &amp; Analytics</h1><p>Operational performance, growth and revenue insights</p></div>
+        <div class="page-header__actions">
+          <button class="filter"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Last 12 months<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export report</button>
+        </div>
+      </div>
+      <div class="metric-row reveal reveal-2">
+        <div class="metric metric--success"><div class="metric__label">Active members</div><div class="metric__num">124</div><div class="metric__sub">+6% MoM</div></div>
+        <div class="metric metric--success"><div class="metric__label">Visit completion</div><div class="metric__num">94%</div><div class="metric__sub">Last 30 days</div></div>
+        <div class="metric"><div class="metric__label">Revenue (month)</div><div class="metric__num">₹4.2L</div><div class="metric__sub">+14% MoM</div></div>
+        <div class="metric metric--teal"><div class="metric__label">Lead conversion</div><div class="metric__num">62%</div><div class="metric__sub">9 of 15 leads</div></div>
+      </div>
+
+      <div class="rep-grid reveal reveal-3">
+        <div class="section-card">
+          <div class="section-card__head"><span class="section-card__title">Membership &amp; revenue growth</span>
+            <div class="segmented"><button class="is-active">12M</button><button>6M</button><button>30D</button></div></div>
+          <svg class="chart" viewBox="0 0 560 180" preserveAspectRatio="none">
+            <line x1="0" y1="50" x2="560" y2="50" stroke="#E9E8E9"/><line x1="0" y1="100" x2="560" y2="100" stroke="#E9E8E9"/><line x1="0" y1="150" x2="560" y2="150" stroke="#E9E8E9"/>
+            <path d="M0,150 C60,142 95,120 150,126 C205,132 230,96 290,98 C350,100 380,70 440,72 C500,74 535,52 560,40 L560,180 L0,180 Z" fill="#57317E" fill-opacity="0.08"/>
+            <polyline points="0,158 46,150 93,148 139,138 186,128 232,124 278,112 324,100 371,90 417,78 464,64 510,52 560,44" fill="none" stroke="#B89AD9" stroke-width="2" stroke-dasharray="5 3" stroke-linecap="round"/>
+            <path d="M0,150 C60,142 95,120 150,126 C205,132 230,96 290,98 C350,100 380,70 440,72 C500,74 535,52 560,40" fill="none" stroke="#57317E" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="560" cy="40" r="4.5" fill="#57317E" stroke="#fff" stroke-width="2.5"/>
+          </svg>
+          <div class="xax"><span>Jul</span><span>Sep</span><span>Nov</span><span>Jan</span><span>Mar</span><span>May</span></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card__head"><span class="section-card__title">Care model distribution</span></div>
+          <div class="hbar"><span class="lbl"><span class="mk mk--digital"><span class="dot"></span>Digital Wellness</span></span><div class="track bar"><span style="width:49%;background:var(--model-digital-wellness)"></span></div><span class="v">61</span></div>
+          <div class="hbar"><span class="lbl"><span class="mk mk--virtual"><span class="dot"></span>Virtual Care</span></span><div class="track bar"><span style="width:31%;background:var(--model-virtual-care)"></span></div><span class="v">38</span></div>
+          <div class="hbar"><span class="lbl"><span class="mk mk--direct"><span class="dot"></span>Direct Care</span></span><div class="track bar"><span style="width:20%;background:var(--model-direct-care)"></span></div><span class="v">25</span></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)" class="legend-row"><span class="muted">Lead → member conversion</span><span style="font-weight:700;color:var(--success-text)">62%</span></div>
+        </div>
+      </div>
+
+      <div class="rep-grid3 reveal reveal-3" style="margin-top:20px">
+        <div class="section-card">
+          <div class="section-card__head"><span class="section-card__title">Area-wise growth</span></div>
+          <div class="hbar"><span class="lbl">Ernakulam</span><div class="track bar"><span style="width:88%;background:var(--accent)"></span></div><span class="v">38</span></div>
+          <div class="hbar"><span class="lbl">Thrissur</span><div class="track bar"><span style="width:62%;background:var(--accent)"></span></div><span class="v">27</span></div>
+          <div class="hbar"><span class="lbl">Kottayam</span><div class="track bar"><span style="width:48%;background:var(--accent)"></span></div><span class="v">21</span></div>
+          <div class="hbar"><span class="lbl">Palakkad</span><div class="track bar"><span style="width:34%;background:var(--accent)"></span></div><span class="v">15</span></div>
+          <div class="hbar"><span class="lbl">Kozhikode</span><div class="track bar"><span style="width:28%;background:var(--accent)"></span></div><span class="v">12</span></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card__head"><span class="section-card__title">Visit completion</span></div>
+          <div style="text-align:center;padding:8px 0 14px"><div style="font-family:var(--font-heading);font-weight:700;font-size:44px;color:var(--success-text)">94%</div><div class="muted" style="font-size:13px">completed on time (30 days)</div></div>
+          <div class="legend-row"><span><span class="dot" style="background:var(--success)"></span>Completed</span><span style="font-weight:600">512</span></div>
+          <div class="legend-row"><span><span class="dot" style="background:var(--warning)"></span>Rescheduled</span><span style="font-weight:600">21</span></div>
+          <div class="legend-row"><span><span class="dot" style="background:var(--danger)"></span>Missed</span><span style="font-weight:600">12</span></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card__head"><span class="section-card__title">Staff utilisation</span></div>
+          <div class="hbar"><span class="lbl">Nurses</span><div class="track bar"><span style="width:82%;background:var(--model-virtual-care)"></span></div><span class="v">82%</span></div>
+          <div class="hbar"><span class="lbl">Caregivers</span><div class="track bar"><span style="width:74%;background:var(--model-virtual-care)"></span></div><span class="v">74%</span></div>
+          <div class="hbar"><span class="lbl">Physios</span><div class="track bar"><span style="width:66%;background:var(--model-virtual-care)"></span></div><span class="v">66%</span></div>
+          <div class="hbar"><span class="lbl">Doctors</span><div class="track bar"><span style="width:40%;background:var(--model-virtual-care)"></span></div><span class="v">40%</span></div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)" class="legend-row"><span class="muted">Avg visits / staff / day</span><span style="font-weight:700">4.6</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/sidebar.js"></script>
+<script src="js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

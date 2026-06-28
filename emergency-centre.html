@@ -38,7 +38,7 @@
         <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
         <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
         <div class="topbar-right">
-          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
           <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
         </div>
         <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
@@ -47,7 +47,7 @@
     <main class="content">
       <div class="page-header reveal">
         <div class="page-header__txt"><h1>Emergency Centre</h1><p>Active SOS response, dispatch and incident history</p></div>
-        <div class="page-header__actions"><button class="btn btn--danger btn--sm" onclick="openDrawer('raiseEm')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Raise emergency</button></div>
+        <div class="page-header__actions"><span class="freshness">Live queue · updated now</span><button class="btn btn--danger btn--sm" onclick="openDrawer('raiseEm')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Raise emergency</button></div>
       </div>
       <div class="metric-row reveal reveal-2">
         <div class="metric metric--danger"><div class="metric__label">Active now</div><div class="metric__num">2</div><div class="metric__sub">Immediate response</div></div>
@@ -59,12 +59,14 @@
       <div class="eactive reveal reveal-2">
         <div class="ecard">
           <div class="ecard__top"><span class="ecard__dot"></span><span class="ecard__name">Kumari Lakshmi N.</span><span class="chip" style="background:var(--danger);color:#fff"><span class="dot" style="background:#fff"></span>SOS · Fall</span></div>
-          <div class="ecard__meta">Kakkanad, Ernakulam · Raised 09:14 (4 min ago) · Nearest nurse Sree Rekha R. notified · Awaiting acknowledgement</div>
+          <div class="ecard__meta">Kakkanad, Ernakulam · Raised 09:14 · Owner: Joel Abraham · Nurse notified</div>
+          <div class="notice-strip" style="background:var(--surface);margin-bottom:12px"><span class="icon"><svg><use href="#i-clock"/></svg></span><p><strong>Acknowledgement overdue · 02:11</strong><br>Escalate to backup nurse and operations lead now.</p></div>
           <div class="ecard__row"><button class="btn btn--danger btn--sm" onclick="openDrawer('emDetail')">Respond now</button><button class="btn btn--outline btn--sm" onclick="openDrawer('emDetail')">View profile</button></div>
         </div>
         <div class="ecard">
           <div class="ecard__top"><span class="ecard__dot"></span><span class="ecard__name">Rajan Nair</span><span class="chip" style="background:var(--danger);color:#fff"><span class="dot" style="background:#fff"></span>SOS · Chest pain</span></div>
-          <div class="ecard__meta">Thrissur · Raised 08:56 (18 min ago) · Field staff en route · ETA 12 min · Ambulance on standby</div>
+          <div class="ecard__meta">Thrissur · Raised 08:56 · Owner: Anitha K. · Field staff en route · ETA 12 min</div>
+          <div class="notice-strip" style="background:var(--surface);margin-bottom:12px"><span class="icon"><svg><use href="#i-check"/></svg></span><p><strong>Acknowledged in 1m 42s</strong><br>Ambulance standby confirmed · family contacted.</p></div>
           <div class="ecard__row"><button class="btn btn--danger btn--sm" onclick="openDrawer('emDetail')">Respond now</button><button class="btn btn--outline btn--sm" onclick="openDrawer('emDetail')">View profile</button></div>
         </div>
       </div>
@@ -111,9 +113,11 @@
         <li><div class="tt">Awaiting acknowledgement</div><div class="ts">In progress</div></li>
       </ul>
     </div>
+    <div class="notice-strip" style="background:var(--danger-soft);border-color:color-mix(in srgb,var(--danger) 20%,transparent)"><span class="icon" style="color:var(--danger-text)"><svg><use href="#i-emergency"/></svg></span><p><strong>Escalation rule triggered</strong><br>No responder acknowledgement within 2 minutes. Notify backup nurse and operations lead.</p><button class="btn btn--danger btn--sm">Escalate</button></div>
     <div class="field field--full"><label>Incident notes</label><textarea placeholder="Document response and actions taken…"></textarea></div>
+    <div class="section-card" style="box-shadow:none;background:var(--surface-sunken)"><div class="section-card__title" style="margin-bottom:10px">Closure checklist</div><div class="checks" style="flex-direction:column;align-items:flex-start"><label class="check"><input type="checkbox">Member outcome documented</label><label class="check"><input type="checkbox">Family updated</label><label class="check"><input type="checkbox">Responder and arrival time confirmed</label><label class="check"><input type="checkbox">Follow-up owner and due time assigned</label><label class="check"><input type="checkbox">Post-incident review scheduled</label></div></div>
   </div>
-  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Assign responder</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Mark resolved</button></div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Reassign responder</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Complete closure review</button></div>
 </aside>
 
 <aside class="drawer" id="raiseEm" aria-label="Raise emergency">

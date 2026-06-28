@@ -112,6 +112,8 @@
     if(!document.getElementById('addMember'))  document.body.appendChild(el(MEMBER));
     ensureOverlay();
     transformHeader(); wireRows(); wireFilters();
+    document.querySelectorAll('.topbar__search input').forEach(function(input){ input.setAttribute('aria-label','Search Care Bridge'); });
+    document.querySelectorAll('button').forEach(function(btn){ if(!btn.getAttribute('type')) btn.setAttribute('type','button'); });
     document.addEventListener('click', closePopovers);
     document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ window.closeDrawer(); closePopovers(); } });
     document.querySelectorAll('.check input').forEach(function(c){ c.addEventListener('change', function(){ c.closest('.check').classList.toggle('is-on', c.checked); }); });

@@ -29,9 +29,9 @@
   --red-50:#FCEAEA; --red-500:#E5484D; --red-600:#B4282D; --red-700:#8C1D21;
 
   /* ---- Care model identity (NOT purple — purple stays brand/action) ------ */
-  --model-digital-wellness:#0EA5A4; --model-digital-wellness-soft:#E6FAF8; --model-digital-wellness-ink:#0A6E6D;
-  --model-virtual-care:#2563EB;     --model-virtual-care-soft:#EAF1FF;     --model-virtual-care-ink:#1D4ED8;
-  --model-direct-care:#F97316;      --model-direct-care-soft:#FFF3E8;      --model-direct-care-ink:#C2410C;
+  --model-digital-wellness:#A985CF; --model-digital-wellness-soft:#F5F0FA; --model-digital-wellness-ink:#69408F;
+  --model-virtual-care:#06B6D4;     --model-virtual-care-soft:#E8FAFD;     --model-virtual-care-ink:#08778A;
+  --model-direct-care:#57317E;      --model-direct-care-soft:#F1EBF7;      --model-direct-care-ink:#57317E;
 
   /* ---- Semantic surfaces / text / border ---- */
   --surface-page:var(--neutral-0);

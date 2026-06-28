@@ -21,7 +21,7 @@
         <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
         <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
         <div class="topbar-right">
-          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
           <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
         </div>
         <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
@@ -30,7 +30,7 @@
     <main class="content">
       <div class="page-header reveal">
         <div class="page-header__txt"><h1>Billing &amp; Invoices</h1><p>Membership fees, visit charges, add-ons and payments</p></div>
-        <div class="page-header__actions">
+        <div class="page-header__actions"><span class="freshness">Reconciled 23 Jun · 08:45</span>
           <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export</button>
           <button class="btn btn--primary btn--sm"><span class="icon"><svg><use href="#i-plus"/></svg></span>Create invoice</button>
         </div>
@@ -47,6 +47,7 @@
         <button class="filter">Care model<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
         <button class="filter"><span class="icon"><svg><use href="#i-calendar"/></svg></span>June 2026<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
       </div>
+      <div class="notice-strip reveal reveal-2"><span class="icon"><svg><use href="#i-billing"/></svg></span><div style="flex:1"><p><strong>Reconciliation queue · 2 items</strong><br>One international transfer needs reference confirmation and one partial payment needs allocation.</p></div><span class="owner">Finance · Riya</span><button class="btn btn--secondary btn--sm">Review queue</button></div>
       <div class="table-card reveal reveal-3">
         <table class="table">
           <thead><tr><th>Invoice</th><th>Member</th><th>Care model</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Status</th></tr></thead>
@@ -84,6 +85,8 @@
       <div class="li"><span class="k">Balance</span><span class="v">₹0</span></div>
     </div>
     <div class="info-card info-card--success"><span class="info-card__icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span></span><div><h4>Paid in full</h4><p>Settled by Arun Kumar via international transfer · Ref TXN8823.</p></div></div>
+    <div class="kv"><div class="kv__row"><span class="kv__k">Invoice created by</span><span class="kv__v">Riya Francis · 01 Jun</span></div><div class="kv__row"><span class="kv__k">Payment reconciled by</span><span class="kv__v">Finance admin · 02 Jun</span></div><div class="kv__row"><span class="kv__k">Tax treatment</span><span class="kv__v">GST invoice · verified</span></div></div>
+    <div class="audit-line">Every adjustment, credit note and payment allocation is retained in the invoice audit history.</div>
   </div>
   <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Download PDF</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Update payment</button></div>
 </aside>

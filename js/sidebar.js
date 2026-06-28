@@ -11,7 +11,8 @@
       { id:'leads',       label:'Leads & Enquiries', icon:'inbox',     href:'leads.html', badge:'5' },
       { id:'members',     label:'Members',           icon:'members',   href:'members.html' },
       { id:'assessments', label:'Assessments',       icon:'clipboard', href:'assessments.html' },
-      { id:'care-models', label:'Care Models',       icon:'models',    href:'care-models.html' }
+      { id:'care-models', label:'Care Models',       icon:'models',    href:'care-models.html' },
+      { id:'catalogue',   label:'Service Catalogue', icon:'catalogue', href:'service-catalogue.html' }
     ]},
     { name: 'Operations', items: [
       { id:'scheduler',     label:'Scheduler',       icon:'scheduler', href:'scheduler.html' },
@@ -30,6 +31,10 @@
     { name: 'Insights', items: [
       { id:'analytics', label:'Reports & Analytics', icon:'reports', href:'reports-analytics.html' },
       { id:'health',    label:'Health Analytics',    icon:'pulse',   href:'health-analytics.html' }
+    ]},
+    { name: 'Admin', items: [
+      { id:'users',    label:'Users & Roles', icon:'shield', href:'users-roles.html' },
+      { id:'settings', label:'Settings',      icon:'cog',    href:'settings.html' }
     ]}
   ];
 
@@ -55,7 +60,6 @@
       + '<span class="user-card__txt"><span class="name">Joel Abraham</span><span class="role">Care Coordinator</span></span>'
       + '<span class="icon icon--sm"><svg><use href="#i-chevron-down"/></svg></span></a>'
       + '<a class="nav-item nav-item--foot" href="help.html">'+icon('help')+'<span class="nav-item__label">Help &amp; Support</span></a>'
-      + '<a class="nav-item nav-item--foot'+(active==='settings'?' is-active':'')+'" href="settings.html">'+icon('cog')+'<span class="nav-item__label">Settings</span></a>'
       + '<a class="nav-item nav-item--foot" href="#logout">'+icon('logout')+'<span class="nav-item__label">Log out</span></a>'
       + '</div>';
     el.innerHTML = html;

@@ -21,7 +21,7 @@
         <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
         <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
         <div class="topbar-right">
-          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Mon, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
           <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
         </div>
         <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
@@ -70,9 +70,11 @@
     <div class="rsec"><h5>Mental wellbeing</h5><p>Mood stable, engaged. No signs of low mood or confusion.</p></div>
     <div class="rsec"><h5>Preventive care &amp; education</h5><p>Diet review advised for elevated glucose. Family educated on hydration and foot care.</p></div>
     <div class="rsec"><h5>Referrals</h5><p>Recommend dietitian add-on. No GP referral needed at this time.</p></div>
+    <div class="section-card" style="box-shadow:none;background:var(--surface-sunken)"><div class="section-card__title" style="margin-bottom:8px">Abnormal-reading resolution</div><div class="field-grid"><div class="field"><label>Action</label><select><option>Coordinator call</option><option>Repeat reading</option><option>GP review</option><option>Emergency escalation</option></select></div><div class="field"><label>Owner</label><select><option>Joel Abraham</option><option>Clinical supervisor</option><option>Assigned nurse</option></select></div><div class="field"><label>Due</label><div class="control"><input type="datetime-local"></div></div><div class="field"><label>Status</label><select><option>Open</option><option>Monitoring</option><option>Resolved</option></select></div></div></div>
+    <div class="field field--full"><label>Family-facing summary</label><textarea>Mary’s blood sugar was slightly above her target range. The care team will call today and arrange a nutrition review. No urgent symptoms were reported.</textarea><span class="field__hint">Only this approved summary is shared with authorised family members.</span></div>
     <div class="field field--full"><label>Coordinator notes</label><textarea placeholder="Add review notes…"></textarea></div>
   </div>
-  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Request follow-up</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Approve report</button></div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Return to staff</button><button class="btn btn--secondary btn--sm" onclick="closeDrawer()">Assign follow-up</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Approve &amp; publish summary</button></div>
 </aside>
 
 <script src="js/sidebar.js"></script>

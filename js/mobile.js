@@ -156,7 +156,208 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
+  /* ---- Daily check-in (family) ---- */
+  var checkinAnswers = {};
+  var checkinQuestions = 5;
+  function checkinAnswer(questionId, answer){
+    checkinAnswers[questionId] = answer;
+    var answered = 0;
+    var keys = Object.keys(checkinAnswers);
+    answered = keys.length;
+    var preview = byId('checkinPreview');
+    if (preview){
+      var pct = Math.round(answered / checkinQuestions * 100);
+      preview.textContent = pct + '%';
+    }
+    toast('Answer saved', 'ok');
+  }
+  function checkinComplete(){
+    var keys = Object.keys(checkinAnswers);
+    var score = Math.round(keys.length / checkinQuestions * 100);
+    var scoreEl = byId('wellnessScore');
+    if (scoreEl) scoreEl.textContent = score;
+    go('checkinScoreView');
+    toast('Check-in complete · Score ' + score, 'ok');
+  }
+
+  /* ---- Wellness plan & challenges (family) ---- */
+  function togglePlanItem(el){
+    el.classList.toggle('done');
+    var done = el.classList.contains('done');
+    toast(done ? 'Plan item marked done' : 'Plan item reopened', 'ok');
+  }
+  function toggleChallenge(el){
+    var joined = el.classList.toggle('joined');
+    el.textContent = joined ? 'Leave challenge' : 'Join challenge';
+    toast(joined ? 'Challenge joined' : 'Challenge left', 'ok');
+  }
+
+  /* ---- Chat (family) ---- */
+  function sendChat(inputId, listId){
+    var input = byId(inputId); if (!input) return;
+    var list = byId(listId); if (!list) return;
+    var text = input.value.trim(); if (!text) return;
+    var bubble = document.createElement('div');
+    bubble.className = 'chat-bubble chat-bubble--out';
+    bubble.textContent = text;
+    list.appendChild(bubble);
+    input.value = '';
+    list.scrollTop = list.scrollHeight;
+    setTimeout(function(){
+      var reply = document.createElement('div');
+      reply.className = 'chat-bubble chat-bubble--in';
+      reply.textContent = 'Thanks for your message. Our care team will get back to you shortly.';
+      list.appendChild(reply);
+      list.scrollTop = list.scrollHeight;
+    }, 1500);
+  }
+
+  /* ---- Language toggle (family) ---- */
+  function toggleLang(){
+    var s = screen(); if (!s) return;
+    var cur = s.getAttribute('data-lang') || 'en';
+    var next = cur === 'en' ? 'ml' : 'en';
+    s.setAttribute('data-lang', next);
+    toast(next === 'ml' ? 'മലയാളം തിരഞ്ഞെടുത്തു' : 'Language switched to English', 'ok');
+  }
+
+  /* ---- Voice message (family) ---- */
+  function startVoice(btnId){
+    var btn = byId(btnId); if (!btn) return;
+    var orig = btn.textContent;
+    btn.classList.add('recording');
+    btn.textContent = 'Recording…';
+    btn.disabled = true;
+    setTimeout(function(){
+      btn.classList.remove('recording');
+      btn.textContent = orig;
+      btn.disabled = false;
+      toast('Voice message sent', 'ok');
+    }, 3000);
+  }
+
+  /* ---- Document upload (family) ---- */
+  function uploadDoc(){
+    toast('Uploading document…', 'info');
+    setTimeout(function(){
+      var list = byId('docList') || document.querySelector('.doc-list');
+      if (list){
+        var card = document.createElement('div');
+        card.className = 'doc-card';
+        card.innerHTML = '<span class="icon"><svg><use href="#i-doc"/></svg></span><div class="doc-card__body"><div class="doc-card__name">Uploaded document</div><div class="doc-card__meta">Just now</div></div>';
+        list.appendChild(card);
+      }
+      toast('Document uploaded', 'ok');
+    }, 1500);
+  }
+
+  /* ---- Concern & service request (family) ---- */
+  function submitConcern(){
+    toast('Concern reported to care team', 'ok');
+    back();
+  }
+  function requestService(serviceName){
+    toast('Service request sent: ' + serviceName, 'ok');
+    back();
+  }
+
+  /* ---- Care tier navigation (family) ---- */
+  var tierNames = { 1:'Digital Wellness', 2:'Virtual Care', 3:'Direct Care' };
+  function goTier(tier){
+    var s = screen(); if (s) s.setAttribute('data-tier', tier);
+    var viewId = (tier === 'tier3' || tier === '3') ? 'homeView' : 'tier' + tier + 'Home';
+    go(viewId, {reset:true});
+  }
+  function upgradeTier(targetTier){
+    var name = tierNames[targetTier] || ('Tier ' + targetTier);
+    toast('Upgrading to ' + name + '…', 'info');
+    setTimeout(function(){ goTier(targetTier); }, 1000);
+  }
+
+  /* ---- Family members & consent (family) ---- */
+  function addFamilyMember(){
+    toast('Family member invite sent', 'ok');
+    back();
+  }
+  function toggleConsent(el){
+    el.classList.toggle('on');
+    var on = el.classList.contains('on');
+    toast(on ? 'Consent granted' : 'Consent withdrawn', 'ok');
+  }
+
+  /* ---- Care request form (family) ---- */
+  function crformNext(currentStep, nextStep){
+    var cur = byId(currentStep); if (cur) cur.style.display = 'none';
+    var nxt = byId(nextStep); if (nxt) nxt.style.display = '';
+    var prog = byId('crformProgress');
+    if (prog){
+      var steps = prog.querySelectorAll('.crform-step');
+      steps.forEach(function(s, i){
+        var stepView = byId('crformStep' + (i + 1));
+        s.classList.toggle('active', stepView && stepView.id === nextStep);
+      });
+    }
+    go(nextStep);
+  }
+  function crformBack(currentStep, prevStep){
+    var cur = byId(currentStep); if (cur) cur.style.display = 'none';
+    var prv = byId(prevStep); if (prv) prv.style.display = '';
+    var prog = byId('crformProgress');
+    if (prog){
+      var steps = prog.querySelectorAll('.crform-step');
+      steps.forEach(function(s, i){
+        var stepView = byId('crformStep' + (i + 1));
+        s.classList.toggle('active', stepView && stepView.id === prevStep);
+      });
+    }
+    go(prevStep);
+  }
+  function crformSubmit(){
+    toast('Care request submitted', 'ok');
+    go('home');
+  }
+
+  /* ---- Medication adherence (family) ---- */
+  function toggleMed(el){
+    el.classList.toggle('taken');
+    var taken = el.classList.contains('taken');
+    toast(taken ? 'Medicine marked as taken' : 'Medicine marked as untaken', 'ok');
+    var list = el.closest('.med-list') || document;
+    var all = list.querySelectorAll('.med-item');
+    var done = list.querySelectorAll('.med-item.taken');
+    var pct = all.length ? Math.round(done.length / all.length * 100) : 0;
+    var adherence = byId('medAdherence');
+    if (adherence) adherence.textContent = pct + '%';
+  }
+
+  /* ---- Monthly report (family) ---- */
+  function generateReport(){
+    toast('Monthly report generating…', 'info');
+    setTimeout(function(){ toast('Report ready', 'ok'); }, 2000);
+  }
+
+  /* ---- Home safety check (family) ---- */
+  function toggleSafety(el){
+    if (el.classList.contains('ok')){
+      el.classList.remove('ok'); el.classList.add('warn');
+    } else if (el.classList.contains('warn')){
+      el.classList.remove('warn'); el.classList.add('alert');
+    } else if (el.classList.contains('alert')){
+      el.classList.remove('alert'); el.classList.add('ok');
+    } else {
+      el.classList.add('ok');
+    }
+    var status = el.classList.contains('ok') ? 'OK' : el.classList.contains('warn') ? 'Warning' : 'Alert';
+    toast('Safety check: ' + status, 'ok');
+  }
+
   window.CBH = { go:go, back:back, seg:seg, choice:choice, sw:sw, acc:acc, saveAcc:saveAcc, toast:toast,
     openSheet:openSheet, closeSheet:closeSheet, startGps:startGps, submitReport:submitReport, completeVisit:completeVisit,
-    triggerSos:triggerSos, resolveSos:resolveSos, startTimer:startTimer };
+    triggerSos:triggerSos, resolveSos:resolveSos, startTimer:startTimer,
+    checkinAnswer:checkinAnswer, checkinComplete:checkinComplete, togglePlanItem:togglePlanItem,
+    toggleChallenge:toggleChallenge, sendChat:sendChat, toggleLang:toggleLang, startVoice:startVoice,
+    uploadDoc:uploadDoc, submitConcern:submitConcern, requestService:requestService, goTier:goTier,
+    upgradeTier:upgradeTier, addFamilyMember:addFamilyMember, toggleConsent:toggleConsent,
+    crformNext:crformNext, crformBack:crformBack, crformSubmit:crformSubmit, toggleMed:toggleMed,
+    generateReport:generateReport, toggleSafety:toggleSafety };
 })();

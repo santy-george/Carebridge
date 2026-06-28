@@ -41,6 +41,7 @@
       <section class="view" id="homeView" data-nav="tabs" data-tab="home">
         <div class="tbar">
           <div class="tbar__title"><div class="eyebrow">Sunday, 21 June</div><h1>Hello, Susan</h1></div>
+          <button class="iconbtn" onclick="CBH.toggleLang()"><span class="icon"><svg><use href="#i-language"/></svg></span></button>
           <button class="iconbtn" onclick="CBH.go('notificationsView')"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="dot"></span></button>
           <button class="avatar-btn" onclick="CBH.go('profileView')">SV</button>
         </div>
@@ -69,6 +70,20 @@
             <div class="row"><span class="row-av av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-weight:700">AT</span><div class="m"><div class="t">Anjali Thomas</div><div class="s">Primary nurse</div></div><button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button></div>
             <div class="row"><span class="row-av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--purple-100);color:var(--purple-700);display:flex;align-items:center;justify-content:center;font-weight:700">JA</span><div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div><button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button></div>
           </div></div>
+
+          <div class="sec reveal">Quick actions</div>
+          <div class="tiles reveal">
+            <div class="tile tile--accent tap" onclick="CBH.go('requestVisitView')"><div class="ic"><span class="icon"><svg><use href="#i-plus"/></svg></span></div><div class="n" style="font-size:13px">Request</div><div class="l">Home visit</div></div>
+            <div class="tile tap" onclick="CBH.go('careUpdateView')"><div class="ic"><span class="icon"><svg><use href="#i-clipboard"/></svg></span></div><div class="n" style="font-size:13px">Today's</div><div class="l">Care update</div></div>
+            <div class="tile tap" onclick="CBH.go('careTeamView')"><div class="ic"><span class="icon"><svg><use href="#i-user"/></svg></span></div><div class="n" style="font-size:13px">Care team</div><div class="l">All staff</div></div>
+            <div class="tile tap" onclick="CBH.go('walletView')"><div class="ic"><span class="icon"><svg><use href="#i-wallet"/></svg></span></div><div class="n" style="font-size:13px">Wallet</div><div class="l">Documents</div></div>
+            <div class="tile tap" onclick="CBH.go('careCircleView')"><div class="ic"><span class="icon"><svg><use href="#i-family"/></svg></span></div><div class="n" style="font-size:13px">Family</div><div class="l">Care circle</div></div>
+            <div class="tile tap" onclick="CBH.go('concernView')"><div class="ic"><span class="icon"><svg><use href="#i-bell"/></svg></span></div><div class="n" style="font-size:13px">Report</div><div class="l">Concern</div></div>
+            <div class="tile tap" onclick="CBH.go('safetyCheckView')"><div class="ic"><span class="icon"><svg><use href="#i-home-safety"/></svg></span></div><div class="n" style="font-size:13px">Safety</div><div class="l">Home check</div></div>
+            <div class="tile tap" onclick="CBH.go('replacementView')"><div class="ic"><span class="icon"><svg><use href="#i-shield"/></svg></span></div><div class="n" style="font-size:13px">Staff</div><div class="l">Replacement</div></div>
+          </div>
+
+          <div class="card reveal tap" onclick="CBH.go('monthlyReportView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Monthly care report</div><div class="s">May 2026 · wellness score 80</div></div><span class="chip2 chip2--ok">Ready</span></div></div>
 
           <div class="card reveal tap" onclick="CBH.go('billingView')"><div class="row" style="padding:0"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-billing"/></svg></span></div><div class="m"><div class="t">June bill · ₹18,400</div><div class="s">Due 1 July</div></div><span class="chip2 chip2--warn">Due soon</span></div></div>
 
@@ -309,13 +324,983 @@
         </div>
       </section>
 
+1|      <!-- ============ ONBOARDING — WELCOME ============ -->
+2|      <section class="view" id="onboardView">
+3|        <div class="tbar"><div class="tbar__title"><h1>Welcome to Care Bridge</h1></div></div>
+4|        <div class="vbody">
+5|          <div class="card reveal" style="text-align:center;padding:24px 20px">
+6|            <div style="width:80px;height:80px;border-radius:24px;background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span class="icon" style="width:38px;height:38px"><svg><use href="#i-heart"/></svg></span></div>
+7|            <h1 class="t-heading-l" style="font-size:22px">Let's set up your wellness profile</h1>
+8|            <p class="t-body-m" style="color:var(--text-muted);margin-top:8px">This takes 2 minutes. We'll assess your health needs and recommend the right care level for you.</p>
+9|          </div>
+10|
+11|          <div class="onboard reveal" style="display:flex;flex-direction:column;gap:14px">
+12|            <div class="card card--flush"><div class="rows">
+13|              <div class="row tap" onclick="CBH.go('onboardStep1View')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-user"/></svg></span></div><div class="m"><div class="t">1. Basic details</div><div class="s">Age, gender, location</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+14|              <div class="row tap" onclick="CBH.go('onboardStep2View')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">2. Health conditions</div><div class="s">Current conditions &amp; medications</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+15|              <div class="row tap" onclick="CBH.go('onboardStep3View')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">3. Lifestyle</div><div class="s">Sleep, activity, food habits</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+16|              <div class="row tap" onclick="CBH.go('onboardStep4View')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-family"/></svg></span></div><div class="m"><div class="t">4. Family health history</div><div class="s">Hereditary risks</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+17|            </div></div>
+18|            <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('assessmentResultView')">Complete assessment</button>
+19|          </div>
+20|        </div>
+21|      </section>
+22|
+23|      <!-- ============ ONBOARDING STEP 1 — BASIC DETAILS ============ -->
+24|      <section class="view" id="onboardStep1View">
+25|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Basic details</h1></div></div>
+26|        <div class="vbody">
+27|          <div class="card reveal"><div style="display:flex;flex-direction:column;gap:14px">
+28|            <div class="field"><label>Full name</label><input type="text" value="Mary Varghese"></div>
+29|            <div class="field"><label>Age</label><input type="number" value="76"></div>
+30|            <div class="field"><label>Gender</label><select><option>Female</option><option>Male</option><option>Other</option></select></div>
+31|            <div class="field"><label>Location (city/district)</label><input type="text" value="Ernakulam, Kerala"></div>
+32|            <div class="field"><label>Preferred language</label>
+33|              <div class="choices" data-single="true">
+34|                <button class="choice on" onclick="CBH.choice(this)">English</button>
+35|                <button class="choice" onclick="CBH.choice(this)">Malayalam</button>
+36|                <button class="choice" onclick="CBH.choice(this)">Both</button>
+37|              </div>
+38|            </div>
+39|          </div></div>
+40|          <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('onboardStep2View')">Continue</button>
+41|        </div>
+42|      </section>
+43|
+44|      <!-- ============ ONBOARDING STEP 2 — HEALTH CONDITIONS ============ -->
+45|      <section class="view" id="onboardStep2View">
+46|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Health conditions</h1></div></div>
+47|        <div class="vbody">
+48|          <div class="card reveal"><div class="card__head"><span class="card__title">Current conditions</span></div>
+49|            <div class="choices" data-single="false" style="flex-direction:column;gap:8px">
+50|              <button class="choice on" onclick="CBH.choice(this)">Diabetes (Type 2)</button>
+51|              <button class="choice on" onclick="CBH.choice(this)">High blood pressure</button>
+52|              <button class="choice" onclick="CBH.choice(this)">Heart condition</button>
+53|              <button class="choice" onclick="CBH.choice(this)">Arthritis</button>
+54|              <button class="choice" onclick="CBH.choice(this)">Thyroid disorder</button>
+55|              <button class="choice" onclick="CBH.choice(this)">Asthma / breathing</button>
+56|              <button class="choice" onclick="CBH.choice(this)">Memory issues</button>
+57|              <button class="choice" onclick="CBH.choice(this)">None of the above</button>
+58|            </div>
+59|          </div>
+60|          <div class="card reveal"><div class="card__head"><span class="card__title">Current medications</span></div>
+61|            <p class="t-body-s" style="color:var(--text-muted)">List your active medicines, dosage, and timing.</p>
+62|            <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+63|              <div class="field"><label>Medicine 1</label><input type="text" value="Metformin 500mg — morning"></div>
+64|              <div class="field"><label>Medicine 2</label><input type="text" value="Amlodipine 5mg — evening"></div>
+65|              <button class="mbtn mbtn--line mbtn--sm" onclick="CBH.toast('Added medicine field')"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add another medicine</button>
+66|            </div>
+67|          </div>
+68|          <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('onboardStep3View')">Continue</button>
+69|        </div>
+70|      </section>
+71|
+72|      <!-- ============ ONBOARDING STEP 3 — LIFESTYLE ============ -->
+73|      <section class="view" id="onboardStep3View">
+74|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Lifestyle</h1></div></div>
+75|        <div class="vbody">
+76|          <div class="card reveal"><div class="card__head"><span class="card__title">Sleep quality</span></div>
+77|            <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Good (6+ hrs)</button><button class="choice" onclick="CBH.choice(this)">Average (4-6 hrs)</button><button class="choice" onclick="CBH.choice(this)">Poor (&lt;4 hrs)</button></div>
+78|          </div>
+79|          <div class="card reveal"><div class="card__head"><span class="card__title">Physical activity</span></div>
+80|            <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Daily walking</button><button class="choice" onclick="CBH.choice(this)">Occasional</button><button class="choice" onclick="CBH.choice(this)">Mostly sedentary</button></div>
+81|          </div>
+82|          <div class="card reveal"><div class="card__head"><span class="card__title">Food habits</span></div>
+83|            <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Balanced diet</button><button class="choice" onclick="CBH.choice(this)">High sugar/salt</button><button class="choice" onclick="CBH.choice(this)">Irregular meals</button></div>
+84|          </div>
+85|          <div class="card reveal"><div class="card__head"><span class="card__title">Stress level</span></div>
+86|            <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Low</button><button class="choice" onclick="CBH.choice(this)">Moderate</button><button class="choice" onclick="CBH.choice(this)">High</button></div>
+87|          </div>
+88|          <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('onboardStep4View')">Continue</button>
+89|        </div>
+90|      </section>
+91|
+92|      <!-- ============ ONBOARDING STEP 4 — FAMILY HISTORY ============ -->
+93|      <section class="view" id="onboardStep4View">
+94|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Family health history</h1></div></div>
+95|        <div class="vbody">
+96|          <div class="card reveal"><div class="card__head"><span class="card__title">Hereditary conditions in family</span></div>
+97|            <p class="t-body-s" style="color:var(--text-muted)">Select any conditions that run in your family.</p>
+98|            <div class="choices" data-single="false" style="flex-direction:column;gap:8px;margin-top:12px">
+99|              <button class="choice on" onclick="CBH.choice(this)">Diabetes</button>
+100|              <button class="choice" onclick="CBH.choice(this)">Heart disease</button>
+101|              <button class="choice" onclick="CBH.choice(this)">High blood pressure</button>
+102|              <button class="choice" onclick="CBH.choice(this)">Stroke</button>
+103|              <button class="choice" onclick="CBH.choice(this)">Cancer</button>
+104|              <button class="choice" onclick="CBH.choice(this)">Dementia / Alzheimer's</button>
+105|              <button class="choice" onclick="CBH.choice(this)">None</button>
+106|            </div>
+107|          </div>
+108|          <div class="card reveal"><div class="field"><label>Emergency contact</label><input type="text" value="Susan Varghese (Daughter) — +91 98765 43210"></div></div>
+109|          <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('assessmentResultView')">Complete assessment</button>
+110|        </div>
+111|      </section>
+112|
+113|      <!-- ============ ASSESSMENT RESULT — TIER RECOMMENDATION ============ -->
+114|      <section class="view" id="assessmentResultView">
+115|        <div class="tbar"><div class="tbar__title"><h1>Your care recommendation</h1></div></div>
+116|        <div class="vbody has-cta">
+117|          <div class="card reveal" style="text-align:center;padding:24px 20px">
+118|            <div class="wtscore wtscore--warn reveal" style="margin:0 auto 16px"><span class="icon" style="width:32px;height:32px"><svg><use href="#i-alert"/></svg></span></div>
+119|            <h1 class="t-heading-l" style="font-size:22px">Needs Attention</h1>
+120|            <p class="t-body-m" style="color:var(--text-muted);margin-top:6px">Based on your assessment, we recommend <b style="color:var(--text-body)">Guided Care (Virtual Care)</b> — regular check-ins with a care coordinator and remote monitoring.</p>
+121|          </div>
+122|
+123|          <div class="card reveal"><div class="card__head"><span class="card__title">Why this level?</span></div>
+124|            <div class="rows" style="margin:-6px -16px -8px">
+125|              <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Blood sugar slightly elevated</div><div class="s">Needs regular monitoring</div></div></div>
+126|              <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Multiple medications</div><div class="s">Adherence support recommended</div></div></div>
+127|              <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Good mobility</div><div class="s">Home visit not required yet</div></div></div>
+128|            </div>
+129|          </div>
+130|
+131|          <div class="upgrade upgrade--virtual reveal">
+132|            <div style="display:flex;align-items:center;gap:12px"><div class="ic" style="background:var(--model-virtual-care-soft);color:var(--model-virtual-care-ink)"><span class="icon"><svg><use href="#i-video"/></svg></span></div><div style="flex:1"><div style="font-weight:700;font-size:15px;color:var(--text-heading)">Recommended: Virtual Care</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Care coordinator + virtual reviews + family updates</div></div></div>
+133|            <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.goTier('tier2')">Start Guided Care</button>
+134|          </div>
+135|
+136|          <div class="card reveal tap" onclick="CBH.goTier('tier1')"><div class="row" style="padding:0"><div class="ic"><span class="icon"><svg><use href="#i-target"/></svg></span></div><div class="m"><div class="t">Start with Self-Care instead</div><div class="s">Manage wellness independently</div></div><span class="chip2 chip2--dw">Digital Wellness</span></div></div>
+137|          <div class="card reveal tap" onclick="CBH.goTier('tier3')"><div class="row" style="padding:0"><div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div class="m"><div class="t">I need home visits</div><div class="s">Direct Care with nurse visits</div></div><span class="chip2 chip2--direct">Direct Care</span></div></div>
+138|        </div>
+139|        <div class="cta-bar"><button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('tier2Home',{reset:true})">Continue with Guided Care</button></div>
+140|      </section>
+141|
+142|      <!-- ============ TIER 1 — SELF-CARE HOME ============ -->
+143|      <section class="view" id="tier1Home" data-nav="tabs" data-tab="home">
+144|        <div class="tbar">
+145|          <div class="tbar__title"><div class="eyebrow">Sunday, 21 June</div><h1>Hello, Mary</h1></div>
+146|          <button class="iconbtn" onclick="CBH.toggleLang()"><span class="icon"><svg><use href="#i-language"/></svg></span></button>
+147|          <button class="avatar-btn" onclick="CBH.go('profileView')">MV</button>
+148|        </div>
+149|        <div class="vbody has-nav">
+150|          <div class="hero-card reveal">
+151|            <span class="tierbadge tierbadge--digital"><span class="icon" style="width:13px;height:13px"><svg><use href="#i-target"/></svg></span>Digital Wellness</span>
+152|            <h1 class="t-heading-l" style="margin-top:14px">How are you today?</h1>
+153|            <p class="t-body-m" style="color:var(--text-muted);margin-top:8px">Take your daily 1-minute check-in to get your wellness score and plan.</p>
+154|            <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.go('checkinView')">Start daily check-in</button>
+155|          </div>
+156|
+157|          <div class="card reveal"><div style="display:flex;align-items:center;gap:16px">
+158|            <div class="ring" style="--p:78"><b>78</b></div>
+159|            <div style="flex:1"><div class="t-heading-xs">Wellness score</div><p class="t-body-s" style="color:var(--text-muted);margin-top:3px">Stable — 3 days streak. Check in daily to improve.</p><span class="chip2 chip2--ok" style="margin-top:8px"><span class="dot-pre"></span>Good</span></div>
+160|          </div></div>
+161|
+162|          <div class="sec reveal">Today's plan</div>
+163|          <div class="card card--flush reveal"><div class="rows">
+164|            <div class="row tap" onclick="CBH.go('wellnessPlanView')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">3 tasks pending</div><div class="s">Take medicine, walk 20 min, check BP</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+165|          </div></div>
+166|
+167|          <div class="sec reveal">Quick actions</div>
+168|          <div class="tiles reveal">
+169|            <div class="tile tile--accent tap" onclick="CBH.go('medTrackerView')"><div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="n">2/3</div><div class="l">Medicines taken</div></div>
+170|            <div class="tile tap" onclick="CBH.go('educationView')"><div class="ic"><span class="icon"><svg><use href="#i-education"/></svg></span></div><div class="n">5</div><div class="l">Education tips</div></div>
+171|            <div class="tile tile--warn tap" onclick="CBH.go('warningSignsView')"><div class="ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="n">Learn</div><div class="l">Warning signs</div></div>
+172|            <div class="tile tile--ok tap" onclick="CBH.go('challengesView')"><div class="ic"><span class="icon"><svg><use href="#i-trophy"/></svg></span></div><div class="n">3</div><div class="l">Active challenges</div></div>
+173|          </div>
+174|
+175|          <div class="card reveal tap" onclick="CBH.go('upgradeView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-route"/></svg></span></div><div class="m"><div class="t">Need more support?</div><div class="s">Upgrade to Guided Care or Home Care</div></div><span class="chip2 chip2--accent">Upgrade</span></div></div>
+176|
+177|          <button class="mbtn mbtn--sos mbtn--block reveal" onclick="CBH.go('sosConfirmView')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — get help</button>
+178|        </div>
+179|      </section>
+180|
+181|      <!-- ============ TIER 1 — DAILY CHECK-IN ============ -->
+182|      <section class="view" id="checkinView">
+183|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Daily check-in</h1></div></div>
+184|        <div class="vbody has-cta">
+185|          <p class="t-body-m reveal" style="color:var(--text-muted);padding:4px 2px">Quick questions about how you're feeling today. Takes about 1 minute.</p>
+186|
+187|          <div class="checkin reveal">
+188|            <div class="checkin__q">
+189|              <label>How was your sleep last night?</label>
+190|              <div class="checkin__choices choices" data-single="true">
+191|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('sleep','good')">Good</button>
+192|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('sleep','average')">Average</button>
+193|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('sleep','poor')">Poor</button>
+194|              </div>
+195|            </div>
+196|            <div class="checkin__q">
+197|              <label>How is your mood today?</label>
+198|              <div class="checkin__choices choices" data-single="true">
+199|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('mood','good')">Good</button>
+200|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('mood','ok')">OK</button>
+201|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('mood','low')">Low</button>
+202|              </div>
+203|            </div>
+204|            <div class="checkin__q">
+205|              <label>Any pain, tiredness, or discomfort?</label>
+206|              <div class="checkin__choices choices" data-single="true">
+207|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('pain','none')">None</button>
+208|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('pain','mild')">Mild</button>
+209|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('pain','severe')">Severe</button>
+210|              </div>
+211|            </div>
+212|            <div class="checkin__q">
+213|              <label>Did you take your medicine today?</label>
+214|              <div class="checkin__choices choices" data-single="true">
+215|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('meds','yes')">Yes</button>
+216|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('meds','no')">Not yet</button>
+217|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('meds','missed')">Missed</button>
+218|              </div>
+219|            </div>
+220|            <div class="checkin__q">
+221|              <label>Did you walk or do any activity today?</label>
+222|              <div class="checkin__choices choices" data-single="true">
+223|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('activity','yes')">Yes</button>
+224|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('activity','no')">Not yet</button>
+225|              </div>
+226|            </div>
+227|            <div class="checkin__q">
+228|              <label>Any dizziness, breathlessness, or swelling?</label>
+229|              <div class="checkin__choices choices" data-single="true">
+230|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('symptoms','none')">No</button>
+231|                <button class="choice" onclick="CBH.choice(this);CBH.checkinAnswer('symptoms','some')">Some</button>
+232|                <button class="choice on-alert" onclick="CBH.choice(this);CBH.checkinAnswer('symptoms','yes')">Yes</button>
+233|              </div>
+234|            </div>
+235|          </div>
+236|        </div>
+237|        <div class="cta-bar"><button class="mbtn mbtn--fill mbtn--block" onclick="CBH.checkinComplete()">See my wellness score</button></div>
+238|      </section>
+239|
+240|      <!-- ============ TIER 1 — WELLNESS PLAN ============ -->
+241|      <section class="view" id="wellnessPlanView">
+242|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Today's wellness plan</h1></div></div>
+243|        <div class="vbody">
+244|          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-check"/></svg></span></span><div><div class="bt">Your plan for today</div><div class="bs">Based on your check-in. Complete each task to improve your score.</div></div></div>
+245|          <div class="wplan reveal">
+246|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Take morning medicine</div><div class="s">Metformin 500mg — done at 8:00 AM</div></div></div>
+247|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Take evening medicine</div><div class="s">Amlodipine 5mg — before 8:00 PM</div></div></div>
+248|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Walk for 20 minutes</div><div class="s">Gentle pace, with support if needed</div></div></div>
+249|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Check blood pressure</div><div class="s">Use your home BP monitor</div></div></div>
+250|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Limit sugar and salt today</div><div class="s">Blood sugar is slightly elevated</div></div></div>
+251|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">Sleep before 10:30 PM</div><div class="s">Aim for 6+ hours of rest</div></div></div>
+252|          </div>
+253|          <div class="card reveal"><div class="card__head"><span class="card__title">If symptoms continue</span></div><p class="t-body-m" style="color:var(--text-muted)">Contact Care Bridge support or upgrade to Guided Care for regular check-ins with a care coordinator.</p>
+254|            <button class="mbtn mbtn--soft mbtn--block" style="margin-top:12px" onclick="CBH.go('upgradeView')"><span class="icon"><svg><use href="#i-route"/></svg></span>Explore care options</button>
+255|          </div>
+256|        </div>
+257|      </section>
+258|
+259|      <!-- ============ TIER 1 — MEDICINE TRACKER ============ -->
+260|      <section class="view" id="medTrackerView">
+261|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Medicine tracker</h1></div></div>
+262|        <div class="vbody">
+263|          <div class="card reveal"><div style="display:flex;align-items:center;gap:16px"><div class="ring" style="--p:67"><b>67%</b></div><div style="flex:1"><div class="t-heading-xs">Weekly adherence</div><p class="t-body-s" style="color:var(--text-muted);margin-top:3px">2 of 3 medicines taken today. 1 missed dose this week.</p></div></div></div>
+264|          <div class="sec reveal">Today's medicines</div>
+265|          <div class="card card--flush reveal"><div class="rows">
+266|            <div class="med-item med-item--taken" onclick="CBH.toggleMed(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Metformin 500mg</div><div class="s">Morning · taken at 8:02 AM</div></div><span class="chip2 chip2--ok">Taken</span></div>
+267|            <div class="med-item" onclick="CBH.toggleMed(this)"><div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Amlodipine 5mg</div><div class="s">Evening · due at 8:00 PM</div></div><span class="chip2 chip2--warn">Pending</span></div>
+268|            <div class="med-item med-item--taken" onclick="CBH.toggleMed(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Vitamin D3</div><div class="s">Afternoon · taken at 1:15 PM</div></div><span class="chip2 chip2--ok">Taken</span></div>
+269|          </div></div>
+270|          <div class="sec reveal">This week</div>
+271|          <div class="card card--flush reveal"><div class="rows">
+272|            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Mon — 20 Jun</div><div class="s">3 of 3 taken</div></div><span class="chip2 chip2--ok">100%</span></div>
+273|            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Tue — 21 Jun</div><div class="s">3 of 3 taken</div></div><span class="chip2 chip2--ok">100%</span></div>
+274|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Wed — 22 Jun</div><div class="s">2 of 3 taken (evening missed)</div></div><span class="chip2 chip2--warn">67%</span></div>
+275|            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Thu — 23 Jun</div><div class="s">3 of 3 taken</div></div><span class="chip2 chip2--ok">100%</span></div>
+276|          </div></div>
+277|          <div class="banner banner--warn reveal"><span class="ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span><div><div class="bt">1 missed dose this week</div><div class="bs">Amlodipine was missed on Wednesday evening. Missing BP medication can cause spikes. Set a reminder?</div></div></div>
+278|        </div>
+279|      </section>
+280|
+281|      <!-- ============ TIER 1 — EARLY WARNING SIGNS ============ -->
+282|      <section class="view" id="warningSignsView">
+283|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Warning signs to watch</h1></div></div>
+284|        <div class="vbody">
+285|          <div class="banner banner--alert reveal"><span class="ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span><div><div class="bt">Know when to seek help</div><div class="bs">If you notice any of these signs, contact a doctor or Care Bridge immediately.</div></div></div>
+286|          <div class="sec reveal">Urgent — seek medical attention</div>
+287|          <div class="card card--flush reveal"><div class="rows">
+288|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-heart"/></svg></span></div><div class="m"><div class="t">Chest pain or tightness</div><div class="s">May indicate heart problem</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+289|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Severe breathing difficulty</div><div class="s">Shortness of breath at rest</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+290|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div class="m"><div class="t">Sudden confusion or weakness</div><div class="s">Slurred speech, one-sided weakness</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+291|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Repeated falls</div><div class="s">Balance problems or fainting</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+292|          </div></div>
+293|          <div class="sec reveal">Monitor closely</div>
+294|          <div class="card card--flush reveal"><div class="rows">
+295|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-trending"/></svg></span></div><div class="m"><div class="t">Very high blood sugar</div><div class="s">Above 250 mg/dL — contact care team</div></div><span class="chip2 chip2--warn">Monitor</span></div>
+296|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Very high blood pressure</div><div class="s">Above 180/120 — seek advice</div></div><span class="chip2 chip2--warn">Monitor</span></div>
+297|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Severe dehydration</div><div class="s">Dry mouth, dark urine, dizziness</div></div><span class="chip2 chip2--warn">Monitor</span></div>
+298|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">Sudden swelling</div><div class="s">Legs, ankles, or face</div></div><span class="chip2 chip2--warn">Monitor</span></div>
+299|          </div></div>
+300|          <button class="mbtn mbtn--sos mbtn--block reveal" onclick="CBH.go('sosConfirmView')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — get help now</button>
+301|        </div>
+302|      </section>
+303|
+304|      <!-- ============ TIER 1 — WELLNESS EDUCATION ============ -->
+305|      <section class="view" id="educationView">
+306|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Wellness education</h1></div></div>
+307|        <div class="vbody">
+308|          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-education"/></svg></span></span><div><div class="bt">Personalized for you</div><div class="bs">Based on your conditions: diabetes, blood pressure</div></div></div>
+309|          <div class="sec reveal">For diabetes</div>
+310|          <div class="educard reveal tap" onclick="CBH.toast('Opening article...')">
+311|            <div style="height:80px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px"><span class="icon" style="width:32px;height:32px;color:var(--accent-text)"><svg><use href="#i-food"/></svg></span></div>
+312|            <div style="display:flex;justify-content:space-between;align-items:center"><span class="educard__tag">Diabetes</span><span class="t-body-s" style="color:var(--text-muted)">2 min read</span></div>
+313|            <div class="t-heading-xs" style="margin-top:6px">What to eat when managing blood sugar</div>
+314|            <p class="t-body-s" style="color:var(--text-muted);margin-top:4px">Simple food choices that help keep your sugar stable through the day.</p>
+315|          </div>
+316|          <div class="educard reveal tap" onclick="CBH.toast('Opening article...')">
+317|            <div style="height:80px;border-radius:12px;background:var(--success-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px"><span class="icon" style="width:32px;height:32px;color:var(--success-text)"><svg><use href="#i-walking"/></svg></span></div>
+318|            <div style="display:flex;justify-content:space-between;align-items:center"><span class="educard__tag">Diabetes</span><span class="t-body-s" style="color:var(--text-muted)">1 min video</span></div>
+319|            <div class="t-heading-xs" style="margin-top:6px">Foot care for diabetes — daily checks</div>
+320|            <p class="t-body-s" style="color:var(--text-muted);margin-top:4px">Check your feet every day for cuts, blisters, or swelling.</p>
+321|          </div>
+322|          <div class="sec reveal">For blood pressure</div>
+323|          <div class="educard reveal tap" onclick="CBH.toast('Opening article...')">
+324|            <div style="height:80px;border-radius:12px;background:var(--warning-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px"><span class="icon" style="width:32px;height:32px;color:var(--warning-text)"><svg><use href="#i-pulse"/></svg></span></div>
+325|            <div style="display:flex;justify-content:space-between;align-items:center"><span class="educard__tag">Blood Pressure</span><span class="t-body-s" style="color:var(--text-muted)">3 min read</span></div>
+326|            <div class="t-heading-xs" style="margin-top:6px">How to control blood pressure naturally</div>
+327|            <p class="t-body-s" style="color:var(--text-muted);margin-top:4px">Reduce salt, walk daily, and take medicines on time.</p>
+328|          </div>
+329|          <div class="sec reveal">For seniors</div>
+330|          <div class="educard reveal tap" onclick="CBH.toast('Opening article...')">
+331|            <div style="height:80px;border-radius:12px;background:var(--info-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px"><span class="icon" style="width:32px;height:32px;color:var(--info-text)"><svg><use href="#i-home-safety"/></svg></span></div>
+332|            <div style="display:flex;justify-content:space-between;align-items:center"><span class="educard__tag">Senior Wellness</span><span class="t-body-s" style="color:var(--text-muted)">2 min read</span></div>
+333|            <div class="t-heading-xs" style="margin-top:6px">Home safety tips to prevent falls</div>
+334|            <p class="t-body-s" style="color:var(--text-muted);margin-top:4px">Simple changes that make your home safer.</p>
+335|          </div>
+336|        </div>
+337|      </section>
+338|
+339|      <!-- ============ TIER 1 — CHALLENGES & REWARDS ============ -->
+340|      <section class="view" id="challengesView">
+341|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Challenges &amp; rewards</h1></div></div>
+342|        <div class="vbody">
+343|          <div class="card reveal"><div style="display:flex;align-items:center;gap:14px">
+344|            <div style="width:56px;height:56px;border-radius:18px;background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center"><span class="icon" style="width:28px;height:28px"><svg><use href="#i-award"/></svg></span></div>
+345|            <div style="flex:1"><div class="t-heading-xs">3 badges earned</div><p class="t-body-s" style="color:var(--text-muted);margin-top:3px">Wellness Starter · 7-Day Achiever · Medicine Champion</p></div>
+346|          </div></div>
+347|          <div class="sec reveal">Active challenges</div>
+348|          <div class="challenge reveal">
+349|            <div style="display:flex;justify-content:space-between;align-items:center"><div class="t-heading-xs">7-Day Walking Challenge</div><span class="chip2 chip2--accent">Day 4 of 7</span></div>
+350|            <div class="challenge__prog" style="margin-top:12px"><span style="width:57%"></span></div>
+351|            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="t-body-s" style="color:var(--text-muted)">Walk 20 min daily for 7 days</span><button class="mbtn mbtn--line mbtn--sm" onclick="CBH.toggleChallenge(this)">Joined</button></div>
+352|          </div>
+353|          <div class="challenge reveal">
+354|            <div style="display:flex;justify-content:space-between;align-items:center"><div class="t-heading-xs">Medicine On-Time Challenge</div><span class="chip2 chip2--ok">Day 5 of 14</span></div>
+355|            <div class="challenge__prog" style="margin-top:12px"><span style="width:36%"></span></div>
+356|            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="t-body-s" style="color:var(--text-muted)">Never miss a dose for 14 days</span><button class="mbtn mbtn--line mbtn--sm" onclick="CBH.toggleChallenge(this)">Joined</button></div>
+357|          </div>
+358|          <div class="challenge reveal">
+359|            <div style="display:flex;justify-content:space-between;align-items:center"><div class="t-heading-xs">Sugar Control Challenge</div><span class="chip2 chip2--neutral">Not started</span></div>
+360|            <div class="challenge__prog" style="margin-top:12px"><span style="width:0%"></span></div>
+361|            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="t-body-s" style="color:var(--text-muted)">Keep sugar below 140 for 30 days</span><button class="mbtn mbtn--soft mbtn--sm" onclick="CBH.toggleChallenge(this)">Join</button></div>
+362|          </div>
+363|          <div class="sec reveal">Badges earned</div>
+364|          <div class="tiles reveal">
+365|            <div class="tile tile--ok"><div class="ic"><span class="icon"><svg><use href="#i-star"/></svg></span></div><div class="n" style="font-size:14px">Wellness Starter</div><div class="l">First check-in</div></div>
+366|            <div class="tile tile--accent"><div class="ic"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="n" style="font-size:14px">7-Day Achiever</div><div class="l">7 check-ins streak</div></div>
+367|            <div class="tile"><div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="n" style="font-size:14px">Medicine Champion</div><div class="l">14 days adherence</div></div>
+368|            <div class="tile" style="opacity:.45"><div class="ic"><span class="icon"><svg><use href="#i-trophy"/></svg></span></div><div class="n" style="font-size:14px">Active Walker</div><div class="l">Locked</div></div>
+369|          </div>
+370|        </div>
+371|      </section>
+372|
+373|      <!-- ============ TIER 1 — CONDITION PATHWAYS ============ -->
+374|      <section class="view" id="pathwaysView">
+375|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Self-care pathways</h1></div></div>
+376|        <div class="vbody">
+377|          <p class="t-body-m reveal" style="color:var(--text-muted)">Choose a health area to get personalized self-care guidance.</p>
+378|          <div class="pathway reveal tap" onclick="CBH.go('pathwayDiabetesView')"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--warning-soft);color:var(--warning-text)"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Diabetes Self-Care</div><p class="t-body-s" style="color:var(--text-muted)">Sugar monitoring, food, foot care</p></div><span class="chip2 chip2--accent">In progress</span></div></div>
+379|          <div class="pathway reveal tap" onclick="CBH.go('pathwayBPView')"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--danger-soft);color:var(--danger)"><span class="icon"><svg><use href="#i-heart"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Blood Pressure Self-Care</div><p class="t-body-s" style="color:var(--text-muted)">BP monitoring, salt reduction, exercise</p></div><span class="chip2 chip2--accent">In progress</span></div></div>
+380|          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--info-soft);color:var(--info-text)"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Mental Wellness</div><p class="t-body-s" style="color:var(--text-muted)">Stress, sleep, mood management</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+381|          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Senior Wellness</div><p class="t-body-s" style="color:var(--text-muted)">Fall prevention, hydration, mobility</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+382|          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--model-virtual-care-soft);color:var(--model-virtual-care-ink)"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Sleep Improvement</div><p class="t-body-s" style="color:var(--text-muted)">Better sleep habits and routine</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+383|          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--success-soft);color:var(--success-text)"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Weight Management</div><p class="t-body-s" style="color:var(--text-muted)">Diet tracking, activity goals</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+384|        </div>
+385|      </section>
+386|
+387|      <!-- ============ TIER 1 — DIABETES PATHWAY DETAIL ============ -->
+388|      <section class="view" id="pathwayDiabetesView">
+389|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Diabetes self-care</h1></div></div>
+390|        <div class="vbody">
+391|          <div class="card reveal"><div class="card__head"><span class="card__title">Your progress</span><span class="chip2 chip2--accent">Week 3</span></div>
+392|            <div class="pbar" style="margin-top:4px"><span style="width:60%"></span></div>
+393|            <p class="t-body-s" style="color:var(--text-muted);margin-top:8px">6 of 10 self-care steps completed this month.</p>
+394|          </div>
+395|          <div class="sec reveal">Daily self-care steps</div>
+396|          <div class="wplan reveal">
+397|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Check blood sugar daily</div><div class="s">Fasting and post-meal</div></div></div>
+398|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Take diabetes medicine on time</div><div class="s">Metformin 500mg</div></div></div>
+399|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Check feet for cuts or blisters</div><div class="s">Daily, before bath</div></div></div>
+400|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Limit sugar and refined carbs</div><div class="s">Avoid sweets, white rice, soft drinks</div></div></div>
+401|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Walk for 20+ minutes</div><div class="s">After meals if possible</div></div></div>
+402|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Stay hydrated</div><div class="s">6-8 glasses of water daily</div></div></div>
+403|          </div>
+404|          <div class="sec reveal">Warning signs to watch</div>
+405|          <div class="card card--flush reveal"><div class="rows">
+406|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-trending"/></svg></span></div><div class="m"><div class="t">Blood sugar above 250</div><div class="s">Contact care team immediately</div></div><span class="chip2 chip2--warn">Watch</span></div>
+407|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Excessive thirst or urination</div><div class="s">May indicate uncontrolled sugar</div></div><span class="chip2 chip2--warn">Watch</span></div>
+408|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Foot wound or ulcer</div><div class="s">Seek medical attention</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+409|          </div></div>
+410|          <div class="sec reveal">Learn more</div>
+411|          <div class="card reveal tap" onclick="CBH.go('educationView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-education"/></svg></span></div><div class="m"><div class="t">Diabetes education library</div><div class="s">Food, foot care, sugar monitoring</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+412|        </div>
+413|      </section>
+414|
+415|      <!-- ============ TIER 1 — BP PATHWAY DETAIL ============ -->
+416|      <section class="view" id="pathwayBPView">
+417|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Blood pressure self-care</h1></div></div>
+418|        <div class="vbody">
+419|          <div class="card reveal"><div class="card__head"><span class="card__title">Your progress</span><span class="chip2 chip2--accent">Week 2</span></div>
+420|            <div class="pbar" style="margin-top:4px"><span style="width:40%"></span></div>
+421|            <p class="t-body-s" style="color:var(--text-muted);margin-top:8px">4 of 10 self-care steps completed this month.</p>
+422|          </div>
+423|          <div class="sec reveal">Daily self-care steps</div>
+424|          <div class="wplan reveal">
+425|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Check blood pressure daily</div><div class="s">Same time each day, sitting down</div></div></div>
+426|            <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Take BP medicine on time</div><div class="s">Amlodipine 5mg — evening</div></div></div>
+427|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Reduce salt intake</div><div class="s">Avoid pickles, papad, salty snacks</div></div></div>
+428|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Walk for 20+ minutes</div><div class="s">Gentle pace, morning or evening</div></div></div>
+429|            <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">Manage stress</div><div class="s">Simple breathing exercises</div></div></div>
+430|          </div>
+431|          <div class="sec reveal">Warning signs</div>
+432|          <div class="card card--flush reveal"><div class="rows">
+433|            <div class="row"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">BP above 180/120</div><div class="s">Seek medical help</div></div><span class="chip2 chip2--alert">Urgent</span></div>
+434|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Severe headache with high BP</div><div class="s">Contact care team</div></div><span class="chip2 chip2--warn">Watch</span></div>
+435|            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div class="m"><div class="t">Dizziness or blurred vision</div><div class="s">May indicate BP spike</div></div><span class="chip2 chip2--warn">Watch</span></div>
+436|          </div></div>
+437|        </div>
+438|      </section>
+439|
+440|      <!-- ============ TIER 1 — PREVENTIVE CALENDAR ============ -->
+441|      <section class="view" id="preventiveView">
+442|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Preventive health calendar</h1></div></div>
+443|        <div class="vbody">
+444|          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-calendar"/></svg></span></span><div><div class="bt">Stay ahead of health issues</div><div class="bs">Regular checks help prevent serious problems.</div></div></div>
+445|          <div class="sec reveal">Due this month</div>
+446|          <div class="card card--flush reveal"><div class="rows">
+447|            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Blood pressure check</div><div class="s">Daily — home monitor</div></div><span class="chip2 chip2--ok">On track</span></div>
+448|            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="m"><div class="t">Blood sugar test (HbA1c)</div><div class="s">Due in 2 weeks</div></div><span class="chip2 chip2--warn">Due soon</span></div>
+449|          </div></div>
+450|          <div class="sec reveal">Upcoming</div>
+451|          <div class="card card--flush reveal"><div class="rows">
+452|            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-eye"/></svg></span></div><div class="m"><div class="t">Eye check-up</div><div class="s">Annual — due in August</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+453|            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div class="m"><div class="t">Annual health check-up</div><div class="s">Due in September</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+454|            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-user"/></svg></span></div><div class="m"><div class="t">Dental check-up</div><div class="s">Due in October</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+455|            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-shield"/></svg></span></div><div class="m"><div class="t">Flu vaccination</div><div class="s">Before winter — November</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+456|          </div></div>
+457|          <div class="card reveal tap" onclick="CBH.go('upgradeView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-phone"/></svg></span></div><div class="m"><div class="t">Need help scheduling?</div><div class="s">Upgrade to Guided Care for care coordinator support</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+458|        </div>
+459|      </section>
+460|
+461|      <!-- ============ TIER 1 — UPGRADE / TIER TRANSITION ============ -->
+462|      <section class="view" id="upgradeView">
+463|        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Care options</h1></div></div>
+464|        <div class="vbody">
+465|          <div class="card reveal" style="text-align:center;padding:20px">
+466|            <span class="tierbadge tierbadge--digital" style="margin-bottom:12px">Current: Digital Wellness</span>
+467|            <p class="t-body-m" style="color:var(--text-muted);margin-top:8px">You're managing your wellness independently. If you need more support, you can upgrade at any time.</p>
+468|          </div>
+469|
+470|          <div class="upgrade upgrade--virtual reveal">
+471|            <div style="display:flex;align-items:center;gap:12px"><div class="ic" style="background:var(--model-virtual-care-soft);color:var(--model-virtual-care-ink)"><span class="icon"><svg><use href="#i-video"/></svg></span></div><div style="flex:1"><div style="font-weight:700;font-size:15px;color:var(--text-heading)">Guided Care (Virtual Care)</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Care coordinator + virtual reviews + family updates + local service connection</div></div></div>
+472|            <div class="rows" style="margin:14px -16px -8px"><div class="row"><div class="m"><div class="t">Personal care coordinator</div></div><span class="chip2 chip2--ok">Included</span></div><div class="row"><div class="m"><div class="t">Virtual health reviews</div></div><span class="chip2 chip2--ok">Included</span></div><div class="row"><div class="m"><div class="t">Family Care Circle</div></div><span class="chip2 chip2--ok">Included</span></div><div class="row"><div class="m"><div class="t">NRI Parent Watch</div></div><span class="chip2 chip2--ok">Included</span></div></div>
+473|            <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.upgradeTier('tier2')">Upgrade to Guided Care</button>
+474|          </div>
+475|
+476|          <div class="upgrade upgrade--direct reveal">
+477|            <div style="display:flex;align-items:center;gap:12px"><div class="ic" style="background:var(--model-direct-care-soft);color:var(--model-direct-care-ink)"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div style="flex:1"><div style="font-weight:700;font-size:15px;color:var(--text-heading)">Home Care (Direct Care)</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Scheduled nurse visits + caregiver support + home care requests</div></div></div>
+478|            <div class="rows" style="margin:14px -16px -8px"><div class="row"><div class="m"><div class="t">Regular nurse home visits</div></div><span class="chip2 chip2--ok">Included</span></div><div class="row"><div class="m"><div class="t">Caregiver support</div></div><span class="chip2 chip2--ok">Included</span></div><div class="row"><div class="m"><div class="t">Visit tracking &amp; updates</div></div><span class="chip2 chip2--ok">Included</span></div></div>
+479|            <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.upgradeTier('tier3')">Upgrade to Home Care</button>
+480|          </div>
+481|
+482|          <div class="card reveal"><div class="card__head"><span class="card__title">When to upgrade?</span></div>
+483|            <p class="t-body-m" style="color:var(--text-muted)">Consider upgrading if you have:<br>- Repeated yellow or red wellness scores<br>- Frequent missed medicines<br>- Symptoms that need professional monitoring<br>- Family wants regular updates</p>
+484|          </div>
+485|        </div>
+486|      </section>
+487|
+488|      <!-- ============ TIER 2 — GUIDED CARE HOME ============ -->
+489|      <section class="view" id="tier2Home" data-nav="tabs" data-tab="home">
+490|        <div class="tbar">
+491|          <div class="tbar__title"><div class="eyebrow">Sunday, 21 June</div><h1>Hello, Mary</h1></div>
+492|          <button class="iconbtn" onclick="CBH.toggleLang()"><span class="icon"><svg><use href="#i-language"/></svg></span></button>
+493|          <button class="iconbtn" onclick="CBH.go('notificationsView')"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="dot"></span></button>
+494|          <button class="avatar-btn" onclick="CBH.go('profileView')">MV</button>
+495|        </div>
+496|        <div class="vbody has-nav">
+497|          <div class="hero-card reveal">
+498|            <span class="tierbadge tierbadge--virtual"><span class="icon" style="width:13px;height:13px"><svg><use href="#i-video"/></svg></span>Virtual Care</span>
+499|            <div class="idblock" style="margin-top:14px"><span class="av">MV</span><div><div class="nm" style="font-size:16px">Mary Varghese</div><div class="sub">76 · Ernakulam · Standard plan</div></div></div>
+500|            <div class="wtscore wtscore--warn" style="margin-top:14px"><span class="icon" style="width:28px;height:28px"><svg><use href="#i-alert"/></svg></span></div>
+            <p class="t-body-m" style="color:var(--text-muted);margin-top:10px"><b style="color:var(--warning-text)">Needs Attention</b> — Your blood sugar has been slightly high. Your care coordinator has been notified.</p>
+          </div>
+
+          <div class="sec reveal">My care team</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row tap" onclick="CBH.go('chatView')"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-user"/></svg></span></div><div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator · next follow-up Wed</div></div><button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button></div>
+            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-phone"/></svg></span></div><div class="m"><div class="t">Call coordinator</div><div class="s">Mon–Sat, 8 AM – 8 PM</div></div><button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button></div>
+          </div></div>
+
+          <div class="sec reveal">Today's guided plan</div>
+          <div class="card reveal"><div class="card__head"><span class="card__title">From your care team</span><span class="chip2 chip2--accent">3 tasks</span></div>
+            <div class="wplan" style="margin:-6px -16px -8px">
+              <div class="wplan__item done" onclick="CBH.togglePlanItem(this)"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Take morning medicine</div><div class="s">Metformin — done at 8:02 AM</div></div></div>
+              <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Check and log blood pressure</div><div class="s">Care team will review</div></div></div>
+              <div class="wplan__item" onclick="CBH.togglePlanItem(this)"><div class="ic"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Follow low-sugar diet today</div><div class="s">Sugar is slightly elevated</div></div></div>
+            </div>
+          </div>
+
+          <div class="sec reveal">Next virtual review</div>
+          <div class="visit reveal tap" onclick="CBH.go('virtualReviewView')">
+            <div class="visit__top"><div class="visit__when"><div class="h">Wed</div><div class="d">24 Jun</div></div><div class="visit__sep"></div><div class="visit__body"><div class="nm">Virtual health review</div><div class="mt">11:00 AM · With Joel Abraham</div></div></div>
+            <div class="visit__foot"><span class="who"><span class="icon"><svg><use href="#i-video"/></svg></span>Phone or video call</span><span class="chip2 chip2--accent">Scheduled</span></div>
+          </div>
+
+          <div class="tiles reveal">
+            <div class="tile tile--accent tap" onclick="CBH.go('careRequestView')"><div class="ic"><span class="icon"><svg><use href="#i-hands"/></svg></span></div><div class="n" style="font-size:13px">Request care</div><div class="l">Get support</div></div>
+            <div class="tile tap" onclick="CBH.go('servicesView')"><div class="ic"><span class="icon"><svg><use href="#i-route"/></svg></span></div><div class="n" style="font-size:13px">Services</div><div class="l">Near me</div></div>
+            <div class="tile tap" onclick="CBH.go('careCircleView')"><div class="ic"><span class="icon"><svg><use href="#i-family"/></svg></span></div><div class="n" style="font-size:13px">Family</div><div class="l">Care circle</div></div>
+            <div class="tile tap" onclick="CBH.go('nriWatchView')"><div class="ic"><span class="icon"><svg><use href="#i-globe"/></svg></span></div><div class="n" style="font-size:13px">NRI watch</div><div class="l">Parent care</div></div>
+          </div>
+
+          <button class="mbtn mbtn--sos mbtn--block reveal" onclick="CBH.go('sosConfirmView')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — get help</button>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — VIRTUAL REVIEW ============ -->
+      <section class="view" id="virtualReviewView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Virtual health review</h1></div></div>
+        <div class="vbody">
+          <div class="card reveal"><div class="card__head"><span class="card__title">Next review</span><span class="chip2 chip2--accent">Wednesday</span></div>
+            <div class="idblock"><span class="av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span><div><div class="nm">Joel Abraham</div><div class="sub">Care coordinator · 24 Jun at 11:00 AM</div></div></div>
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <button class="mbtn mbtn--fill" style="flex:1" onclick="CBH.toast('Starting video call...')"><span class="icon"><svg><use href="#i-video"/></svg></span>Video</button>
+              <button class="mbtn mbtn--line" style="flex:1" onclick="CBH.toast('Initiating call...')"><span class="icon"><svg><use href="#i-phone"/></svg></span>Phone</button>
+              <button class="mbtn mbtn--line" style="flex:1" onclick="CBH.go('chatView')"><span class="icon"><svg><use href="#i-chat"/></svg></span>Chat</button>
+            </div>
+          </div>
+          <div class="sec reveal">What will be reviewed</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Vitals review</div><div class="s">BP, sugar, pulse trends</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Medication follow-up</div><div class="s">Adherence and any side effects</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Diet &amp; lifestyle</div><div class="s">Food habits and activity</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">Sleep &amp; mood</div><div class="s">Wellbeing check</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Care plan update</div><div class="s">Adjust if needed</div></div></div>
+          </div></div>
+          <div class="sec reveal">Recent reviews</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">17 Jun · Phone call</div><div class="s">Joel · 15 min · stable</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">10 Jun · Video call</div><div class="s">Joel · 22 min · plan updated</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — CARE COORDINATOR CHAT ============ -->
+      <section class="view" id="chatView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><div class="eyebrow">Care coordinator</div><h1 class="sm">Joel Abraham</h1></div><button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button></div>
+        <div class="vbody" style="padding-bottom:80px">
+          <div class="chat reveal" id="chatList">
+            <div class="chat__msg chat__msg--in"><div>I've reviewed your blood sugar readings. They've been slightly high for the past 3 days.</div><span class="chat__time">10:30 AM</span></div>
+            <div class="chat__msg chat__msg--out"><div>Yes, I had a sweet last week. I'll be more careful.</div><span class="chat__time">10:32 AM</span></div>
+            <div class="chat__msg chat__msg--in"><div>That's okay. Please continue your daily walks and limit sugar. I'll recheck your readings at our Wednesday review.</div><span class="chat__time">10:33 AM</span></div>
+            <div class="chat__msg chat__msg--in"><div>For urgent symptoms, please use the emergency button or contact your doctor immediately.</div><span class="chat__time">10:33 AM</span></div>
+          </div>
+        </div>
+        <div class="chat__bar">
+          <button class="voicebtn" onclick="CBH.startVoice()"><span class="icon"><svg><use href="#i-mic"/></svg></span></button>
+          <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')CBH.sendChat('chatInput','chatList')">
+          <button class="mbtn mbtn--fill mbtn--sm" onclick="CBH.sendChat('chatInput','chatList')"><span class="icon"><svg><use href="#i-arrow-up"/></svg></span></button>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — CARE REQUEST ============ -->
+      <section class="view" id="careRequestView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Request care support</h1></div></div>
+        <div class="vbody">
+          <p class="t-body-m reveal" style="color:var(--text-muted)">Not sure what you need? Tell us how you're feeling and we'll guide you to the right service.</p>
+          <div class="card reveal tap" onclick="CBH.go('careRequestFormView')"><div class="row" style="padding:0"><div class="ic ic--accent" style="width:48px;height:48px"><span class="icon" style="width:24px;height:24px"><svg><use href="#i-target"/></svg></span></div><div class="m"><div class="t">Find the right care</div><div class="s">Answer a few questions — we'll suggest the right service</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+          <div class="sec reveal">Or choose directly</div>
+          <div class="tiles reveal">
+            <div class="tile tap" onclick="CBH.requestService('Doctor consultation')"><div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div class="n" style="font-size:13px">Doctor</div><div class="l">Consultation</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Nurse visit')"><div class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="n" style="font-size:13px">Nurse</div><div class="l">Home visit</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Lab sample collection')"><div class="ic"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="n" style="font-size:13px">Lab</div><div class="l">Collection</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Physiotherapy')"><div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="n" style="font-size:13px">Physio</div><div class="l">Therapy</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Caregiver support')"><div class="ic"><span class="icon"><svg><use href="#i-caregiver"/></svg></span></div><div class="n" style="font-size:13px">Caregiver</div><div class="l">Support</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Mental health counselling')"><div class="ic"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div class="n" style="font-size:13px">Counsel</div><div class="l">Mental health</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Pharmacy delivery')"><div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="n" style="font-size:13px">Pharmacy</div><div class="l">Delivery</div></div>
+            <div class="tile tap" onclick="CBH.toast('Call request sent to care team')"><div class="ic"><span class="icon"><svg><use href="#i-phone"/></svg></span></div><div class="n" style="font-size:13px">Not sure?</div><div class="l">Call me</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — SMART CARE REQUEST FORM ============ -->
+      <section class="view" id="careRequestFormView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Find the right care</h1></div></div>
+        <div class="vbody has-cta">
+          <div class="crform reveal">
+            <div class="crform__progress"><span class="is-active"></span><span></span><span></span></div>
+            <div class="crform__step" id="crformStep1">
+              <div class="card"><div style="display:flex;flex-direction:column;gap:14px">
+                <div class="field"><label>Who needs care?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Myself</button><button class="choice" onclick="CBH.choice(this)">Family member</button></div>
+                </div>
+                <div class="field"><label>What is the age?</label><input type="number" value="76"></div>
+                <div class="field"><label>Is this urgent or planned?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Planned</button><button class="choice on-alert" onclick="CBH.choice(this)">Urgent</button></div>
+                </div>
+              </div></div>
+              <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.crformNext('crformStep1','crformStep2')">Continue</button>
+            </div>
+            <div class="crform__step" id="crformStep2" style="display:none">
+              <div class="card"><div style="display:flex;flex-direction:column;gap:14px">
+                <div class="field"><label>Is the person walking?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">Yes, independently</button><button class="choice" onclick="CBH.choice(this)">With support</button><button class="choice" onclick="CBH.choice(this)">No, bedridden</button></div>
+                </div>
+                <div class="field"><label>Any memory loss or confusion?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">No</button><button class="choice" onclick="CBH.choice(this)">Sometimes</button><button class="choice" onclick="CBH.choice(this)">Yes, frequently</button></div>
+                </div>
+                <div class="field"><label>Any wound, surgery, catheter, or tube?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">No</button><button class="choice" onclick="CBH.choice(this)">Yes</button></div>
+                </div>
+              </div></div>
+              <div style="display:flex;gap:10px;margin-top:14px"><button class="mbtn mbtn--line mbtn--block" onclick="CBH.crformBack('crformStep2','crformStep1')">Back</button><button class="mbtn mbtn--fill mbtn--block" onclick="CBH.crformNext('crformStep2','crformStep3')">Continue</button></div>
+            </div>
+            <div class="crform__step" id="crformStep3" style="display:none">
+              <div class="card"><div style="display:flex;flex-direction:column;gap:14px">
+                <div class="field"><label>How often is care needed?</label>
+                  <div class="choices" data-single="true"><button class="choice on" onclick="CBH.choice(this)">One-time visit</button><button class="choice" onclick="CBH.choice(this)">Daily</button><button class="choice" onclick="CBH.choice(this)">Weekly</button><button class="choice" onclick="CBH.choice(this)">24/7</button></div>
+                </div>
+                <div class="field"><label>Location</label><input type="text" value="Ernakulam, Kerala"></div>
+              </div></div>
+              <div class="banner banner--info" style="margin-top:14px"><span class="ic"><span class="icon"><svg><use href="#i-target"/></svg></span></span><div><div class="bt">Recommended: Nursing Visit</div><div class="bs">Based on your answers, we suggest a home nursing visit for assessment and monitoring.</div></div></div>
+              <div style="display:flex;gap:10px;margin-top:14px"><button class="mbtn mbtn--line mbtn--block" onclick="CBH.crformBack('crformStep3','crformStep2')">Back</button><button class="mbtn mbtn--fill mbtn--block" onclick="CBH.crformSubmit()">Submit request</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — LOCAL SERVICE CONNECTOR ============ -->
+      <section class="view" id="servicesView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Services near me</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-pin"/></svg></span></span><div><div class="bt">Ernakulam area</div><div class="bs">Services available in your location. Care team will coordinate.</div></div></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Doctor home visit</div><p class="t-body-s" style="color:var(--text-muted)">GP visit at home · ETA 2-4 hrs</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Doctor home visit')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Nurse visit</div><p class="t-body-s" style="color:var(--text-muted)">Vitals, wound care, injection · ETA same day</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Nurse visit')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Lab sample collection</div><p class="t-body-s" style="color:var(--text-muted)">Home collection · ETA next day</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Lab collection')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Physiotherapy</div><p class="t-body-s" style="color:var(--text-muted)">Home session · ETA 1-2 days</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Physiotherapy')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-caregiver"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Caregiver support</div><p class="t-body-s" style="color:var(--text-muted)">Personal care, companionship · ETA 1-2 days</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Caregiver')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Pharmacy delivery</div><p class="t-body-s" style="color:var(--text-muted)">Medicine home delivery · ETA same day</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Pharmacy delivery')">Request</button></div>
+          <div class="svc reveal"><div style="display:flex;align-items:center;gap:12px"><div class="svc__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Mental health counselling</div><p class="t-body-s" style="color:var(--text-muted)">Virtual or home · ETA 2-3 days</p></div></div><button class="mbtn mbtn--soft mbtn--sm mbtn--block" style="margin-top:12px" onclick="CBH.requestService('Counselling')">Request</button></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — NRI PARENT WATCH ============ -->
+      <section class="view" id="nriWatchView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">NRI Parent Watch</h1></div></div>
+        <div class="vbody">
+          <div class="nri-card reveal">
+            <div style="display:flex;align-items:center;gap:14px"><div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center"><span class="icon" style="width:24px;height:24px;color:#fff"><svg><use href="#i-globe"/></svg></span></div><div style="flex:1"><div style="font-weight:700;font-size:15px;color:#fff">Parent status: Stable</div><div style="font-size:12.5px;color:rgba(255,255,255,.85);margin-top:2px">Last updated: today, 9:02 AM</div></div></div>
+            <div style="display:flex;gap:10px;margin-top:16px">
+              <button class="mbtn mbtn--block" style="background:#fff;color:var(--accent-emphasis)" onclick="CBH.go('monthlyReportView')"><span class="icon"><svg><use href="#i-document"/></svg></span>Monthly report</button>
+              <button class="mbtn mbtn--block" style="background:var(--danger);color:#fff" onclick="CBH.toast('Family alert sent to Susan')"><span class="icon"><svg><use href="#i-bell"/></svg></span>Alert family</button>
+            </div>
+          </div>
+          <div class="sec reveal">Parent wellness summary</div>
+          <div class="card reveal"><div style="display:flex;align-items:center;gap:16px"><div class="ring" style="--p:78"><b>78</b></div><div style="flex:1"><div class="t-heading-xs">Wellness score</div><p class="t-body-s" style="color:var(--text-muted);margin-top:3px">Stable. Blood sugar slightly high — care team monitoring.</p><span class="chip2 chip2--ok" style="margin-top:8px"><span class="dot-pre"></span>Stable</span></div></div></div>
+          <div class="sec reveal">Care activity this month</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">4 virtual reviews completed</div><div class="s">Weekly check-ins with coordinator</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Medication adherence: 92%</div><div class="s">2 missed doses this month</div></div></div>
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-trending"/></svg></span></div><div class="m"><div class="t">Blood sugar trend: slightly high</div><div class="s">Care team advised diet changes</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-calendar"/></svg></span></div><div class="m"><div class="t">Next doctor appointment: 15 Jul</div><div class="s">Dr. Mathew George · Lisie Hospital</div></div></div>
+          </div></div>
+          <div class="sec reveal">Family updates</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Monthly report sent to Susan</div><div class="s">28 May · email + app notification</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Medication update shared</div><div class="s">22 May · all family members</div></div></div>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — ESCALATION TO HOME CARE ============ -->
+      <section class="view" id="escalationView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Home care recommendation</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--warn reveal"><span class="ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span><div><div class="bt">Your care team recommends a home visit</div><div class="bs">Based on recent health updates, a nurse home visit would help assess your needs better.</div></div></div>
+          <div class="sec reveal">Why this is recommended</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-trending"/></svg></span></div><div class="m"><div class="t">Blood sugar consistently high</div><div class="s">3 weeks of elevated readings</div></div></div>
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">2 missed medication doses</div><div class="s">This week alone</div></div></div>
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Reduced activity reported</div><div class="s">Walking less than usual</div></div></div>
+          </div></div>
+          <div class="sec reveal">What a home visit includes</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Full vitals assessment</div><div class="s">BP, sugar, pulse, oxygen, weight</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Medication review</div><div class="s">All medicines checked</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-home-safety"/></svg></span></div><div class="m"><div class="t">Home safety check</div><div class="s">Fall risk assessment</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-clipboard"/></svg></span></div><div class="m"><div class="t">Care plan update</div><div class="s">Personalized to your needs</div></div></div>
+          </div></div>
+          <div class="upgrade upgrade--direct reveal">
+            <div style="display:flex;align-items:center;gap:12px"><div class="ic" style="background:var(--model-direct-care-soft);color:var(--model-direct-care-ink)"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div style="flex:1"><div style="font-weight:700;font-size:15px;color:var(--text-heading)">Upgrade to Home Care</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Scheduled nurse visits + caregiver support + visit tracking</div></div></div>
+            <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.upgradeTier('tier3')">Arrange a home visit</button>
+            <button class="mbtn mbtn--line mbtn--block" style="margin-top:10px" onclick="CBH.back()">Continue with Guided Care</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 2 — GUIDED PROGRAMS ============ -->
+      <section class="view" id="guidedProgramsView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Guided care programs</h1></div></div>
+        <div class="vbody">
+          <p class="t-body-m reveal" style="color:var(--text-muted)">Structured virtual care programs with regular check-ins, education, and monitoring.</p>
+          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--warning-soft);color:var(--warning-text)"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Diabetes Guided Care</div><p class="t-body-s" style="color:var(--text-muted)">Weekly check-ins · sugar monitoring · diet plan</p></div><span class="chip2 chip2--accent">Active</span></div></div>
+          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--danger-soft);color:var(--danger)"><span class="icon"><svg><use href="#i-heart"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Blood Pressure Care</div><p class="t-body-s" style="color:var(--text-muted)">Bi-weekly reviews · BP tracking · salt reduction</p></div><span class="chip2 chip2--accent">Active</span></div></div>
+          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Senior Wellness</div><p class="t-body-s" style="color:var(--text-muted)">Fall prevention · hydration · mobility support</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--info-soft);color:var(--info-text)"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Mental Wellness</div><p class="t-body-s" style="color:var(--text-muted)">Stress management · sleep · counselling access</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+          <div class="pathway reveal tap"><div style="display:flex;align-items:center;gap:14px"><div class="pathway__icon" style="background:var(--success-soft);color:var(--success-text)"><span class="icon"><svg><use href="#i-shield"/></svg></span></div><div style="flex:1"><div class="t-heading-xs">Post-Hospital Recovery</div><p class="t-body-s" style="color:var(--text-muted)">Recovery monitoring · wound care · medication</p></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+        </div>
+      </section>
+
+      <!-- ============ CROSS-TIER — FAMILY CARE CIRCLE ============ -->
+      <section class="view" id="careCircleView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Family Care Circle</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-family"/></svg></span></span><div><div class="bt">Stay connected</div><div class="bs">Family members can view wellness status, medication updates, and care notes with consent.</div></div></div>
+          <div class="sec reveal">Members</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="circle-member"><span class="av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-weight:700">SV</span><div class="m"><div class="t">Susan Varghese</div><div class="s">Daughter · Dubai, UAE · full access</div></div><span class="sw on" onclick="CBH.toggleConsent(this)"></span></div>
+            <div class="circle-member"><span class="av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--purple-100);color:var(--purple-700);display:flex;align-items:center;justify-content:center;font-weight:700">AV</span><div class="m"><div class="t">Anil Varghese</div><div class="s">Son · Bangalore · health updates only</div></div><span class="sw on" onclick="CBH.toggleConsent(this)"></span></div>
+          </div></div>
+          <button class="mbtn mbtn--line mbtn--block reveal" onclick="CBH.addFamilyMember()"><span class="icon"><svg><use href="#i-plus"/></svg></span>Invite family member</button>
+          <div class="sec reveal">What family can see</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Daily wellness status</div><div class="s">Wellness score and trends</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Medication adherence</div><div class="s">Taken or missed doses</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Care team notes</div><div class="s">Visit summaries and recommendations</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Monthly report</div><div class="s">Auto-shared with all members</div></div></div>
+            <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Emergency alerts</div><div class="s">SOS notifications</div></div></div>
+          </div></div>
+          <div class="card reveal"><div class="card__head"><span class="card__title">Consent &amp; privacy</span></div><p class="t-body-m" style="color:var(--text-muted)">You control who sees what. Toggle access for each member. Consent can be withdrawn at any time.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ CROSS-TIER — HEALTH DOCUMENT WALLET ============ -->
+      <section class="view" id="walletView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">My Health Wallet</h1></div></div>
+        <div class="vbody">
+          <button class="mbtn mbtn--fill mbtn--block reveal" onclick="CBH.uploadDoc()"><span class="icon"><svg><use href="#i-upload"/></svg></span>Upload document</button>
+          <div class="sec reveal">Filter by type</div>
+          <div class="doccat reveal" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="choice on" onclick="CBH.choice(this)">All</button>
+            <button class="choice" onclick="CBH.choice(this)">Prescriptions</button>
+            <button class="choice" onclick="CBH.choice(this)">Lab reports</button>
+            <button class="choice" onclick="CBH.choice(this)">Discharge</button>
+            <button class="choice" onclick="CBH.choice(this)">Insurance</button>
+          </div>
+          <div class="sec reveal">Documents</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="doccard"><div class="ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Prescription — Dr. Mathew George</div><div class="s">15 Jun 2026 · 1.2 MB</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+            <div class="doccard"><div class="ic" style="background:var(--warning-soft);color:var(--warning-text)"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="m"><div class="t">Blood sugar — HbA1c report</div><div class="s">8 Jun 2026 · 680 KB</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+            <div class="doccard"><div class="ic" style="background:var(--warning-soft);color:var(--warning-text)"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="m"><div class="t">Lipid profile</div><div class="s">8 Jun 2026 · 720 KB</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+            <div class="doccard"><div class="ic" style="background:var(--danger-soft);color:var(--danger)"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Discharge summary — Lisie Hospital</div><div class="s">2 Mar 2026 · 2.1 MB</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+            <div class="doccard"><div class="ic"><span class="icon"><svg><use href="#i-shield"/></svg></span></div><div class="m"><div class="t">Insurance card — Star Health</div><div class="s">Valid till Dec 2026 · 340 KB</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div>
+          </div></div>
+          <div class="card reveal tap" onclick="CBH.toast('Sharing document...')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-family"/></svg></span></div><div class="m"><div class="t">Share with family</div><div class="s">Send documents to Care Circle members</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+        </div>
+      </section>
+
+      <!-- ============ CROSS-TIER — MONTHLY REPORT ============ -->
+      <section class="view" id="monthlyReportView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Monthly report</h1></div></div>
+        <div class="vbody">
+          <div class="mreport reveal">
+            <div class="card__head" style="margin-bottom:14px"><span class="card__title">May 2026</span><span class="chip2 chip2--ok">Stable</span></div>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px"><div class="ring" style="--p:80"><b>80</b></div><div style="flex:1"><div class="t-heading-xs">Overall wellness score</div><p class="t-body-s" style="color:var(--text-muted);margin-top:3px">Stable month. Blood sugar is the area to watch.</p></div></div>
+            <div class="mreport__stats">
+              <div class="vin"><label>Check-ins completed</label><div class="r" style="margin-top:3px"><span style="font-family:var(--font-heading);font-weight:700;font-size:19px;color:var(--text-heading)">28/30</span></div></div>
+              <div class="vin"><label>Medication adherence</label><div class="r" style="margin-top:3px"><span style="font-family:var(--font-heading);font-weight:700;font-size:19px;color:var(--success-text)">94%</span></div></div>
+              <div class="vin"><label>Virtual reviews</label><div class="r" style="margin-top:3px"><span style="font-family:var(--font-heading);font-weight:700;font-size:19px;color:var(--text-heading)">4</span></div></div>
+              <div class="vin"><label>Risk alerts</label><div class="r" style="margin-top:3px"><span style="font-family:var(--font-heading);font-weight:700;font-size:19px;color:var(--warning-text)">2</span></div></div>
+            </div>
+          </div>
+          <div class="sec reveal">Health trends</div>
+          <div class="card reveal"><div class="card__head"><span class="card__title">Blood pressure</span><span class="chip2 chip2--ok">Normal</span></div><p class="t-body-s" style="color:var(--text-muted)">Average 136/84 — stable throughout the month.</p></div>
+          <div class="card reveal"><div class="card__head"><span class="card__title">Blood sugar</span><span class="chip2 chip2--warn">Slightly high</span></div><p class="t-body-s" style="color:var(--text-muted)">Average 148 mg/dL — trended upward in the last week. Diet changes recommended.</p></div>
+          <div class="sec reveal">Care team notes</div>
+          <div class="card reveal" style="background:var(--accent-soft);border-color:var(--accent-soft-strong)">
+            <p class="t-body-m" style="color:var(--text-body)">"Mary had a stable month. Medication adherence improved. Blood sugar needs attention — advised on diet and portion control. Will monitor closely next month. Overall, Mary is doing well with the Guided Care plan."</p>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:12px"><span class="av" style="width:32px;height:32px;font-size:12px;background:var(--accent);color:var(--accent-on)">JA</span><div><div style="font-weight:600;font-size:13px;color:var(--text-heading)">Joel Abraham</div><div style="font-size:11px;color:var(--text-muted)">Care coordinator</div></div></div>
+          </div>
+          <div class="sec reveal">Recommendations for next month</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Continue low-sugar diet</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Maintain daily walks</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Set medicine reminders</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="m"><div class="t">Repeat HbA1c in 3 months</div></div></div>
+          </div></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.toast('Downloading report...')"><span class="icon"><svg><use href="#i-document"/></svg></span>Download</button>
+            <button class="mbtn mbtn--line mbtn--block" onclick="CBH.toast('Shared with family')"><span class="icon"><svg><use href="#i-family"/></svg></span>Share with family</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — REQUEST HOME VISIT ============ -->
+      <section class="view" id="requestVisitView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Request home visit</h1></div></div>
+        <div class="vbody">
+          <p class="t-body-m reveal" style="color:var(--text-muted)">What kind of home support do you need?</p>
+          <div class="tiles reveal">
+            <div class="tile tap" onclick="CBH.requestService('Nurse visit')"><div class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="n" style="font-size:13px">Nurse</div><div class="l">Home visit</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Caregiver support')"><div class="ic"><span class="icon"><svg><use href="#i-caregiver"/></svg></span></div><div class="n" style="font-size:13px">Caregiver</div><div class="l">Support</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Doctor visit')"><div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div><div class="n" style="font-size:13px">Doctor</div><div class="l">Home visit</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Physiotherapy')"><div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="n" style="font-size:13px">Physio</div><div class="l">Therapy</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Lab collection')"><div class="ic"><span class="icon"><svg><use href="#i-lab"/></svg></span></div><div class="n" style="font-size:13px">Lab</div><div class="l">Collection</div></div>
+            <div class="tile tap" onclick="CBH.requestService('Palliative care')"><div class="ic"><span class="icon"><svg><use href="#i-hands"/></svg></span></div><div class="n" style="font-size:13px">Palliative</div><div class="l">Care</div></div>
+          </div>
+          <div class="card reveal tap" onclick="CBH.go('careRequestFormView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-target"/></svg></span></div><div class="m"><div class="t">Not sure what you need?</div><div class="s">Answer a few questions — we'll guide you</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+          <div class="card reveal tap" onclick="CBH.go('assessmentBookingView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-clipboard"/></svg></span></div><div class="m"><div class="t">Book a care assessment</div><div class="s">First-time home care? Start here</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — ASSESSMENT BOOKING ============ -->
+      <section class="view" id="assessmentBookingView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Care assessment booking</h1></div></div>
+        <div class="vbody">
+          <div class="card reveal"><div style="display:flex;flex-direction:column;gap:14px">
+            <div class="field"><label>Preferred date</label><input type="text" value="Wednesday, 24 June 2026"></div>
+            <div class="field"><label>Preferred time</label><input type="text" value="11:00 AM"></div>
+            <div class="field"><label>Assigned care coordinator</label><input type="text" value="Joel Abraham" readonly></div>
+            <div class="field"><label>Location</label><input type="text" value="Home — Ernakulam, Kerala"></div>
+            <div class="field"><label>Assessment fee</label><input type="text" value="₹500 (adjustable against plan)" readonly></div>
+            <div class="field"><label>Documents to keep ready</label>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+                <span class="t-body-s" style="color:var(--text-muted)">· Previous prescriptions</span>
+                <span class="t-body-s" style="color:var(--text-muted)">· Recent lab reports</span>
+                <span class="t-body-s" style="color:var(--text-muted)">· Discharge summary (if any)</span>
+                <span class="t-body-s" style="color:var(--text-muted)">· Medicine list</span>
+              </div>
+            </div>
+          </div></div>
+          <button class="mbtn mbtn--fill mbtn--block reveal" onclick="CBH.toast('Assessment booked for 24 Jun')"><span class="icon"><svg><use href="#i-check"/></svg></span>Confirm booking</button>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — TODAY'S CARE UPDATE ============ -->
+      <section class="view" id="careUpdateView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Today's care update</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--ok reveal"><span class="ic"><span class="icon"><svg><use href="#i-check"/></svg></span></span><div><div class="bt">Visit completed at 9:02 AM</div><div class="bs">Anjali Thomas · 52 minutes</div></div></div>
+          <div class="sec reveal">Daily care log</div>
+          <div class="carelog reveal">
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-food"/></svg></span></div><div class="m"><div class="t">Food taken</div><div class="s">Breakfast: idli + chai. Lunch pending.</div></div><span class="carelog__time">9:00 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-pill"/></svg></span></div><div class="m"><div class="t">Medication given</div><div class="s">Metformin 500mg — morning dose</div></div><span class="carelog__time">8:05 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-pulse"/></svg></span></div><div class="m"><div class="t">Vitals checked</div><div class="s">BP 138/86, Sugar 146, Pulse 78, SpO2 97%</div></div><span class="carelog__time">8:10 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Mobility</div><div class="s">Walking with stick indoors. Stable.</div></div><span class="carelog__time">8:30 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-moon"/></svg></span></div><div class="m"><div class="t">Sleep &amp; rest</div><div class="s">Slept well last night. Alert this morning.</div></div><span class="carelog__time">9:00 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-brain"/></svg></span></div><div class="m"><div class="t">Mood &amp; behaviour</div><div class="s">Calm and cooperative. Good mood.</div></div><span class="carelog__time">9:00 AM</span></div>
+            <div class="carelog__item"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-hands"/></svg></span></div><div class="m"><div class="t">Personal care</div><div class="s">Bathing and dressing completed.</div></div><span class="carelog__time">8:45 AM</span></div>
+          </div>
+          <div class="sec reveal">Concerns</div>
+          <div class="banner banner--warn reveal"><span class="ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span><div><div class="bt">One thing to watch</div><div class="bs">Blood sugar slightly high. Nurse advised on diet. Will recheck at next visit.</div></div></div>
+          <div class="sec reveal">Next action</div>
+          <div class="card reveal tap" onclick="CBH.go('visitsView')"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-scheduler"/></svg></span></div><div class="m"><div class="t">Next visit: Fri 26 Jun</div><div class="s">10:30 AM · Anjali Thomas</div></div><span class="chev"><svg><use href="#i-chevron"/></svg></span></div></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — CONCERN REPORTING ============ -->
+      <section class="view" id="concernView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Report a concern</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-bell"/></svg></span></span><div><div class="bt">We're here to help</div><div class="bs">Report any concern about care. The care team will review and take action.</div></div></div>
+          <div class="concern reveal">
+            <div class="card"><div class="card__head"><span class="card__title">What's the concern?</span></div>
+              <div class="choices" data-single="true" style="flex-direction:column;gap:8px">
+                <button class="choice" onclick="CBH.choice(this)">Staff delay</button>
+                <button class="choice" onclick="CBH.choice(this)">Need replacement staff</button>
+                <button class="choice" onclick="CBH.choice(this)">Patient not eating</button>
+                <button class="choice" onclick="CBH.choice(this)">Medicine missed</button>
+                <button class="choice" onclick="CBH.choice(this)">Fall happened</button>
+                <button class="choice" onclick="CBH.choice(this)">Behaviour change</button>
+                <button class="choice" onclick="CBH.choice(this)">Pain or discomfort</button>
+                <button class="choice" onclick="CBH.choice(this)">Need nurse review</button>
+                <button class="choice" onclick="CBH.choice(this)">Need doctor support</button>
+                <button class="choice" onclick="CBH.choice(this)">Need urgent call</button>
+              </div>
+            </div>
+            <div class="card"><div class="field"><label>Severity</label>
+              <div class="choices" data-single="true"><button class="choice" onclick="CBH.choice(this)">Low</button><button class="choice on-warn" onclick="CBH.choice(this)">Medium</button><button class="choice on-alert" onclick="CBH.choice(this)">High</button></div>
+            </div></div>
+            <div class="card"><div class="field"><label>Additional notes (optional)</label><textarea placeholder="Describe what happened..."></textarea></div></div>
+            <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.submitConcern()">Submit concern</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — HOME SAFETY CHECK ============ -->
+      <section class="view" id="safetyCheckView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Home safety check</h1></div></div>
+        <div class="vbody">
+          <div class="banner banner--info reveal"><span class="ic"><span class="icon"><svg><use href="#i-home-safety"/></svg></span></span><div><div class="bt">Reviewed during last visit</div><div class="bs">19 June · by Anjali Thomas</div></div></div>
+          <div class="sec reveal">Safety assessment</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="safety-item safety-item--ok"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Fall risk — bathroom</div><div class="s">Non-slip mat in place</div></div><span class="chip2 chip2--ok">Safe</span></div>
+            <div class="safety-item safety-item--ok"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Lighting</div><div class="s">Night light installed near bathroom</div></div><span class="chip2 chip2--ok">Safe</span></div>
+            <div class="safety-item safety-item--warn"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Floor hazards</div><div class="s">Loose carpet in hallway — tripping risk</div></div><span class="chip2 chip2--warn">Caution</span></div>
+            <div class="safety-item safety-item--ok"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Medication storage</div><div class="s">Stored safely, away from children</div></div><span class="chip2 chip2--ok">Safe</span></div>
+            <div class="safety-item safety-item--ok"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Walking support</div><div class="s">Walking stick used. Stable.</div></div><span class="chip2 chip2--ok">Safe</span></div>
+            <div class="safety-item safety-item--warn"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Emergency contact access</div><div class="s">Phone is not easily reachable from bed</div></div><span class="chip2 chip2--warn">Caution</span></div>
+          </div></div>
+          <div class="sec reveal">Recommendations</div>
+          <div class="card card--flush reveal"><div class="rows">
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Remove loose carpet in hallway</div><div class="s">Tripping hazard — remove or secure</div></div></div>
+            <div class="row"><div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></svg></span></div><div class="m"><div class="t">Keep phone near bed</div><div class="s">Ensure easy reach for emergencies</div></div></div>
+            <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-walking"/></svg></span></div><div class="m"><div class="t">Consider a walker</div><div class="s">For added stability on longer walks</div></div></div>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — REPLACEMENT & LEAVE SUPPORT ============ -->
+      <section class="view" id="replacementView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">Staff &amp; replacement</h1></div></div>
+        <div class="vbody">
+          <div class="card reveal"><div class="card__head"><span class="card__title">Current staff</span><span class="chip2 chip2--ok">Active</span></div>
+            <div class="idblock"><span class="av" style="background:var(--accent-soft);color:var(--accent-text)">AT</span><div><div class="nm">Anjali Thomas</div><div class="sub">Primary nurse · weekly visits</div></div></div>
+          </div>
+          <div class="sec reveal">Upcoming changes</div>
+          <div class="card reveal"><div class="card__head"><span class="card__title">Anjali on leave — 3-5 Jul</span><span class="chip2 chip2--warn">3 days</span></div>
+            <p class="t-body-m" style="color:var(--text-muted)">Replacement nurse has been arranged.</p>
+            <div class="rows" style="margin:12px -16px -8px">
+              <div class="row"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-user"/></svg></span></div><div class="m"><div class="t">Replacement: Sree Nair</div><div class="s">Registered nurse · 3 years experience</div></div><span class="chip2 chip2--accent">Assigned</span></div>
+              <div class="row"><div class="ic ic--ok"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m"><div class="t">Care continuity confirmed</div><div class="s">Care plan shared with replacement</div></div><span class="chip2 chip2--ok">Done</span></div>
+            </div>
+          </div>
+          <div class="sec reveal">Care continuity status</div>
+          <div class="card reveal" style="background:var(--success-soft);border-color:var(--success)">
+            <div style="display:flex;align-items:center;gap:12px"><div class="ic ic--ok" style="background:var(--success);color:#fff"><span class="icon"><svg><use href="#i-shield"/></svg></span></div><div><div style="font-weight:700;color:var(--success-text)">Care continues smoothly</div><div style="font-size:12.5px;color:var(--text-body);margin-top:2px">All visits during leave period have been covered.</div></div></div>
+          </div>
+          <button class="mbtn mbtn--line mbtn--block reveal" onclick="CBH.go('concernView')"><span class="icon"><svg><use href="#i-bell"/></svg></span>Report a staff concern</button>
+        </div>
+      </section>
+
+      <!-- ============ TIER 3 — FULL CARE TEAM ============ -->
+      <section class="view" id="careTeamView">
+        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button><div class="tbar__title"><h1 class="sm">My care team</h1></div></div>
+        <div class="vbody">
+          <p class="t-body-m reveal" style="color:var(--text-muted)">Know who is caring for you at every stage.</p>
+          <div class="card reveal"><div class="idblock"><span class="av" style="width:56px;height:56px;font-size:20px;background:var(--accent-soft);color:var(--accent-text)">JA</span><div><div class="nm">Joel Abraham</div><div class="sub">Care coordinator · Mon–Sat, 8 AM–8 PM</div></div></div>
+            <div style="display:flex;gap:10px;margin-top:14px"><button class="mbtn mbtn--fill mbtn--sm" style="flex:1" onclick="CBH.go('chatView')"><span class="icon"><svg><use href="#i-chat"/></svg></span>Chat</button><button class="mbtn mbtn--line mbtn--sm" style="flex:1" onclick="CBH.toast('Calling...')"><span class="icon"><svg><use href="#i-phone"/></svg></span>Call</button></div>
+          </div>
+          <div class="card reveal"><div class="idblock"><span class="av" style="width:56px;height:56px;font-size:20px;background:var(--accent-soft);color:var(--accent-text)">AT</span><div><div class="nm">Anjali Thomas</div><div class="sub">Primary nurse · weekly visits</div></div></div>
+            <div style="display:flex;gap:10px;margin-top:14px"><button class="mbtn mbtn--line mbtn--sm" style="flex:1" onclick="CBH.toast('Calling...')"><span class="icon"><svg><use href="#i-phone"/></svg></span>Call</button></div>
+          </div>
+          <div class="card reveal"><div class="idblock"><span class="av" style="width:56px;height:56px;font-size:20px;background:var(--surface-sunken);color:var(--text-muted)">RD</span><div><div class="nm">Rahul Das</div><div class="sub">Physiotherapist · 2 sessions/week</div></div></div></div>
+          <div class="card reveal"><div class="idblock"><span class="av" style="width:56px;height:56px;font-size:20px;background:var(--surface-sunken);color:var(--text-muted)">MG</span><div><div class="nm">Dr. Mathew George</div><div class="sub">GP · Lisie Hospital, Kochi · on demand</div></div></div></div>
+          <div class="card reveal"><div class="idblock"><span class="av" style="width:56px;height:56px;font-size:20px;background:var(--surface-sunken);color:var(--text-muted)">SN</span><div><div class="nm">Sree Nair</div><div class="sub">Backup nurse · covers during leave</div></div></div></div>
+          <div class="card reveal" style="background:var(--accent-soft);border-color:var(--accent-soft-strong)"><div class="row" style="padding:0"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-phone"/></svg></span></div><div class="m"><div class="t">Care Bridge Office</div><div class="s">24×7 emergency support · Kochi</div></div><button class="mbtn mbtn--fill mbtn--sm" onclick="CBH.toast('Calling office...')">Call</button></div></div>
+        </div>
+      </section>
+
       </div><!-- /stack -->
 
-      <!-- ============ BOTTOM NAV ============ -->
+      <!-- ============ BOTTOM NAV (tier-aware) ============ -->
       <nav class="bnav" style="display:none">
         <a class="bnav__i" data-tab="home" data-go="homeView"><span class="ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></span>Home</a>
         <a class="bnav__i" data-tab="visits" data-go="visitsView"><span class="ic"><span class="icon"><svg><use href="#i-scheduler"/></svg></span></span>Visits</a>
         <a class="bnav__i" data-tab="health" data-go="healthView"><span class="ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></span>Health</a>
+        <a class="bnav__i" data-tab="wallet" data-go="walletView"><span class="ic"><span class="icon"><svg><use href="#i-wallet"/></svg></span></span>Wallet</a>
         <a class="bnav__i" data-tab="billing" data-go="billingView"><span class="ic"><span class="icon"><svg><use href="#i-billing"/></svg></span></span>Billing</a>
         <a class="bnav__i sos" data-go="sosConfirmView"><span class="ic"><span class="icon"><svg><use href="#i-emergency"/></svg></span></span>SOS</a>
       </nav>

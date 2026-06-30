@@ -198,60 +198,6 @@
         .lib-tip-num { width:24px; height:24px; border-radius:50%; background:var(--accent-soft); color:var(--accent-text); font-size:12px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0; }
         .lib-tip-text { font-size:13px; color:var(--text-body); line-height:1.5; display:inline; }
 
-
-        /* Inventory collapsible */
-        .inv-details { display:none; }
-        .inv-item.open .inv-details { display:block; }
-        .inv-twistie { margin-left:auto; font-size:20px; transition:transform .2s; display:inline-block; color:var(--text-subtle); flex-shrink:0; line-height:1; }
-        .inv-item.open .inv-twistie { transform:rotate(90deg); }
-
-        /* Home comment note card */
-        .home-note { border-left:3px solid var(--accent); padding-left:12px; }
-
-        /* Health metrics with normal ranges */
-        .h-metric { border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; background:var(--surface); margin-bottom:10px; }
-        .h-metric-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-        .h-name { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text-subtle); }
-        .h-val { font-family:var(--font-heading); font-weight:800; font-size:28px; color:var(--text-heading); line-height:1; }
-        .h-range { font-size:11px; color:var(--text-subtle); }
-        .h-status { font-size:11px; font-weight:700; padding:3px 9px; border-radius:var(--radius-full); flex-shrink:0; }
-        .h-status.ok { background:var(--success-soft); color:var(--success-text); }
-        .h-status.warn { background:var(--warning-soft); color:var(--warning-text); }
-        .h-status.high { background:var(--danger-soft); color:var(--danger-text); }
-        .h-bar { height:6px; border-radius:99px; margin:8px 0 4px; position:relative; overflow:visible; }
-        .h-bar-marker { position:absolute; top:50%; width:10px; height:10px; border-radius:50%; background:var(--text-heading); border:2px solid white; box-shadow:0 1px 3px rgba(0,0,0,.2); transform:translate(-50%,-50%); }
-
-        /* Tracker styles */
-        .hydration-drops { display:flex; gap:5px; flex-wrap:wrap; margin:12px 0; }
-        .h-drop { width:34px; height:42px; border-radius:50% 50% 42% 42%/55% 55% 45% 45%; border:2px solid var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:background .15s; background:var(--accent-soft); }
-        .h-drop.filled { background:var(--accent); color:var(--accent-on); }
-        .tracker-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-        .tracker-card { border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:14px; background:var(--surface); }
-        .tracker-ic { font-size:22px; margin-bottom:6px; display:block; }
-        .tracker-title { font-family:var(--font-heading); font-weight:700; font-size:13px; color:var(--text-heading); }
-        .tracker-big { font-family:var(--font-heading); font-weight:800; font-size:28px; color:var(--text-heading); line-height:1; margin:5px 0 2px; }
-        .tracker-unit { font-size:11px; color:var(--text-muted); }
-        .cycle-wrap { display:flex; flex-wrap:wrap; gap:4px; margin:10px 0; }
-        .c-day { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--text-subtle); }
-        .c-day.period { background:#EF4444; color:#fff; border-color:#EF4444; }
-        .c-day.fertile { background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent); }
-        .c-day.predicted { background:var(--warning-soft); color:var(--warning-text); border-color:var(--warning); }
-        .t-input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-heading); font-weight:700; font-size:17px; text-align:center; color:var(--text-heading); background:var(--surface); box-sizing:border-box; }
-        .t-input:focus { outline:none; border-color:var(--accent); }
-
-        /* Comment textarea */
-        .comment-area { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-body); font-size:13px; line-height:1.5; color:var(--text-body); background:var(--surface); resize:none; margin-top:8px; box-sizing:border-box; }
-        .comment-area:focus { outline:none; border-color:var(--accent); }
-        .char-count { font-size:11px; color:var(--text-subtle); text-align:right; margin-top:3px; }
-
-        /* Add medication form */
-        .form-sec { margin-bottom:18px; }
-        .form-sec-label { font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text-subtle); margin-bottom:10px; }
-        .when-grid { display:flex; flex-wrap:wrap; gap:6px; }
-        .when-btn { padding:6px 12px; border-radius:var(--radius-full); border:1.5px solid var(--border); font-size:12px; font-weight:600; color:var(--text-muted); cursor:pointer; background:var(--surface); }
-        .when-btn.sel { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); }
-        .tlog-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px; }
-        .tlog-row:last-child { border-bottom:none; }
         /* Row avatar */
         .row-av { width:40px; height:40px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
 
@@ -314,16 +260,16 @@
                         <div class="note" id="scoreNote">↑ Up from 78 last month</div>
                     </div>
                 </div>
-                <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px">Last check-in today 8:00 AM · All vitals normal</p>
-                <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('checkInView')">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <div class="hero-av">AN</div>
+                    <div>
+                        <div style="font-weight:600;font-size:14px;color:var(--text-heading)">Anita Nair · 68 · Ernakulam</div>
+                        <div style="font-size:12px;color:var(--text-muted)">Last check-in today 8:00 AM · All vitals normal</div>
+                    </div>
+                </div>
+                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="CBH.go('checkInView')">
                     <span class="icon"><svg><use href="#i-plus"/></svg></span> Log today's check-in
                 </button>
-            </div>
-
-            <!-- Last check-in comment — shown after submitting check-in -->
-            <div id="homeNoteCard" class="card reveal home-note" style="display:none;padding:12px 14px">
-                <div class="overline" style="margin-bottom:4px;padding:0">Today's note</div>
-                <p class="t-body-s" id="homeNoteText" style="color:var(--text-body)"></p>
             </div>
 
             <!-- Today's vitals with source toggle -->
@@ -415,6 +361,14 @@
                     <span class="chip2 chip2--ok">Ready</span>
                 </div>
             </div>
+            <div class="card reveal tap" onclick="CBH.go('billingView')">
+                <div class="row" style="padding:0">
+                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-billing"/></svg></span></div>
+                    <div class="m"><div class="t">June bill · ₹499</div><div class="s">Auto-pay on 1 July</div></div>
+                    <span class="chip2 chip2--ok">Auto-pay</span>
+                </div>
+            </div>
+
             <button class="mbtn mbtn--sos mbtn--block reveal" style="margin-top:6px" onclick="CBH.go('sosConfirmView')">
                 <span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — get help
             </button>
@@ -468,32 +422,8 @@
                 </div>
             </div>
 
-            <div class="ci-card">
-                <div class="ci-card-head">
-                    <div class="ci-emoji">🤕</div>
-                    <div><div class="ci-label">Aches &amp; pains</div><div class="ci-sub">Any physical discomfort today?</div></div>
-                </div>
-                <div class="ci-opts">
-                    <button class="ci-opt selected" onclick="pickOpt(this)"><span class="ci-opt-em">😌</span>None</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😟</span>Mild</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😣</span>Moderate</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😫</span>Severe</button>
-                </div>
-            </div>
-
-            <div class="ci-card">
-                <div class="ci-card-head">
-                    <div class="ci-emoji">📝</div>
-                    <div><div class="ci-label">Notes for your care team</div><div class="ci-sub">Optional · 100 characters max</div></div>
-                </div>
-                <textarea class="comment-area" id="ciComment" rows="3" maxlength="100"
-                    placeholder="e.g. Felt dizzy this morning, headache after lunch…"
-                    oninput="updateCharCount()"></textarea>
-                <div class="char-count"><span id="charCountNum">0</span>/100</div>
-            </div>
-
             <div>
-                <button class="mbtn mbtn--fill mbtn--block" onclick="submitCheckIn()">
+                <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('homeView',{reset:true})">
                     <span class="icon"><svg><use href="#i-check"/></svg></span> Submit check-in
                 </button>
                 <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin-top:8px">Your care team reviews this weekly</p>
@@ -582,7 +512,7 @@
                     </div>
                 </div>
 
-                <button class="mbtn mbtn--line mbtn--block" style="margin-top:14px" onclick="CBH.go('addMedView')">
+                <button class="mbtn mbtn--line mbtn--block" style="margin-top:14px">
                     <span class="icon"><svg><use href="#i-plus"/></svg></span> Add medication
                 </button>
             </div>
@@ -591,74 +521,62 @@
             <div class="med-panel" id="panel-inventory">
 
                 <!-- Metformin -->
-                <div class="inv-item" id="inv-1">
-                    <div class="inv-item-head" onclick="toggleInv('inv-1')" style="cursor:pointer">
+                <div class="inv-item">
+                    <div class="inv-item-head">
                         <div class="inv-ic" style="background:var(--success-soft)">💊</div>
-                        <div style="flex:1">
+                        <div>
                             <div class="inv-name">Metformin 500mg</div>
-                            <div class="inv-for">Type 2 diabetes · Twice daily</div>
+                            <div class="inv-for">Type 2 diabetes — blood sugar control</div>
                         </div>
-                        <span class="chip2 chip2--warn" style="font-size:10px;margin-right:8px">28 left</span>
-                        <span class="inv-twistie">›</span>
                     </div>
-                    <div class="inv-details">
-                        <div class="inv-rows">
-                            <div class="row"><div class="m">Dosage</div><div class="val">500mg · Twice daily (morning &amp; night)</div></div>
-                            <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
-                            <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
-                            <div class="row"><div class="m">Expiry</div><div class="val">31 December 2026</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val">28 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder soon</span></div></div>
-                        </div>
+                    <div class="inv-rows">
+                        <div class="row"><div class="m">Dosage</div><div class="val">500mg · Twice daily (morning & night)</div></div>
+                        <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
+                        <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
+                        <div class="row"><div class="m">Expiry</div><div class="val">31 December 2026</div></div>
+                        <div class="row"><div class="m">Tablets in stock</div><div class="val">28 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder soon</span></div></div>
                     </div>
                 </div>
 
                 <!-- Vitamin D3 -->
-                <div class="inv-item" id="inv-2">
-                    <div class="inv-item-head" onclick="toggleInv('inv-2')" style="cursor:pointer">
+                <div class="inv-item">
+                    <div class="inv-item-head">
                         <div class="inv-ic" style="background:var(--amber-50)">☀️</div>
-                        <div style="flex:1">
+                        <div>
                             <div class="inv-name">Vitamin D3 1000 IU</div>
-                            <div class="inv-for">Bone health · Once daily with lunch</div>
+                            <div class="inv-for">Bone health, immunity & mood support</div>
                         </div>
-                        <span class="chip2 chip2--ok" style="font-size:10px;margin-right:8px">45 left</span>
-                        <span class="inv-twistie">›</span>
                     </div>
-                    <div class="inv-details">
-                        <div class="inv-rows">
-                            <div class="row"><div class="m">Dosage</div><div class="val">1000 IU · Once daily (with lunch)</div></div>
-                            <div class="row"><div class="m">Prescribed by</div><div class="val">Over-the-counter (OTC)</div></div>
-                            <div class="row"><div class="m">Date stocked</div><div class="val">15 June 2026</div></div>
-                            <div class="row"><div class="m">Expiry</div><div class="val">30 June 2027</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">45 capsules ✓</div></div>
-                        </div>
+                    <div class="inv-rows">
+                        <div class="row"><div class="m">Dosage</div><div class="val">1000 IU · Once daily (with lunch)</div></div>
+                        <div class="row"><div class="m">Prescribed by</div><div class="val">Over-the-counter (OTC)</div></div>
+                        <div class="row"><div class="m">Date stocked</div><div class="val">15 June 2026</div></div>
+                        <div class="row"><div class="m">Expiry</div><div class="val">30 June 2027</div></div>
+                        <div class="row"><div class="m">Capsules in stock</div><div class="val" style="color:var(--success)">45 capsules ✓</div></div>
                     </div>
                 </div>
 
                 <!-- Atorvastatin -->
-                <div class="inv-item" id="inv-3">
-                    <div class="inv-item-head" onclick="toggleInv('inv-3')" style="cursor:pointer">
+                <div class="inv-item">
+                    <div class="inv-item-head">
                         <div class="inv-ic" style="background:var(--blue-50)">❤️</div>
-                        <div style="flex:1">
+                        <div>
                             <div class="inv-name">Atorvastatin 10mg</div>
-                            <div class="inv-for">Cholesterol · Once nightly after dinner</div>
+                            <div class="inv-for">Cholesterol management & heart protection</div>
                         </div>
-                        <span class="chip2 chip2--ok" style="font-size:10px;margin-right:8px">28 left</span>
-                        <span class="inv-twistie">›</span>
                     </div>
-                    <div class="inv-details">
-                        <div class="inv-rows">
-                            <div class="row"><div class="m">Dosage</div><div class="val">10mg · Once nightly (after dinner)</div></div>
-                            <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
-                            <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
-                            <div class="row"><div class="m">Expiry</div><div class="val">31 March 2027</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">28 tablets ✓</div></div>
-                            <div class="row"><div class="m">Prescription</div><div class="val"><a href="#" style="color:var(--accent-text);font-weight:600">View scan ↗</a></div></div>
-                        </div>
+                    <div class="inv-rows">
+                        <div class="row"><div class="m">Dosage</div><div class="val">10mg · Once nightly (after dinner)</div></div>
+                        <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
+                        <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
+                        <div class="row"><div class="m">Expiry</div><div class="val">31 March 2027</div></div>
+                        <div class="row"><div class="m">Tablets in stock</div><div class="val" style="color:var(--success)">28 tablets ✓</div></div>
+                        <div class="row"><div class="m">Prescription</div><div class="val"><a href="#" style="color:var(--accent-text);font-weight:600">View scan ↗</a></div></div>
                     </div>
                 </div>
 
-                                <button class="mbtn mbtn--line mbtn--block" style="margin-top:4px" onclick="CBH.go('addMedView')">
-                    <span class="icon"><svg><use href="#i-plus"/></svg></span> Add new medication
+                <button class="mbtn mbtn--line mbtn--block" style="margin-top:4px">
+                    <span class="icon"><svg><use href="#i-plus"/></svg></span> Add to medicine cabinet
                 </button>
             </div>
 
@@ -831,113 +749,46 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         HEALTH — readings with normal ranges
+         WEARABLES
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="wearableView">
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Health Insights</h1></div>
-            <span class="chip2 chip2--ok" style="font-size:11px;padding:3px 8px">Synced</span>
+            <div class="tbar__title"><h1 class="sm">Wearable Insights</h1></div>
         </div>
         <div class="vbody">
-            <div class="overline">Today's readings vs normal</div>
-
-            <div class="h-metric reveal">
-                <div class="h-metric-head">
-                    <div>
-                        <div class="h-name">❤️ Heart rate</div>
-                        <div style="margin-top:4px"><span class="h-val">72</span> <span style="font-size:14px;color:var(--text-muted)">bpm</span></div>
+            <div class="card reveal">
+                <div class="card__head"><span class="card__title">Today's summary</span><span class="chip2 chip2--ok">Synced</span></div>
+                <div class="tiles" style="margin-top:10px">
+                    <div class="tile tile--accent">
+                        <div class="ic"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></div>
+                        <div class="n">72</div><div class="l">bpm · Heart rate</div>
                     </div>
-                    <span class="h-status ok">Normal</span>
-                </div>
-                <div class="h-bar" style="background:linear-gradient(to right,var(--danger) 0%,var(--warning) 18%,var(--success) 35%,var(--success) 68%,var(--warning) 82%,var(--danger) 100%);position:relative">
-                    <div class="h-bar-marker" style="left:48%"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="h-range">Normal: 60–100 bpm</span>
-                    <span class="h-range">Steady ↓ from 74 yesterday</span>
+                    <div class="tile tile--ok">
+                        <div class="ic"><span class="icon"><svg><use href="#i-sleep"/></svg></span></div>
+                        <div class="n">85</div><div class="l">/100 · Sleep</div>
+                    </div>
+                    <div class="tile tile--warn">
+                        <div class="ic"><span class="icon"><svg><use href="#i-mood"/></svg></span></div>
+                        <div class="n">35</div><div class="l">/100 · Stress</div>
+                    </div>
+                    <div class="tile">
+                        <div class="ic"><span class="icon"><svg><use href="#i-check-circle"/></svg></span></div>
+                        <div class="n">98<span style="font-size:14px">%</span></div><div class="l">SpO₂</div>
+                    </div>
                 </div>
             </div>
-
-            <div class="h-metric reveal">
-                <div class="h-metric-head">
-                    <div>
-                        <div class="h-name">🩺 Blood pressure</div>
-                        <div style="margin-top:4px"><span class="h-val" style="font-size:24px">122<span style="font-size:16px">/78</span></span> <span style="font-size:14px;color:var(--text-muted)">mmHg</span></div>
-                    </div>
-                    <span class="h-status warn">Elevated</span>
-                </div>
-                <div class="h-bar" style="background:linear-gradient(to right,var(--success) 0%,var(--success) 42%,var(--warning) 60%,var(--danger) 100%);position:relative">
-                    <div class="h-bar-marker" style="left:55%"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="h-range">Optimal: &lt;120/80 · High: &gt;130/80</span>
-                    <span class="h-range">7-day avg: 120/76</span>
-                </div>
-            </div>
-
-            <div class="h-metric reveal">
-                <div class="h-metric-head">
-                    <div>
-                        <div class="h-name">💨 Blood oxygen (SpO₂)</div>
-                        <div style="margin-top:4px"><span class="h-val">98</span> <span style="font-size:14px;color:var(--text-muted)">%</span></div>
-                    </div>
-                    <span class="h-status ok">Excellent</span>
-                </div>
-                <div class="h-bar" style="background:linear-gradient(to right,var(--danger) 0%,var(--warning) 22%,var(--success) 38%,var(--success) 100%);position:relative">
-                    <div class="h-bar-marker" style="left:92%"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="h-range">Normal: 95–100% · Low: &lt;90%</span>
-                    <span class="h-range">Steady ↔</span>
-                </div>
-            </div>
-
-            <div class="h-metric reveal">
-                <div class="h-metric-head">
-                    <div>
-                        <div class="h-name">😴 Sleep score</div>
-                        <div style="margin-top:4px"><span class="h-val">85</span> <span style="font-size:14px;color:var(--text-muted)">/100</span></div>
-                    </div>
-                    <span class="h-status ok">Good</span>
-                </div>
-                <div class="h-bar" style="background:linear-gradient(to right,var(--danger) 0%,var(--warning) 28%,var(--success) 52%,var(--success) 100%);position:relative">
-                    <div class="h-bar-marker" style="left:82%"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="h-range">Good: ≥80 · Fair: 60–79 · Poor: &lt;60</span>
-                    <span class="h-range">Improving ↑ from 82</span>
-                </div>
-            </div>
-
-            <div class="h-metric reveal">
-                <div class="h-metric-head">
-                    <div>
-                        <div class="h-name">🧘 Stress level</div>
-                        <div style="margin-top:4px"><span class="h-val">35</span> <span style="font-size:14px;color:var(--text-muted)">/100</span></div>
-                    </div>
-                    <span class="h-status warn">Elevated</span>
-                </div>
-                <div class="h-bar" style="background:linear-gradient(to right,var(--success) 0%,var(--success) 32%,var(--warning) 52%,var(--danger) 100%);position:relative">
-                    <div class="h-bar-marker" style="left:35%"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="h-range">Low: &lt;30 · Moderate: 30–59 · High: ≥60</span>
-                    <span class="h-range">↑ from avg 27</span>
-                </div>
-            </div>
-
-            <div class="overline" style="margin-top:4px">7-day trend</div>
+            <div class="overline">Weekly trends</div>
             <div class="card reveal">
                 <div class="rows">
                     <div class="row"><div class="m">Heart rate</div><div class="val" style="color:var(--success)">72 bpm · Steady ↓</div></div>
                     <div class="row"><div class="m">Sleep score</div><div class="val" style="color:var(--success)">85/100 · Improving ↑</div></div>
                     <div class="row"><div class="m">Stress</div><div class="val" style="color:var(--warning)">35/100 · Elevated ⚠</div></div>
-                    <div class="row"><div class="m">Steps daily avg</div><div class="val" style="color:var(--accent-text)">4,200 · On track</div></div>
+                    <div class="row"><div class="m">Activity</div><div class="val" style="color:var(--accent-text)">4,200 steps · On track</div></div>
                 </div>
             </div>
             <div class="card reveal">
-                <div class="card__head"><span class="card__title">Device status</span></div>
+                <div class="card__head"><span class="card__title">Device</span></div>
                 <div class="rows">
                     <div class="row"><div class="m">Battery</div><div class="val">85%</div></div>
                     <div class="row"><div class="m">Last sync</div><div class="val">2 min ago</div></div>
@@ -947,7 +798,7 @@
         </div>
     </section>
 
-        <!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
          FAMILY CIRCLE (profile-level, reached from profile)
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="familyView">
@@ -1033,13 +884,6 @@
                     <div class="row"><div class="m">Medication alerts</div><div class="val" style="color:var(--success)">● On</div></div>
                     <div class="row"><div class="m">Weekly summaries</div><div class="val" style="color:var(--success)">● On</div></div>
                     <div class="row"><div class="m">Family alerts</div><div class="val" style="color:var(--success)">● On</div></div>
-                </div>
-            </div>
-            <div class="card reveal tap" onclick="CBH.go('billingView')">
-                <div class="row" style="padding:0">
-                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-billing"/></svg></span></div>
-                    <div class="m"><div class="t">Billing &amp; payments</div><div class="s">Self Care Standard · ₹499/month</div></div>
-                    <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                 </div>
             </div>
             <button class="mbtn mbtn--line mbtn--block" style="color:var(--danger-text);border-color:var(--danger)">Sign out</button>
@@ -1142,221 +986,6 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         TRACKERS
-    ══════════════════════════════════════════════════════ -->
-    <section class="view" id="trackersView">
-        <div class="tbar">
-            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Trackers</h1></div>
-        </div>
-        <div class="vbody has-nav">
-
-            <!-- Hydration -->
-            <div class="overline">💧 Hydration</div>
-            <div class="card reveal" style="margin-bottom:12px">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-                    <span class="card__title">Water intake today</span>
-                    <span id="hydCount" style="font-family:var(--font-heading);font-weight:700;font-size:22px;color:var(--accent-text)">0/8</span>
-                </div>
-                <p class="t-body-s" style="color:var(--text-muted);margin-bottom:12px">Goal: 8 glasses · Tap each as you drink</p>
-                <div class="hydration-drops" id="hydDrops">
-                    <div class="h-drop" onclick="fillDrop(0)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(1)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(2)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(3)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(4)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(5)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(6)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(7)">💧</div>
-                </div>
-                <p class="t-body-s" style="color:var(--text-muted)" id="hydMsg">Tap each glass as you drink it</p>
-            </div>
-
-            <!-- Body metrics grid -->
-            <div class="overline">⚖️ Body metrics</div>
-            <div class="tracker-grid reveal">
-                <div class="tracker-card">
-                    <span class="tracker-ic">⚖️</span>
-                    <div class="tracker-title">Weight</div>
-                    <div class="tracker-big" id="weightDisp">62.5</div>
-                    <div class="tracker-unit">kg today</div>
-                    <input class="t-input" type="number" step="0.1" placeholder="kg" style="margin-top:10px;font-size:15px;padding:8px" onchange="logWeight(this.value)" />
-                </div>
-                <div class="tracker-card">
-                    <span class="tracker-ic">🩺</span>
-                    <div class="tracker-title">Blood pressure</div>
-                    <div class="tracker-big" id="bpDisp" style="font-size:22px">122/78</div>
-                    <div class="tracker-unit">mmHg today</div>
-                    <input class="t-input" type="text" placeholder="120/80" style="margin-top:10px;font-size:15px;padding:8px" onchange="logBP(this.value)" />
-                </div>
-            </div>
-            <div class="tracker-grid reveal">
-                <div class="tracker-card">
-                    <span class="tracker-ic">🚶</span>
-                    <div class="tracker-title">Steps today</div>
-                    <div class="tracker-big">4,200</div>
-                    <div class="tracker-unit">of 6,000 goal</div>
-                    <div style="height:5px;border-radius:99px;background:var(--neutral-100);overflow:hidden;margin:8px 0 4px">
-                        <div style="height:100%;width:70%;border-radius:99px;background:var(--accent)"></div>
-                    </div>
-                    <div class="tracker-unit">70% of goal</div>
-                </div>
-                <div class="tracker-card">
-                    <span class="tracker-ic">😴</span>
-                    <div class="tracker-title">Sleep last night</div>
-                    <div class="tracker-big">7.5</div>
-                    <div class="tracker-unit">hours</div>
-                    <div style="margin-top:8px;font-size:11px;color:var(--text-subtle)">
-                        <div>Bedtime 10:30 PM</div>
-                        <div>Wake 6:00 AM</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Menstrual cycle -->
-            <div class="overline">🌸 Menstrual cycle</div>
-            <div class="card reveal">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                    <span class="card__title">June 2026</span>
-                    <div style="display:flex;gap:8px;font-size:10px;color:var(--text-subtle)">
-                        <span>🔴 Period</span><span style="color:var(--accent-text)">🔵 Fertile</span><span style="color:var(--warning-text)">🟡 Next</span>
-                    </div>
-                </div>
-                <div class="cycle-wrap" id="cycleDays"></div>
-                <div class="rows" style="margin-top:12px">
-                    <div class="row"><div class="m">Last period</div><div class="val">1–5 June 2026</div></div>
-                    <div class="row"><div class="m">Cycle length</div><div class="val">28 days</div></div>
-                    <div class="row"><div class="m">Next predicted</div><div class="val" style="color:var(--warning-text);font-weight:700">29 June 2026</div></div>
-                    <div class="row"><div class="m">Fertile window</div><div class="val" style="color:var(--accent-text)">13–17 June</div></div>
-                </div>
-            </div>
-
-            <!-- Medication reminders quick view -->
-            <div class="overline">💊 Today's medication reminders</div>
-            <div class="card card--flush reveal tap" onclick="CBH.goTab('medicationView','meds')">
-                <div class="rows">
-                    <div class="row"><span class="chip2 chip2--ok" style="margin-right:8px;min-width:40px;text-align:center">8 AM</span><div class="m">Metformin 500mg</div><span class="chip2 chip2--ok">✓</span></div>
-                    <div class="row"><span class="chip2 chip2--warn" style="margin-right:8px;min-width:40px;text-align:center">12 PM</span><div class="m">Vitamin D3</div><span class="chip2 chip2--warn">Due</span></div>
-                    <div class="row"><span class="chip2" style="margin-right:8px;min-width:40px;text-align:center">8 PM</span><div class="m">Atorvastatin 10mg</div><span class="chip2">Later</span></div>
-                </div>
-            </div>
-
-            <!-- Blood sugar log -->
-            <div class="overline">🩸 Blood sugar log</div>
-            <div class="card reveal">
-                <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end">
-                    <div class="field" style="margin:0">
-                        <label>Fasting / Random (mg/dL)</label>
-                        <input type="number" class="t-input" placeholder="120" style="text-align:left;padding:10px 12px;font-size:15px" id="bsInput" />
-                    </div>
-                    <button class="mbtn mbtn--fill" style="padding:10px 16px;height:46px" onclick="logBS()">Log</button>
-                </div>
-                <div style="margin-top:12px">
-                    <div class="tlog-row"><span class="tracker-unit">Today 8:00 AM</span><span style="font-weight:600;color:var(--text-heading)">118 mg/dL</span></div>
-                    <div class="tlog-row"><span class="tracker-unit">Jun 29 8:00 AM</span><span style="font-weight:600;color:var(--text-heading)">124 mg/dL</span></div>
-                    <div class="tlog-row"><span class="tracker-unit">Jun 28 8:00 AM</span><span style="font-weight:600;color:var(--success)">112 mg/dL</span></div>
-                </div>
-                <p class="t-body-s" style="color:var(--text-subtle);margin-top:8px">Normal fasting: 70–100 mg/dL · Pre-diabetes: 100–125</p>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
-         ADD MEDICATION
-    ══════════════════════════════════════════════════════ -->
-    <section class="view" id="addMedView">
-        <div class="tbar">
-            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Add Medication</h1></div>
-        </div>
-        <div class="vbody">
-
-            <div class="form-sec">
-                <div class="form-sec-label">Medication details</div>
-                <div class="field">
-                    <label>Name <span style="color:var(--danger-text)">*</span></label>
-                    <input type="text" id="addMedName" placeholder="e.g. Metformin 500mg, Vitamin B12…">
-                </div>
-                <div class="field">
-                    <label>What it's for <span style="color:var(--danger-text)">*</span></label>
-                    <input type="text" id="addMedFor" placeholder="e.g. Blood sugar control, Bone health…">
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                    <div class="field"><label>Dosage</label><input type="text" id="addMedDose" placeholder="500mg, 10mg…"></div>
-                    <div class="field"><label>Form</label>
-                        <select id="addMedForm" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
-                            <option>Tablet</option><option>Capsule</option><option>Syrup</option>
-                            <option>Drops</option><option>Injection</option><option>Cream</option><option>Inhaler</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-sec">
-                <div class="form-sec-label">Schedule</div>
-                <div class="field"><label>Frequency</label>
-                    <select id="addMedFreq" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
-                        <option>Once daily</option><option>Twice daily</option><option>Three times daily</option>
-                        <option>Every night</option><option>Weekly</option><option>As needed (PRN)</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>When to take</label>
-                    <div class="when-grid" style="margin-top:8px">
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Morning</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">With breakfast</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Noon</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">With lunch</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Evening</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">With dinner</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Bedtime</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Empty stomach</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">As needed</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-sec">
-                <div class="form-sec-label">Prescribed by</div>
-                <div class="field"><label>Source</label>
-                    <select id="addMedRx" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
-                        <option>Over-the-counter (OTC)</option>
-                        <option>Dr. Rajeev Menon</option>
-                        <option>Other doctor</option>
-                    </select>
-                </div>
-                <div class="field"><label>Doctor's name (if other)</label><input type="text" id="addMedDoc" placeholder="Optional"></div>
-            </div>
-
-            <div class="form-sec">
-                <div class="form-sec-label">Stock</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                    <div class="field"><label>Date stocked</label><input type="date" id="addMedStocked"></div>
-                    <div class="field"><label>Expiry date</label><input type="date" id="addMedExpiry"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                    <div class="field"><label>Qty in stock</label><input type="number" id="addMedQty" placeholder="e.g. 30"></div>
-                    <div class="field"><label>Alert below</label><input type="number" id="addMedAlert" placeholder="e.g. 7"></div>
-                </div>
-            </div>
-
-            <div class="form-sec">
-                <div class="form-sec-label">Notes</div>
-                <div class="field">
-                    <label>Instructions / side effects to watch</label>
-                    <textarea class="comment-area" id="addMedNotes" rows="3" placeholder="Any special instructions…"></textarea>
-                </div>
-            </div>
-
-            <button class="mbtn mbtn--fill mbtn--block" onclick="saveNewMed()" style="margin-bottom:8px">
-                <span class="icon"><svg><use href="#i-check"/></svg></span> Save to medicine cabinet
-            </button>
-            <button class="mbtn mbtn--line mbtn--block" onclick="CBH.back()">Cancel</button>
-        </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
          SOS
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="sosConfirmView">
@@ -1417,8 +1046,8 @@
         <div class="bnav__i" id="bnav-meds" onclick="CBH.goTab('medicationView','meds')">
             <div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>Meds
         </div>
-        <div class="bnav__i" id="bnav-trackers" onclick="CBH.goTab('trackersView','trackers')">
-            <div class="ic"><span class="icon"><svg><use href="#i-chart-pie"/></svg></span></div>Trackers
+        <div class="bnav__i" id="bnav-profile" onclick="CBH.goTab('profileView','profile')">
+            <div class="ic"><span class="icon"><svg><use href="#i-person"/></svg></span></div>Profile
         </div>
     </div>
 
@@ -1446,7 +1075,7 @@ var LIB = {
 };
 
 /* ── Navigation ──────────────────────────────────────────────────────────── */
-var TAB_ITEMS = { home:'bnav-home', health:'bnav-health', meds:'bnav-meds', trackers:'bnav-trackers' };
+var TAB_ITEMS = { home:'bnav-home', health:'bnav-health', meds:'bnav-meds', profile:'bnav-profile' };
 var _activeTab = 'home';
 
 window.CBH = {
@@ -1482,85 +1111,6 @@ window.CBH = {
     },
     back: function() { CBH.goTab('homeView','home'); }
 };
-
-/* ── Check-in: comment + submit ─────────────────────────────────────────── */
-function updateCharCount() {
-    var ta = document.getElementById('ciComment');
-    var el = document.getElementById('charCountNum');
-    if (ta && el) el.textContent = ta.value.length;
-}
-function submitCheckIn() {
-    var comment = ((document.getElementById('ciComment') || {}).value || '').trim();
-    var card = document.getElementById('homeNoteCard');
-    var txt  = document.getElementById('homeNoteText');
-    if (comment && card && txt) {
-        txt.textContent = '"' + comment + '"';
-        card.style.display = 'block';
-    }
-    var ta = document.getElementById('ciComment');
-    if (ta) { ta.value = ''; }
-    if (typeof updateCharCount === 'function') updateCharCount();
-    CBH.goTab('homeView', 'home');
-}
-
-/* ── Medicine cabinet collapsible ────────────────────────────────────────── */
-function toggleInv(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.toggle('open');
-}
-
-/* ── Save new medication ─────────────────────────────────────────────────── */
-function saveNewMed() {
-    var name = ((document.getElementById('addMedName') || {}).value || '').trim();
-    if (!name) { alert('Please enter a medication name.'); return; }
-    // Demo: clear and go back to medicine cabinet
-    ['addMedName','addMedFor','addMedDose','addMedDoc','addMedQty','addMedAlert','addMedNotes'].forEach(function(id){
-        var el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    switchMedTab('inventory');
-    CBH.goTab('medicationView', 'meds');
-}
-
-/* ── Hydration tracker ───────────────────────────────────────────────────── */
-function fillDrop(idx) {
-    var drops = document.querySelectorAll('#hydDrops .h-drop');
-    if (drops[idx] && drops[idx].classList.contains('filled')) {
-        for (var i = idx; i < drops.length; i++) drops[i].classList.remove('filled');
-    } else {
-        for (var i = 0; i <= idx; i++) drops[i].classList.add('filled');
-    }
-    var count = document.querySelectorAll('#hydDrops .h-drop.filled').length;
-    var el = document.getElementById('hydCount');
-    if (el) el.textContent = count + '/8';
-    var msg = document.getElementById('hydMsg');
-    if (msg) {
-        var msgs = ['Tap each glass as you drink it','Great start — keep sipping!','Good going!',
-            'Halfway there!','More than halfway!','Almost there!','Just two more!','One more glass!','Goal reached! 🎉'];
-        msg.textContent = msgs[Math.min(count, 8)];
-    }
-}
-
-/* ── Body metric quick log ───────────────────────────────────────────────── */
-function logWeight(v) { var el=document.getElementById('weightDisp'); if(el&&v) el.textContent=parseFloat(v).toFixed(1); }
-function logBP(v)     { var el=document.getElementById('bpDisp');     if(el&&v) el.textContent=v; }
-function logBS()      { var i=document.getElementById('bsInput'); if(i&&i.value) { alert('Blood sugar '+i.value+' mg/dL logged.'); i.value=''; } }
-
-/* ── Menstrual cycle calendar ────────────────────────────────────────────── */
-(function() {
-    var wrap = document.getElementById('cycleDays');
-    if (!wrap) return;
-    var period=[1,2,3,4,5], fertile=[13,14,15,16,17], predicted=[29,30];
-    for (var d=1; d<=30; d++) {
-        var el = document.createElement('div');
-        el.className = 'c-day';
-        el.textContent = d;
-        if (period.indexOf(d)    > -1) el.classList.add('period');
-        if (fertile.indexOf(d)   > -1) el.classList.add('fertile');
-        if (predicted.indexOf(d) > -1) el.classList.add('predicted');
-        wrap.appendChild(el);
-    }
-})();
 
 /* ── Dynamic wellness score ring ─────────────────────────────────────────── */
 function applyScoreRing(score, ringId) {

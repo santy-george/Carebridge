@@ -133,7 +133,7 @@ var MODELS = {
       Standard:{price:'₹5,200 / mo', items:['Everything in Basic','Symptom review','Medication review','Functional review','Mental wellbeing review','Falls prevention']},
       Premium:{price:'₹6,500 / mo', items:['Everything in Standard','Chronic disease support','Nutrition & hydration support','Family engagement','Referral & care coordination','Post-hospital & post-surgical support','Incident & risk management']}
     }, count:{Basic:6,Standard:12,Premium:7} },
-  digital:{ key:'digital', cls:'digital', color:'var(--model-digital-wellness)', name:'Digital Wellness', members:61, revenue:'₹0.9L / mo',
+  digital:{ key:'digital', cls:'self', color:'var(--model-digital-wellness)', name:'Self Care', members:61, revenue:'₹0.9L / mo',
     desc:'Client self-managed wellness support with family visibility.',
     suited:'Independent members who want preventive monitoring and family reassurance.',
     plans:{
@@ -150,7 +150,7 @@ var MODELS = {
       Premium:{price:'₹3,999 / mo', items:['Everything in Standard','Monthly health reports','Preventive care tracking','Remote care plan management']}
     }, count:{Basic:15,Standard:16,Premium:7} }
 };
-var ORDER = ['direct','digital','virtual'];
+var ORDER = ['digital','virtual','direct'];
 var ADDONS = [
   ['Physiotherapy visit','Allied health','₹600–900','direct,virtual',1],
   ['Doctor visit','Doctor','₹800–1,500','direct,virtual,digital',1],
@@ -220,7 +220,7 @@ function renderMembers(k){
 }
 function renderAddons(){
   document.getElementById('addonRows').innerHTML = ADDONS.map(function(a){
-    var labels={direct:'Direct Care',virtual:'Virtual Care',digital:'Digital Wellness'};
+    var labels={direct:'Direct Care',virtual:'Virtual Care',digital:'Self Care'};
     var elig=a[3].split(',').map(function(c){return chip(c,labels[c]);}).join(' ');
     var status=a[4]?'<span class="chip chip--completed"><span class="dot"></span>Active</span>':'<span class="chip chip--pending"><span class="dot"></span>Inactive</span>';
     return '<tr><td><span class="cell-link">'+a[0]+'</span></td><td class="muted">'+a[1]+'</td><td class="num">'+a[2]+'</td><td>'+elig+'</td><td>'+status+'</td></tr>';

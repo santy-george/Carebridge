@@ -73,15 +73,17 @@ CBH-HTML/
 
 ## 4. Care Model terminology (IMPORTANT — apply everywhere)
 
-"Care Tier" / "Tier 1-2-3" is **retired**. Use the **Care Model** names:
+"Care Tier" / "Tier 1-2-3" is **retired**. "Digital Wellness" is also **retired** — use **Self Care**. The canonical Care Model names and display order are:
 
-| Care Model | Was | Colour token | Self/remote/in-person |
-|---|---|---|---|
-| **Digital Wellness** | Tier 1 | `--tier-1` (lavender) | Member self-managed |
-| **Virtual Care** | Tier 2 | `--tier-2` (cyan) | Remote monitoring |
-| **Direct Care** | Tier 3 | `--tier-3` (deep purple) | In-person nursing |
+| Care Model | Was | Colour token | CSS chip class | Self/remote/in-person |
+|---|---|---|---|---|
+| **Self Care** | Digital Wellness / Tier 1 | `--model-digital-wellness` | `.model-chip--self` | Member self-managed |
+| **Virtual Care** | Tier 2 | `--model-virtual-care` | `.model-chip--virtual` | Remote monitoring |
+| **Direct Care** | Tier 3 | `--model-direct-care` | `.model-chip--direct` | In-person nursing |
 
-Each model has **Basic / Standard / Premium** plan levels. Care model is the **output of clinical assessment** and the spine of onboarding, scheduling, billing and the upgrade path. Use `.model-chip--digital|virtual|direct` for chips.
+Display order is always: **Self Care → Virtual Care → Direct Care**.
+
+Each model has **Basic / Standard / Premium** plan levels. Care model is the **output of clinical assessment** and the spine of onboarding, scheduling, billing and the upgrade path. Use `.model-chip--self|virtual|direct` for chips (note: `--self`, not `--digital`).
 
 Other renames: **Members** (was Clients), **Leads & Enquiries** (Enquiries), **Human Resources** (Staff), **Service Catalogue** (Add-Ons), **Billing & Invoices** (Billing), **Reports & Analytics** (Reports), **Care Model Distribution** (Care Tier Distribution).
 

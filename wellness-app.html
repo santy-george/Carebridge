@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-app="family">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Care Bridge Home — Wellness App</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    <script src="js/icons.js"></script>
+    
+    <div class="stage">
+        <div class="device">
+            <div class="notch"></div>
+            
+            <!-- Status Bar -->
+            <div class="sbar">
+                <div class="dots">
+                    <span class="icon"><svg><use href="#i-signal"/></use></svg></span>
+                    <span class="icon"><svg><use href="#i-wifi"/></use></svg></span>
+                    <span class="icon"><svg><use href="#i-battery"/></use></svg></span>
+                </div>
+                <span class="icon"><svg><use href="#i-clock"/></use></svg></span>
+                09:15
+            </div>
+            
+            <!-- Screen Content -->
+            <div class="screen">
+                <div class="vbody">
+                    
+                    <!-- Greeting & Wellness Score -->
+                    <div class="view is-active reveal">
+                        <div class="greet">
+                            <h1>Good morning, Anita</h1>
+                            <p>Your wellness journey today</p>
+                        </div>
+                        
+                        <!-- Wellness Score (Traffic Light) -->
+                        <div class="wtscore wtscore--ok">
+                            <b>85</b>
+                            <span>Wellness</span>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="tb" style="margin: 16px 0;">
+                            <div class="tbar__title">Quick Actions</div>
+                        </div>
+                        <div class="choices" style="justify-content: center; flex-wrap: wrap;">
+                            <a href="#" class="choice on">
+                                <span class="icon"><svg><use href="#i-heart-pulse"/></use></svg></span>
+                                Check In
+                            </a>
+                            <a href="#" class="choice">
+                                <span class="icon"><svg><use href="#i-medication"/></use></svg></span>
+                                Medications
+                            </a>
+                            <a href="#" class="choice">
+                                <span class="icon"><svg><use href="#i-file-text"/></use></svg></span>
+                                Records
+                            </a>
+                            <a href="#" class="choice">
+                                <span class="icon"><svg><use href="#i-users"/></use></svg></span>
+                                Family
+                            </a>
+                        </div>
+                        
+                        <!-- Daily Check-in Card -->
+                        <div class="card" style="margin: 16px 0;">
+                            <div class="card__head">
+                                <div class="card__title">Daily Check-in</div>
+                                <a href="#" class="card__link">Complete</a>
+                            </div>
+                            <div class="rows">
+                                <div class="row">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
+                                    <div class="m">Sleep Quality</div>
+                                    <div class="val">7.5 hrs</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-water"/></use></svg></span></div>
+                                    <div class="m">Water Intake</div>
+                                    <div class="val">6/8 glasses</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-walk"/></use></svg></span></div>
+                                    <div class="m">Steps Today</div>
+                                    <div class="val">4,200</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
+                                    <div class="m">Mood</div>
+                                    <div class="val">Positive</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-medication"/></use></svg></span></div>
+                                    <div class="m">Medication</div>
+                                    <div class="val">Taken</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Medications Card -->
+                        <div class="card" style="margin: 16px 0;">
+                            <div class="card__head">
+                                <div class="card__title">Medications</div>
+                                <a href="#" class="card__link">Add Medication</a>
+                            </div>
+                            <div class="rows">
+                                <div class="row">
+                                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                    <div class="m">Metformin 500mg</div>
+                                    <div class="val">8:00 AM</div>
+                                    <div class="chip2 chip2--ok">Taken</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></use></svg></span></div>
+                                    <div class="m">Vitamin D3</div>
+                                    <div class="val">12:00 PM</div>
+                                    <div class="chip2 chip2--warn">Pending</div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                    <div class="m">Atorvastatin 10mg</div>
+                                    <div class="val">8:00 PM</div>
+                                    <div class="chip2 chip2--ok">Taken</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Wearable Insights Card -->
+                        <div class="card" style="margin: 16px 0;">
+                            <div class="card__head">
+                                <div class="card__title">Wearable Insights</div>
+                                <a href="#" class="card__link">Sync Device</a>
+                            </div>
+                            <div class="tiles">
+                                <div class="tile tile--accent">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-heart-pulse"/></use></svg></span></div>
+                                    <div class="n">72</div>
+                                    <div class="l">bpm</div>
+                                    <div class="n" style="font-size:14px; color:var(--accent-text);">-5 vs avg</div>
+                                </div>
+                                <div class="tile tile--ok">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
+                                    <div class="n">85</div>
+                                    <div class="l">/100</div>
+                                    <div class="n" style="font-size:14px; color:var(--success-text);">+8%</div>
+                                </div>
+                                <div class="tile tile--warn">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
+                                    <div class="n">32</div>
+                                    <div class="l">/100</div>
+                                    <div class="n" style="font-size:14px; color:var(--warning-text);">+12%</div>
+                                </div>
+                                <div class="tile">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                    <div class="n">98</div>
+                                    <div class="l">%</div>
+                                    <div class="n" style="font-size:14px;">SpO2</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Family Circle Card -->
+                        <div class="card" style="margin: 16px 0;">
+                            <div class="card__head">
+                                <div class="card__title">Family Circle</div>
+                                <a href="#" class="card__link">Invite Family</a>
+                            </div>
+                            <div class="rows" style="padding: 0;">
+                                <div class="row" style="border-top:none;">
+                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
+                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                    </div>
+                                    <div class="m">Priya</div>
+                                    <div class="val" style="text-align:right;">
+                                        <div class="chip2 chip2--ok" style="width:8px; height:8px; border-radius:50%;"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
+                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                    </div>
+                                    <div class="m">Mike</div>
+                                    <div class="val" style="text-align:right;">
+                                        <div class="chip2 chip2--ok" style="width:8px; height:8px; border-radius:50%;"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
+                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                    </div>
+                                    <div class="m">Dr. Sharma</div>
+                                    <div class="val" style="text-align:right;">
+                                        <div class="chip2 chip2--neutral" style="width:8px; height:8px; border-radius:50%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Stats -->
+                        <div class="tb" style="margin: 16px 0;">
+                            <div class="tbar__title">Today's Summary</div>
+                        </div>
+                        <div class="tiles">
+                            <div class="tile tile--ok">
+                                <div class="ic"><span class="icon"><svg><use href="#i-fire"/></use></svg></span></div>
+                                <div class="n">12</div>
+                                <div class="l">Day Streak</div>
+                            </div>
+                            <div class="tile">
+                                <div class="ic"><span class="icon"><svg><use href="#i-target"/></use></svg></span></div>
+                                <div class="n">3/5</div>
+                                <div class="l">Goals Met</div>
+                            </div>
+                            <div class="tile tile--warn">
+                                <div class="ic"><span class="icon"><svg><use href="#i-bell"/></use></svg></span></div>
+                                <div class="n">0</div>
+                                <div class="l">Alerts Today</div>
+                            </div>
+                            <div class="tile tile--alert">
+                                <div class="ic"><span class="icon"><svg><use href="#i-emergency"/></use></svg></span></div>
+                                <div class="n">0</div>
+                                <div class="l">Active Emergencies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Nav -->
+            <div class="bnav">
+                <div class="bnav__i">
+                    <div class="ic"><span class="icon"><svg><use href="#i-home"/></use></svg></span></div>
+                    Home
+                </div>
+                <div class="bnav__i">
+                    <div class="ic"><span class="icon"><svg><use href="#i-chart-pie"/></use></svg></span></div>
+                    Reports
+                </div>
+                <div class="bnav__i">
+                    <div class="ic"><span class="icon"><svg><use href="#i-calendar"/></use></svg></span></div>
+                    Schedule
+                </div>
+                <div class="bnav__i">
+                    <div class="ic"><span class="icon"><svg><use href="#i-person"/></use></svg></span></div>
+                    Profile
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Update time in status bar
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-IN', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.querySelector('.sbar').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Update greeting based on time
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Good morning";
+            if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+            else if (hour >= 17) greeting = "Good evening";
+            document.querySelector('.greet h1').textContent = greeting + ", Anita";
+        }
+        updateGreeting();
+    </script>
+</body>
+</html>

@@ -145,6 +145,7 @@
 .chip2--accent{ background:var(--accent-soft); color:var(--accent-text) }
 .chip2--neutral{ background:var(--surface-sunken); color:var(--text-muted) }
 .chip2--dw{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
+.chip2--self{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
 .chip2--vc{ background:var(--model-virtual-care-soft); color:var(--model-virtual-care-ink) }
 .chip2--direct{ background:var(--model-direct-care-soft); color:var(--model-direct-care-ink) }
 .chip2--risk-med{ background:var(--warning-soft); color:var(--warning-text) }

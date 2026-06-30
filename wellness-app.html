@@ -24,214 +24,698 @@
                     <span class="icon"><svg><use href="#i-battery"/></use></svg></span>
                 </div>
                 <span class="icon"><svg><use href="#i-clock"/></use></svg></span>
-                09:15
+                915</span>
             </div>
             
             <!-- Screen Content -->
             <div class="screen">
                 <div class="vbody">
                     
-                    <!-- Greeting & Wellness Score -->
-                    <div class="view is-active reveal">
-                        <div class="greet">
-                            <h1>Good morning, Anita</h1>
-                            <p>Your wellness journey today</p>
-                        </div>
-                        
-                        <!-- Wellness Score (Traffic Light) -->
-                        <div class="wtscore wtscore--ok">
-                            <b>85</b>
-                            <span>Wellness</span>
-                        </div>
-                        
-                        <!-- Quick Actions -->
-                        <div class="tb" style="margin: 16px 0;">
-                            <div class="tbar__title">Quick Actions</div>
-                        </div>
-                        <div class="choices" style="justify-content: center; flex-wrap: wrap;">
-                            <a href="#" class="choice on">
-                                <span class="icon"><svg><use href="#i-heart-pulse"/></use></svg></span>
-                                Check In
-                            </a>
-                            <a href="#" class="choice">
-                                <span class="icon"><svg><use href="#i-medication"/></use></svg></span>
-                                Medications
-                            </a>
-                            <a href="#" class="choice">
-                                <span class="icon"><svg><use href="#i-file-text"/></use></svg></span>
-                                Records
-                            </a>
-                            <a href="#" class="choice">
-                                <span class="icon"><svg><use href="#i-users"/></use></svg></span>
-                                Family
-                            </a>
-                        </div>
-                        
-                        <!-- Daily Check-in Card -->
-                        <div class="card" style="margin: 16px 0;">
-                            <div class="card__head">
-                                <div class="card__title">Daily Check-in</div>
-                                <a href="#" class="card__link">Complete</a>
+                    <!-- ============ HOME ============ -->
+                    <section class="view is-active" id="homeView" data-nav="tabs" data-tab="home">
+                        <div class="tbar">
+                            <div class="tbar__title">
+                                <div class="eyebrow">Tuesday, 30 June</div>
+                                <h1>Hello, Anita</h1>
                             </div>
-                            <div class="rows">
-                                <div class="row">
-                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
-                                    <div class="m">Sleep Quality</div>
-                                    <div class="val">7.5 hrs</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-water"/></use></svg></span></div>
-                                    <div class="m">Water Intake</div>
-                                    <div class="val">6/8 glasses</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-walk"/></use></svg></span></div>
-                                    <div class="m">Steps Today</div>
-                                    <div class="val">4,200</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
-                                    <div class="m">Mood</div>
-                                    <div class="val">Positive</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-medication"/></use></svg></span></div>
-                                    <div class="m">Medication</div>
-                                    <div class="val">Taken</div>
-                                </div>
-                            </div>
+                            <button class="iconbtn" onclick="CBH.toggleLang()"><span class="icon"><svg><use href="#i-language"/></use></svg></span></button>
+                            <button class="iconbtn" onclick="CBH.go('notificationsView')"><span class="icon"><svg><use href="#i-bell"/></use></svg></span><span class="dot"></span></button>
+                            <button class="avatar-btn" onclick="CBH.go('profileView')">AN</button>
                         </div>
-                        
-                        <!-- Medications Card -->
-                        <div class="card" style="margin: 16px 0;">
-                            <div class="card__head">
-                                <div class="card__title">Medications</div>
-                                <a href="#" class="card__link">Add Medication</a>
-                            </div>
-                            <div class="rows">
-                                <div class="row">
-                                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
-                                    <div class="m">Metformin 500mg</div>
-                                    <div class="val">8:00 AM</div>
-                                    <div class="chip2 chip2--ok">Taken</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></use></svg></span></div>
-                                    <div class="m">Vitamin D3</div>
-                                    <div class="val">12:00 PM</div>
-                                    <div class="chip2 chip2--warn">Pending</div>
-                                </div>
-                                <div class="row">
-                                    <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
-                                    <div class="m">Atorvastatin 10mg</div>
-                                    <div class="val">8:00 PM</div>
-                                    <div class="chip2 chip2--ok">Taken</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Wearable Insights Card -->
-                        <div class="card" style="margin: 16px 0;">
-                            <div class="card__head">
-                                <div class="card__title">Wearable Insights</div>
-                                <a href="#" class="card__link">Sync Device</a>
-                            </div>
-                            <div class="tiles">
-                                <div class="tile tile--accent">
-                                    <div class="ic"><span class="icon"><svg><use href="#i-heart-pulse"/></use></svg></span></div>
-                                    <div class="n">72</div>
-                                    <div class="l">bpm</div>
-                                    <div class="n" style="font-size:14px; color:var(--accent-text);">-5 vs avg</div>
-                                </div>
-                                <div class="tile tile--ok">
-                                    <div class="ic"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
-                                    <div class="n">85</div>
-                                    <div class="l">/100</div>
-                                    <div class="n" style="font-size:14px; color:var(--success-text);">+8%</div>
-                                </div>
-                                <div class="tile tile--warn">
-                                    <div class="ic"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
-                                    <div class="n">32</div>
-                                    <div class="l">/100</div>
-                                    <div class="n" style="font-size:14px; color:var(--warning-text);">+12%</div>
-                                </div>
-                                <div class="tile">
-                                    <div class="ic"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
-                                    <div class="n">98</div>
-                                    <div class="l">%</div>
-                                    <div class="n" style="font-size:14px;">SpO2</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Family Circle Card -->
-                        <div class="card" style="margin: 16px 0;">
-                            <div class="card__head">
-                                <div class="card__title">Family Circle</div>
-                                <a href="#" class="card__link">Invite Family</a>
-                            </div>
-                            <div class="rows" style="padding: 0;">
-                                <div class="row" style="border-top:none;">
-                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
-                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
-                                    </div>
-                                    <div class="m">Priya</div>
-                                    <div class="val" style="text-align:right;">
-                                        <div class="chip2 chip2--ok" style="width:8px; height:8px; border-radius:50%;"></div>
+                        <div class="vbody has-nav">
+                            <div class="hero-card reveal">
+                                <span class="htag" style="color:var(--success-text);background:var(--success-soft)">
+                                    <span class="icon"><svg><use href="#i-check"/></use></svg></span>Care status · Stable
+                                </span>
+                                <h1 class="t-heading-l" style="margin-top:14px">You're doing great today</h1>
+                                <div class="idblock" style="margin-top:14px">
+                                    <span class="av">AN</span>
+                                    <div>
+                                        <div class="nm" style="font-size:16px">Anita Nair</div>
+                                        <div class="sub">68 · Ernakulam · Self Care</div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
-                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                <p class="t-body-m" style="color:var(--text-muted);margin-top:12px">
+                                    Last check-in: Today at 8:00 AM. All vitals within normal range.
+                                </p>
+                                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" 
+                                        onclick="CBH.go('wellnessSummaryView')">View wellness summary</button>
+                            </div>
+                            
+                            <div class="sec reveal">Next actions</div>
+                            <div class="visit reveal tap" onclick="CBH.go('checkInView')">
+                                <div class="visit__top__visit__when"><div class="h">Today</div><div class="d">30 Jun</div></div>
+                                <div class="visit__sep"></div>
+                                <div class="visit__body">
+                                    <div class="nm">Daily Wellness Check-in</div>
+                                    <div class="mt">8:00 AM · Self-guided</div>
+                                </div>
+                                <div class="visit__foot">
+                                    <span class="who"><span class="icon"><svg><use href="#i-check"/></use></svg></span>Completed</span>
+                                    <span class="chip2 chip2--ok">Done</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sec reveal">Latest wellbeing</div>
+                            <div class="card reveal">
+                                <div class="card__head">
+                                    <span class="card__title">Today's vitals</span>
+                                    <button class="card__link" onclick="CBH.go('wearableView')">
+                                        Wearables <span class="icon"><svg><use href="#i-chevron"/></use></svg></span>
+                                    </button>
+                                </div>
+                                <div class="vgrid" style="grid-template-columns:repeat(3, 1fr)">
+                                    <div class="vin">
+                                        <label>BP</label>
+                                        <div class="r"><input value="122/78" readonly></div>
                                     </div>
-                                    <div class="m">Mike</div>
-                                    <div class="val" style="text-align:right;">
-                                        <div class="chip2 chip2--ok" style="width:8px; height:8px; border-radius:50%;"></div>
+                                    <div class="vin">
+                                        <label>Pulse</label>
+                                        <div class="r"><input value="72" readonly><span class="u">bpm</span></div>
+                                    </div>
+                                    <div class="vin flag">
+                                        <label>SpO2</label>
+                                        <div class="r"><input value="98" readonly><span class="u">%</span></div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="ic" style="background:var(--accent-soft); color:var(--accent-text); width:44px; height:44px; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;">
-                                        <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                <p class="t-body-s" style="color:var(--text-muted);margin-top:10px">
+                                    Recorded today 7:30 AM. All readings excellent.
+                                </p>
+                            </div>
+                            
+                            <div class="sec reveal">Care team</div>
+                            <div class="card card--flush reveal">
+                                <div class="rows">
+                                    <div class="row">
+                                        <span class="row-av av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-weight:700">AN</span>
+                                        <div class="m"><div class="t">Anita Nair</div><div class="s">Primary member</div></div>
+                                        <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></use></svg></span></button>
                                     </div>
-                                    <div class="m">Dr. Sharma</div>
-                                    <div class="val" style="text-align:right;">
-                                        <div class="chip2 chip2--neutral" style="width:8px; height:8px; border-radius:50%;"></div>
+                                    <div class="row">
+                                        <span class="row-av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-weight:700">JA</span>
+                                        <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
+                                        <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></use></svg></span></button>
+                                    </div>
+                                    <div class="row">
+                                        <span class="row-av" style="width:42px;height:42px;border-radius:var(--radius-base);background:var(--success-soft);color:var(--success-text);display:flex;align-items:center;justify-content:center;font-weight:700">DR</span>
+                                        <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
+                                        <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></use></svg></span></button>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="sec reveal">Quick actions</div>
+                            <div class="tiles reveal">
+                                <div class="tile tile--accent tap" onclick="CBH.go('checkInView')">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-plus"/></use></svg></span></div>
+                                    <div class="n" style="font-size:13px">Daily</div>
+                                    <div class="l">Check-in</div>
+                                </div>
+                                <div class="tile tap" onclick="CBH.go('medicationView')">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-medication"/></use></svg></span></div>
+                                    <div class="n" style="font-size:13px">Meds</div>
+                                    <div class="l">Today</div>
+                                </div>
+                                <div class="tile tap" onclick="CBH.go('recordsView')">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-file-text"/></use></svg></span></div>
+                                    <div class="n" style="font-size:13px">Records</div>
+                                    <div class="l">History</div>
+                                </div>
+                                <div class="tile tap" onclick="CBH.go('familyView')">
+                                    <div class="ic"><span class="icon"><svg><use href="#i-users"/></use></svg></span></div>
+                                    <div class="n" style="font-size:13px">Family</div>
+                                    <div class="l">Circle</div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal tap" onclick="CBH.go('monthlyReportView')">
+                                <div class="row" style="padding:0">
+                                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></use></svg></span></div>
+                                    <div class="m"><div class="t">Monthly wellness report</div><div class="s">June · Score 85</div></div>
+                                    <span class="chip2 chip2--ok">Ready</span>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal tap" onclick="CBH.go('billingView')">
+                                <div class="row" style="padding:0">
+                                    <div class="ic ic--warn"><span class="icon"><svg><use href="#i-billing"/></use></svg></span></div>
+                                    <div class="m"><div class="t">June bill · ₹499</div><div class="s">Due 1 July</div></div>
+                                    <span class="chip2 chip2--ok">Auto-pay enabled</span>
+                                </div>
+                            </div>
+                            
+                            <button class="mbtn mbtn--sos mbtn--block reveal" onclick="CBH.go('sosConfirmView')">
+                                <span class="icon"><svg><use href="#i-emergency"/></use></svg></span>Emergency — get help
+                            </button>
                         </div>
-                        
-                        <!-- Quick Stats -->
-                        <div class="tb" style="margin: 16px 0;">
-                            <div class="tbar__title">Today's Summary</div>
+                    </section>
+                    
+                    <!-- ============ CHECK-IN ============ -->
+                    <section class="view" id="checkInView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Daily Check-in</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">How are you feeling today?</span></div>
+                                <div class="rows" style="margin:16px 0;">
+                                    <div class="row">
+                                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
+                                        <div class="m">Mood</div>
+                                        <div class="val">
+                                            <div class="segmented" style="justify-content:center;">
+                                                <button class="is-active" style="padding:4px 8px;">😊 Good</button>
+                                                <button style="padding:4px 8px;">😐 Okay</button>
+                                                <button style="padding:4px 8px;">😔 Low</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-energy"/></use></svg></span></div>
+                                        <div class="m">Energy level</div>
+                                        <div class="val">
+                                            <div class="segmented" style="justify-content:center;">
+                                                <button style="padding:4px 8px;">⚡ High</button>
+                                                <button class="is-active" style="padding:4px 8px;">⚡ Medium</button>
+                                                <button style="padding:4px 8px;">🔋 Low</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
+                                        <div class="m">Sleep quality</div>
+                                        <div class="val">
+                                            <div class="segmented" style="justify-content:center;">
+                                                <button style="padding:4px 8px;">😴 Poor</button>
+                                                <button style="padding:4px 8px;">😌 Fair</button>
+                                                <button class="is-active" style="padding:4px 8px;">😊 Good</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:24px" 
+                                        onclick="CBH.go('homeView',{reset:true})">Submit check-in</button>
+                            </div>
                         </div>
-                        <div class="tiles">
-                            <div class="tile tile--ok">
-                                <div class="ic"><span class="icon"><svg><use href="#i-fire"/></use></svg></span></div>
-                                <div class="n">12</div>
-                                <div class="l">Day Streak</div>
-                            </div>
-                            <div class="tile">
-                                <div class="ic"><span class="icon"><svg><use href="#i-target"/></use></svg></span></div>
-                                <div class="n">3/5</div>
-                                <div class="l">Goals Met</div>
-                            </div>
-                            <div class="tile tile--warn">
-                                <div class="ic"><span class="icon"><svg><use href="#i-bell"/></use></svg></span></div>
-                                <div class="n">0</div>
-                                <div class="l">Alerts Today</div>
-                            </div>
-                            <div class="tile tile--alert">
-                                <div class="ic"><span class="icon"><svg><use href="#i-emergency"/></use></svg></span></div>
-                                <div class="n">0</div>
-                                <div class="l">Active Emergencies</div>
+                    </section>
+                    
+                    <!-- ============ MEDICATIONS ============ -->
+                    <section class="view" id="medicationView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Medications</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head">
+                                    <span class="card__title">Today's medications</span>
+                                    <span class="chip2 chip2--ok">3 scheduled</span>
+                                </div>
+                                <div class="rows" style="margin:12px 0;">
+                                    <div class="row">
+                                        <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                        <div class="m">Metformin 500mg</div>
+                                        <div class="val">8:00 AM</div>
+                                        <div class="chip2 chip2--ok">Taken</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic ic--warn"><span class="icon"><svg><use href="#i-alert"/></use></svg></span></div>
+                                        <div class="m">Vitamin D3</div>
+                                        <div class="val">12:00 PM</div>
+                                        <div class="chip2 chip2--warn">Pending</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic ic--ok"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                        <div class="m">Atorvastatin 10mg</div>
+                                        <div class="val">8:00 PM</div>
+                                        <div class="chip2 chip2--ok">Taken</div>
+                                    </div>
+                                </div>
+                                <div class="card-divider"></div>
+                                <div class="card__head">
+                                    <span class="card__title">Add medication</span>
+                                    <a href="#" class="card__link">+ New medication</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
+                    
+                    <!-- ============ RECORDS ============ -->
+                    <section class="view" id="recordsView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Health Records</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">Recent check-ins</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Jun 30, 2026</div>
+                                        <div class="val" style="text-align:right;">
+                                            <span class="chip2 chip2--ok">Completed</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Jun 29, 2026</div>
+                                        <div class="val" style="text-align:right;">
+                                            <span class="chip2 chip2--ok">Completed</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Jun 28, 2026</div>
+                                        <div class="val" style="text-align:right;">
+                                            <span class="chip2 chip2--warn">Missed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Vitals trends</span>
+                                    <button class="card__link" onclick="CBH.go('wearableView')">
+                                        View details <span class="icon"><svg><use href="#i-chevron"/></use></svg></span>
+                                    </button>
+                                </div>
+                                <div class="vgrid" style="grid-template-columns:repeat(2, 1fr); gap:12px">
+                                    <div class="vin">
+                                        <label>BP Avg</label>
+                                        <div class="r"><strong>120/76</strong></div>
+                                        <div class="sub">(last 7 days)</div>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Pulse Avg</label>
+                                        <div class="r"><strong>74 bpm</strong></div>
+                                        <div class="sub">(last 7 days)</div>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Weight</label>
+                                        <div class="r"><strong>62.5 kg</strong></div>
+                                        <div class="sub">(stable)</div>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Steps/day</label>
+                                        <div class="r"><strong>4,200</strong></div>
+                                        <div class="sub">(goal: 5,000)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ WEARABLES ============ -->
+                    <section class="view" id="wearableView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Wearable Insights</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head">
+                                    <span class="card__title">Today's summary</span>
+                                    <span class="chip2 chip2--ok">Sync successful</span>
+                                </div>
+                                <div class="tiles">
+                                    <div class="tile tile--accent">
+                                        <div class="ic"><span class="icon"><svg><use href="#i-heart-pulse"/></use></svg></span></div>
+                                        <div class="n">72</div>
+                                        <div class="l">bpm</div>
+                                        <div class="n" style="font-size:14px; color:var(--accent-text);">-2 vs avg</div>
+                                    </div>
+                                    <div class="tile tile--ok">
+                                        <div class="ic"><span class="icon"><svg><use href="#i-sleep"/></use></svg></span></div>
+                                        <div class="n">85</div>
+                                        <div class="l">/100</div>
+                                        <div class="n" style="font-size:14px; color:var(--success-text);">+5%</div>
+                                    </div>
+                                    <div class="tile tile--warn">
+                                        <div class="ic"><span class="icon"><svg><use href="#i-mood"/></use></svg></span></div>
+                                        <div class="n">35</div>
+                                        <div class="l">/100</div>
+                                        <div class="n" style="font-size:14px; color:var(--warning-text);">+8%</div>
+                                    </div>
+                                    <div class="tile">
+                                        <div class="ic"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span></div>
+                                        <div class="n">98</div>
+                                        <div class="l">%</div>
+                                        <div class="n" style="font-size:14px;">SpO2</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sec reveal">Weekly trends</div>
+                            <div class="card reveal">
+                                <div class="vgrid" style="grid-template-columns:repeat(2, 1fr); gap:16px">
+                                    <div class="vin">
+                                        <label>Heart rate</label>
+                                        <div class="r"><strong>72</strong> bpm</div>
+                                        <p class="t-body-s" style="color:var(--success-text);margin-top:4px;">Steady ↓</p>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Sleep score</label>
+                                        <div class="r"><strong>85</strong>/100</div>
+                                        <p class="t-body-s" style="color:var(--success-text);margin-top:4px;">Improving ↑</p>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Stress level</label>
+                                        <div class="r"><strong>35</strong>/100</div>
+                                        <p class="t-body-s" style="color:var(--warning-text);margin-top:4px;">Elevated ⚠</p>
+                                    </div>
+                                    <div class="vin">
+                                        <label>Activity</label>
+                                        <div class="r"><strong>4,200</strong> steps</div>
+                                        <p class="t-body-s" style="color:var(--accent-text);margin-top:4px;">On track</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Device status</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Battery</div>
+                                        <div class="val">85%</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Last sync</div>
+                                        <div class="val">2 min ago</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Connection</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-bluetooth"/></use></svg></span> Connected</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ FAMILY CIRCLE ============ -->
+                    <section class="view" id="familyView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Family Circle</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">Connected family</span></div>
+                                <div class="rows" style="margin:12px 0;">
+                                    <div class="row">
+                                        <div class="ic" style="background:var(--accent-soft);color:var(--accent-text);width:44px;height:44px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;">
+                                            <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                        </div>
+                                        <div class="m">Priya Nair</div>
+                                        <div class="val" style="text-align:right;">
+                                            <div class="chip2 chip2--ok" style="width:8px;height:8px;border-radius:50%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic" style="background:var(--accent-soft);color:var(--accent-text);width:44px;height:44px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;">
+                                            <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                        </div>
+                                        <div class="m">Mike Johnson</div>
+                                        <div class="val" style="text-align:right;">
+                                            <div class="chip2 chip2--ok" style="width:8px;height:8px;border-radius:50%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="ic" style="background:var(--accent-soft);color:var(--accent-text);width:44px;height:44px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;">
+                                            <span class="icon"><svg><use href="#i-person"/></use></svg></span>
+                                        </div>
+                                        <div class="m">Dr. Rajeev Menon</div>
+                                        <div class="val" style="text-align:right;">
+                                            <div class="chip2 chip2--neutral" style="width:8px;height:8px;border-radius:50%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head">
+                                    <span class="card__title">Permissions</span>
+                                    <a href="#" class="card__link">Manage access</a>
+                                </div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Priya can see:</div>
+                                        <div class="val">
+                                            <span class="chip2 chip2--ok">Vitals</span>
+                                            <span class="chip2 chip2--ok">Check-ins</span>
+                                            <span class="chip2 chip2--ok">Medications</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Mike can see:</div>
+                                        <div class="val">
+                                            <span class="chip2 chip2--ok">Emergency alerts</span>
+                                            <span class="chip2 chip2--warn">Limited vitals</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Add family member</span></div>
+                                <div class="field" style="margin:12px 0;">
+                                    <label>Email or phone</label>
+                                    <input type="text" placeholder="family@email.com">
+                                </div>
+                                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:12px">Send invite</button>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ PROFILE ============ -->
+                    <section class="view" id="profileView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Profile</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">Account</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Name</div>
+                                        <div class="val">Anita Nair</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Email</div>
+                                        <div class="val">anita.nair@email.com</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Phone</div>
+                                        <div class="val">+91 98765 43210</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Date of birth</div>
+                                        <div class="val">15 March 1958</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Emergency contact</div>
+                                        <div class="val">Priya Nair · +91 98765 43211</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Care plan</span>
+                                    <span class="chip2 chip2--self">Self Care</span>
+                                </div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Plan level</div>
+                                        <div class="val">Standard</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Visit frequency</div>
+                                        <div class="val">Self-guided</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Care review</div>
+                                        <div class="val">Every 6 months</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Notifications</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Daily check-in reminders</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> On</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Medication alerts</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> On</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Weekly summaries</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> On</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Family alerts</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> On</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ NOTIFICATIONS ============ -->
+                    <section class="view" id="notificationsView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Notifications</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Jun 30, 8:00 AM</div>
+                                        <div class="val">Daily check-in reminder sent</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Jun 29, 6:30 PM</div>
+                                        <div class="val">Medication reminder: Vitamin D3</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Jun 29, 2:15 PM</div>
+                                        <div class="val">Weekly wellness summary ready</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Jun 28, 9:00 AM</div>
+                                        <div class="val">Family member Priya checked in</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ MONTHLY REPORT ============ -->
+                    <section class="view" id="monthlyReportView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Monthly Report</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">June 2026 Wellness Summary</span></div>
+                                <div class="rows" style="margin:16px 0;">
+                                    <div class="row">
+                                        <div class="m">Wellness score</div>
+                                        <div class="val"><strong>85</strong>/100</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Check-in consistency</div>
+                                        <div class="val">26/30 days (87%)</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Medication adherence</div>
+                                        <div class="val">92% on schedule</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Average steps/day</div>
+                                        <div class="val">4,200</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Average sleep score</div>
+                                        <div class="val">82/100</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Family engagement</div>
+                                        <div class="val">3 active connections</div>
+                                    </div>
+                                </div>
+                                <p class="t-body-m" style="color:var(--text-muted);margin-top:16px;">
+                                    Great job maintaining your wellness routine! Your score improved from 78 last month.
+                                </p>
+                                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:24px" 
+                                        onclick="CBH.go('homeView',{reset:true})">Done</button>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ BILLING ============ -->
+                    <section class="view" id="billingView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Billing & Payments</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">Current balance</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Subscription plan</div>
+                                        <div class="val">Self Care Standard · ₹499/month</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Next billing date</div>
+                                        <div class="val">1 July 2026</div
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Payment method</div>
+                                        <div class="val">Credit card ending in 4242</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Auto-pay status</div>
+                                        <div class="val"><span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> Enabled</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card reveal" style="margin-top:16px;">
+                                <div class="card__head"><span class="card__title">Payment history</span></div>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="m">Jun 1, 2026</div>
+                                        <div class="val">₹499 · Self Care Standard</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">May 1, 2026</div>
+                                        <div class="val">₹499 · Self Care Standard</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Apr 1, 2026</div>
+                                        <div class="val">₹499 · Self Care Standard</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============>
+                    <!-- ============ SOS CONFIRM ============ -->
+                    <section class="view" id="sosConfirmView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Emergency Assistance</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal">
+                                <div class="card__head"><span class="card__title">Are you in need of immediate help?</span></div>
+                                <p class="t-body-m" style="color:var(--text-muted);margin:16px 0;">
+                                    Press and hold the button below to alert your emergency contacts and care team.
+                                    Your location will be shared automatically.
+                                </p>
+                                <button class="mbtn mbtn--sos mbtn--block" style="margin:24px 0;height:60px;font-size:18px"
+                                        onclick="CBH.go('sosActiveView')">
+                                    <span class="icon"><svg><use href="#i-emergency"/></use></svg></span>
+                                    HOLD FOR EMERGENCY
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- ============ SOS ACTIVE ============ -->
+                    <section class="view" id="sosActiveView">
+                        <div class="tbar"><button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></use></svg></span></button><div class="tbar__title"><h1 class="sm">Emergency Active</h1></div></div>
+                        <div class="vbody">
+                            <div class="card reveal" style="background:var(--danger-soft);border:2px solid var(--danger);">
+                                <div class="card__head"><span class="card__title" style="color:var(--danger-text)">EMERGENCY ALERT SENT</span></div>
+                                <div class="rows" style="margin:16px 0;">
+                                    <div class="row">
+                                        <div class="m">Alert sent to</div>
+                                        <div class="val">Priya Nair, Mike Johnson, Dr. Menon</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Care team notified</div>
+                                        <div class="val">Joel Abraham (Care Coordinator)</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Location shared</div>
+                                        <div class="val">Ernakulam, Kerala</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="m">Time</div>
+                                        <div class="val">Just now</div>
+                                    </div>
+                                </div>
+                                <p class="t-body-m" style="color:var(--text-muted);margin-top:16px;text-align:center;">
+                                    Help is on the way. Stay calm and follow any instructions from your care team.
+                                </p>
+                                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:24px"
+                                        onclick="CBH.go('homeView',{reset:true})">
+                                    <span class="icon"><svg><use href="#i-check-circle"/></use></svg></span> I'm safe now
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
             
-            <!-- Bottom Nav -->
+            <!-- Bottom Navigation -->
             <div class="bnav">
                 <div class="bnav__i">
                     <div class="ic"><span class="icon"><svg><use href="#i-home"/></use></svg></span></div>
@@ -254,6 +738,59 @@
     </div>
     
     <script>
+        // Mock CBH object for navigation
+        window.CBH = {
+            go: function(view, options) {
+                // Hide all views
+                document.querySelectorAll('.view').forEach(function(el) {
+                    el.classList.remove('is-active');
+                });
+                
+                // Show target view
+                var targetView = document.getElementById(view);
+                if (targetView) {
+                    targetView.classList.add('is-active');
+                    if (options && options.reset) {
+                        // Reset view state if needed
+                    }
+                }
+                
+                // Update URL hash for basic navigation
+                if (view !== 'homeView') {
+                    window.location.hash = view;
+                } else {
+                    window.location.hash = '';
+                }
+            },
+            back: function() {
+                window.CBH.go('homeView', {reset: true});
+            },
+            toggleLang: function() {
+                // Placeholder for language toggle
+                alert('Language toggle would be implemented here');
+            }
+        };
+        
+        // Handle back button and hash changes
+        window.addEventListener('hashchange', function() {
+            var hash = window.location.hash.substring(1); // Remove #
+            if (hash && document.getElementById(hash)) {
+                window.CBH.go(hash);
+            } else {
+                window.CBH.go('homeView');
+            }
+        });
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            var hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                window.CBH.go(hash);
+            } else {
+                window.CBH.go('homeView');
+            }
+        });
+        
         // Update time in status bar
         function updateTime() {
             const now = new Date();
@@ -270,11 +807,15 @@
         // Update greeting based on time
         function updateGreeting() {
             const hour = new Date().getHours();
-            let greeting = "Good morning";
-            if (hour >= 12 && hour < 17) greeting = "Good afternoon";
-            else if (hour >= 17) greeting = "Good evening";
-            document.querySelector('.greet h1').textContent = greeting + ", Anita";
+            let greeting = "Hello";
+            if (hour >= 5 && hour < 12) greeting = "Good morning";
+            else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+            else if (hour >= 17 && hour < 21) greeting = "Good evening";
+            else greeting = "Hello";
+            
+            document.querySelector('.tbar__title h1').textContent = greeting + ", Anita";
         }
+        setInterval(updateGreeting, 1000);
         updateGreeting();
     </script>
 </body>

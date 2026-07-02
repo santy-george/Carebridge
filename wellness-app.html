@@ -11,19 +11,28 @@
     <style>
         /* ── Wellness-app specific styles ───────────────────────────────── */
 
-        /* Hero card */
+        /* Hero card — banner header + white body (per redesign) */
         .hero-wellness {
             border-radius: var(--radius-2xl);
-            background: linear-gradient(145deg, var(--model-digital-wellness-soft) 0%, var(--surface) 70%);
-            border: 1px solid rgba(169,133,207,.22);
-            padding: 18px; position: relative; overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0; position: relative; overflow: hidden;
+            box-shadow: var(--shadow-md);
         }
-        .hero-wellness::before {
-            content:""; position:absolute; top:-50px; right:-50px;
-            width:160px; height:160px; border-radius:50%;
-            background:var(--model-digital-wellness-soft); opacity:.6;
+        .hero-band {
+            background: linear-gradient(120deg, var(--model-digital-wellness) 0%, var(--purple-400) 100%);
+            padding: 14px 18px; position: relative; overflow: hidden;
         }
-        .hero-wellness > * { position: relative; }
+        .hero-band::before {
+            content:""; position:absolute; top:-40px; right:-30px;
+            width:120px; height:120px; border-radius:50%;
+            background:rgba(255,255,255,.16);
+        }
+        .hero-band-label {
+            position: relative; color:#fff; font-family:var(--font-heading);
+            font-weight:700; font-size:14px; letter-spacing:.2px;
+        }
+        .hero-body { padding: 16px 18px 18px; position: relative; }
 
         /* Dynamic score ring — color set via JS */
         .w-score { display:flex; align-items:center; gap:14px; margin:12px 0; }
@@ -104,6 +113,7 @@
         .acard .a-sub   { font-size:11px; color:var(--text-muted); margin-top:3px; }
         /* Library tile uses emoji icon */
         .acard .a-em { font-size:22px; margin-bottom:8px; display:block; }
+        .acard--hydration .a-ic { background: color-mix(in srgb, var(--accent) 85%, var(--accent-soft)); }
 
         /* Overline section label */
         .overline { font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--text-subtle); padding:4px 0; }
@@ -180,6 +190,58 @@
         .inv-rows .row .val { font-size:12px; font-weight:600; color:var(--text-heading); }
         .inv-stock-low { color:var(--danger-text)!important; }
 
+        /* Overall stock ring (Medicine Cabinet header) */
+        .stock-ring { width:56px; height:56px; border-radius:50%; flex-shrink:0; position:relative; display:flex; align-items:center; justify-content:center;
+            background: conic-gradient(var(--stock-ring-color,var(--accent)) 0% var(--stock-ring-pct,85%), var(--neutral-100) var(--stock-ring-pct,85%) 100%); }
+        .stock-ring::after { content:""; position:absolute; inset:6px; border-radius:50%; background:var(--surface); }
+        .stock-ring-num { position:relative; z-index:1; font-family:var(--font-heading); font-weight:700; font-size:15px; color:var(--text-heading); }
+
+        /* Refill row layout */
+        .inv-item-top { display:flex; align-items:flex-start; gap:12px; padding:13px 14px 8px; cursor:pointer; }
+        .inv-stock-row { display:flex; align-items:center; gap:10px; padding:0 14px 13px; }
+        .days-pill { font-size:12px; font-weight:700; padding:5px 12px; border-radius:var(--radius-full); color:#fff; flex-shrink:0; }
+        .days-pill--ok   { background:var(--accent); }
+        .days-pill--warn { background:var(--warning); color:var(--warning-text); }
+        .days-pill--low  { background:var(--danger); }
+        .days-pill-sub { font-size:12px; color:var(--text-muted); flex:1; }
+        .inv-refill-btn { padding:8px 18px; font-size:13px; border-radius:var(--radius-full); flex-shrink:0; color:#fff; font-weight:700; }
+
+        /* Date navigator (medication schedule) */
+        .date-nav { display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:14px; }
+        .date-nav-arrow { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--text-muted); flex-shrink:0; }
+        .date-nav-arrow:active { background:var(--surface-sunken); }
+        .date-nav-label { font-family:var(--font-heading); font-weight:700; font-size:14px; color:var(--text-heading); }
+
+        /* Time-of-day medication bands */
+        .tod-band { border-radius:var(--radius-lg); padding:12px 14px; margin-bottom:10px; }
+        .tod-band-label { font-family:var(--font-heading); font-weight:700; font-size:11.5px; letter-spacing:.4px; text-transform:uppercase; margin-bottom:8px; }
+        .tod-row { display:flex; align-items:center; gap:12px; padding:7px 0; }
+        .tod-row + .tod-row { border-top:1px solid rgba(21,22,50,.08); }
+        .tod-check { width:19px; height:19px; flex-shrink:0; accent-color:var(--accent); }
+        .tod-m { flex:1; min-width:0; }
+        .tod-name { font-weight:600; font-size:13.5px; color:var(--text-heading); transition:opacity .15s; }
+        .tod-row.taken .tod-name { text-decoration:line-through; opacity:.6; }
+        .tod-note { font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+        .tod-band--morning { background:var(--amber-50); } .tod-band--morning .tod-band-label { color:var(--amber-600); }
+        .tod-band--noon    { background:var(--blue-50); }  .tod-band--noon .tod-band-label    { color:var(--blue-600); }
+        .tod-band--evening { background:var(--model-virtual-care-soft); } .tod-band--evening .tod-band-label { color:var(--model-virtual-care-ink); }
+        .tod-band--night   { background:var(--model-digital-wellness-soft); } .tod-band--night .tod-band-label { color:var(--model-digital-wellness-ink); }
+
+        /* Tracker summary list */
+        .trk-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+
+        /* Floating add-data button (Trackers) */
+        .fab-add {
+            position:absolute; right:16px; bottom:96px; z-index:6;
+            width:64px; height:64px; border-radius:50%;
+            background:var(--accent); color:var(--accent-on);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+            box-shadow:var(--shadow-lg); text-align:center; padding:4px;
+        }
+        .fab-add .icon { width:18px; height:18px; }
+        .fab-add-label { font-size:8.5px; font-weight:700; line-height:1.15; letter-spacing:.1px; }
+        .fab-add:active { filter:brightness(.95); }
+
         /* Wellness library grid */
         .lib-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
         .lib-card {
@@ -239,6 +301,10 @@
         .t-input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-heading); font-weight:700; font-size:17px; text-align:center; color:var(--text-heading); background:var(--surface); box-sizing:border-box; }
         .t-input:focus { outline:none; border-color:var(--accent); }
 
+        /* Header submit button (check-in) */
+        .tbar-submit { flex-shrink:0; padding:8px 4px; font-family:var(--font-heading); font-weight:700; font-size:15px; color:var(--accent-text); }
+        .tbar-submit:active { opacity:.7; }
+
         /* Comment textarea */
         .comment-area { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-body); font-size:13px; line-height:1.5; color:var(--text-body); background:var(--surface); resize:none; margin-top:8px; box-sizing:border-box; }
         .comment-area:focus { outline:none; border-color:var(--accent); }
@@ -254,6 +320,20 @@
         .tlog-row:last-child { border-bottom:none; }
         /* Row avatar */
         .row-av { width:40px; height:40px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+        /* Multi-icon row actions (care team) */
+        .row-actions { display:flex; gap:6px; flex-shrink:0; }
+        .row-actions .iconbtn { width:32px; height:32px; background:var(--accent-soft); border-color:transparent; color:var(--accent-text); }
+        .row-actions .iconbtn .icon { width:16px; height:16px; }
+        .add-contact-row { display:flex; align-items:center; justify-content:center; gap:6px; padding:13px 14px; color:var(--accent-text); font-weight:700; font-size:13.5px; }
+        .add-contact-row .icon { width:16px; height:16px; }
+        .sos-cta { flex-direction:row; gap:10px; }
+        .sos-cta-text { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; }
+        .sos-cta-title { font-size:16px; font-weight:800; letter-spacing:.3px; }
+        .sos-cta-sub { font-size:11.5px; font-weight:500; opacity:.9; }
+        .sos-cta--thin { padding:11px 18px; }
+        .sos-cta--thin .icon { width:18px; height:18px; }
+        .sos-cta--thin .sos-cta-title { font-size:14.5px; }
+        .sos-cta--thin .sos-cta-sub { font-size:10.5px; }
 
         /* Adherence bar */
         .adh-bar { height:6px; border-radius:99px; background:var(--neutral-100); overflow:hidden; margin:8px 0 4px; }
@@ -267,6 +347,14 @@
         .notif-title { font-size:13px; font-weight:600; color:var(--text-heading); }
         .notif-sub   { font-size:12px; color:var(--text-muted); margin-top:2px; }
         .notif-time  { font-size:11px; color:var(--text-subtle); white-space:nowrap; margin-left:auto; padding-top:2px; }
+
+        /* Bottom nav — floating pill bar (picked via /impeccable live) */
+        .bnav--floating { position:absolute; left:16px; right:16px; bottom:18px; background:var(--surface); border-radius:var(--radius-full); box-shadow:var(--shadow-lg); padding:9px 6px; border:1px solid var(--border); backdrop-filter:none; }
+        .bnav--floating .bnav__i { font-size:10.5px; }
+        .bnav--floating .bnav__i .icon svg { stroke-width:2.4; }
+        .bnav--floating .bnav__i.is-active .ic { background:var(--accent); }
+        .bnav--floating .bnav__i.is-active .icon { color:var(--accent-on); }
+        .bnav--floating .bnav__i.is-active .icon svg * { fill:currentColor; stroke:none; }
     </style>
 </head>
 <body>
@@ -296,6 +384,7 @@
             <div class="tbar__title">
                 <div class="eyebrow" id="home-date">Tuesday, 30 June</div>
                 <h1 id="home-greeting">Good morning, Anita</h1>
+                <div style="font-size:12px;color:var(--warning-text);font-weight:600;margin-top:2px">🔥 On a <span id="streakDays">7</span>-day streak</div>
             </div>
             <button class="iconbtn" onclick="CBH.go('notificationsView')">
                 <span class="icon"><svg><use href="#i-bell"/></svg></span><span class="dot"></span>
@@ -304,20 +393,31 @@
         </div>
         <div class="vbody has-nav">
 
-            <!-- Hero — wellness score, no status tick -->
+            <!-- Hero — banner header + wellness score body -->
             <div class="hero-wellness reveal">
-                <span class="htag" style="color:var(--model-digital-wellness-ink);background:var(--model-digital-wellness-soft)">Self Care · Standard</span>
-                <div class="w-score">
-                    <div class="w-ring" id="scoreRing"><span class="w-ring-num" id="scoreNum">85</span></div>
-                    <div class="w-score-meta">
-                        <div class="label">Wellness score</div>
-                        <div class="note" id="scoreNote">↑ Up from 78 last month</div>
+                <div class="hero-band"><span class="hero-band-label">Self Care · Standard</span></div>
+                <div class="hero-body">
+                    <div class="w-score">
+                        <div class="w-ring" id="scoreRing"><span class="w-ring-num" id="scoreNum">85</span></div>
+                        <div class="w-score-meta">
+                            <div class="label">Wellness score</div>
+                            <div class="note" id="scoreNote">↑ Up from 78 last month</div>
+                        </div>
                     </div>
+                    <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px">Last check-in today 8:00 AM · All vitals normal</p>
+                    <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('checkInView')">
+                        <span class="icon"><svg><use href="#i-plus"/></svg></span> Log today's check-in
+                    </button>
                 </div>
-                <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px">Last check-in today 8:00 AM · All vitals normal</p>
-                <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('checkInView')">
-                    <span class="icon"><svg><use href="#i-plus"/></svg></span> Log today's check-in
-                </button>
+            </div>
+
+            <!-- Wellness Warrior streak badge -->
+            <div class="card reveal tap" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--warning-soft);border-color:var(--warning)" onclick="CBH.go('trackersView')">
+                <div style="width:44px;height:44px;border-radius:50%;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏆</div>
+                <div style="flex:1">
+                    <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)"><span id="streakDaysBadge">7</span> Days · Wellness Warrior</div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:2px">3 days to next milestone</div>
+                </div>
             </div>
 
             <!-- Last check-in comment — shown after submitting check-in -->
@@ -367,15 +467,15 @@
             <!-- Quick actions — Family replaced by Wellness Library -->
             <div class="overline">Quick actions</div>
             <div class="action-grid reveal">
-                <div class="acard primary tap" onclick="CBH.go('checkInView')">
-                    <div class="a-ic"><span class="icon"><svg><use href="#i-plus"/></svg></span></div>
-                    <div class="a-label">Daily Check-in</div>
-                    <div class="a-sub">Mood · Energy · Sleep</div>
+                <div class="acard tap acard--hydration" onclick="CBH.go('trackersView'); setTimeout(function(){scrollToTracker('hydSection')},60)">
+                    <div class="a-ic"><span style="font-size:16px;line-height:1">💧</span></div>
+                    <div class="a-label">Hydration</div>
+                    <div class="a-sub">5 of 8 glasses today</div>
                 </div>
-                <div class="acard tap" onclick="CBH.go('medicationView')">
-                    <div class="a-ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>
-                    <div class="a-label">Medications</div>
-                    <div class="a-sub">2 of 3 taken today</div>
+                <div class="acard tap" onclick="CBH.go('careTeamView')">
+                    <div class="a-ic"><span class="icon"><svg><use href="#i-family"/></svg></span></div>
+                    <div class="a-label">Care Team</div>
+                    <div class="a-sub">Joel, Dr. Menon</div>
                 </div>
                 <div class="acard tap" onclick="CBH.go('recordsView')">
                     <div class="a-ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
@@ -383,40 +483,15 @@
                     <div class="a-sub">Check-ins & vitals</div>
                 </div>
                 <div class="acard tap" onclick="CBH.go('wellnessLibraryView')">
-                    <span class="a-em">📚</span>
+                    <div class="a-ic"><span class="icon"><svg><use href="#i-library"/></svg></span></div>
                     <div class="a-label">Wellness Library</div>
                     <div class="a-sub">Tips & guides</div>
                 </div>
             </div>
 
-            <!-- Care team -->
-            <div class="overline">Care team</div>
-            <div class="card card--flush reveal">
-                <div class="rows">
-                    <div class="row">
-                        <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span>
-                        <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
-                        <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                    </div>
-                    <div class="row">
-                        <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
-                        <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
-                        <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- This month -->
-            <div class="overline">This month</div>
-            <div class="card reveal tap" onclick="CBH.go('monthlyReportView')" style="margin-bottom:10px">
-                <div class="row" style="padding:0">
-                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
-                    <div class="m"><div class="t">June wellness report</div><div class="s">Score 85 · Check-in 87%</div></div>
-                    <span class="chip2 chip2--ok">Ready</span>
-                </div>
-            </div>
-            <button class="mbtn mbtn--sos mbtn--block reveal" style="margin-top:6px" onclick="CBH.go('sosConfirmView')">
-                <span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — get help
+            <button class="mbtn mbtn--sos mbtn--block reveal sos-cta sos-cta--thin" style="margin-top:6px" onclick="CBH.go('sosConfirmView')">
+                <span class="icon"><svg><use href="#i-emergency"/></svg></span>
+                <span class="sos-cta-text"><span class="sos-cta-title">Designated SOS</span><span class="sos-cta-sub">Alert nominated care team</span></span>
             </button>
         </div>
     </section>
@@ -428,6 +503,7 @@
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Daily Check-in</h1></div>
+            <button class="tbar-submit" onclick="submitCheckIn()">Submit</button>
         </div>
         <div class="vbody has-nav" style="gap:10px">
             <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">How are you feeling today? Just a moment.</p>
@@ -492,12 +568,7 @@
                 <div class="char-count"><span id="charCountNum">0</span>/100</div>
             </div>
 
-            <div>
-                <button class="mbtn mbtn--fill mbtn--block" onclick="submitCheckIn()">
-                    <span class="icon"><svg><use href="#i-check"/></svg></span> Submit check-in
-                </button>
-                <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin-top:8px">Your care team reviews this weekly</p>
-            </div>
+            <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin:4px 0 8px">Your care team reviews this weekly</p>
         </div>
     </section>
 
@@ -519,58 +590,54 @@
 
             <!-- ── SCHEDULE PANEL ── -->
             <div class="med-panel show" id="panel-schedule">
-                <!-- Adherence -->
-                <div class="card" style="margin-bottom:14px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                        <span class="t-title">Today's adherence</span>
-                        <span style="font-family:var(--font-heading);font-weight:700;font-size:22px;color:var(--success)">2<span style="font-size:13px;font-weight:500;color:var(--text-muted)"> / 3</span></span>
-                    </div>
-                    <div class="adh-bar"><div class="fill" id="adhFill" style="width:67%"></div></div>
-                    <p class="t-body-s" style="color:var(--text-muted);margin-top:5px" id="adhNote">1 medication due at 12:00 PM</p>
+
+                <!-- Date navigator -->
+                <div class="date-nav">
+                    <button class="date-nav-arrow" onclick="shiftMedDate(-1)">‹</button>
+                    <span class="date-nav-label" id="medDateLabel">Today, 2 Jul</span>
+                    <button class="date-nav-arrow" onclick="shiftMedDate(1)">›</button>
                 </div>
 
-                <!-- Timeline -->
-                <div class="med-timeline">
-
-                    <div class="med-tl-item taken">
-                        <div class="med-tl-dot">✅</div>
-                        <div class="med-tl-body">
-                            <div class="med-tl-time">8:00 AM · With breakfast</div>
-                            <div class="med-tl-name">Metformin 500mg</div>
-                            <div class="med-tl-note">Blood sugar control</div>
-                            <div class="med-tl-status">
-                                <span class="chip2 chip2--ok">Taken</span>
-                            </div>
+                <!-- Adherence ring -->
+                <div class="card" style="margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div class="stock-ring" id="adhRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="adhRingNum">50%</span></div>
+                        <div style="flex:1">
+                            <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)"><span id="adhCountNum">2</span> of <span id="adhCountTotal">4</span> meds taken</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="adhNote">Next due: 12:00 PM</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="med-tl-item pending" id="vitD-tl">
-                        <div class="med-tl-dot">⏰</div>
-                        <div class="med-tl-body">
-                            <div class="med-tl-time">12:00 PM · With lunch</div>
-                            <div class="med-tl-name">Vitamin D3 1000 IU</div>
-                            <div class="med-tl-note">Bone health & immunity</div>
-                            <div class="med-tl-status">
-                                <span class="chip2 chip2--warn">Due now</span>
-                                <button class="mbtn mbtn--fill" style="padding:5px 12px;font-size:12px" onclick="markTaken()">
-                                    <span class="icon"><svg><use href="#i-check"/></svg></span> Mark taken
-                                </button>
-                            </div>
-                        </div>
+                <!-- Morning -->
+                <div class="tod-band tod-band--morning">
+                    <div class="tod-band-label">Morning</div>
+                    <div class="tod-row taken">
+                        <input type="checkbox" class="tod-check" checked disabled>
+                        <div class="tod-m"><div class="tod-name">Levothyroxine 50mcg</div><div class="tod-note">Empty stomach · Taken 7:30 AM</div></div>
                     </div>
-
-                    <div class="med-tl-item">
-                        <div class="med-tl-dot" style="color:var(--text-subtle)">○</div>
-                        <div class="med-tl-body">
-                            <div class="med-tl-time">8:00 PM · After dinner</div>
-                            <div class="med-tl-name">Atorvastatin 10mg</div>
-                            <div class="med-tl-note">Cholesterol control</div>
-                            <div class="med-tl-status">
-                                <span class="chip2">Scheduled</span>
-                            </div>
-                        </div>
+                    <div class="tod-row taken">
+                        <input type="checkbox" class="tod-check" checked disabled>
+                        <div class="tod-m"><div class="tod-name">Metformin 500mg</div><div class="tod-note">With breakfast · Taken 8:00 AM</div></div>
                     </div>
+                </div>
 
+                <!-- Noon -->
+                <div class="tod-band tod-band--noon">
+                    <div class="tod-band-label">Noon</div>
+                    <div class="tod-row" id="vitD-tl">
+                        <input type="checkbox" class="tod-check" onchange="markTaken(this)">
+                        <div class="tod-m"><div class="tod-name">Vitamin D3 1000 IU</div><div class="tod-note">With lunch · Due now</div></div>
+                    </div>
+                </div>
+
+                <!-- Evening -->
+                <div class="tod-band tod-band--evening">
+                    <div class="tod-band-label">Evening</div>
+                    <div class="tod-row">
+                        <input type="checkbox" class="tod-check" onchange="markTaken(this)">
+                        <div class="tod-m"><div class="tod-name">Atorvastatin 10mg</div><div class="tod-note">After dinner · 8:00 PM</div></div>
+                    </div>
                 </div>
 
                 <div class="overline" style="margin-top:20px">Recent history</div>
@@ -590,15 +657,30 @@
             <!-- ── INVENTORY PANEL ── -->
             <div class="med-panel" id="panel-inventory">
 
-                <!-- Metformin -->
-                <div class="inv-item" id="inv-1">
-                    <div class="inv-item-head" onclick="toggleInv('inv-1')" style="cursor:pointer">
-                        <div class="inv-ic" style="background:var(--success-soft)">💊</div>
-                        <div style="flex:1">
-                            <div class="inv-name">Metformin 500mg</div>
-                            <div class="inv-for">Type 2 diabetes · Twice daily</div>
+                <!-- Overall stock summary -->
+                <div class="card reveal" style="margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div class="stock-ring" style="--stock-ring-pct:85%"><span class="stock-ring-num">85%</span></div>
+                        <div>
+                            <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)">Stock</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Overall inventory status</div>
                         </div>
-                        <span class="chip2 chip2--warn" style="font-size:10px;margin-right:8px">28 left</span>
+                    </div>
+                </div>
+
+                <!-- Metformin — low stock -->
+                <div class="inv-item" id="inv-1">
+                    <div class="inv-item-top" onclick="toggleInv('inv-1')">
+                        <div class="inv-ic" style="background:var(--success-soft)">💊</div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Metformin 500mg</div>
+                            <div class="inv-for">Refills remaining: 1</div>
+                        </div>
+                        <button class="mbtn inv-refill-btn" style="background:var(--danger)" onclick="event.stopPropagation()">Refill</button>
+                    </div>
+                    <div class="inv-stock-row" onclick="toggleInv('inv-1')">
+                        <span class="days-pill days-pill--low">5 days left</span>
+                        <span class="days-pill-sub">5/60 pills</span>
                         <span class="inv-twistie">›</span>
                     </div>
                     <div class="inv-details">
@@ -607,20 +689,24 @@
                             <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
                             <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
                             <div class="row"><div class="m">Expiry</div><div class="val">31 December 2026</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val">28 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder soon</span></div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val">5 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder now</span></div></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Vitamin D3 -->
                 <div class="inv-item" id="inv-2">
-                    <div class="inv-item-head" onclick="toggleInv('inv-2')" style="cursor:pointer">
+                    <div class="inv-item-top" onclick="toggleInv('inv-2')">
                         <div class="inv-ic" style="background:var(--amber-50)">☀️</div>
-                        <div style="flex:1">
+                        <div style="flex:1;min-width:0">
                             <div class="inv-name">Vitamin D3 1000 IU</div>
-                            <div class="inv-for">Bone health · Once daily with lunch</div>
+                            <div class="inv-for">Refills remaining: 5</div>
                         </div>
-                        <span class="chip2 chip2--ok" style="font-size:10px;margin-right:8px">45 left</span>
+                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
+                    </div>
+                    <div class="inv-stock-row" onclick="toggleInv('inv-2')">
+                        <span class="days-pill days-pill--ok">45 days left</span>
+                        <span class="days-pill-sub">45/60 pills</span>
                         <span class="inv-twistie">›</span>
                     </div>
                     <div class="inv-details">
@@ -636,13 +722,17 @@
 
                 <!-- Atorvastatin -->
                 <div class="inv-item" id="inv-3">
-                    <div class="inv-item-head" onclick="toggleInv('inv-3')" style="cursor:pointer">
+                    <div class="inv-item-top" onclick="toggleInv('inv-3')">
                         <div class="inv-ic" style="background:var(--blue-50)">❤️</div>
-                        <div style="flex:1">
+                        <div style="flex:1;min-width:0">
                             <div class="inv-name">Atorvastatin 10mg</div>
-                            <div class="inv-for">Cholesterol · Once nightly after dinner</div>
+                            <div class="inv-for">Refills remaining: 3</div>
                         </div>
-                        <span class="chip2 chip2--ok" style="font-size:10px;margin-right:8px">28 left</span>
+                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
+                    </div>
+                    <div class="inv-stock-row" onclick="toggleInv('inv-3')">
+                        <span class="days-pill days-pill--ok">28 days left</span>
+                        <span class="days-pill-sub">28/30 pills</span>
                         <span class="inv-twistie">›</span>
                     </div>
                     <div class="inv-details">
@@ -657,7 +747,33 @@
                     </div>
                 </div>
 
-                                <button class="mbtn mbtn--line mbtn--block" style="margin-top:4px" onclick="CBH.go('addMedView')">
+                <!-- Levothyroxine -->
+                <div class="inv-item" id="inv-4">
+                    <div class="inv-item-top" onclick="toggleInv('inv-4')">
+                        <div class="inv-ic" style="background:var(--model-digital-wellness-soft)">🦋</div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Levothyroxine 50mcg</div>
+                            <div class="inv-for">Refills remaining: 2</div>
+                        </div>
+                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
+                    </div>
+                    <div class="inv-stock-row" onclick="toggleInv('inv-4')">
+                        <span class="days-pill days-pill--ok">30 days left</span>
+                        <span class="days-pill-sub">30/30 pills</span>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="inv-rows">
+                            <div class="row"><div class="m">Dosage</div><div class="val">50mcg · Once daily (empty stomach)</div></div>
+                            <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
+                            <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
+                            <div class="row"><div class="m">Expiry</div><div class="val">28 February 2027</div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">30 tablets ✓</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="mbtn mbtn--line mbtn--block" style="margin-top:4px" onclick="CBH.go('addMedView')">
                     <span class="icon"><svg><use href="#i-plus"/></svg></span> Add new medication
                 </button>
             </div>
@@ -806,6 +922,13 @@
             <div class="tbar__title"><h1 class="sm">Health Records</h1></div>
         </div>
         <div class="vbody">
+            <div class="card reveal tap" onclick="CBH.go('monthlyReportView')">
+                <div class="row" style="padding:0">
+                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                    <div class="m"><div class="t">June wellness report</div><div class="s">Score 85 · Check-in 87%</div></div>
+                    <span class="chip2 chip2--ok">Ready</span>
+                </div>
+            </div>
             <div class="card reveal">
                 <div class="card__head"><span class="card__title">Recent check-ins</span></div>
                 <div class="rows">
@@ -960,18 +1083,30 @@
                 <div class="rows">
                     <div class="row">
                         <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">PN</span>
-                        <div class="m"><div class="t">Priya Nair</div><div class="s">Vitals · Check-ins · Medications</div></div>
-                        <span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:block;flex-shrink:0"></span>
+                        <div class="m"><div class="t">Priya Nair</div><div class="s">Full access · Vitals, Check-ins, Medications</div></div>
+                        <span style="width:9px;height:9px;border-radius:50%;background:var(--success);display:block;flex-shrink:0;margin-right:2px"></span>
+                        <div class="row-actions">
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        </div>
                     </div>
                     <div class="row">
                         <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">MJ</span>
-                        <div class="m"><div class="t">Mike Johnson</div><div class="s">Emergency alerts · Limited vitals</div></div>
-                        <span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:block;flex-shrink:0"></span>
+                        <div class="m"><div class="t">Mike Johnson</div><div class="s">Limited · Emergency alerts, Limited vitals</div></div>
+                        <span style="width:9px;height:9px;border-radius:50%;background:var(--success);display:block;flex-shrink:0;margin-right:2px"></span>
+                        <div class="row-actions">
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        </div>
                     </div>
                     <div class="row">
                         <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
                         <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Clinical access only</div></div>
-                        <span style="width:10px;height:10px;border-radius:50%;background:var(--neutral-200);display:block;flex-shrink:0"></span>
+                        <span style="width:9px;height:9px;border-radius:50%;background:var(--neutral-200);display:block;flex-shrink:0;margin-right:2px"></span>
+                        <div class="row-actions">
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -983,6 +1118,41 @@
                 </div>
                 <button class="mbtn mbtn--fill mbtn--block">Send invite</button>
             </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         CARE TEAM — coordinator + clinicians (professional, distinct from Family Circle)
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="careTeamView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Care Team</h1></div>
+        </div>
+        <div class="vbody">
+            <div class="card card--flush reveal">
+                <div class="rows">
+                    <div class="row">
+                        <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span>
+                        <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
+                        <div class="row-actions">
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
+                        <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
+                        <div class="row-actions">
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="t-body-s" style="color:var(--text-muted);padding:0 2px">Your care team reviews check-ins and vitals weekly. Reach out any time — response within one business day.</p>
         </div>
     </section>
 
@@ -1151,8 +1321,65 @@
         </div>
         <div class="vbody has-nav">
 
+            <!-- Summary list — jump to any tracker -->
+            <div class="overline">Your trackers</div>
+            <div class="card card--flush reveal" style="margin-bottom:14px">
+                <div class="rows">
+                    <div class="row tap" onclick="scrollToTracker('hydSection')">
+                        <span class="trk-ic" style="background:var(--blue-50)">💧</span>
+                        <div class="m"><div class="t">Hydration</div><div class="s">Latest: <span id="trkHydLatest">0/8 glasses</span></div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('bodySection')">
+                        <span class="trk-ic" style="background:var(--model-digital-wellness-soft)">⚖️</span>
+                        <div class="m"><div class="t">Body Metrics</div><div class="s">Latest: <span id="trkWeightLatest">62.5 kg</span></div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('bodySection')">
+                        <span class="trk-ic" style="background:var(--blue-50)">🩺</span>
+                        <div class="m"><div class="t">Blood Pressure</div><div class="s">Latest: <span id="trkBPLatest">122/78 mmHg</span></div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('bsSection')">
+                        <span class="trk-ic" style="background:var(--red-50)">🩸</span>
+                        <div class="m"><div class="t">Blood Sugar</div><div class="s">Latest: 118 mg/dL</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('stepsSection')">
+                        <span class="trk-ic" style="background:var(--success-soft)">🚶</span>
+                        <div class="m"><div class="t">Steps</div><div class="s">Latest: 4,200 steps</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('sleepSection')">
+                        <span class="trk-ic" style="background:var(--model-digital-wellness-soft)">😴</span>
+                        <div class="m"><div class="t">Sleep</div><div class="s">Latest: 7.5 hours</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('cycleSection')">
+                        <span class="trk-ic" style="background:var(--red-50)">🌸</span>
+                        <div class="m"><div class="t">Menstrual Cycle</div><div class="s">Latest: Day 2</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('nutritionSection')">
+                        <span class="trk-ic" style="background:var(--amber-50)">🍽️</span>
+                        <div class="m"><div class="t">Nutrition</div><div class="s">Latest: <span id="trkNutritionLatest">1,800 kcal</span></div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('workoutSection')">
+                        <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🏋️</span>
+                        <div class="m"><div class="t">Workout Library</div><div class="s">Latest: 30 min</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('hrSection')">
+                        <span class="trk-ic" style="background:var(--red-50)">❤️</span>
+                        <div class="m"><div class="t">Heart Rate Monitor</div><div class="s">Latest: 72 bpm</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Hydration -->
-            <div class="overline">💧 Hydration</div>
+            <div class="overline" id="hydSection">💧 Hydration</div>
             <div class="card reveal" style="margin-bottom:12px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
                     <span class="card__title">Water intake today</span>
@@ -1173,7 +1400,7 @@
             </div>
 
             <!-- Body metrics grid -->
-            <div class="overline">⚖️ Body metrics</div>
+            <div class="overline" id="bodySection">⚖️ Body metrics</div>
             <div class="tracker-grid reveal">
                 <div class="tracker-card">
                     <span class="tracker-ic">⚖️</span>
@@ -1190,7 +1417,7 @@
                     <input class="t-input" type="text" placeholder="120/80" style="margin-top:10px;font-size:15px;padding:8px" onchange="logBP(this.value)" />
                 </div>
             </div>
-            <div class="tracker-grid reveal">
+            <div class="tracker-grid reveal" id="stepsSection">
                 <div class="tracker-card">
                     <span class="tracker-ic">🚶</span>
                     <div class="tracker-title">Steps today</div>
@@ -1201,7 +1428,7 @@
                     </div>
                     <div class="tracker-unit">70% of goal</div>
                 </div>
-                <div class="tracker-card">
+                <div class="tracker-card" id="sleepSection">
                     <span class="tracker-ic">😴</span>
                     <div class="tracker-title">Sleep last night</div>
                     <div class="tracker-big">7.5</div>
@@ -1214,7 +1441,7 @@
             </div>
 
             <!-- Menstrual cycle -->
-            <div class="overline">🌸 Menstrual cycle</div>
+            <div class="overline" id="cycleSection">🌸 Menstrual cycle</div>
             <div class="card reveal">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                     <span class="card__title">June 2026</span>
@@ -1242,7 +1469,7 @@
             </div>
 
             <!-- Blood sugar log -->
-            <div class="overline">🩸 Blood sugar log</div>
+            <div class="overline" id="bsSection">🩸 Blood sugar log</div>
             <div class="card reveal">
                 <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end">
                     <div class="field" style="margin:0">
@@ -1259,7 +1486,49 @@
                 <p class="t-body-s" style="color:var(--text-subtle);margin-top:8px">Normal fasting: 70–100 mg/dL · Pre-diabetes: 100–125</p>
             </div>
 
+            <!-- Nutrition + Workout Library -->
+            <div class="overline" id="nutritionSection">🍽️ Nutrition &amp; activity</div>
+            <div class="tracker-grid reveal" id="workoutSection">
+                <div class="tracker-card">
+                    <span class="tracker-ic">🍽️</span>
+                    <div class="tracker-title">Nutrition</div>
+                    <div class="tracker-big" id="nutritionDisp">1,800</div>
+                    <div class="tracker-unit">kcal today</div>
+                    <input class="t-input" type="number" placeholder="kcal" style="margin-top:10px;font-size:15px;padding:8px" onchange="logNutrition(this.value)" />
+                </div>
+                <div class="tracker-card">
+                    <span class="tracker-ic">🏋️</span>
+                    <div class="tracker-title">Workout Library</div>
+                    <div class="tracker-big">30</div>
+                    <div class="tracker-unit">min · Yoga &amp; stretching</div>
+                    <div style="margin-top:8px;font-size:11px;color:var(--text-subtle)">Last session yesterday</div>
+                </div>
+            </div>
+
+            <!-- Heart rate monitor -->
+            <div class="overline" id="hrSection">❤️ Heart rate monitor</div>
+            <div class="card reveal">
+                <div class="w-score" style="margin:0">
+                    <div class="w-ring" style="width:56px;height:56px;--ring-color:var(--danger);--ring-pct:72%;--ring-ink:var(--danger-text)"><span class="w-ring-num" style="font-size:16px">72</span></div>
+                    <div class="w-score-meta">
+                        <div class="label">72 bpm</div>
+                        <div class="note">Resting · Recorded 7:30 AM via wearable</div>
+                    </div>
+                </div>
+                <div class="rows" style="margin-top:8px">
+                    <div class="row"><div class="m">Resting avg (7d)</div><div class="val">70 bpm</div></div>
+                    <div class="row"><div class="m">Highest today</div><div class="val">118 bpm</div></div>
+                    <div class="row"><div class="m">Zone</div><div class="val" style="color:var(--success-text)">Normal</div></div>
+                </div>
+            </div>
+
         </div>
+
+        <!-- Floating add-data button -->
+        <button class="fab-add" onclick="scrollToTracker('bodySection')" aria-label="Add new tracker data">
+            <span class="icon"><svg><use href="#i-plus"/></svg></span>
+            <span class="fab-add-label">Add New<br>Data</span>
+        </button>
     </section>
 
     <!-- ══════════════════════════════════════════════════════
@@ -1407,7 +1676,7 @@
     </div></div><!-- /.vbody /.screen -->
 
     <!-- Bottom Navigation -->
-    <div class="bnav">
+    <div class="bnav bnav--floating">
         <div class="bnav__i is-active" id="bnav-home" onclick="CBH.goTab('homeView','home')">
             <div class="ic"><span class="icon"><svg><use href="#i-home"/></svg></span></div>Home
         </div>
@@ -1418,7 +1687,7 @@
             <div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>Meds
         </div>
         <div class="bnav__i" id="bnav-trackers" onclick="CBH.goTab('trackersView','trackers')">
-            <div class="ic"><span class="icon"><svg><use href="#i-chart-pie"/></svg></span></div>Trackers
+            <div class="ic"><span class="icon"><svg><use href="#i-trending"/></svg></span></div>Trackers
         </div>
     </div>
 
@@ -1533,6 +1802,8 @@ function fillDrop(idx) {
     var count = document.querySelectorAll('#hydDrops .h-drop.filled').length;
     var el = document.getElementById('hydCount');
     if (el) el.textContent = count + '/8';
+    var trk = document.getElementById('trkHydLatest');
+    if (trk) trk.textContent = count + '/8 glasses';
     var msg = document.getElementById('hydMsg');
     if (msg) {
         var msgs = ['Tap each glass as you drink it','Great start — keep sipping!','Good going!',
@@ -1542,9 +1813,25 @@ function fillDrop(idx) {
 }
 
 /* ── Body metric quick log ───────────────────────────────────────────────── */
-function logWeight(v) { var el=document.getElementById('weightDisp'); if(el&&v) el.textContent=parseFloat(v).toFixed(1); }
-function logBP(v)     { var el=document.getElementById('bpDisp');     if(el&&v) el.textContent=v; }
+function logWeight(v) {
+    var el=document.getElementById('weightDisp'); if(el&&v) el.textContent=parseFloat(v).toFixed(1);
+    var s=document.getElementById('trkWeightLatest'); if(s&&v) s.textContent=parseFloat(v).toFixed(1)+' kg';
+}
+function logBP(v) {
+    var el=document.getElementById('bpDisp'); if(el&&v) el.textContent=v;
+    var s=document.getElementById('trkBPLatest'); if(s&&v) s.textContent=v+' mmHg';
+}
 function logBS()      { var i=document.getElementById('bsInput'); if(i&&i.value) { alert('Blood sugar '+i.value+' mg/dL logged.'); i.value=''; } }
+function logNutrition(v) {
+    var el=document.getElementById('nutritionDisp'); if(el&&v) el.textContent=v;
+    var s=document.getElementById('trkNutritionLatest'); if(s&&v) s.textContent=v+' kcal';
+}
+
+/* ── Tracker summary — jump to section ───────────────────────────────────── */
+function scrollToTracker(id) {
+    var el = document.getElementById(id);
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
 
 /* ── Menstrual cycle calendar ────────────────────────────────────────────── */
 (function() {
@@ -1612,17 +1899,41 @@ function switchMedTab(tab) {
     document.getElementById('panel-'+tab).classList.add('show');
 }
 
-/* ── Mark medication taken ───────────────────────────────────────────────── */
-function markTaken() {
-    var item = document.getElementById('vitD-tl');
-    if (!item) return;
-    item.classList.add('taken');
-    item.querySelector('.med-tl-dot').textContent = '✅';
-    item.querySelector('.med-tl-status').innerHTML = '<span class="chip2 chip2--ok">Taken</span>';
-    var fill = document.getElementById('adhFill');
-    if (fill) fill.style.width = '100%';
-    var note = document.getElementById('adhNote');
-    if (note) note.textContent = 'All medications taken for today ✓';
+/* ── Mark medication taken (schedule checkboxes) ─────────────────────────── */
+function markTaken(cb) {
+    var row = cb && cb.closest ? cb.closest('.tod-row') : document.getElementById('vitD-tl');
+    if (!row) return;
+    row.classList.add('taken');
+    if (cb) cb.disabled = true;
+    var noteEl = row.querySelector('.tod-note');
+    if (noteEl) noteEl.textContent = noteEl.textContent.replace(' · Due now', '') + ' · Taken just now';
+
+    var takenEl = document.getElementById('adhCountNum');
+    var totalEl = document.getElementById('adhCountTotal');
+    if (takenEl && totalEl) {
+        var t = parseInt(takenEl.textContent, 10) + 1;
+        var tot = parseInt(totalEl.textContent, 10);
+        takenEl.textContent = t;
+        var pct = Math.round((t / tot) * 100);
+        var ring = document.getElementById('adhRing');
+        if (ring) ring.style.setProperty('--stock-ring-pct', pct + '%');
+        var ringNum = document.getElementById('adhRingNum');
+        if (ringNum) ringNum.textContent = pct + '%';
+        var note = document.getElementById('adhNote');
+        if (note) note.textContent = (t >= tot) ? 'All medications taken for today ✓' : 'Next due: 8:00 PM';
+    }
+}
+
+/* ── Medication date navigator (demo — label only) ───────────────────────── */
+var _medDateOffset = 0;
+function shiftMedDate(delta) {
+    _medDateOffset += delta;
+    var label = document.getElementById('medDateLabel');
+    if (!label) return;
+    if (_medDateOffset === 0) { label.textContent = 'Today, 2 Jul'; return; }
+    var d = new Date(2026, 6, 2 + _medDateOffset);
+    var mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    label.textContent = d.getDate() + ' ' + mos[d.getMonth()];
 }
 
 /* ── Check-in option picker ──────────────────────────────────────────────── */

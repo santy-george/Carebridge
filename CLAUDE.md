@@ -123,3 +123,11 @@ Active = purple left border + pale-purple bg. Hover = subtle pale purple. Badges
 - After building screens, they get re-created in Figma for stakeholder handover and final polish (keep markup clean and component-driven to make that round-trip easy).
 
 Key Notion pages: Project Brief & Goals · Design Principles & Cohesion Standards · The Design Process · **05 Care Models & Plans** · **07 Admin Navigation, Terminology & Visual System** · databases: Master Task Tracker, Screen Inventory, User Flows, Decisions Log.
+
+---
+
+## 8. Design Context (impeccable)
+
+`PRODUCT.md` and `DESIGN.md` at the repo root are scoped to the **Wellness App** (`wellness-app.html`, the Self Care / Family-facing mobile surface) — not the Admin Portal. They cover: register (product), the member/family user profile, the "Calm Companion" brand personality (reassuring, warm, unhurried — distinct from Admin's "quiet authority"), and the visual system (Reassurance Blue `#3E6FB8` accent, Urbanist type, soft-lifted card hierarchy, bold 2.2px icon strokes). `.impeccable/design.json` carries the extended token metadata (tonal ramps, component snippets) for the `/impeccable live` visual-iteration mode, which is pre-configured for this repo (`.impeccable/live/config.json`).
+
+If future work documents the Admin Portal or Field Staff app design systems, either re-scope these files or split into per-app variants — they are currently wellness-app-specific, not platform-wide.

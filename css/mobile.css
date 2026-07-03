@@ -5,15 +5,7 @@
    success/verified. Purple = shared brand layer.
    ========================================================================== */
 
-/* ---- Per-app accent (neon brand used precisely; readable ink for text) -- */
-[data-app="field"]{
-  --accent:#00FFB0; --accent-hover:#00E6A0; --accent-on:#04331F; --accent-text:#057150;
-  --accent-soft:#E6FFF6; --accent-soft-strong:#B2FBE3; --accent-emphasis:#00543F; --accent-ring:#00FFB0;
-}
-[data-app="family"]{
-  --accent:#00DBFF; --accent-hover:#00C6E6; --accent-on:#04303A; --accent-text:#036C86;
-  --accent-soft:#E4FAFF; --accent-soft-strong:#AEEEFB; --accent-emphasis:#005973; --accent-ring:#00DBFF;
-}
+/* ---- Per-app accent theming lives in tokens.css ([data-app="field"/"family"]) ---- */
 
 /* Icons inherit their container's colour (white on solid fills, tinted on
    soft backgrounds, red on danger) — fixes hard-coded muted icon colour. */

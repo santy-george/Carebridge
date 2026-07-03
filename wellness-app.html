@@ -326,15 +326,6 @@
         .row-actions .iconbtn .icon { width:16px; height:16px; }
         .add-contact-row { display:flex; align-items:center; justify-content:center; gap:6px; padding:13px 14px; color:var(--accent-text); font-weight:700; font-size:13.5px; }
         .add-contact-row .icon { width:16px; height:16px; }
-        .sos-cta { flex-direction:row; gap:10px; }
-        .sos-cta-text { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; }
-        .sos-cta-title { font-size:16px; font-weight:800; letter-spacing:.3px; }
-        .sos-cta-sub { font-size:11.5px; font-weight:500; opacity:.9; }
-        .sos-cta--thin { padding:11px 18px; }
-        .sos-cta--thin .icon { width:18px; height:18px; }
-        .sos-cta--thin .sos-cta-title { font-size:14.5px; }
-        .sos-cta--thin .sos-cta-sub { font-size:10.5px; }
-
         /* Adherence bar */
         .adh-bar { height:6px; border-radius:99px; background:var(--neutral-100); overflow:hidden; margin:8px 0 4px; }
         .adh-bar .fill { height:100%; border-radius:99px; background:var(--success); transition:width .4s var(--ease); }
@@ -355,6 +346,46 @@
         .bnav--floating .bnav__i.is-active .ic { background:var(--accent); }
         .bnav--floating .bnav__i.is-active .icon { color:var(--accent-on); }
         .bnav--floating .bnav__i.is-active .icon svg * { fill:currentColor; stroke:none; }
+
+        /* Header SOS icon (relocated from full-width bar — avoids accidental taps) */
+        .iconbtn--danger { border-color:var(--danger); color:var(--danger); }
+        .iconbtn--danger:active { background:var(--danger-soft); }
+
+        /* Quick actions — dynamic grid */
+        .acard .a-ic { position:relative; }
+        .a-ic-badge {
+            position:absolute; top:-5px; right:-5px; min-width:16px; height:16px; padding:0 3px;
+            border-radius:var(--radius-full); background:var(--accent); color:var(--accent-on);
+            font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1;
+        }
+        .overline.qa-head { display:flex; align-items:center; justify-content:space-between; }
+        .qa-edit-link { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--accent-text); cursor:pointer; }
+        .qa-edit-link .icon { width:14px; height:14px; }
+
+        /* Quick actions editor — bottom sheet.
+           visibility (not just transform/opacity) guards against the closed sheet painting
+           outside the device frame's rounded overflow clip in some renderers; the delay keeps
+           the slide/fade animation intact by only hiding once the transition finishes. */
+        #qaOverlay { visibility:hidden; transition:opacity .25s var(--ease), visibility 0s linear .25s; }
+        #qaOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
+        #qaSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
+        #qaSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
+        .overlay { position:absolute; inset:0; z-index:60; background:rgba(21,22,50,.4); opacity:0; pointer-events:none; transition:opacity .25s var(--ease); }
+        .overlay.show { opacity:1; pointer-events:auto; }
+        .qa-check-row { display:flex; align-items:center; gap:12px; padding:11px 2px; border-bottom:1px solid var(--border); cursor:pointer; }
+        .qa-check-row:last-child { border-bottom:none; }
+        .qa-check-row.disabled { opacity:.4; pointer-events:none; }
+        .qa-check-ic { width:36px; height:36px; border-radius:var(--radius-base); background:var(--accent-soft); color:var(--accent-text); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .qa-check-label { flex:1; min-width:0; }
+        .qa-check-title { font-weight:600; font-size:13.5px; color:var(--text-heading); }
+        .qa-check-sub { font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+        .qa-check-box { width:22px; height:22px; border-radius:6px; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent-on); }
+        .qa-check-row.sel .qa-check-box { background:var(--accent); border-color:var(--accent); }
+
+        /* Bottom nav — 5 tabs (denser icon/label sizing per mockup) */
+        .bnav--5 .bnav__i { font-size:8.5px; }
+        .bnav--5 .bnav__i .ic { width:40px; height:26px; }
+        .bnav--5 .bnav__i .icon { width:18px; height:18px; }
     </style>
 </head>
 <body>
@@ -384,8 +415,10 @@
             <div class="tbar__title">
                 <div class="eyebrow" id="home-date">Tuesday, 30 June</div>
                 <h1 id="home-greeting">Good morning, Anita</h1>
-                <div style="font-size:12px;color:var(--warning-text);font-weight:600;margin-top:2px">🔥 On a <span id="streakDays">7</span>-day streak</div>
             </div>
+            <button class="iconbtn iconbtn--danger" onclick="CBH.go('sosConfirmView')" aria-label="Emergency SOS">
+                <span class="icon"><svg><use href="#i-emergency"/></svg></span>
+            </button>
             <button class="iconbtn" onclick="CBH.go('notificationsView')">
                 <span class="icon"><svg><use href="#i-bell"/></svg></span><span class="dot"></span>
             </button>
@@ -408,15 +441,6 @@
                     <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('checkInView')">
                         <span class="icon"><svg><use href="#i-plus"/></svg></span> Log today's check-in
                     </button>
-                </div>
-            </div>
-
-            <!-- Wellness Warrior streak badge -->
-            <div class="card reveal tap" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--warning-soft);border-color:var(--warning)" onclick="CBH.go('trackersView')">
-                <div style="width:44px;height:44px;border-radius:50%;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏆</div>
-                <div style="flex:1">
-                    <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)"><span id="streakDaysBadge">7</span> Days · Wellness Warrior</div>
-                    <div style="font-size:12px;color:var(--text-muted);margin-top:2px">3 days to next milestone</div>
                 </div>
             </div>
 
@@ -464,35 +488,27 @@
                 <p class="t-body-s" style="color:var(--text-muted);margin-top:6px" id="vitalsFooter">Recorded 7:30 AM · All readings excellent</p>
             </div>
 
-            <!-- Quick actions — Family replaced by Wellness Library -->
-            <div class="overline">Quick actions</div>
-            <div class="action-grid reveal">
-                <div class="acard tap acard--hydration" onclick="CBH.go('trackersView'); setTimeout(function(){scrollToTracker('hydSection')},60)">
-                    <div class="a-ic"><span style="font-size:16px;line-height:1">💧</span></div>
-                    <div class="a-label">Hydration</div>
-                    <div class="a-sub">5 of 8 glasses today</div>
-                </div>
-                <div class="acard tap" onclick="CBH.go('careTeamView')">
-                    <div class="a-ic"><span class="icon"><svg><use href="#i-family"/></svg></span></div>
-                    <div class="a-label">Care Team</div>
-                    <div class="a-sub">Joel, Dr. Menon</div>
-                </div>
-                <div class="acard tap" onclick="CBH.go('recordsView')">
-                    <div class="a-ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
-                    <div class="a-label">Health Records</div>
-                    <div class="a-sub">Check-ins & vitals</div>
-                </div>
-                <div class="acard tap" onclick="CBH.go('wellnessLibraryView')">
-                    <div class="a-ic"><span class="icon"><svg><use href="#i-library"/></svg></span></div>
-                    <div class="a-label">Wellness Library</div>
-                    <div class="a-sub">Tips & guides</div>
+            <!-- Today's medications — summary only; tick-off stays exclusively in the Meds tab -->
+            <div class="card reveal tap" onclick="CBH.goTab('medicationView','meds')">
+                <div class="card__head"><span class="card__title">Today's medications</span></div>
+                <div style="display:flex;align-items:center;gap:14px">
+                    <div class="stock-ring" id="homeMedRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="homeMedRingNum">50%</span></div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-weight:700;font-size:14px;color:var(--text-heading)"><span id="homeMedCountNum">2</span> of <span id="homeMedCountTotal">4</span> medications taken</div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="homeMedNote">Next due: Vitamin D3, 12:00 PM</div>
+                    </div>
+                    <span class="icon" style="width:18px;height:18px;color:var(--text-subtle);flex-shrink:0"><svg><use href="#i-chevron"/></svg></span>
                 </div>
             </div>
 
-            <button class="mbtn mbtn--sos mbtn--block reveal sos-cta sos-cta--thin" style="margin-top:6px" onclick="CBH.go('sosConfirmView')">
-                <span class="icon"><svg><use href="#i-emergency"/></svg></span>
-                <span class="sos-cta-text"><span class="sos-cta-title">Designated SOS</span><span class="sos-cta-sub">Alert nominated care team</span></span>
-            </button>
+            <!-- Quick actions — dynamic, user-editable grid (max 4, data-driven from QA_CATALOG) -->
+            <div class="overline qa-head">
+                <span>Quick actions</span>
+                <span class="qa-edit-link tap" onclick="openQAEditor()">
+                    <span class="icon"><svg><use href="#i-settings"/></svg></span>Edit
+                </span>
+            </div>
+            <div class="action-grid reveal" id="qaGrid"></div>
         </div>
     </section>
 
@@ -604,7 +620,7 @@
                         <div class="stock-ring" id="adhRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="adhRingNum">50%</span></div>
                         <div style="flex:1">
                             <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)"><span id="adhCountNum">2</span> of <span id="adhCountTotal">4</span> meds taken</div>
-                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="adhNote">Next due: 12:00 PM</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="adhNote">Next due: Vitamin D3, 12:00 PM</div>
                         </div>
                     </div>
                 </div>
@@ -921,7 +937,7 @@
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Health Records</h1></div>
         </div>
-        <div class="vbody">
+        <div class="vbody has-nav">
             <div class="card reveal tap" onclick="CBH.go('monthlyReportView')">
                 <div class="row" style="padding:0">
                     <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
@@ -1129,7 +1145,7 @@
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Care Team</h1></div>
         </div>
-        <div class="vbody">
+        <div class="vbody has-nav">
             <div class="card card--flush reveal">
                 <div class="rows">
                     <div class="row">
@@ -1626,6 +1642,73 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
+         MY JOURNAL — placeholder screen (not yet designed, see handoff §4/§8)
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="journalView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">My Journal</h1></div>
+        </div>
+        <div class="vbody">
+            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Jot down anything you'd like to remember or share with your care team. This is an early placeholder — the full journal experience is still being designed.</p>
+            <div class="card reveal">
+                <div class="field" style="margin:0">
+                    <label>New entry</label>
+                    <textarea class="comment-area" id="journalEntry" rows="5" placeholder="What's on your mind today?"></textarea>
+                </div>
+                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:12px" onclick="saveJournalNote()">
+                    <span class="icon"><svg><use href="#i-check"/></svg></span> Save entry
+                </button>
+            </div>
+            <div class="overline">Recent entries</div>
+            <div class="card reveal" id="journalEmpty">
+                <p class="t-body-s" style="color:var(--text-subtle);text-align:center;padding:8px 0">No entries yet — your saved notes will appear here.</p>
+            </div>
+            <div id="journalList"></div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         TOOLS — new nav tab; houses Wearables, Trackers & Wellness Library.
+         Calculators/Exercises are placeholders — full Tools scope is an open item (handoff §5/§8)
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="toolsView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Tools</h1></div>
+        </div>
+        <div class="vbody has-nav">
+            <div class="card card--flush reveal">
+                <div class="rows">
+                    <div class="row tap" onclick="CBH.go('wearableView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></div>
+                        <div class="m"><div class="t">Wearables</div><div class="s">Synced device & health insights</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="CBH.go('trackersView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-trending"/></svg></span></div>
+                        <div class="m"><div class="t">Trackers</div><div class="s">Hydration, weight, BP, cycle &amp; more</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="CBH.go('wellnessLibraryView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-library"/></svg></span></div>
+                        <div class="m"><div class="t">Wellness Library</div><div class="s">Tips &amp; guides</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row" style="opacity:.5">
+                        <div class="ic"><span class="icon"><svg><use href="#i-activity"/></svg></span></div>
+                        <div class="m"><div class="t">Calculators</div><div class="s">Coming soon</div></div>
+                    </div>
+                    <div class="row" style="opacity:.5">
+                        <div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
+                        <div class="m"><div class="t">Exercises</div><div class="s">Coming soon</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
          SOS
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="sosConfirmView">
@@ -1675,20 +1758,34 @@
 
     </div></div><!-- /.vbody /.screen -->
 
-    <!-- Bottom Navigation -->
-    <div class="bnav bnav--floating">
+    <!-- Bottom Navigation — 5 tabs -->
+    <div class="bnav bnav--floating bnav--5">
         <div class="bnav__i is-active" id="bnav-home" onclick="CBH.goTab('homeView','home')">
             <div class="ic"><span class="icon"><svg><use href="#i-home"/></svg></span></div>Home
-        </div>
-        <div class="bnav__i" id="bnav-health" onclick="CBH.goTab('wearableView','health')">
-            <div class="ic"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></div>Health
         </div>
         <div class="bnav__i" id="bnav-meds" onclick="CBH.goTab('medicationView','meds')">
             <div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>Meds
         </div>
-        <div class="bnav__i" id="bnav-trackers" onclick="CBH.goTab('trackersView','trackers')">
-            <div class="ic"><span class="icon"><svg><use href="#i-trending"/></svg></span></div>Trackers
+        <div class="bnav__i" id="bnav-records" onclick="CBH.goTab('recordsView','records')">
+            <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>Records
         </div>
+        <div class="bnav__i" id="bnav-care" onclick="CBH.goTab('careTeamView','care')">
+            <div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>Care
+        </div>
+        <div class="bnav__i" id="bnav-tools" onclick="CBH.goTab('toolsView','tools')">
+            <div class="ic"><span class="icon"><svg><use href="#i-cog"/></svg></span></div>Tools
+        </div>
+    </div>
+
+    <!-- Quick actions editor — bottom sheet. Lives at the device level (sibling of .bnav,
+         not nested inside a .view) so it can stack above the floating bottom nav. -->
+    <div class="overlay" id="qaOverlay" onclick="closeQAEditor()"></div>
+    <div class="sheet" id="qaSheet">
+        <div class="sheet__grip"></div>
+        <h2>Edit quick actions</h2>
+        <p class="lead">Choose up to 4 to show on Home.</p>
+        <div id="qaChecklist" style="margin:14px 0 4px"></div>
+        <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="closeQAEditor()">Done</button>
     </div>
 
 </div></div><!-- /.device /.stage -->
@@ -1715,7 +1812,7 @@ var LIB = {
 };
 
 /* ── Navigation ──────────────────────────────────────────────────────────── */
-var TAB_ITEMS = { home:'bnav-home', health:'bnav-health', meds:'bnav-meds', trackers:'bnav-trackers' };
+var TAB_ITEMS = { home:'bnav-home', meds:'bnav-meds', records:'bnav-records', care:'bnav-care', tools:'bnav-tools' };
 var _activeTab = 'home';
 
 window.CBH = {
@@ -1751,6 +1848,136 @@ window.CBH = {
     },
     back: function() { CBH.goTab('homeView','home'); }
 };
+
+/* ── Quick actions — dynamic, user-editable grid ─────────────────────────── */
+var QA_CATALOG = [
+    { id:'hydration', label:'Hydration',            emoji:'💧', kind:'hydration' },
+    { id:'journal',   label:'My journal',           sub:'Log a note',             emoji:'📓', kind:'nav', view:'journalView' },
+    { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'recordsView' },
+    { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'careTeamView' },
+    { id:'refill',    label:'Request refill',       sub:'Medicine cabinet',       icon:'pill',     kind:'nav', view:'medicationView', tab:'meds' },
+    { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'careTeamView' }
+];
+var QA_DEFAULT_IDS = ['hydration','journal'];
+var QA_MAX = 4;
+
+function qaFindDef(id) {
+    for (var i = 0; i < QA_CATALOG.length; i++) { if (QA_CATALOG[i].id === id) return QA_CATALOG[i]; }
+    return null;
+}
+function qaIconMarkup(def) {
+    if (def.emoji) return '<span style="font-size:16px;line-height:1">' + def.emoji + '</span>';
+    return '<span class="icon"><svg><use href="#i-' + def.icon + '"/></svg></span>';
+}
+function qaGetSelected() {
+    var ids = null;
+    try { ids = JSON.parse(localStorage.getItem('cbh_quick_actions')); } catch (e) {}
+    if (!Array.isArray(ids) || !ids.length) ids = QA_DEFAULT_IDS.slice();
+    return ids;
+}
+function qaSaveSelected(ids) {
+    // TODO: replace with Care Bridge backend profile sync once auth/backend exists
+    try { localStorage.setItem('cbh_quick_actions', JSON.stringify(ids)); } catch (e) {}
+}
+function renderQuickActions() {
+    var grid = document.getElementById('qaGrid');
+    if (!grid) return;
+    var ids = qaGetSelected();
+    grid.innerHTML = ids.map(function (id) {
+        var def = qaFindDef(id);
+        if (!def) return '';
+        if (def.kind === 'hydration') {
+            var count = qaHydrationCount(), target = qaHydrationTarget();
+            return '<div class="acard tap acard--hydration" onclick="tapHydrationAction()">' +
+                '<div class="a-ic">' + qaIconMarkup(def) + '<span class="a-ic-badge" id="qaHydBadge">' + count + '</span></div>' +
+                '<div class="a-label">' + def.label + '</div>' +
+                '<div class="a-sub" id="qaHydSub">' + count + ' of ' + target + ' glasses · tap</div></div>';
+        }
+        var action = def.tab ? "CBH.goTab('" + def.view + "','" + def.tab + "')" : "CBH.go('" + def.view + "')";
+        return '<div class="acard tap" onclick="' + action + '">' +
+            '<div class="a-ic">' + qaIconMarkup(def) + '</div>' +
+            '<div class="a-label">' + def.label + '</div>' +
+            '<div class="a-sub">' + (def.sub || '') + '</div></div>';
+    }).join('');
+}
+function renderQAChecklist() {
+    var list = document.getElementById('qaChecklist');
+    if (!list) return;
+    var ids = qaGetSelected();
+    list.innerHTML = QA_CATALOG.map(function (def) {
+        var sel = ids.indexOf(def.id) > -1;
+        var atCap = !sel && ids.length >= QA_MAX;
+        return '<div class="qa-check-row' + (sel ? ' sel' : '') + (atCap ? ' disabled' : '') + '" onclick="toggleQA(\'' + def.id + '\')">' +
+            '<div class="qa-check-ic">' + qaIconMarkup(def) + '</div>' +
+            '<div class="qa-check-label"><div class="qa-check-title">' + def.label + '</div>' +
+            (def.sub ? '<div class="qa-check-sub">' + def.sub + '</div>' : '') + '</div>' +
+            '<div class="qa-check-box">' + (sel ? '<span class="icon" style="width:13px;height:13px"><svg><use href="#i-check"/></svg></span>' : '') + '</div>' +
+            '</div>';
+    }).join('');
+}
+function toggleQA(id) {
+    var ids = qaGetSelected();
+    var idx = ids.indexOf(id);
+    if (idx > -1) { ids.splice(idx, 1); }
+    else { if (ids.length >= QA_MAX) return; ids.push(id); }
+    qaSaveSelected(ids);
+    renderQAChecklist();
+    renderQuickActions();
+}
+function openQAEditor() {
+    renderQAChecklist();
+    document.getElementById('qaOverlay').classList.add('show');
+    document.getElementById('qaSheet').classList.add('show');
+}
+function closeQAEditor() {
+    document.getElementById('qaOverlay').classList.remove('show');
+    document.getElementById('qaSheet').classList.remove('show');
+}
+
+/* ── Home "Today's medications" card — reuses the Meds tab's adherence state, never recomputes it ── */
+function syncHomeMedCard() {
+    var srcNum = document.getElementById('adhCountNum');
+    var srcTot = document.getElementById('adhCountTotal');
+    var srcPct = document.getElementById('adhRingNum');
+    var srcNote = document.getElementById('adhNote');
+    var dstNum = document.getElementById('homeMedCountNum');
+    var dstTot = document.getElementById('homeMedCountTotal');
+    var dstPct = document.getElementById('homeMedRingNum');
+    var dstRing = document.getElementById('homeMedRing');
+    var dstNote = document.getElementById('homeMedNote');
+    if (srcNum && dstNum) dstNum.textContent = srcNum.textContent;
+    if (srcTot && dstTot) dstTot.textContent = srcTot.textContent;
+    if (srcPct && dstPct) dstPct.textContent = srcPct.textContent;
+    if (srcPct && dstRing) dstRing.style.setProperty('--stock-ring-pct', srcPct.textContent);
+    if (srcNote && dstNote) dstNote.textContent = srcNote.textContent;
+}
+
+/* ── My journal — placeholder entry flow (screen not yet designed) ──────── */
+function saveJournalNote() {
+    var ta = document.getElementById('journalEntry');
+    var text = ((ta && ta.value) || '').trim();
+    if (!text) return;
+    // TODO: replace with Care Bridge backend profile sync once auth/backend exists
+    var entries = [];
+    try { entries = JSON.parse(localStorage.getItem('cbh_journal_entries') || '[]'); } catch (e) {}
+    entries.unshift(text);
+    try { localStorage.setItem('cbh_journal_entries', JSON.stringify(entries)); } catch (e) {}
+    ta.value = '';
+    renderJournalEntries();
+}
+function renderJournalEntries() {
+    var entries = [];
+    try { entries = JSON.parse(localStorage.getItem('cbh_journal_entries') || '[]'); } catch (e) {}
+    var empty = document.getElementById('journalEmpty');
+    var list = document.getElementById('journalList');
+    if (!list) return;
+    if (!entries.length) { if (empty) empty.style.display = 'block'; list.innerHTML = ''; return; }
+    if (empty) empty.style.display = 'none';
+    list.innerHTML = entries.map(function (text) {
+        var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        return '<div class="card reveal" style="margin-bottom:10px"><p class="t-body-s" style="color:var(--text-body)">' + safe + '</p></div>';
+    }).join('');
+}
 
 /* ── Check-in: comment + submit ─────────────────────────────────────────── */
 function updateCharCount() {
@@ -1791,25 +2018,40 @@ function saveNewMed() {
     CBH.goTab('medicationView', 'meds');
 }
 
-/* ── Hydration tracker ───────────────────────────────────────────────────── */
-function fillDrop(idx) {
+/* ── Hydration tracker — shared source of truth with the Home quick action ── */
+function qaHydrationTarget() {
+    // TODO: wire up to the Tools tab's hydration target setting once that screen exists
+    var v = parseInt(localStorage.getItem('cbh_hydration_target'), 10);
+    return v > 0 ? v : 8;
+}
+function qaHydrationCount() {
+    var v = localStorage.getItem('cbh_hydration_count');
+    return v !== null ? parseInt(v, 10) : 5;
+}
+function setHydrationGlasses(count) {
+    var target = qaHydrationTarget();
+    if (count > target || count < 0) count = 0;
     var drops = document.querySelectorAll('#hydDrops .h-drop');
-    if (drops[idx] && drops[idx].classList.contains('filled')) {
-        for (var i = idx; i < drops.length; i++) drops[i].classList.remove('filled');
-    } else {
-        for (var i = 0; i <= idx; i++) drops[i].classList.add('filled');
-    }
-    var count = document.querySelectorAll('#hydDrops .h-drop.filled').length;
-    var el = document.getElementById('hydCount');
-    if (el) el.textContent = count + '/8';
-    var trk = document.getElementById('trkHydLatest');
-    if (trk) trk.textContent = count + '/8 glasses';
+    drops.forEach(function (d, i) { d.classList.toggle('filled', i < count); });
+    var el = document.getElementById('hydCount'); if (el) el.textContent = count + '/' + target;
+    var trk = document.getElementById('trkHydLatest'); if (trk) trk.textContent = count + '/' + target + ' glasses';
     var msg = document.getElementById('hydMsg');
     if (msg) {
         var msgs = ['Tap each glass as you drink it','Great start — keep sipping!','Good going!',
             'Halfway there!','More than halfway!','Almost there!','Just two more!','One more glass!','Goal reached! 🎉'];
-        msg.textContent = msgs[Math.min(count, 8)];
+        msg.textContent = msgs[Math.min(count, msgs.length - 1)];
     }
+    var badge = document.getElementById('qaHydBadge'); if (badge) badge.textContent = count;
+    var sub = document.getElementById('qaHydSub'); if (sub) sub.textContent = count + ' of ' + target + ' glasses · tap';
+    try { localStorage.setItem('cbh_hydration_count', count); } catch (e) {}
+}
+function tapHydrationAction() {
+    setHydrationGlasses(qaHydrationCount() + 1);
+}
+function fillDrop(idx) {
+    var drops = document.querySelectorAll('#hydDrops .h-drop');
+    var newCount = drops[idx].classList.contains('filled') ? idx : idx + 1;
+    setHydrationGlasses(newCount);
 }
 
 /* ── Body metric quick log ───────────────────────────────────────────────── */
@@ -1920,8 +2162,9 @@ function markTaken(cb) {
         var ringNum = document.getElementById('adhRingNum');
         if (ringNum) ringNum.textContent = pct + '%';
         var note = document.getElementById('adhNote');
-        if (note) note.textContent = (t >= tot) ? 'All medications taken for today ✓' : 'Next due: 8:00 PM';
+        if (note) note.textContent = (t >= tot) ? 'All medications taken for today ✓' : 'Next due: Atorvastatin, 8:00 PM';
     }
+    syncHomeMedCard();
 }
 
 /* ── Medication date navigator (demo — label only) ───────────────────────── */
@@ -1965,6 +2208,12 @@ setInterval(updateTime, 10000); updateTime();
     var de  = document.getElementById('home-date');
     if (de) de.textContent = days[now.getDay()]+', '+now.getDate()+' '+mos[now.getMonth()];
 })();
+
+/* ── Initial render — Quick actions, hydration state, med card sync ─────── */
+renderQuickActions();
+setHydrationGlasses(qaHydrationCount());
+syncHomeMedCard();
+renderJournalEntries();
 
 /* ── Hash routing ────────────────────────────────────────────────────────── */
 window.addEventListener('hashchange', function() {

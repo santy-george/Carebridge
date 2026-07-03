@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Skill(run)",
+      "Bash(open -a \"Google Chrome\" \"/Users/santhosh/Documents/Documents - Santhosh’s MacBook Pro/GitHub/Carebridge/wellness-app.html\")",
+      "Bash(open \"/Users/santhosh/Documents/Documents - Santhosh’s MacBook Pro/GitHub/Carebridge/wellness-app.html\")",
+      "Bash(screencapture -x \"/private/tmp/claude-501/-Users-santhosh-Documents-Documents---Santhosh-s-MacBook-Pro-GitHub-Carebridge/42ed45ac-f90a-4148-8f3b-7c9b6ca11cdb/scratchpad/home1.png\")",
+      "Read(//private/tmp/claude-501/**)",
+      "Bash(timeout 60 npm ls playwright)",
+      "Bash(timeout 5 curl -sI https://registry.npmjs.org)",
+      "Bash(curl -sI --max-time 5 https://registry.npmjs.org)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npx playwright *)",
+      "Read(//Users/santhosh/Library/Caches/ms-playwright/**)",
+      "Read(//Users/santhosh/.cache/**)",
+      "Bash(find / -maxdepth 4 -iname \"*playwright*\")",
+      "Bash(node *)",
+      "Bash(sips -c 250 500 --out crop-bottom.png v2-tools.png)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

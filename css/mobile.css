@@ -136,7 +136,7 @@
 .chip2--info{ background:var(--info-soft); color:var(--info-text) }
 .chip2--accent{ background:var(--accent-soft); color:var(--accent-text) }
 .chip2--neutral{ background:var(--surface-sunken); color:var(--text-muted) }
-.chip2--dw{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
+.chip2--self{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
 .chip2--self{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
 .chip2--vc{ background:var(--model-virtual-care-soft); color:var(--model-virtual-care-ink) }
 .chip2--direct{ background:var(--model-direct-care-soft); color:var(--model-direct-care-ink) }
@@ -428,7 +428,7 @@
 /* ---- Tier indicator --------------------------------------------------- */
 /* Pill showing current care model (digital / virtual / direct) */
 .tierbadge{ display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:var(--radius-full); font-size:12px; font-weight:700; letter-spacing:.2px } .tierbadge .icon{ width:14px; height:14px }
-.tierbadge--digital{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
+.tierbadge--self{ background:var(--model-digital-wellness-soft); color:var(--model-digital-wellness-ink) }
 .tierbadge--virtual{ background:var(--model-virtual-care-soft); color:var(--model-virtual-care-ink) }
 .tierbadge--direct{ background:var(--model-direct-care-soft); color:var(--model-direct-care-ink) }
 

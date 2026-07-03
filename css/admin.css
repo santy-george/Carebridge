@@ -179,7 +179,7 @@
 /* ---- Care-model badge (square key) ------------------------------------ */
 .mk { display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:13px }
 .mk .dot { width:9px; height:9px; border-radius:3px; flex:0 0 auto }
-.mk--digital { color:var(--model-digital-wellness-ink) } .mk--digital .dot { background:var(--model-digital-wellness) }
+.mk--self { color:var(--model-digital-wellness-ink) } .mk--self .dot { background:var(--model-digital-wellness) }
 .mk--virtual { color:var(--model-virtual-care-ink) }   .mk--virtual .dot { background:var(--model-virtual-care) }
 .mk--direct  { color:var(--model-direct-care-ink) }    .mk--direct .dot { background:var(--model-direct-care) }
 

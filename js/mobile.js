@@ -262,7 +262,7 @@
   }
 
   /* ---- Care tier navigation (family) ---- */
-  var tierNames = { 1:'Digital Wellness', 2:'Virtual Care', 3:'Direct Care' };
+  var tierNames = { 1:'Self Care', 2:'Virtual Care', 3:'Direct Care' };
   function goTier(tier){
     var s = screen(); if (s) s.setAttribute('data-tier', tier);
     var viewId = (tier === 'tier3' || tier === '3') ? 'homeView' : 'tier' + tier + 'Home';

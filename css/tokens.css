@@ -28,6 +28,11 @@
   --amber-50:#FCF3E2; --amber-500:#C77D11; --amber-600:#92580A;
   --red-50:#FCEAEA; --red-500:#E5484D; --red-600:#B4282D; --red-700:#8C1D21;
 
+  /* ---- 3-tier check-in severity scale (Check-in handoff §4) — green reuses --success-*, these two are new ---- */
+  --caution-soft:#FFF6D6; --caution:#F4D77B; --caution-text:#8A6D1B;
+  --concern-soft:#FDEBDD; --concern:#F0AE79; --concern-text:#B15A1E;
+  --concern-strong-soft:#FBDCC2; --concern-strong:#E8935A; --concern-strong-text:#8A3E10;
+
   /* ---- Care model identity (NOT purple — purple stays brand/action) ------ */
   --model-digital-wellness:#A985CF; --model-digital-wellness-soft:#F5F0FA; --model-digital-wellness-ink:#69408F;
   --model-virtual-care:#06B6D4;     --model-virtual-care-soft:#E8FAFD;     --model-virtual-care-ink:#08778A;

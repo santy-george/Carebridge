@@ -118,33 +118,99 @@
         /* Overline section label */
         .overline { font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--text-subtle); padding:4px 0; }
 
-        /* Check-in — compact */
-        .ci-card { border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:12px 14px; background:var(--surface); }
-        .ci-card-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-        .ci-emoji { width:34px; height:34px; background:var(--accent-soft); border-radius:var(--radius-base); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+        /* Check-in — unified card frame: light blue fill + constant purple border (handoff §3), deliberate one-off */
+        .ci-card { border:2px solid var(--purple-600); border-radius:var(--radius-lg); padding:14px; background:var(--blue-50); }
+        .ci-card-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .ci-emoji { width:34px; height:34px; background:#fff; border-radius:var(--radius-base); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .ci-emoji .icon { width:19px; height:19px; color:var(--purple-500); }
         .ci-label { font-weight:600; font-size:14px; color:var(--text-heading); }
         .ci-sub   { font-size:11px; color:var(--text-muted); margin-top:1px; }
+
+        /* Option pills — icon chip (44px/27px, 38px/22px for 4-option rows) + label; icon always purple, bg/border carries severity (handoff §4) */
         .ci-opts  { display:flex; gap:6px; }
         .ci-opt {
-            flex:1; padding:8px 4px; border-radius:var(--radius-base);
-            border:1.5px solid var(--border); background:var(--surface);
+            flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+            padding:2px; border-radius:var(--radius-base); border:none; background:transparent;
             font-family:var(--font-body); font-size:11px; font-weight:500;
-            color:var(--text-body); cursor:pointer; text-align:center; line-height:1.35;
+            color:var(--text-body); cursor:pointer; text-align:center; line-height:1.25;
             transition:all .15s var(--ease);
         }
-        .ci-opt:hover    { border-color:var(--accent); background:var(--accent-soft); }
-        .ci-opt.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); font-weight:700; }
-        .ci-opt-em { font-size:16px; display:block; margin-bottom:3px; }
+        .ci-opt-ic { width:44px; height:44px; border-radius:50%; background:#fff; border:1.5px solid #fff; display:flex; align-items:center; justify-content:center; transition:all .15s var(--ease); flex-shrink:0; }
+        .ci-opt-ic .icon { width:27px; height:27px; color:var(--purple-500); }
+        .ci-opts--4 .ci-opt-ic { width:38px; height:38px; }
+        .ci-opts--4 .ci-opt-ic .icon { width:22px; height:22px; }
+        .ci-opt.selected { font-weight:700; }
+        .ci-opt.selected.sev-good            { color:#256D33; }
+        .ci-opt.selected.sev-good .ci-opt-ic            { background:#E6FBF3; border-color:#A8DEB0; }
+        .ci-opt.selected.sev-caution         { color:var(--caution-text); }
+        .ci-opt.selected.sev-caution .ci-opt-ic         { background:var(--caution-soft); border-color:var(--caution); }
+        .ci-opt.selected.sev-concern         { color:var(--concern-text); }
+        .ci-opt.selected.sev-concern .ci-opt-ic         { background:var(--concern-soft); border-color:var(--concern); }
+        .ci-opt.selected.sev-concern-strong  { color:var(--concern-strong-text); }
+        .ci-opt.selected.sev-concern-strong .ci-opt-ic  { background:var(--concern-strong-soft); border-color:var(--concern-strong); }
 
-        /* Medications — tabs */
-        .med-tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:14px; }
-        .med-tab {
-            flex:1; padding:10px 8px; text-align:center;
-            font-size:13px; font-weight:600; color:var(--text-muted);
-            cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px;
-            transition:color .15s,border-color .15s;
-        }
-        .med-tab.active { color:var(--accent-text); border-bottom-color:var(--accent); }
+        /* Check-in header — breadcrumb row above title (handoff §2) */
+        .ci-breadcrumb { font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:2px; cursor:pointer; }
+        .ci-breadcrumb .icon { width:14px; height:14px; transform:scaleX(-1); }
+
+        /* Breathing — stacked fill-level lungs icon, pure CSS clip-path (handoff §6) */
+        .ci-lungs-wrap { position:relative; width:27px; height:27px; }
+        .ci-lungs-wrap .icon { position:absolute; inset:0; width:100%; height:100%; }
+        .ci-opt-ic .ci-lungs-wrap .icon.ci-lungs-base { color:#DED0EA; }
+        .ci-opt-ic .ci-lungs-wrap .icon.ci-lungs-fill { color:#6E3E97; }
+
+        /* Previous entries — reuses .ci-card frame + .inv-item.open/.inv-details collapse mechanic (handoff §10/§12) */
+        #ciPrevEntries.inv-item { overflow:visible; margin-bottom:0; }
+        .ci-prev-chevron { width:18px; height:18px; flex-shrink:0; transition:transform .2s; color:var(--text-subtle); }
+        .inv-item.open .ci-prev-chevron { transform:rotate(180deg); }
+        .ci-prev-entry { display:flex; gap:12px; padding:10px 0; border-top:1px solid rgba(21,22,50,.1); }
+        .ci-prev-entry:first-child { border-top:none; padding-top:0; }
+        .ci-prev-date { width:42px; flex-shrink:0; text-align:center; }
+        .ci-prev-date .d { font-family:var(--font-heading); font-weight:700; font-size:13px; color:var(--text-heading); }
+        .ci-prev-date .t { font-size:9.5px; color:var(--text-muted); margin-top:1px; }
+        .ci-prev-chips { display:flex; gap:4px; flex-wrap:wrap; }
+        .ci-prev-chip { width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .ci-prev-chip .icon { width:13px; height:13px; color:var(--purple-500); }
+        .ci-prev-note { font-size:11.5px; color:var(--text-muted); font-style:italic; margin-top:5px; }
+        .ci-prev-note.empty { font-style:normal; color:var(--text-subtle); }
+        .ci-prev-empty { font-size:12.5px; color:var(--text-muted); text-align:center; padding:6px 0; }
+
+        /* Wearable config — reuses .ci-card/.ci-opt (Check-in); icon chips reuse the Home .acard .a-ic pattern at 48px/32px (handoff §10) */
+        .wc-avatar { width:48px; height:48px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .wc-avatar .icon { width:24px; height:24px; color:var(--purple-500); }
+        .wc-row-ic { width:32px; height:32px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .wc-row-ic .icon { width:17px; height:17px; color:var(--purple-500); }
+        .wc-status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .wc-status-dot.on { background:var(--success); }
+        .wc-status-dot.off { background:var(--danger); }
+        .wc-battery-pill { background:#fff; color:var(--text-heading); font-weight:700; font-size:12px; padding:4px 12px; border-radius:var(--radius-full); flex-shrink:0; }
+        .wc-divider { border-top:1px solid rgba(21,22,50,.1); margin:12px 0; }
+        .wc-two-col { display:flex; justify-content:space-between; }
+        .wc-two-col .m { font-size:11px; color:var(--text-muted); }
+        .wc-two-col .v { font-size:13px; font-weight:600; color:var(--text-heading); margin-top:2px; }
+        .wc-forget-btn { width:100%; background:#fff; border:1.5px solid #F09595; color:#8C1D21; font-weight:700; font-size:13.5px; padding:10px; border-radius:var(--radius-base); margin-top:12px; text-align:center; cursor:pointer; }
+
+        /* Toggle switch — new reusable component, net-new (no prior equivalent), candidate for shared library (handoff §6/§11) */
+        .switch { width:38px; height:22px; border-radius:99px; background:var(--border); position:relative; flex-shrink:0; cursor:pointer; transition:background .15s var(--ease); }
+        .switch--lg { width:42px; height:24px; }
+        .switch .switch-knob { position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(21,22,50,.25); transition:transform .15s var(--ease); }
+        .switch--lg .switch-knob { width:20px; height:20px; }
+        .switch.on { background:var(--purple-600); }
+        .switch.on .switch-knob { transform:translateX(16px); }
+        .switch--lg.on .switch-knob { transform:translateX(18px); }
+        .wc-share-row { display:flex; align-items:center; gap:12px; padding:9px 0; }
+        .wc-share-row + .wc-share-row { border-top:1px solid rgba(21,22,50,.08); }
+        .wc-share-label { flex:1; font-size:13.5px; font-weight:600; color:var(--text-heading); }
+
+        /* Dashed card variant — Pair another device */
+        .ci-card--dashed { border-style:dashed; text-align:center; }
+        .wc-pair-icons { display:flex; justify-content:center; gap:10px; margin:12px 0; }
+        .wc-pair-ic { width:38px; height:38px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; }
+        .wc-pair-ic .icon { width:19px; height:19px; color:var(--purple-500); }
+
+        /* Medications — tabs reuse .vitals-toggle/.vtog (Home); only font-size/wrap differ */
+        .med-vtoggle { margin-bottom:14px; }
+        .med-vtoggle .vtog { font-size:11px; white-space:nowrap; }
 
         /* Med panel visibility */
         .med-panel { display:none; }
@@ -190,11 +256,44 @@
         .inv-rows .row .val { font-size:12px; font-weight:600; color:var(--text-heading); }
         .inv-stock-low { color:var(--danger-text)!important; }
 
-        /* Overall stock ring (Medicine Cabinet header) */
+        /* Overall stock ring (Home "Today's medications" card only — Meds screen no longer uses this) */
         .stock-ring { width:56px; height:56px; border-radius:50%; flex-shrink:0; position:relative; display:flex; align-items:center; justify-content:center;
             background: conic-gradient(var(--stock-ring-color,var(--accent)) 0% var(--stock-ring-pct,85%), var(--neutral-100) var(--stock-ring-pct,85%) 100%); }
         .stock-ring::after { content:""; position:absolute; inset:6px; border-radius:50%; background:var(--surface); }
         .stock-ring-num { position:relative; z-index:1; font-family:var(--font-heading); font-weight:700; font-size:15px; color:var(--text-heading); }
+
+        /* Adherence line — plain-text summary replacing the Meds schedule's stock-ring card */
+        .adherence-line { font-size:13px; font-weight:400; color:var(--text-body); padding:8px 2px 14px; border-bottom:1px solid var(--border); margin-bottom:14px; }
+        .adherence-line .adh-strong { font-weight:600; color:var(--text-heading); }
+
+        /* Preferred pharmacist select — no visible label, per explicit feedback (Meds handoff §6) */
+        .pharmacist-select {
+            width:100%; padding:9px 10px; border:1.5px solid var(--border); border-radius:var(--radius-base);
+            font-family:var(--font-body); font-size:10.5px; font-weight:400; color:var(--text-muted); background:var(--surface);
+        }
+
+        /* Reorder row — full-width, always visible regardless of card expand state (Meds handoff §7) */
+        .inv-reorder-row {
+            background:var(--surface-sunken); border-top:1px solid var(--border);
+            text-align:center; padding:10px 14px; font-size:12.5px; font-weight:700; color:var(--accent-text); cursor:pointer;
+        }
+
+        /* Cart icon button + badge (tbar) */
+        .cart-btn { position:relative; }
+        .cart-btn .icon { transform:none; }
+        .cart-badge {
+            position:absolute; top:-2px; right:-2px; min-width:16px; height:16px; padding:0 3px; border-radius:99px;
+            background:var(--red-500); color:#fff; font-size:9.5px; font-weight:700; line-height:16px; text-align:center;
+        }
+
+        /* Reorder / Cart bottom sheets — reuse .sheet/.overlay pattern established for Quick actions editor */
+        .qty-stepper { display:flex; align-items:center; justify-content:center; gap:18px; margin:14px 0 4px; }
+        .qty-stepper button {
+            width:38px; height:38px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface);
+            font-family:var(--font-heading); font-weight:700; font-size:18px; color:var(--text-heading);
+        }
+        .qty-stepper .qty-num { font-family:var(--font-heading); font-weight:700; font-size:18px; min-width:28px; text-align:center; }
+        .cart-channel-toggle { display:flex; gap:6px; margin:12px 0; }
 
         /* Refill row layout */
         .inv-item-top { display:flex; align-items:flex-start; gap:12px; padding:13px 14px 8px; cursor:pointer; }
@@ -212,20 +311,38 @@
         .date-nav-arrow:active { background:var(--surface-sunken); }
         .date-nav-label { font-family:var(--font-heading); font-weight:700; font-size:14px; color:var(--text-heading); }
 
-        /* Time-of-day medication bands */
-        .tod-band { border-radius:var(--radius-lg); padding:12px 14px; margin-bottom:10px; }
-        .tod-band-label { font-family:var(--font-heading); font-weight:700; font-size:11.5px; letter-spacing:.4px; text-transform:uppercase; margin-bottom:8px; }
+        /* Time-of-day medication bands — purple border constant, fill tint varies per band (deliberate exception, Meds handoff §3) */
+        .tod-band { border-radius:var(--radius-lg); border:2px solid var(--purple-600); padding:12px 14px; margin-bottom:10px; }
+        .tod-band-head { display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:8px; }
+        .tod-band.collapsed .tod-band-head { margin-bottom:0; }
+        .tod-band-label { font-family:var(--font-heading); font-weight:700; font-size:11.5px; letter-spacing:.4px; text-transform:uppercase; }
+        .tod-band-count { font-size:11px; font-weight:600; color:var(--text-muted); }
+        .tod-band-chevron { margin-left:auto; width:16px; height:16px; flex-shrink:0; transition:transform .2s; color:var(--text-subtle); }
+        .tod-band.collapsed .tod-band-chevron { transform:rotate(-90deg); }
+        .tod-band-body { display:block; }
+        .tod-band.collapsed .tod-band-body { display:none; }
+        .tod-empty { font-size:12.5px; color:var(--text-muted); font-style:italic; padding:2px 0; }
         .tod-row { display:flex; align-items:center; gap:12px; padding:7px 0; }
         .tod-row + .tod-row { border-top:1px solid rgba(21,22,50,.08); }
-        .tod-check { width:19px; height:19px; flex-shrink:0; accent-color:var(--accent); }
         .tod-m { flex:1; min-width:0; }
-        .tod-name { font-weight:600; font-size:13.5px; color:var(--text-heading); transition:opacity .15s; }
-        .tod-row.taken .tod-name { text-decoration:line-through; opacity:.6; }
+        .tod-name { font-weight:600; font-size:13.5px; color:var(--text-heading); }
+        .tod-row.taken { opacity:.4; }
         .tod-note { font-size:11.5px; color:var(--text-muted); margin-top:1px; }
         .tod-band--morning { background:var(--amber-50); } .tod-band--morning .tod-band-label { color:var(--amber-600); }
         .tod-band--noon    { background:var(--blue-50); }  .tod-band--noon .tod-band-label    { color:var(--blue-600); }
-        .tod-band--evening { background:var(--model-virtual-care-soft); } .tod-band--evening .tod-band-label { color:var(--model-virtual-care-ink); }
-        .tod-band--night   { background:var(--model-digital-wellness-soft); } .tod-band--night .tod-band-label { color:var(--model-digital-wellness-ink); }
+        .tod-band--evening { background:var(--purple-50); } .tod-band--evening .tod-band-label { color:var(--purple-600); }
+        .tod-band--night   { background:var(--mint-50); }   .tod-band--night .tod-band-label   { color:var(--mint-700); }
+
+        /* Checkmark control — replaces checkbox+strikethrough (Meds handoff §4) */
+        .tod-check-circle {
+            width:24px; height:24px; border-radius:50%; flex-shrink:0; border:2px solid var(--border-strong);
+            background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer;
+            transition:background .15s,border-color .15s;
+        }
+        .tod-check-circle .icon { width:14px; height:14px; color:#fff; opacity:0; transition:opacity .15s; }
+        .tod-check-circle.checked { background:var(--accent); border-color:var(--accent); }
+        .tod-check-circle.checked .icon { opacity:1; }
+        .tod-row.taken .tod-check-circle { cursor:default; }
 
         /* Tracker summary list */
         .trk-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
@@ -266,6 +383,8 @@
         .inv-item.open .inv-details { display:block; }
         .inv-twistie { margin-left:auto; font-size:20px; transition:transform .2s; display:inline-block; color:var(--text-subtle); flex-shrink:0; line-height:1; }
         .inv-item.open .inv-twistie { transform:rotate(90deg); }
+        /* Plain variant — reuses the .inv-item.open collapse mechanic without the boxed card look (Recent history) */
+        .inv-item--plain { border:none; background:none; overflow:visible; margin-bottom:0; }
 
         /* Home comment note card */
         .home-note { border-left:3px solid var(--accent); padding-left:12px; }
@@ -370,6 +489,10 @@
         #qaOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
         #qaSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
         #qaSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
+        #reorderOverlay, #cartOverlay { visibility:hidden; transition:opacity .25s var(--ease), visibility 0s linear .25s; }
+        #reorderOverlay.show, #cartOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
+        #reorderSheet, #cartSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
+        #reorderSheet.show, #cartSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
         .overlay { position:absolute; inset:0; z-index:60; background:rgba(21,22,50,.4); opacity:0; pointer-events:none; transition:opacity .25s var(--ease); }
         .overlay.show { opacity:1; pointer-events:auto; }
         .qa-check-row { display:flex; align-items:center; gap:12px; padding:11px 2px; border-bottom:1px solid var(--border); cursor:pointer; }
@@ -516,75 +639,123 @@
          CHECK-IN — compact cards + has-nav for bottom nav clearance
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="checkInView">
-        <div class="tbar">
-            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Daily Check-in</h1></div>
-            <button class="tbar-submit" onclick="submitCheckIn()">Submit</button>
+        <div class="tbar" style="flex-direction:column;align-items:stretch;gap:2px;padding-top:20px">
+            <div class="ci-breadcrumb" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span>Home</div>
+            <div style="display:flex;align-items:center;gap:10px">
+                <div class="tbar__title"><h1 class="sm">Daily Check-in</h1></div>
+                <button class="tbar-submit" onclick="submitCheckIn()">Submit</button>
+            </div>
         </div>
         <div class="vbody has-nav" style="gap:10px">
             <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">How are you feeling today? Just a moment.</p>
 
             <div class="ci-card">
                 <div class="ci-card-head">
-                    <div class="ci-emoji">😊</div>
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-mood-happy"/></svg></span></div>
                     <div><div class="ci-label">Mood</div><div class="ci-sub">Emotional state today</div></div>
                 </div>
-                <div class="ci-opts">
-                    <button class="ci-opt selected" onclick="pickOpt(this)"><span class="ci-opt-em">😊</span>Good</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😐</span>Okay</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😔</span>Low</button>
+                <div class="ci-opts" data-field="mood">
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-happy"/></svg></span></span>Good</button>
+                    <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-empty"/></svg></span></span>Okay</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-sad"/></svg></span></span>Low</button>
                 </div>
             </div>
 
             <div class="ci-card">
                 <div class="ci-card-head">
-                    <div class="ci-emoji">⚡</div>
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-battery-4"/></svg></span></div>
                     <div><div class="ci-label">Energy</div><div class="ci-sub">Physical energy level</div></div>
                 </div>
-                <div class="ci-opts">
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">⚡</span>High</button>
-                    <button class="ci-opt selected" onclick="pickOpt(this)"><span class="ci-opt-em">〰️</span>Medium</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">🔋</span>Low</button>
+                <div class="ci-opts" data-field="energy">
+                    <button class="ci-opt sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-battery-4"/></svg></span></span>High</button>
+                    <button class="ci-opt selected sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-battery-2"/></svg></span></span>Medium</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-battery-1"/></svg></span></span>Low</button>
                 </div>
             </div>
 
             <div class="ci-card">
                 <div class="ci-card-head">
-                    <div class="ci-emoji">🌙</div>
-                    <div><div class="ci-label">Sleep last night</div><div class="ci-sub">Quality of sleep</div></div>
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-lungs"/></svg></span></div>
+                    <div><div class="ci-label">Breathing</div><div class="ci-sub">How's your breathing today?</div></div>
                 </div>
-                <div class="ci-opts">
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😴</span>Poor</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😌</span>Fair</button>
-                    <button class="ci-opt selected" onclick="pickOpt(this)"><span class="ci-opt-em">😊</span>Good</button>
+                <div class="ci-opts" data-field="breathing">
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="ci-lungs-wrap"><span class="icon ci-lungs-base"><svg><use href="#i-lungs"/></svg></span><span class="icon ci-lungs-fill" style="clip-path:inset(0% 0 0 0)"><svg><use href="#i-lungs"/></svg></span></span></span>Normal</button>
+                    <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="ci-lungs-wrap"><span class="icon ci-lungs-base"><svg><use href="#i-lungs"/></svg></span><span class="icon ci-lungs-fill" style="clip-path:inset(50% 0 0 0)"><svg><use href="#i-lungs"/></svg></span></span></span>Slightly short</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="ci-lungs-wrap"><span class="icon ci-lungs-base"><svg><use href="#i-lungs"/></svg></span><span class="icon ci-lungs-fill" style="clip-path:inset(82% 0 0 0)"><svg><use href="#i-lungs"/></svg></span></span></span>Very short</button>
                 </div>
             </div>
 
             <div class="ci-card">
                 <div class="ci-card-head">
-                    <div class="ci-emoji">🤕</div>
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-kitchen"/></svg></span></div>
+                    <div><div class="ci-label">Appetite</div><div class="ci-sub">Eating well today?</div></div>
+                </div>
+                <div class="ci-opts" data-field="appetite">
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-kitchen"/></svg></span></span>Normal</button>
+                    <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-kitchen"/></svg></span></span>Reduced</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-kitchen-off"/></svg></span></span>Skipped meals</button>
+                </div>
+            </div>
+
+            <div class="ci-card">
+                <div class="ci-card-head">
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-bandage"/></svg></span></div>
                     <div><div class="ci-label">Aches &amp; pains</div><div class="ci-sub">Any physical discomfort today?</div></div>
                 </div>
-                <div class="ci-opts">
-                    <button class="ci-opt selected" onclick="pickOpt(this)"><span class="ci-opt-em">😌</span>None</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😟</span>Mild</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😣</span>Moderate</button>
-                    <button class="ci-opt" onclick="pickOpt(this)"><span class="ci-opt-em">😫</span>Severe</button>
+                <div class="ci-opts ci-opts--4" data-field="aches">
+                    <button class="ci-opt selected sev-good" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-happy"/></svg></span></span>None</button>
+                    <button class="ci-opt sev-caution" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Mild</button>
+                    <button class="ci-opt sev-concern" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Moderate</button>
+                    <button class="ci-opt sev-concern-strong" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span>Severe</button>
+                </div>
+                <div id="acheWhereRow" style="display:none">
+                    <div class="ci-sub" style="margin:10px 0 6px">Where? (optional)</div>
+                    <div class="when-grid">
+                        <button class="when-btn" onclick="this.classList.toggle('sel')">Joints</button>
+                        <button class="when-btn" onclick="this.classList.toggle('sel')">Back</button>
+                        <button class="when-btn" onclick="this.classList.toggle('sel')">Head</button>
+                        <button class="when-btn" onclick="this.classList.toggle('sel')">Chest</button>
+                        <button class="when-btn" onclick="this.classList.toggle('sel')">Other</button>
+                    </div>
                 </div>
             </div>
 
             <div class="ci-card">
                 <div class="ci-card-head">
-                    <div class="ci-emoji">📝</div>
-                    <div><div class="ci-label">Notes for your care team</div><div class="ci-sub">Optional · 100 characters max</div></div>
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-zzz"/></svg></span></div>
+                    <div><div class="ci-label">Sleep last night</div><div class="ci-sub">Quality of sleep</div></div>
+                </div>
+                <div class="ci-opts" data-field="sleep">
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-moon"/></svg></span></span>Poor</button>
+                    <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span></span>Fair</button>
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-zzz"/></svg></span></span>Good</button>
+                </div>
+            </div>
+
+            <div class="ci-card">
+                <div class="ci-card-head">
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-clipboard"/></svg></span></div>
+                    <div><div class="ci-label">Notes</div><div class="ci-sub">Optional · 100 characters max</div></div>
                 </div>
                 <textarea class="comment-area" id="ciComment" rows="3" maxlength="100"
                     placeholder="e.g. Felt dizzy this morning, headache after lunch…"
                     oninput="updateCharCount()"></textarea>
                 <div class="char-count"><span id="charCountNum">0</span>/100</div>
+                <button class="mbtn mbtn--brand mbtn--block" style="margin-top:10px" id="ciSaveNoteBtn" onclick="saveNote()">Save note</button>
             </div>
 
-            <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin:4px 0 8px">Your care team reviews this weekly</p>
+            <div class="ci-card inv-item" id="ciPrevEntries">
+                <div class="inv-item-top" style="padding:0;cursor:pointer" onclick="toggleInv('ciPrevEntries')">
+                    <div style="flex:1;min-width:0">
+                        <div class="ci-label">Previous entries</div>
+                        <div class="ci-sub">Last 30 kept · reviewed weekly by your care team</div>
+                    </div>
+                    <span class="icon ci-prev-chevron"><svg><use href="#i-chevron-down"/></svg></span>
+                </div>
+                <div class="inv-details" id="ciPrevBody" style="margin-top:12px"></div>
+            </div>
+
+            <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin:4px 0 8px">Today's selections feed directly into your wellness score on the home screen.</p>
         </div>
     </section>
 
@@ -595,13 +766,17 @@
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Medications</h1></div>
+            <button class="backbtn cart-btn" onclick="openCartSheet()">
+                <span class="icon"><svg><use href="#i-cart"/></svg></span>
+                <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+            </button>
         </div>
         <div class="vbody" style="gap:0;padding-top:4px">
 
-            <!-- Tabs -->
-            <div class="med-tabs">
-                <div class="med-tab active" id="tab-schedule" onclick="switchMedTab('schedule')">Today's Schedule</div>
-                <div class="med-tab" id="tab-inventory" onclick="switchMedTab('inventory')">Medicine Cabinet</div>
+            <!-- Tabs — reuses Home's .vitals-toggle/.vtog component, not a new class -->
+            <div class="vitals-toggle med-vtoggle">
+                <div class="vtog active" id="tab-schedule" onclick="switchMedTab('schedule')">Today's Schedule</div>
+                <div class="vtog" id="tab-inventory" onclick="switchMedTab('inventory')">Medicine Cabinet</div>
             </div>
 
             <!-- ── SCHEDULE PANEL ── -->
@@ -614,54 +789,88 @@
                     <button class="date-nav-arrow" onclick="shiftMedDate(1)">›</button>
                 </div>
 
-                <!-- Adherence ring -->
-                <div class="card" style="margin-bottom:14px">
-                    <div style="display:flex;align-items:center;gap:14px">
-                        <div class="stock-ring" id="adhRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="adhRingNum">50%</span></div>
-                        <div style="flex:1">
-                            <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)"><span id="adhCountNum">2</span> of <span id="adhCountTotal">4</span> meds taken</div>
-                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="adhNote">Next due: Vitamin D3, 12:00 PM</div>
+                <!-- Adherence line — replaces the old stock-ring summary card -->
+                <div class="adherence-line">
+                    <span class="adh-strong" id="adhCountNum">2</span> of <span class="adh-strong" id="adhCountTotal">4</span> medications taken today<span id="adhNextWrap"> · next due <span class="adh-strong" id="adhNextMed">Vitamin D3</span> at <span id="adhNextTime">12:00 PM</span></span>
+                    <!-- adhRingNum kept for Home card sync (syncHomeMedCard) — no visible ring on this screen anymore -->
+                    <span id="adhRingNum" style="display:none">50%</span>
+                </div>
+
+                <!-- Morning -->
+                <div class="tod-band tod-band--morning" id="tod-band-morning">
+                    <div class="tod-band-head" onclick="toggleTodBand('tod-band-morning')">
+                        <div class="tod-band-label">Morning</div>
+                        <div class="tod-band-count">2/2</div>
+                        <span class="tod-band-chevron icon"><svg><use href="#i-chevron-down"/></svg></span>
+                    </div>
+                    <div class="tod-band-body">
+                        <div class="tod-row taken">
+                            <div class="tod-check-circle checked"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-m"><div class="tod-name">Levothyroxine 50mcg</div><div class="tod-note">Empty stomach · Taken 7:30 AM</div></div>
+                        </div>
+                        <div class="tod-row taken">
+                            <div class="tod-check-circle checked"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-m"><div class="tod-name">Metformin 500mg</div><div class="tod-note">With breakfast · Taken 8:00 AM</div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Morning -->
-                <div class="tod-band tod-band--morning">
-                    <div class="tod-band-label">Morning</div>
-                    <div class="tod-row taken">
-                        <input type="checkbox" class="tod-check" checked disabled>
-                        <div class="tod-m"><div class="tod-name">Levothyroxine 50mcg</div><div class="tod-note">Empty stomach · Taken 7:30 AM</div></div>
-                    </div>
-                    <div class="tod-row taken">
-                        <input type="checkbox" class="tod-check" checked disabled>
-                        <div class="tod-m"><div class="tod-name">Metformin 500mg</div><div class="tod-note">With breakfast · Taken 8:00 AM</div></div>
-                    </div>
-                </div>
-
                 <!-- Noon -->
-                <div class="tod-band tod-band--noon">
-                    <div class="tod-band-label">Noon</div>
-                    <div class="tod-row" id="vitD-tl">
-                        <input type="checkbox" class="tod-check" onchange="markTaken(this)">
-                        <div class="tod-m"><div class="tod-name">Vitamin D3 1000 IU</div><div class="tod-note">With lunch · Due now</div></div>
+                <div class="tod-band tod-band--noon" id="tod-band-noon">
+                    <div class="tod-band-head" onclick="toggleTodBand('tod-band-noon')">
+                        <div class="tod-band-label">Noon</div>
+                        <div class="tod-band-count">0/1</div>
+                        <span class="tod-band-chevron icon"><svg><use href="#i-chevron-down"/></svg></span>
+                    </div>
+                    <div class="tod-band-body">
+                        <div class="tod-row" id="vitD-tl">
+                            <div class="tod-check-circle" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-m"><div class="tod-name">Vitamin D3 1000 IU</div><div class="tod-note">With lunch · Due now</div></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Evening -->
-                <div class="tod-band tod-band--evening">
-                    <div class="tod-band-label">Evening</div>
-                    <div class="tod-row">
-                        <input type="checkbox" class="tod-check" onchange="markTaken(this)">
-                        <div class="tod-m"><div class="tod-name">Atorvastatin 10mg</div><div class="tod-note">After dinner · 8:00 PM</div></div>
+                <div class="tod-band tod-band--evening" id="tod-band-evening">
+                    <div class="tod-band-head" onclick="toggleTodBand('tod-band-evening')">
+                        <div class="tod-band-label">Evening</div>
+                        <div class="tod-band-count">0/1</div>
+                        <span class="tod-band-chevron icon"><svg><use href="#i-chevron-down"/></svg></span>
+                    </div>
+                    <div class="tod-band-body">
+                        <div class="tod-row">
+                            <div class="tod-check-circle" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-m"><div class="tod-name">Atorvastatin 10mg</div><div class="tod-note">After dinner · 8:00 PM</div></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="overline" style="margin-top:20px">Recent history</div>
-                <div class="card" style="margin-top:8px">
-                    <div class="rows">
-                        <div class="row"><div class="m">Jun 29</div><div class="val"><span class="chip2 chip2--ok">3/3 taken</span></div></div>
-                        <div class="row"><div class="m">Jun 28</div><div class="val"><span class="chip2 chip2--warn">2/3 taken</span></div></div>
-                        <div class="row"><div class="m">Jun 27</div><div class="val"><span class="chip2 chip2--ok">3/3 taken</span></div></div>
+                <!-- Night — new band, currently nothing scheduled -->
+                <div class="tod-band tod-band--night" id="tod-band-night">
+                    <div class="tod-band-head" onclick="toggleTodBand('tod-band-night')">
+                        <div class="tod-band-label">Night</div>
+                        <div class="tod-band-count">0/0</div>
+                        <span class="tod-band-chevron icon"><svg><use href="#i-chevron-down"/></svg></span>
+                    </div>
+                    <div class="tod-band-body">
+                        <div class="tod-empty">Nothing scheduled for night</div>
+                    </div>
+                </div>
+
+                <!-- Recent history — reuses the existing .inv-item.open / .inv-details / toggleInv() collapsible mechanic (Medicine Cabinet), collapsed by default -->
+                <div class="inv-item inv-item--plain" id="recentHistory">
+                    <div class="inv-item-top" style="padding:0;margin-top:20px;cursor:pointer" onclick="toggleInv('recentHistory')">
+                        <div class="overline" style="padding:0;flex:1">Recent history</div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="card" style="margin-top:8px">
+                            <div class="rows">
+                                <div class="row"><div class="m">Jun 29</div><div class="val"><span class="chip2 chip2--ok">3/3 taken</span></div></div>
+                                <div class="row"><div class="m">Jun 28</div><div class="val"><span class="chip2 chip2--warn">2/3 taken</span></div></div>
+                                <div class="row"><div class="m">Jun 27</div><div class="val"><span class="chip2 chip2--ok">3/3 taken</span></div></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -673,26 +882,22 @@
             <!-- ── INVENTORY PANEL ── -->
             <div class="med-panel" id="panel-inventory">
 
-                <!-- Overall stock summary -->
-                <div class="card reveal" style="margin-bottom:14px">
-                    <div style="display:flex;align-items:center;gap:14px">
-                        <div class="stock-ring" style="--stock-ring-pct:85%"><span class="stock-ring-num">85%</span></div>
-                        <div>
-                            <div style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--text-heading)">Stock</div>
-                            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Overall inventory status</div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Preferred pharmacist — replaces the old Stock summary card+ring -->
+                <select id="preferredPharmacist" class="pharmacist-select" style="margin-bottom:14px">
+                    <option value="">Select Preferred Pharmacist</option>
+                    <!-- TODO: populate from care team once Care tab data model exists -->
+                    <option>Apollo Pharmacy — Kochi (care team)</option>
+                    <option>MedPlus — Ernakulam (care team)</option>
+                </select>
 
                 <!-- Metformin — low stock -->
                 <div class="inv-item" id="inv-1">
                     <div class="inv-item-top" onclick="toggleInv('inv-1')">
-                        <div class="inv-ic" style="background:var(--success-soft)">💊</div>
+                        <div class="inv-ic" style="background:var(--success-soft);color:var(--success-text)"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>
                         <div style="flex:1;min-width:0">
                             <div class="inv-name">Metformin 500mg</div>
                             <div class="inv-for">Refills remaining: 1</div>
                         </div>
-                        <button class="mbtn inv-refill-btn" style="background:var(--danger)" onclick="event.stopPropagation()">Refill</button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-1')">
                         <span class="days-pill days-pill--low">5 days left</span>
@@ -708,17 +913,17 @@
                             <div class="row"><div class="m">In stock</div><div class="val">5 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder now</span></div></div>
                         </div>
                     </div>
+                    <div class="inv-reorder-row" onclick="openReorderSheet('Metformin 500mg')">Reorder</div>
                 </div>
 
                 <!-- Vitamin D3 -->
                 <div class="inv-item" id="inv-2">
                     <div class="inv-item-top" onclick="toggleInv('inv-2')">
-                        <div class="inv-ic" style="background:var(--amber-50)">☀️</div>
+                        <div class="inv-ic" style="background:var(--amber-50);color:var(--amber-600)"><span class="icon"><svg><use href="#i-sun"/></svg></span></div>
                         <div style="flex:1;min-width:0">
                             <div class="inv-name">Vitamin D3 1000 IU</div>
                             <div class="inv-for">Refills remaining: 5</div>
                         </div>
-                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-2')">
                         <span class="days-pill days-pill--ok">45 days left</span>
@@ -734,17 +939,17 @@
                             <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">45 capsules ✓</div></div>
                         </div>
                     </div>
+                    <div class="inv-reorder-row" onclick="openReorderSheet('Vitamin D3 1000 IU')">Reorder</div>
                 </div>
 
                 <!-- Atorvastatin -->
                 <div class="inv-item" id="inv-3">
                     <div class="inv-item-top" onclick="toggleInv('inv-3')">
-                        <div class="inv-ic" style="background:var(--blue-50)">❤️</div>
+                        <div class="inv-ic" style="background:var(--blue-50);color:var(--blue-600)"><span class="icon"><svg><use href="#i-heart"/></svg></span></div>
                         <div style="flex:1;min-width:0">
                             <div class="inv-name">Atorvastatin 10mg</div>
                             <div class="inv-for">Refills remaining: 3</div>
                         </div>
-                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-3')">
                         <span class="days-pill days-pill--ok">28 days left</span>
@@ -761,17 +966,17 @@
                             <div class="row"><div class="m">Prescription</div><div class="val"><a href="#" style="color:var(--accent-text);font-weight:600">View scan ↗</a></div></div>
                         </div>
                     </div>
+                    <div class="inv-reorder-row" onclick="openReorderSheet('Atorvastatin 10mg')">Reorder</div>
                 </div>
 
                 <!-- Levothyroxine -->
                 <div class="inv-item" id="inv-4">
                     <div class="inv-item-top" onclick="toggleInv('inv-4')">
-                        <div class="inv-ic" style="background:var(--model-digital-wellness-soft)">🦋</div>
+                        <div class="inv-ic" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)"><span class="icon"><svg><use href="#i-thyroid"/></svg></span></div>
                         <div style="flex:1;min-width:0">
                             <div class="inv-name">Levothyroxine 50mcg</div>
                             <div class="inv-for">Refills remaining: 2</div>
                         </div>
-                        <button class="mbtn inv-refill-btn" style="background:var(--accent)" onclick="event.stopPropagation()">Refill</button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-4')">
                         <span class="days-pill days-pill--ok">30 days left</span>
@@ -787,6 +992,7 @@
                             <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">30 tablets ✓</div></div>
                         </div>
                     </div>
+                    <div class="inv-reorder-row" onclick="openReorderSheet('Levothyroxine 50mcg')">Reorder</div>
                 </div>
 
                 <button class="mbtn mbtn--line mbtn--block" style="margin-top:4px" onclick="CBH.go('addMedView')">
@@ -976,6 +1182,7 @@
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Health Insights</h1></div>
+            <button class="backbtn" onclick="CBH.go('wearableConfigView')"><span class="icon"><svg><use href="#i-settings"/></svg></span></button>
             <span class="chip2 chip2--ok" style="font-size:11px;padding:3px 8px">Synced</span>
         </div>
         <div class="vbody">
@@ -1086,7 +1293,112 @@
         </div>
     </section>
 
-        <!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
+         WEARABLE DEVICE SETTINGS — UI/interaction demo only (handoff §0);
+         no control here performs a real Bluetooth/HealthKit action.
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="wearableConfigView">
+        <div class="tbar" style="flex-direction:column;align-items:stretch;gap:2px;padding-top:20px">
+            <div class="ci-breadcrumb" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span>Wearables</div>
+            <div class="tbar__title"><h1 class="sm">Device settings</h1></div>
+        </div>
+        <div class="vbody has-nav" style="gap:10px">
+            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Manage your connected wearable and what it shares</p>
+
+            <!-- Your device -->
+            <div class="ci-card">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div class="wc-avatar"><span class="icon"><svg><use href="#i-device-watch"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="ci-label">Apple Watch Series 8</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:3px" id="wcConnStatus">
+                            <span class="wc-status-dot on"></span>
+                            <span class="ci-sub" style="color:var(--success-text)" id="wcConnLabel">Connected</span>
+                        </div>
+                    </div>
+                    <div class="wc-battery-pill" id="wcBatteryPill">82%</div>
+                </div>
+                <div class="wc-divider"></div>
+                <div class="wc-two-col">
+                    <div><div class="m">Last synced</div><div class="v">2 min ago</div></div>
+                    <div style="text-align:right"><div class="m">Paired</div><div class="v">15 Jun 2026</div></div>
+                </div>
+                <button class="wc-forget-btn" id="wcForgetBtn" onclick="wcForgetDevice()">Forget this device</button>
+            </div>
+
+            <!-- Sync frequency -->
+            <div class="ci-card">
+                <div class="ci-card-head">
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-clock"/></svg></span></div>
+                    <div><div class="ci-label">Sync frequency</div><div class="ci-sub">How often readings update</div></div>
+                </div>
+                <div class="ci-opts">
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-clock"/></svg></span></span>Real-time</button>
+                    <button class="ci-opt sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-clock"/></svg></span></span>Every 15 min</button>
+                    <button class="ci-opt sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-clock"/></svg></span></span>Manual only</button>
+                </div>
+                <div class="wc-divider"></div>
+                <div class="wc-share-row" style="border-top:none;padding-top:0">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-cog"/></svg></span></div>
+                    <div class="wc-share-label">Sync in background<div class="ci-sub" style="font-weight:400;margin-top:2px">Keeps readings current even when the app is closed</div></div>
+                    <div class="switch switch--lg on" onclick="wcToggleSwitch(this)"></div>
+                </div>
+            </div>
+
+            <!-- What we share -->
+            <div class="ci-card">
+                <div class="ci-card-head">
+                    <div class="ci-emoji"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></div>
+                    <div><div class="ci-label">What we share</div><div class="ci-sub">Data sent from your wearable</div></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></div>
+                    <div class="wc-share-label">Heart rate</div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span></div>
+                    <div class="wc-share-label">Sleep</div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-lungs"/></svg></span></div>
+                    <div class="wc-share-label">Blood oxygen (SpO₂)</div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
+                    <div class="wc-share-label">Steps &amp; activity</div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-brain"/></svg></span></div>
+                    <div class="wc-share-label">Stress level</div>
+                    <div class="switch" onclick="wcToggleSwitch(this)"></div>
+                </div>
+            </div>
+
+            <!-- Pair another device -->
+            <div class="ci-card ci-card--dashed">
+                <div class="ci-label">Pair another device</div>
+                <div class="wc-pair-icons">
+                    <div class="wc-pair-ic"><span class="icon"><svg><use href="#i-device-watch"/></svg></span></div>
+                    <div class="wc-pair-ic"><span class="icon"><svg><use href="#i-android"/></svg></span></div>
+                    <div class="wc-pair-ic"><span class="icon"><svg><use href="#i-bluetooth"/></svg></span></div>
+                </div>
+                <button class="mbtn mbtn--brand mbtn--block" id="wcStartPairBtn" onclick="wcStartPairing()">
+                    <span class="icon"><svg><use href="#i-plus"/></svg></span> Start pairing
+                </button>
+            </div>
+
+            <div class="ci-card" style="display:flex;align-items:flex-start;gap:10px">
+                <span class="icon" style="width:18px;height:18px;color:var(--purple-500);flex-shrink:0;margin-top:1px"><svg><use href="#i-info"/></svg></span>
+                <p class="t-body-s" style="color:var(--text-body)">No device? You can always log readings manually from Check-in.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
          FAMILY CIRCLE (profile-level, reached from profile)
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="familyView">
@@ -1603,15 +1915,25 @@
             </div>
 
             <div class="form-sec">
-                <div class="form-sec-label">Prescribed by</div>
-                <div class="field"><label>Source</label>
-                    <select id="addMedRx" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
-                        <option>Over-the-counter (OTC)</option>
-                        <option>Dr. Rajeev Menon</option>
-                        <option>Other doctor</option>
+                <div class="form-sec-label">Source</div>
+                <div class="field">
+                    <label>Is this over-the-counter or prescription?</label>
+                    <select id="addMedSource" onchange="toggleMedSourceFields()" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+                        <option value="otc">Over-the-counter</option>
+                        <option value="prescription">Prescription</option>
                     </select>
                 </div>
-                <div class="field"><label>Doctor's name (if other)</label><input type="text" id="addMedDoc" placeholder="Optional"></div>
+                <div id="addMedRxFields" style="display:none">
+                    <div class="field"><label>Prescribed by</label><input type="text" id="addMedDoc" placeholder="Doctor's name"></div>
+                    <div class="field"><label>Link to a prescription in Records</label>
+                        <select id="addMedRxLink" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+                            <option value="">Select a prescription</option>
+                            <!-- TODO: populate from Records once that tab's data model exists -->
+                            <option>Dr. Rajeev Menon — 1 Jun 2026</option>
+                            <option>Dr. Rajeev Menon — 15 Mar 2026</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="form-sec">
@@ -1788,6 +2110,36 @@
         <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="closeQAEditor()">Done</button>
     </div>
 
+    <!-- Reorder — bottom sheet. UI-only per Meds handoff §0/§7: adding to cart is local state,
+         no real pharmacy dispatch happens anywhere in this flow. -->
+    <div class="overlay" id="reorderOverlay" onclick="closeReorderSheet()"></div>
+    <div class="sheet" id="reorderSheet">
+        <div class="sheet__grip"></div>
+        <h2 id="reorderMedName">Medication</h2>
+        <p class="lead">Choose a quantity to add to your cart.</p>
+        <div class="qty-stepper">
+            <button onclick="reorderStep(-1)">–</button>
+            <span class="qty-num" id="reorderQty">1</span>
+            <button onclick="reorderStep(1)">+</button>
+        </div>
+        <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="addReorderToCart()">Add to cart</button>
+    </div>
+
+    <!-- Cart — bottom sheet. "Send order" is UI-only (§0): closes the sheet, no fake dispatch/confirmation. -->
+    <div class="overlay" id="cartOverlay" onclick="closeCartSheet()"></div>
+    <div class="sheet" id="cartSheet">
+        <div class="sheet__grip"></div>
+        <h2>Your cart</h2>
+        <p class="lead">Review items, then choose how to send this order to your pharmacist.</p>
+        <div id="cartItemsList" style="margin:14px 0 4px"></div>
+        <div class="cart-channel-toggle" id="cartChannelToggle">
+            <div class="vtog active" onclick="pickCartChannel(this,'SMS')">SMS</div>
+            <div class="vtog" onclick="pickCartChannel(this,'WhatsApp')">WhatsApp</div>
+            <div class="vtog" onclick="pickCartChannel(this,'Email')">Email</div>
+        </div>
+        <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="sendOrder()">Send order</button>
+    </div>
+
 </div></div><!-- /.device /.stage -->
 
 <script>
@@ -1934,6 +2286,74 @@ function closeQAEditor() {
     document.getElementById('qaSheet').classList.remove('show');
 }
 
+/* ── Reorder → cart → send flow — UI-only prototype state, no real pharmacy dispatch (Meds handoff §0/§7) ── */
+var cartItems = [];
+var _reorderTarget = null;
+var _reorderQty = 1;
+var _cartChannel = 'SMS';
+
+function openReorderSheet(medName) {
+    _reorderTarget = medName;
+    _reorderQty = 1;
+    document.getElementById('reorderMedName').textContent = medName;
+    document.getElementById('reorderQty').textContent = _reorderQty;
+    document.getElementById('reorderOverlay').classList.add('show');
+    document.getElementById('reorderSheet').classList.add('show');
+}
+function closeReorderSheet() {
+    document.getElementById('reorderOverlay').classList.remove('show');
+    document.getElementById('reorderSheet').classList.remove('show');
+}
+function reorderStep(delta) {
+    _reorderQty = Math.max(1, _reorderQty + delta);
+    document.getElementById('reorderQty').textContent = _reorderQty;
+}
+function addReorderToCart() {
+    var existing = cartItems.filter(function (i) { return i.name === _reorderTarget; })[0];
+    if (existing) existing.qty += _reorderQty;
+    else cartItems.push({ name: _reorderTarget, qty: _reorderQty });
+    renderCartBadge();
+    closeReorderSheet();
+}
+function renderCartBadge() {
+    var badge = document.getElementById('cartBadge');
+    if (!badge) return;
+    var count = cartItems.reduce(function (sum, i) { return sum + i.qty; }, 0);
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+}
+function renderCartList() {
+    var wrap = document.getElementById('cartItemsList');
+    if (!wrap) return;
+    if (!cartItems.length) {
+        wrap.innerHTML = '<p class="t-body-s" style="color:var(--text-muted);text-align:center;padding:8px 0">Your cart is empty.</p>';
+        return;
+    }
+    wrap.innerHTML = cartItems.map(function (i) {
+        return '<div class="tlog-row"><span>' + i.name + '</span><span style="font-weight:700">×' + i.qty + '</span></div>';
+    }).join('');
+}
+function pickCartChannel(btn, channel) {
+    document.querySelectorAll('#cartChannelToggle .vtog').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    _cartChannel = channel;
+}
+function openCartSheet() {
+    renderCartList();
+    document.getElementById('cartOverlay').classList.add('show');
+    document.getElementById('cartSheet').classList.add('show');
+}
+function closeCartSheet() {
+    document.getElementById('cartOverlay').classList.remove('show');
+    document.getElementById('cartSheet').classList.remove('show');
+}
+function sendOrder() {
+    // UI-only: per handoff §0, this must not simulate a real dispatch — just clears the cart and closes.
+    cartItems = [];
+    renderCartBadge();
+    closeCartSheet();
+}
+
 /* ── Home "Today's medications" card — reuses the Meds tab's adherence state, never recomputes it ── */
 function syncHomeMedCard() {
     var srcNum = document.getElementById('adhCountNum');
@@ -1979,12 +2399,127 @@ function renderJournalEntries() {
     }).join('');
 }
 
-/* ── Check-in: comment + submit ─────────────────────────────────────────── */
+/* ── Check-in: comment + save/submit ──────────────────────────────────────── */
 function updateCharCount() {
     var ta = document.getElementById('ciComment');
     var el = document.getElementById('charCountNum');
     if (ta && el) el.textContent = ta.value.length;
 }
+function saveNote() {
+    // Convenience/reassurance action only — Submit always reads the textarea directly (handoff §9)
+    var btn = document.getElementById('ciSaveNoteBtn');
+    if (!btn) return;
+    var original = btn.textContent;
+    btn.textContent = 'Saved ✓';
+    setTimeout(function () { btn.textContent = original; }, 1400);
+}
+
+/* ── Check-in: Aches "Where?" conditional tag row (handoff §7) ────────────── */
+function pickAche(btn) {
+    pickOpt(btn);
+    var isNone = btn.textContent.trim() === 'None';
+    var row = document.getElementById('acheWhereRow');
+    if (!row) return;
+    row.style.display = isNone ? 'none' : 'block';
+    if (isNone) row.querySelectorAll('.when-btn.sel').forEach(function (b) { b.classList.remove('sel'); });
+}
+
+/* ── Check-in: 3-tier severity scoring, shared by wellness score + Previous entries chips (handoff §4/§11) ── */
+function ciSevTier(el) {
+    if (!el) return null;
+    if (el.classList.contains('sev-good')) return 'good';
+    if (el.classList.contains('sev-caution')) return 'caution';
+    if (el.classList.contains('sev-concern-strong')) return 'concern-strong';
+    if (el.classList.contains('sev-concern')) return 'concern';
+    return null;
+}
+function ciSevScore(el) {
+    var tier = ciSevTier(el);
+    return { good:100, caution:60, concern:25, 'concern-strong':10 }[tier];
+}
+function ciSevBg(tier) {
+    return { good:'#E6FBF3', caution:'var(--caution-soft)', concern:'var(--concern-soft)', 'concern-strong':'var(--concern-strong-soft)' }[tier] || 'var(--surface-sunken)';
+}
+function computeWellnessScore() {
+    var groups = document.querySelectorAll('#checkInView .ci-opts[data-field]');
+    var total = 0, count = 0;
+    groups.forEach(function (g) {
+        var s = ciSevScore(g.querySelector('.ci-opt.selected'));
+        if (s !== undefined && s !== null) { total += s; count++; }
+    });
+    return count ? Math.round(total / count) : null;
+}
+
+/* ── Check-in: Previous entries — localStorage log, capped at 30 (handoff §10) ──
+   TODO: replace with Care Bridge backend profile sync once auth/backend exists */
+var CI_ICON_MAP = {
+    mood: { Good:'mood-happy', Okay:'mood-empty', Low:'mood-sad' },
+    energy: { High:'battery-4', Medium:'battery-2', Low:'battery-1' },
+    breathing: { Normal:'lungs', 'Slightly short':'lungs', 'Very short':'lungs' },
+    appetite: { Normal:'kitchen', Reduced:'kitchen', 'Skipped meals':'kitchen-off' },
+    aches: { None:'mood-happy', Mild:'bandage', Moderate:'bandage', Severe:'alert' },
+    sleep: { Poor:'moon', Fair:'moon-stars', Good:'zzz' }
+};
+var CI_SEV_MAP = {
+    mood: { Good:'good', Okay:'caution', Low:'concern' },
+    energy: { High:'good', Medium:'caution', Low:'concern' },
+    breathing: { Normal:'good', 'Slightly short':'caution', 'Very short':'concern' },
+    appetite: { Normal:'good', Reduced:'caution', 'Skipped meals':'concern' },
+    aches: { None:'good', Mild:'caution', Moderate:'concern', Severe:'concern-strong' },
+    sleep: { Poor:'concern', Fair:'caution', Good:'good' }
+};
+function ciGetEntries() {
+    try { return JSON.parse(localStorage.getItem('cbh_checkin_entries')) || []; }
+    catch (e) { return []; }
+}
+function ciSaveEntries(list) { localStorage.setItem('cbh_checkin_entries', JSON.stringify(list)); }
+function ciSeedEntries() {
+    if (ciGetEntries().length) return;
+    // Dummy seed data purely so the log isn't empty on first load of the prototype
+    ciSaveEntries([
+        { ts:'2026-07-01T08:10:00', mood:'Good', energy:'High', breathing:'Normal', appetite:'Normal', aches:'None', sleep:'Good', notes:'' },
+        { ts:'2026-06-30T08:05:00', mood:'Okay', energy:'Medium', breathing:'Slightly short', appetite:'Reduced', aches:'Mild', sleep:'Fair', notes:'Felt a bit breathless on the morning walk.' },
+        { ts:'2026-06-29T08:20:00', mood:'Low', energy:'Low', breathing:'Normal', appetite:'Normal', aches:'Moderate', sleep:'Poor', notes:'' }
+    ]);
+}
+function ciFormatEntryDate(ts) {
+    var d = new Date(ts);
+    var mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var h = d.getHours(), m = d.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12 || 12;
+    return { d: d.getDate() + ' ' + mos[d.getMonth()], t: h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm };
+}
+function renderCiPrevEntries() {
+    var wrap = document.getElementById('ciPrevBody');
+    if (!wrap) return;
+    var entries = ciGetEntries();
+    if (!entries.length) { wrap.innerHTML = '<div class="ci-prev-empty">No previous entries yet.</div>'; return; }
+    var fields = ['mood','energy','breathing','appetite','aches','sleep'];
+    wrap.innerHTML = entries.map(function (e) {
+        var dt = ciFormatEntryDate(e.ts);
+        var chips = fields.filter(function (f) { return e[f]; }).map(function (f) {
+            var icon = (CI_ICON_MAP[f] || {})[e[f]] || 'info';
+            var tier = (CI_SEV_MAP[f] || {})[e[f]] || 'good';
+            return '<span class="ci-prev-chip" style="background:' + ciSevBg(tier) + '"><span class="icon"><svg><use href="#i-' + icon + '"/></svg></span></span>';
+        }).join('');
+        var noteHtml = e.notes
+            ? '<div class="ci-prev-note">"' + e.notes + '"</div>'
+            : '<div class="ci-prev-note empty">No notes added</div>';
+        return '<div class="ci-prev-entry">' +
+            '<div class="ci-prev-date"><div class="d">' + dt.d + '</div><div class="t">' + dt.t + '</div></div>' +
+            '<div style="flex:1;min-width:0"><div class="ci-prev-chips">' + chips + '</div>' + noteHtml + '</div>' +
+            '</div>';
+    }).join('');
+}
+function ciPrependEntry(entry) {
+    var list = ciGetEntries();
+    list.unshift(entry);
+    if (list.length > 30) list = list.slice(0, 30);
+    ciSaveEntries(list);
+    renderCiPrevEntries();
+}
+
 function submitCheckIn() {
     var comment = ((document.getElementById('ciComment') || {}).value || '').trim();
     var card = document.getElementById('homeNoteCard');
@@ -1993,6 +2528,24 @@ function submitCheckIn() {
         txt.textContent = '"' + comment + '"';
         card.style.display = 'block';
     }
+
+    var entry = { ts: new Date().toISOString(), notes: comment };
+    document.querySelectorAll('#checkInView .ci-opts[data-field]').forEach(function (g) {
+        var field = g.getAttribute('data-field');
+        var sel = g.querySelector('.ci-opt.selected');
+        if (sel) entry[field] = sel.textContent.trim();
+    });
+    var tags = Array.prototype.slice.call(document.querySelectorAll('#acheWhereRow .when-btn.sel')).map(function (b) { return b.textContent.trim(); });
+    if (tags.length) entry.achesTags = tags;
+    ciPrependEntry(entry);
+
+    var score = computeWellnessScore();
+    if (score !== null) {
+        applyScoreRing(score, 'scoreRing');
+        var scoreNum = document.getElementById('scoreNum');
+        if (scoreNum) scoreNum.textContent = score;
+    }
+
     var ta = document.getElementById('ciComment');
     if (ta) { ta.value = ''; }
     if (typeof updateCharCount === 'function') updateCharCount();
@@ -2005,15 +2558,74 @@ function toggleInv(id) {
     if (el) el.classList.toggle('open');
 }
 
+/* ── Wearable device settings — UI-only demo, no real device I/O (handoff §0) ── */
+function wcToggleSwitch(el) {
+    el.classList.toggle('on');
+}
+
+var wcForgetConfirming = false;
+function wcForgetDevice() {
+    var btn = document.getElementById('wcForgetBtn');
+    if (!btn) return;
+    if (!wcForgetConfirming) {
+        wcForgetConfirming = true;
+        btn.textContent = 'Tap again to confirm';
+        return;
+    }
+    // Demo-only: clears local UI state, does not touch a real device connection (handoff §0)
+    wcForgetConfirming = false;
+    var dot = document.querySelector('#wcConnStatus .wc-status-dot');
+    var label = document.getElementById('wcConnLabel');
+    if (dot) dot.className = 'wc-status-dot off';
+    if (label) { label.textContent = 'Disconnected'; label.style.color = '#8C1D21'; }
+    btn.textContent = 'Reconnect';
+    btn.onclick = wcReconnectDevice;
+}
+function wcReconnectDevice() {
+    var dot = document.querySelector('#wcConnStatus .wc-status-dot');
+    var label = document.getElementById('wcConnLabel');
+    if (dot) dot.className = 'wc-status-dot on';
+    if (label) { label.textContent = 'Connected'; label.style.color = 'var(--success-text)'; }
+    var btn = document.getElementById('wcForgetBtn');
+    if (btn) { btn.textContent = 'Forget this device'; btn.onclick = wcForgetDevice; }
+    wcForgetConfirming = false;
+}
+function wcStartPairing() {
+    // Demo-only per handoff §0 — must not simulate a real discovery/pairing sequence
+    var btn = document.getElementById('wcStartPairBtn');
+    if (!btn) return;
+    var original = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = 'Demo only — no real pairing here';
+    setTimeout(function () { btn.innerHTML = original; btn.disabled = false; }, 1800);
+}
+
+/* ── Add Medication — OTC/Prescription source toggle (Meds handoff §8) ──── */
+function toggleMedSourceFields() {
+    var sel = document.getElementById('addMedSource');
+    var fields = document.getElementById('addMedRxFields');
+    var isRx = sel && sel.value === 'prescription';
+    fields.style.display = isRx ? 'block' : 'none';
+    if (!isRx) {
+        var doc = document.getElementById('addMedDoc');
+        var link = document.getElementById('addMedRxLink');
+        if (doc) doc.value = '';
+        if (link) link.value = '';
+    }
+}
+
 /* ── Save new medication ─────────────────────────────────────────────────── */
 function saveNewMed() {
     var name = ((document.getElementById('addMedName') || {}).value || '').trim();
     if (!name) { alert('Please enter a medication name.'); return; }
     // Demo: clear and go back to medicine cabinet
-    ['addMedName','addMedFor','addMedDose','addMedDoc','addMedQty','addMedAlert','addMedNotes'].forEach(function(id){
+    ['addMedName','addMedFor','addMedDose','addMedDoc','addMedQty','addMedAlert','addMedNotes','addMedRxLink'].forEach(function(id){
         var el = document.getElementById(id);
         if (el) el.value = '';
     });
+    var source = document.getElementById('addMedSource');
+    if (source) source.value = 'otc';
+    toggleMedSourceFields();
     switchMedTab('inventory');
     CBH.goTab('medicationView', 'meds');
 }
@@ -2135,20 +2747,37 @@ function saveVitals() {
 
 /* ── Medication tab switch ───────────────────────────────────────────────── */
 function switchMedTab(tab) {
-    document.querySelectorAll('.med-tab').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.med-vtoggle .vtog').forEach(function(el){ el.classList.remove('active'); });
     document.querySelectorAll('.med-panel').forEach(function(el){ el.classList.remove('show'); });
     document.getElementById('tab-'+tab).classList.add('active');
     document.getElementById('panel-'+tab).classList.add('show');
 }
 
-/* ── Mark medication taken (schedule checkboxes) ─────────────────────────── */
-function markTaken(cb) {
-    var row = cb && cb.closest ? cb.closest('.tod-row') : document.getElementById('vitD-tl');
-    if (!row) return;
+/* ── Time-of-day band collapse/expand — all start expanded (Meds handoff §3) ── */
+function toggleTodBand(id) {
+    var band = document.getElementById(id);
+    if (band) band.classList.toggle('collapsed');
+}
+
+/* ── Mark medication taken (schedule check-circles) ──────────────────────── */
+function markTaken(el) {
+    var row = el && el.closest ? el.closest('.tod-row') : document.getElementById('vitD-tl');
+    if (!row || row.classList.contains('taken')) return;
     row.classList.add('taken');
-    if (cb) cb.disabled = true;
+    var circle = row.querySelector('.tod-check-circle');
+    if (circle) circle.classList.add('checked');
     var noteEl = row.querySelector('.tod-note');
     if (noteEl) noteEl.textContent = noteEl.textContent.replace(' · Due now', '') + ' · Taken just now';
+
+    var band = row.closest('.tod-band');
+    if (band) {
+        var countEl = band.querySelector('.tod-band-count');
+        if (countEl) {
+            var takenInBand = band.querySelectorAll('.tod-row.taken').length;
+            var totalInBand = band.querySelectorAll('.tod-row').length;
+            countEl.textContent = takenInBand + '/' + totalInBand;
+        }
+    }
 
     var takenEl = document.getElementById('adhCountNum');
     var totalEl = document.getElementById('adhCountTotal');
@@ -2157,12 +2786,14 @@ function markTaken(cb) {
         var tot = parseInt(totalEl.textContent, 10);
         takenEl.textContent = t;
         var pct = Math.round((t / tot) * 100);
-        var ring = document.getElementById('adhRing');
-        if (ring) ring.style.setProperty('--stock-ring-pct', pct + '%');
         var ringNum = document.getElementById('adhRingNum');
         if (ringNum) ringNum.textContent = pct + '%';
-        var note = document.getElementById('adhNote');
-        if (note) note.textContent = (t >= tot) ? 'All medications taken for today ✓' : 'Next due: Atorvastatin, 8:00 PM';
+        var nextWrap = document.getElementById('adhNextWrap');
+        if (nextWrap) {
+            nextWrap.innerHTML = (t >= tot)
+                ? ' · all medications taken for today ✓'
+                : ' · next due <span class="adh-strong">Atorvastatin</span> at 8:00 PM';
+        }
     }
     syncHomeMedCard();
 }
@@ -2214,6 +2845,8 @@ renderQuickActions();
 setHydrationGlasses(qaHydrationCount());
 syncHomeMedCard();
 renderJournalEntries();
+ciSeedEntries();
+renderCiPrevEntries();
 
 /* ── Hash routing ────────────────────────────────────────────────────────── */
 window.addEventListener('hashchange', function() {

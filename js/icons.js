@@ -73,7 +73,26 @@
     eye:'<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/>',
     alert:'<path d="M12 3 2 20h20z"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.1"/>',
     globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
-    hands:'<path d="M12 2a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M5 14c0 3.9 3.1 7 7 7s7-3.1 7-7"/>'
+    hands:'<path d="M12 2a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M5 14c0 3.9 3.1 7 7 7s7-3.1 7-7"/>',
+    sun:'<circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.5" x2="12" y2="5.3"/><line x1="12" y1="18.7" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5.3" y2="12"/><line x1="18.7" y1="12" x2="21.5" y2="12"/><line x1="5.1" y1="5.1" x2="7.1" y2="7.1"/><line x1="16.9" y1="16.9" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="16.9" y2="7.1"/><line x1="7.1" y1="16.9" x2="5.1" y2="18.9"/>',
+    thyroid:'<path d="M12 8.5c-1-2.2-3-3.5-5-3.5-2.6 0-4.5 2-4.5 4.7 0 3.6 3.3 5.8 9.5 9.3"/><path d="M12 8.5c1-2.2 3-3.5 5-3.5 2.6 0 4.5 2 4.5 4.7 0 3.6-3.3 5.8-9.5 9.3"/><line x1="12" y1="8.5" x2="12" y2="18.9"/>',
+    cart:'<circle cx="9.5" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2.2l2.1 11h9.9L19.2 8H6.4"/>',
+    'mood-happy':'<circle cx="12" cy="12" r="9"/><circle cx="8.7" cy="10" r="1.1"/><circle cx="15.3" cy="10" r="1.1"/><path d="M8 14.3c1 1.6 2.5 2.4 4 2.4s3-.8 4-2.4"/>',
+    'mood-empty':'<circle cx="12" cy="12" r="9"/><circle cx="8.7" cy="10.2" r="1.1"/><circle cx="15.3" cy="10.2" r="1.1"/><line x1="8" y1="15.3" x2="16" y2="15.3"/>',
+    'mood-sad':'<circle cx="12" cy="12" r="9"/><circle cx="8.7" cy="10.8" r="1.1"/><circle cx="15.3" cy="10.8" r="1.1"/><path d="M8 17c1-1.6 2.5-2.4 4-2.4s3 .8 4 2.4"/><line x1="7" y1="7.6" x2="9.6" y2="8.6"/><line x1="17" y1="7.6" x2="14.4" y2="8.6"/>',
+    'battery-4':'<rect x="2.5" y="8" width="17" height="8" rx="1.8"/><rect x="20.2" y="10.3" width="1.7" height="3.4" rx="0.8"/><rect x="4.2" y="9.8" width="13.4" height="4.4" rx="0.7" style="fill:currentColor;stroke:none"/>',
+    'battery-2':'<rect x="2.5" y="8" width="17" height="8" rx="1.8"/><rect x="20.2" y="10.3" width="1.7" height="3.4" rx="0.8"/><rect x="4.2" y="9.8" width="6.7" height="4.4" rx="0.7" style="fill:currentColor;stroke:none"/>',
+    'battery-1':'<rect x="2.5" y="8" width="17" height="8" rx="1.8"/><rect x="20.2" y="10.3" width="1.7" height="3.4" rx="0.8"/><rect x="4.2" y="9.8" width="2.6" height="4.4" rx="0.7" style="fill:currentColor;stroke:none"/>',
+    lungs:'<path d="M12 3.5v8"/><path d="M12 10c-.8-2.2-2.8-3.6-4.8-3.2C4.4 7.3 3 9.8 3 12.6c0 2.7.9 5.9 2.7 7.4 1.1.9 2.3 1 3.3.2.8-.6 1-1.6 1-2.5V10z"/><path d="M12 10c.8-2.2 2.8-3.6 4.8-3.2 2.8.5 4.2 3 4.2 5.8 0 2.7-.9 5.9-2.7 7.4-1.1.9-2.3 1-3.3.2-.8-.6-1-1.6-1-2.5V10z"/>',
+    kitchen:'<path d="M6 3v7"/><path d="M4 3v4.3a2 2 0 0 0 4 0V3"/><line x1="6" y1="10" x2="6" y2="21"/><path d="M17.5 3c-1.7 0-3 2.3-3 5.5s1.3 5.5 3 5.5v7"/>',
+    'kitchen-off':'<path d="M6 3v7"/><path d="M4 3v4.3a2 2 0 0 0 4 0V3"/><line x1="6" y1="10" x2="6" y2="21"/><path d="M17.5 3c-1.7 0-3 2.3-3 5.5s1.3 5.5 3 5.5v7"/><line x1="3" y1="21" x2="21" y2="3"/>',
+    'moon-stars':'<path d="M18.5 13.2a6 6 0 0 1-7.7-7.7 6 6 0 1 0 7.7 7.7z"/><path d="M5.5 4l.7 1.6L7.8 6.3l-1.6.7-.7 1.6-.7-1.6L3.2 6.3l1.6-.7z"/>',
+    zzz:'<path d="M3 5.5h6l-6 6h6"/><path d="M11.5 12.5h5l-5 5h5"/><path d="M17.5 3.5h3.2l-3.2 3.2h3.2"/>',
+    bandage:'<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-25 12 12)"/><circle cx="8.6" cy="9.3" r="0.6" transform="rotate(-25 12 12)"/><circle cx="15.4" cy="14.7" r="0.6" transform="rotate(-25 12 12)"/>',
+    info:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.2"/><line x1="12" y1="7.6" x2="12" y2="7.7"/>',
+    'device-watch':'<rect x="7.5" y="7" width="9" height="10" rx="2.4"/><path d="M9 7V4.5h6V7"/><path d="M9 17v2.5h6V17"/><path d="M12 10.2V12l1.4 1"/>',
+    android:'<path d="M6 10v6.5"/><path d="M18 10v6.5"/><rect x="7" y="8.5" width="10" height="9" rx="1.5"/><line x1="9.5" y1="19.5" x2="9.5" y2="17.5"/><line x1="14.5" y1="19.5" x2="14.5" y2="17.5"/><line x1="9" y1="6.2" x2="10" y2="7.8"/><line x1="15" y1="6.2" x2="14" y2="7.8"/>',
+    bluetooth:'<path d="M8 7l8 6.5-4 3.2V4.3l4 3.2-8 6.5"/>'
   };
   var fill = { more:1 };
   var defs = '';

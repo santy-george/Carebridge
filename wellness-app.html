@@ -113,13 +113,13 @@
         .acard .a-sub   { font-size:11px; color:var(--text-muted); margin-top:3px; }
         /* Library tile uses emoji icon */
         .acard .a-em { font-size:22px; margin-bottom:8px; display:block; }
-        .acard--hydration .a-ic { background: color-mix(in srgb, var(--accent) 85%, var(--accent-soft)); }
+        .acard--hydration .a-ic { background:transparent; }
 
         /* Overline section label */
         .overline { font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--text-subtle); padding:4px 0; }
 
-        /* Check-in — unified card frame: light blue fill + constant purple border (handoff §3), deliberate one-off */
-        .ci-card { border:2px solid var(--purple-600); border-radius:var(--radius-lg); padding:14px; background:var(--blue-50); }
+        /* Check-in — unified card frame: light blue fill, standard card border (matches home-screen cards) */
+        .ci-card { border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; background:var(--blue-50); }
         .ci-card-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
         .ci-emoji { width:34px; height:34px; background:#fff; border-radius:var(--radius-base); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .ci-emoji .icon { width:19px; height:19px; color:var(--purple-500); }
@@ -216,6 +216,40 @@
         .med-panel { display:none; }
         .med-panel.show { display:block; }
 
+        /* Records — tabs reuse .vitals-toggle/.vtog too, own .rec-* class so panel/tab state
+           can't collide with Meds' identical-looking .med-vtoggle/.med-panel (both views' DOM
+           persist at once, only one is displayed via .view.is-active) */
+        .rec-vtoggle { margin-bottom:14px; }
+        .rec-panel { display:none; }
+        .rec-panel.show { display:block; }
+
+        /* Care — own .care-vtoggle/.care-panel namespace, same reasoning as Records' */
+        .care-vtoggle { margin-bottom:14px; }
+        .care-panel { display:none; }
+        .care-panel.show { display:block; }
+
+        /* Add-document flow — scan-first, two steps within one view */
+        .adoc-step { display:none; }
+        .adoc-step.show { display:block; }
+
+        /* Records — checkboxes always available for selection; top-bar share/download button appears once ≥1 picked */
+        .rec-check { display:flex; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border-strong); background:var(--surface); align-items:center; justify-content:center; flex-shrink:0; color:#fff; margin-right:2px; }
+        .rec-check .icon { width:13px; height:13px; opacity:0; transition:opacity .15s; }
+        .rec-selectable { cursor:pointer; }
+        .rec-selectable.rec-picked .rec-check { background:var(--accent); border-color:var(--accent); }
+        .rec-selectable.rec-picked .rec-check .icon { opacity:1; }
+        .rec-selectable.rec-picked { background:var(--accent-soft); border-radius:var(--radius-base); }
+
+        /* Document viewer — dummy scanned page / PDF preview */
+        .docpage { width:100%; max-width:260px; aspect-ratio:3/4; background:#fff; border:1px solid var(--border); border-radius:var(--radius-base); box-shadow:var(--shadow-md); margin:12px auto 0; padding:18px 16px; display:flex; flex-direction:column; gap:9px; overflow:hidden; }
+        .docpage .dp-letter { display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:2px solid var(--accent); margin-bottom:2px; }
+        .docpage .dp-letter .icon { width:20px; height:20px; color:var(--accent-text); flex-shrink:0; }
+        .docpage .dp-letter .name { font-weight:700; font-size:12px; color:var(--text-heading); }
+        .docpage .dp-letter .date { font-size:10px; color:var(--text-muted); }
+        .docpage .dp-line { height:7px; background:var(--surface-sunken); border-radius:3px; flex-shrink:0; }
+        .docpage .dp-badge { align-self:flex-end; background:var(--danger); color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; margin-top:auto; }
+        .docpage .dp-scan { flex:1; background:#0b0c14; border-radius:6px; display:flex; align-items:center; justify-content:center; padding:8px; }
+
         /* Medication timeline */
         .med-timeline { display:flex; flex-direction:column; gap:0; }
         .med-tl-item { display:flex; gap:14px; position:relative; padding-bottom:14px; }
@@ -311,8 +345,8 @@
         .date-nav-arrow:active { background:var(--surface-sunken); }
         .date-nav-label { font-family:var(--font-heading); font-weight:700; font-size:14px; color:var(--text-heading); }
 
-        /* Time-of-day medication bands — purple border constant, fill tint varies per band (deliberate exception, Meds handoff §3) */
-        .tod-band { border-radius:var(--radius-lg); border:2px solid var(--purple-600); padding:12px 14px; margin-bottom:10px; }
+        /* Time-of-day medication bands — standard card border, fill tint varies per band */
+        .tod-band { border-radius:var(--radius-lg); border:1px solid var(--border); padding:12px 14px; margin-bottom:10px; }
         .tod-band-head { display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:8px; }
         .tod-band.collapsed .tod-band-head { margin-bottom:0; }
         .tod-band-label { font-family:var(--font-heading); font-weight:700; font-size:11.5px; letter-spacing:.4px; text-transform:uppercase; }
@@ -367,7 +401,8 @@
             transition:border-color .15s,background .15s;
         }
         .lib-card:hover { border-color:var(--accent); background:var(--accent-soft); }
-        .lib-em  { font-size:24px; margin-bottom:6px; display:block; }
+        .lib-ic  { width:36px; height:36px; border-radius:var(--radius-base); background:var(--accent-soft); color:var(--accent-text); display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+        .lib-ic .icon { width:18px; height:18px; }
         .lib-title { font-size:13px; font-weight:600; color:var(--text-heading); line-height:1.3; }
         .lib-sub   { font-size:11px; color:var(--text-muted); margin-top:2px; }
 
@@ -385,6 +420,15 @@
         .inv-item.open .inv-twistie { transform:rotate(90deg); }
         /* Plain variant — reuses the .inv-item.open collapse mechanic without the boxed card look (Recent history) */
         .inv-item--plain { border:none; background:none; overflow:visible; margin-bottom:0; }
+
+        /* Records > History — all cards collapsible, reusing the .inv-twistie chevron rotate */
+        .hist-body { display:none; margin-top:12px; }
+        .hist-card.open .hist-body { display:block; }
+        .hist-card.open .inv-twistie { transform:rotate(90deg); }
+        .hist-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .hist-table th { text-align:left; font-weight:700; color:var(--text-subtle); font-size:10.5px; text-transform:uppercase; letter-spacing:.3px; padding:0 8px 6px 0; border-bottom:1px solid var(--border); white-space:nowrap; }
+        .hist-table td { padding:7px 8px 7px 0; border-bottom:1px solid var(--border); color:var(--text-heading); white-space:nowrap; }
+        .hist-table tr:last-child td { border-bottom:none; }
 
         /* Home comment note card */
         .home-note { border-left:3px solid var(--accent); padding-left:12px; }
@@ -420,10 +464,6 @@
         .t-input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-heading); font-weight:700; font-size:17px; text-align:center; color:var(--text-heading); background:var(--surface); box-sizing:border-box; }
         .t-input:focus { outline:none; border-color:var(--accent); }
 
-        /* Header submit button (check-in) */
-        .tbar-submit { flex-shrink:0; padding:8px 4px; font-family:var(--font-heading); font-weight:700; font-size:15px; color:var(--accent-text); }
-        .tbar-submit:active { opacity:.7; }
-
         /* Comment textarea */
         .comment-area { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:var(--radius-base); font-family:var(--font-body); font-size:13px; line-height:1.5; color:var(--text-body); background:var(--surface); resize:none; margin-top:8px; box-sizing:border-box; }
         .comment-area:focus { outline:none; border-color:var(--accent); }
@@ -445,6 +485,10 @@
         .row-actions .iconbtn .icon { width:16px; height:16px; }
         .add-contact-row { display:flex; align-items:center; justify-content:center; gap:6px; padding:13px 14px; color:var(--accent-text); font-weight:700; font-size:13.5px; }
         .add-contact-row .icon { width:16px; height:16px; }
+        /* Own Contacts — Edit mode reveals a leading "−" remove control per row (Care Team stays read-only) */
+        .own-remove-btn { display:none; width:24px; height:24px; flex-shrink:0; border-radius:50%; background:var(--danger); color:#fff; font-size:18px; line-height:1; font-weight:700; align-items:center; justify-content:center; padding:0; margin-right:2px; }
+        #ownContactsList.editing .own-remove-btn { display:flex; }
+        #ownContactsList.editing .row-actions { display:none; }
         /* Adherence bar */
         .adh-bar { height:6px; border-radius:99px; background:var(--neutral-100); overflow:hidden; margin:8px 0 4px; }
         .adh-bar .fill { height:100%; border-radius:99px; background:var(--success); transition:width .4s var(--ease); }
@@ -458,13 +502,13 @@
         .notif-sub   { font-size:12px; color:var(--text-muted); margin-top:2px; }
         .notif-time  { font-size:11px; color:var(--text-subtle); white-space:nowrap; margin-left:auto; padding-top:2px; }
 
-        /* Bottom nav — floating pill bar (picked via /impeccable live) */
-        .bnav--floating { position:absolute; left:16px; right:16px; bottom:18px; background:var(--surface); border-radius:var(--radius-full); box-shadow:var(--shadow-lg); padding:9px 6px; border:1px solid var(--border); backdrop-filter:none; }
-        .bnav--floating .bnav__i { font-size:10.5px; }
-        .bnav--floating .bnav__i .icon svg { stroke-width:2.4; }
-        .bnav--floating .bnav__i.is-active .ic { background:var(--accent); }
-        .bnav--floating .bnav__i.is-active .icon { color:var(--accent-on); }
-        .bnav--floating .bnav__i.is-active .icon svg * { fill:currentColor; stroke:none; }
+        /* Bottom nav — docked bar, sits in normal layout flow at the bottom of
+           .screen (not floating over content) so it can never overlap text. */
+        .bnav--docked { position:static; flex:0 0 auto; left:auto; right:auto; bottom:auto; background:var(--surface); border-radius:0; box-shadow:none; border:none; border-top:1px solid var(--border); padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 10px); backdrop-filter:none; }
+        .bnav--docked .bnav__i { font-size:10.5px; }
+        .bnav--docked .bnav__i .icon svg { stroke-width:2.4; }
+        .bnav--docked .bnav__i.is-active .ic { background:var(--accent-soft); }
+        .bnav--docked .bnav__i.is-active .icon { color:var(--accent-text); }
 
         /* Header SOS icon (relocated from full-width bar — avoids accidental taps) */
         .iconbtn--danger { border-color:var(--danger); color:var(--danger); }
@@ -472,11 +516,10 @@
 
         /* Quick actions — dynamic grid */
         .acard .a-ic { position:relative; }
-        .a-ic-badge {
-            position:absolute; top:-5px; right:-5px; min-width:16px; height:16px; padding:0 3px;
-            border-radius:var(--radius-full); background:var(--accent); color:var(--accent-on);
-            font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1;
-        }
+        /* Hydration tile — count sits centered inside the glass icon, not as a corner badge */
+        .a-ic--glass { display:flex; align-items:center; justify-content:center; }
+        .a-ic--glass svg { position:absolute; inset:0; margin:auto; color:var(--accent-text); }
+        .a-ic-glassnum { position:relative; font-size:13px; font-weight:700; color:var(--accent-text); padding-top:3px; }
         .overline.qa-head { display:flex; align-items:center; justify-content:space-between; }
         .qa-edit-link { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--accent-text); cursor:pointer; }
         .qa-edit-link .icon { width:14px; height:14px; }
@@ -489,10 +532,10 @@
         #qaOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
         #qaSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
         #qaSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
-        #reorderOverlay, #cartOverlay { visibility:hidden; transition:opacity .25s var(--ease), visibility 0s linear .25s; }
-        #reorderOverlay.show, #cartOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
-        #reorderSheet, #cartSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
-        #reorderSheet.show, #cartSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
+        #reorderOverlay, #cartOverlay, #recShareOverlay, #equipAddOverlay, #equipCartOverlay { visibility:hidden; transition:opacity .25s var(--ease), visibility 0s linear .25s; }
+        #reorderOverlay.show, #cartOverlay.show, #recShareOverlay.show, #equipAddOverlay.show, #equipCartOverlay.show { visibility:visible; transition:opacity .25s var(--ease), visibility 0s linear 0s; }
+        #reorderSheet, #cartSheet, #recShareSheet, #equipAddSheet, #equipCartSheet { visibility:hidden; transition:transform .32s var(--ease), visibility 0s linear .32s; }
+        #reorderSheet.show, #cartSheet.show, #recShareSheet.show, #equipAddSheet.show, #equipCartSheet.show { visibility:visible; transition:transform .32s var(--ease), visibility 0s linear 0s; }
         .overlay { position:absolute; inset:0; z-index:60; background:rgba(21,22,50,.4); opacity:0; pointer-events:none; transition:opacity .25s var(--ease); }
         .overlay.show { opacity:1; pointer-events:auto; }
         .qa-check-row { display:flex; align-items:center; gap:12px; padding:11px 2px; border-bottom:1px solid var(--border); cursor:pointer; }
@@ -509,6 +552,30 @@
         .bnav--5 .bnav__i { font-size:8.5px; }
         .bnav--5 .bnav__i .ic { width:40px; height:26px; }
         .bnav--5 .bnav__i .icon { width:18px; height:18px; }
+
+        /* ── Feedback-pass fixes (Jul 2026) ──────────────────────────────── */
+        /* More headroom below the notch/status bar — scoped to this app only, not the shared .tbar default */
+        .tbar { padding-top:18px; }
+        #checkInView .tbar, #wearableConfigView .tbar { padding-top:22px; }
+        /* Greeting sized relative to card titles (16px), not the generic 24px page-title style */
+        #home-greeting { font-size:18px; }
+
+        /* Remove-from-schedule control (Meds > Today's Schedule) */
+        .tod-row { align-items:center; }
+        .tod-remove { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-subtle); cursor:pointer; margin-left:auto; }
+        .tod-remove .icon { width:12px; height:12px; }
+        .tod-remove:active { background:var(--surface-sunken); }
+
+        /* Reorder row — urgency tint replaces the separate "Reorder now" badge (Meds handoff follow-up) */
+        .inv-reorder-row--urgent { background:var(--warning-soft); color:var(--warning-text); font-weight:700; }
+
+        /* Medicine Cabinet — ellipsis menu for deleting a card (single shared popover, positioned per-tap) */
+        .inv-kebab { width:30px; height:30px; flex-shrink:0; margin-left:auto; }
+        .inv-kebab .icon { width:17px; height:17px; }
+        .inv-menu { position:absolute; z-index:30; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-base); box-shadow:var(--shadow-lg); min-width:180px; padding:6px; display:none; }
+        .inv-menu.show { display:block; }
+        .inv-menu button { display:block; width:100%; text-align:left; padding:10px 12px; font-size:13.5px; font-weight:600; color:var(--danger); border-radius:var(--radius-base); background:none; border:none; }
+        .inv-menu button:active { background:var(--danger-soft); }
     </style>
 </head>
 <body>
@@ -528,7 +595,7 @@
         </div>
     </div>
 
-    <div class="screen"><div class="vbody">
+    <div class="screen"><div class="stack">
 
     <!-- ══════════════════════════════════════════════════════
          HOME
@@ -577,7 +644,7 @@
             <div class="card reveal">
                 <div class="card__head">
                     <span class="card__title">Today's vitals</span>
-                    <button class="card__link" onclick="CBH.go('wearableView')">Wearables <span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+                    <button class="card__link" onclick="CBH.go('wearableConfigView')"><span class="icon"><svg><use href="#i-settings"/></svg></span>Settings</button>
                 </div>
                 <!-- Source toggle -->
                 <div class="vitals-toggle">
@@ -643,7 +710,6 @@
             <div class="ci-breadcrumb" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span>Home</div>
             <div style="display:flex;align-items:center;gap:10px">
                 <div class="tbar__title"><h1 class="sm">Daily Check-in</h1></div>
-                <button class="tbar-submit" onclick="submitCheckIn()">Submit</button>
             </div>
         </div>
         <div class="vbody has-nav" style="gap:10px">
@@ -703,20 +769,10 @@
                     <div><div class="ci-label">Aches &amp; pains</div><div class="ci-sub">Any physical discomfort today?</div></div>
                 </div>
                 <div class="ci-opts ci-opts--4" data-field="aches">
-                    <button class="ci-opt selected sev-good" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-happy"/></svg></span></span>None</button>
-                    <button class="ci-opt sev-caution" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Mild</button>
-                    <button class="ci-opt sev-concern" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Moderate</button>
-                    <button class="ci-opt sev-concern-strong" onclick="pickAche(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span>Severe</button>
-                </div>
-                <div id="acheWhereRow" style="display:none">
-                    <div class="ci-sub" style="margin:10px 0 6px">Where? (optional)</div>
-                    <div class="when-grid">
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Joints</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Back</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Head</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Chest</button>
-                        <button class="when-btn" onclick="this.classList.toggle('sel')">Other</button>
-                    </div>
+                    <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-happy"/></svg></span></span>None</button>
+                    <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Mild</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>Moderate</button>
+                    <button class="ci-opt sev-concern-strong" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span>Severe</button>
                 </div>
             </div>
 
@@ -726,7 +782,7 @@
                     <div><div class="ci-label">Sleep last night</div><div class="ci-sub">Quality of sleep</div></div>
                 </div>
                 <div class="ci-opts" data-field="sleep">
-                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-moon"/></svg></span></span>Poor</button>
+                    <button class="ci-opt sev-concern" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-mood-sad"/></svg></span></span>Poor</button>
                     <button class="ci-opt sev-caution" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span></span>Fair</button>
                     <button class="ci-opt selected sev-good" onclick="pickOpt(this)"><span class="ci-opt-ic"><span class="icon"><svg><use href="#i-zzz"/></svg></span></span>Good</button>
                 </div>
@@ -741,7 +797,7 @@
                     placeholder="e.g. Felt dizzy this morning, headache after lunch…"
                     oninput="updateCharCount()"></textarea>
                 <div class="char-count"><span id="charCountNum">0</span>/100</div>
-                <button class="mbtn mbtn--brand mbtn--block" style="margin-top:10px" id="ciSaveNoteBtn" onclick="saveNote()">Save note</button>
+                <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" id="ciSaveNoteBtn" onclick="submitCheckIn()">Submit check-in</button>
             </div>
 
             <div class="ci-card inv-item" id="ciPrevEntries">
@@ -805,12 +861,14 @@
                     </div>
                     <div class="tod-band-body">
                         <div class="tod-row taken">
-                            <div class="tod-check-circle checked"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-check-circle checked" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
                             <div class="tod-m"><div class="tod-name">Levothyroxine 50mcg</div><div class="tod-note">Empty stomach · Taken 7:30 AM</div></div>
+                            <button class="tod-remove" onclick="removeSchedItem(this)" aria-label="Remove from schedule"><span class="icon"><svg><use href="#i-close"/></svg></span></button>
                         </div>
                         <div class="tod-row taken">
-                            <div class="tod-check-circle checked"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <div class="tod-check-circle checked" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
                             <div class="tod-m"><div class="tod-name">Metformin 500mg</div><div class="tod-note">With breakfast · Taken 8:00 AM</div></div>
+                            <button class="tod-remove" onclick="removeSchedItem(this)" aria-label="Remove from schedule"><span class="icon"><svg><use href="#i-close"/></svg></span></button>
                         </div>
                     </div>
                 </div>
@@ -826,6 +884,7 @@
                         <div class="tod-row" id="vitD-tl">
                             <div class="tod-check-circle" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
                             <div class="tod-m"><div class="tod-name">Vitamin D3 1000 IU</div><div class="tod-note">With lunch · Due now</div></div>
+                            <button class="tod-remove" onclick="removeSchedItem(this)" aria-label="Remove from schedule"><span class="icon"><svg><use href="#i-close"/></svg></span></button>
                         </div>
                     </div>
                 </div>
@@ -841,6 +900,7 @@
                         <div class="tod-row">
                             <div class="tod-check-circle" onclick="markTaken(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
                             <div class="tod-m"><div class="tod-name">Atorvastatin 10mg</div><div class="tod-note">After dinner · 8:00 PM</div></div>
+                            <button class="tod-remove" onclick="removeSchedItem(this)" aria-label="Remove from schedule"><span class="icon"><svg><use href="#i-close"/></svg></span></button>
                         </div>
                     </div>
                 </div>
@@ -898,6 +958,7 @@
                             <div class="inv-name">Metformin 500mg</div>
                             <div class="inv-for">Refills remaining: 1</div>
                         </div>
+                        <button class="iconbtn inv-kebab" onclick="event.stopPropagation();toggleInvMenu(this,'inv-1','Metformin 500mg')" aria-label="More options"><span class="icon"><svg><use href="#i-more"/></svg></span></button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-1')">
                         <span class="days-pill days-pill--low">5 days left</span>
@@ -910,10 +971,10 @@
                             <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
                             <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
                             <div class="row"><div class="m">Expiry</div><div class="val">31 December 2026</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val">5 tablets <span class="chip2 chip2--warn" style="margin-left:6px">Reorder now</span></div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val"><span class="inv-stock-count" id="inv-1-stock">5 tablets</span></div></div>
                         </div>
                     </div>
-                    <div class="inv-reorder-row" onclick="openReorderSheet('Metformin 500mg')">Reorder</div>
+                    <div class="inv-reorder-row inv-reorder-row--urgent" onclick="openReorderSheet('Metformin 500mg')">Reorder</div>
                 </div>
 
                 <!-- Vitamin D3 -->
@@ -924,6 +985,7 @@
                             <div class="inv-name">Vitamin D3 1000 IU</div>
                             <div class="inv-for">Refills remaining: 5</div>
                         </div>
+                        <button class="iconbtn inv-kebab" onclick="event.stopPropagation();toggleInvMenu(this,'inv-2','Vitamin D3 1000 IU')" aria-label="More options"><span class="icon"><svg><use href="#i-more"/></svg></span></button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-2')">
                         <span class="days-pill days-pill--ok">45 days left</span>
@@ -936,7 +998,7 @@
                             <div class="row"><div class="m">Prescribed by</div><div class="val">Over-the-counter (OTC)</div></div>
                             <div class="row"><div class="m">Date stocked</div><div class="val">15 June 2026</div></div>
                             <div class="row"><div class="m">Expiry</div><div class="val">30 June 2027</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">45 capsules ✓</div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val"><span class="inv-stock-count" id="inv-2-stock" style="color:var(--success)">45 capsules ✓</span></div></div>
                         </div>
                     </div>
                     <div class="inv-reorder-row" onclick="openReorderSheet('Vitamin D3 1000 IU')">Reorder</div>
@@ -950,6 +1012,7 @@
                             <div class="inv-name">Atorvastatin 10mg</div>
                             <div class="inv-for">Refills remaining: 3</div>
                         </div>
+                        <button class="iconbtn inv-kebab" onclick="event.stopPropagation();toggleInvMenu(this,'inv-3','Atorvastatin 10mg')" aria-label="More options"><span class="icon"><svg><use href="#i-more"/></svg></span></button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-3')">
                         <span class="days-pill days-pill--ok">28 days left</span>
@@ -962,7 +1025,7 @@
                             <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
                             <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
                             <div class="row"><div class="m">Expiry</div><div class="val">31 March 2027</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">28 tablets ✓</div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val"><span class="inv-stock-count" id="inv-3-stock" style="color:var(--success)">28 tablets ✓</span></div></div>
                             <div class="row"><div class="m">Prescription</div><div class="val"><a href="#" style="color:var(--accent-text);font-weight:600">View scan ↗</a></div></div>
                         </div>
                     </div>
@@ -977,6 +1040,7 @@
                             <div class="inv-name">Levothyroxine 50mcg</div>
                             <div class="inv-for">Refills remaining: 2</div>
                         </div>
+                        <button class="iconbtn inv-kebab" onclick="event.stopPropagation();toggleInvMenu(this,'inv-4','Levothyroxine 50mcg')" aria-label="More options"><span class="icon"><svg><use href="#i-more"/></svg></span></button>
                     </div>
                     <div class="inv-stock-row" onclick="toggleInv('inv-4')">
                         <span class="days-pill days-pill--ok">30 days left</span>
@@ -989,7 +1053,7 @@
                             <div class="row"><div class="m">Prescribed by</div><div class="val">Dr. Rajeev Menon</div></div>
                             <div class="row"><div class="m">Date stocked</div><div class="val">1 June 2026</div></div>
                             <div class="row"><div class="m">Expiry</div><div class="val">28 February 2027</div></div>
-                            <div class="row"><div class="m">In stock</div><div class="val" style="color:var(--success)">30 tablets ✓</div></div>
+                            <div class="row"><div class="m">In stock</div><div class="val"><span class="inv-stock-count" id="inv-4-stock" style="color:var(--success)">30 tablets ✓</span></div></div>
                         </div>
                     </div>
                     <div class="inv-reorder-row" onclick="openReorderSheet('Levothyroxine 50mcg')">Reorder</div>
@@ -1017,22 +1081,22 @@
             <div class="overline">Lifestyle & Prevention</div>
             <div class="lib-grid reveal">
                 <div class="lib-card" onclick="CBH.go('libArticleView','exercise')">
-                    <span class="lib-em">💪</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-activity"/></svg></span></span>
                     <div class="lib-title">Exercise & Movement</div>
                     <div class="lib-sub">Gentle routines for all ages</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','diet')">
-                    <span class="lib-em">🥗</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-food"/></svg></span></span>
                     <div class="lib-title">Balanced Diet</div>
                     <div class="lib-sub">Kerala-friendly nutrition tips</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','sleep')">
-                    <span class="lib-em">😴</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-zzz"/></svg></span></span>
                     <div class="lib-title">Sleep Health</div>
                     <div class="lib-sub">Better rest, better health</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','stress')">
-                    <span class="lib-em">🧘</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-brain"/></svg></span></span>
                     <div class="lib-title">Stress & Relaxation</div>
                     <div class="lib-sub">Breathwork & mindfulness</div>
                 </div>
@@ -1041,22 +1105,22 @@
             <div class="overline">Managing Conditions</div>
             <div class="lib-grid reveal">
                 <div class="lib-card" onclick="CBH.go('libArticleView','diabetes')">
-                    <span class="lib-em">🩸</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-lab"/></svg></span></span>
                     <div class="lib-title">Diabetes Care</div>
                     <div class="lib-sub">Blood sugar control tips</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','heart')">
-                    <span class="lib-em">❤️</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></span>
                     <div class="lib-title">Heart Health</div>
                     <div class="lib-sub">Cardiac wellbeing at home</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','bp')">
-                    <span class="lib-em">🫁</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></span>
                     <div class="lib-title">Blood Pressure</div>
                     <div class="lib-sub">Keep hypertension in check</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','joints')">
-                    <span class="lib-em">🦴</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></span>
                     <div class="lib-title">Joint & Bone Health</div>
                     <div class="lib-sub">Arthritis & mobility support</div>
                 </div>
@@ -1065,22 +1129,22 @@
             <div class="overline">Everyday Health</div>
             <div class="lib-grid reveal">
                 <div class="lib-card" onclick="CBH.go('libArticleView','coldflu')">
-                    <span class="lib-em">🤧</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-shield"/></svg></span></span>
                     <div class="lib-title">Cold & Flu</div>
                     <div class="lib-sub">Prevention & home remedies</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','headache')">
-                    <span class="lib-em">🤕</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-alert"/></svg></span></span>
                     <div class="lib-title">Headaches & Migraines</div>
                     <div class="lib-sub">Triggers & relief strategies</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','eyes')">
-                    <span class="lib-em">👁️</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-eye"/></svg></span></span>
                     <div class="lib-title">Eye Care</div>
                     <div class="lib-sub">Screen time & vision health</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','skin')">
-                    <span class="lib-em">🧴</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-sun"/></svg></span></span>
                     <div class="lib-title">Skin Care</div>
                     <div class="lib-sub">Kerala climate skincare</div>
                 </div>
@@ -1089,22 +1153,22 @@
             <div class="overline">Mental Wellness</div>
             <div class="lib-grid reveal">
                 <div class="lib-card" onclick="CBH.go('libArticleView','depression')">
-                    <span class="lib-em">🧠</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-mood-sad"/></svg></span></span>
                     <div class="lib-title">Depression & Mood</div>
                     <div class="lib-sub">Recognising & seeking help</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','anxiety')">
-                    <span class="lib-em">😰</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-mood-empty"/></svg></span></span>
                     <div class="lib-title">Anxiety Management</div>
                     <div class="lib-sub">Practical coping tools</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','adhd')">
-                    <span class="lib-em">🎯</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-target"/></svg></span></span>
                     <div class="lib-title">ADHD & Focus</div>
                     <div class="lib-sub">Structure & daily routines</div>
                 </div>
                 <div class="lib-card" onclick="CBH.go('libArticleView','insomnia')">
-                    <span class="lib-em">💤</span>
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span></span>
                     <div class="lib-title">Insomnia & Rest</div>
                     <div class="lib-sub">Sleep hygiene routines</div>
                 </div>
@@ -1121,15 +1185,15 @@
             <div class="tbar__title"><h1 class="sm" id="libTitle">Exercise & Movement</h1></div>
         </div>
         <div class="vbody">
-            <div class="card reveal" style="background:var(--accent-soft);border-color:var(--accent-soft-strong)">
-                <div style="font-size:32px;margin-bottom:8px" id="libEmoji">💪</div>
+            <div class="card reveal" style="background:var(--accent-soft)">
+                <div class="lib-ic" style="width:48px;height:48px;background:var(--surface);margin-bottom:10px" id="libIcon"><span class="icon" style="width:24px;height:24px"><svg><use href="#i-activity"/></svg></span></div>
                 <p class="t-body-m" id="libIntro" style="color:var(--text-body)">Loading…</p>
             </div>
             <div class="card reveal" id="libTipsCard">
                 <div class="card__head"><span class="card__title">Key tips</span></div>
                 <div id="libTips"></div>
             </div>
-            <div class="card reveal" style="background:var(--model-digital-wellness-soft);border-color:rgba(169,133,207,.2)" id="libReminder">
+            <div class="card reveal" style="background:var(--model-digital-wellness-soft)" id="libReminder">
                 <p class="t-body-s" style="color:var(--model-digital-wellness-ink)" id="libReminderText"></p>
             </div>
         </div>
@@ -1142,36 +1206,236 @@
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
             <div class="tbar__title"><h1 class="sm">Health Records</h1></div>
+            <button class="iconbtn" id="recShareTopBtn" style="display:none" onclick="openRecShareSheet()" aria-label="Share or download selected records">
+                <span class="icon"><svg><use href="#i-download"/></svg></span><span class="dot" id="recShareTopDot" style="width:auto;min-width:16px;height:16px;border-radius:99px;font-size:9px;font-weight:700;color:var(--accent-on);background:var(--accent);display:flex;align-items:center;justify-content:center;padding:0 3px">0</span>
+            </button>
         </div>
-        <div class="vbody has-nav">
-            <div class="card reveal tap" onclick="CBH.go('monthlyReportView')">
-                <div class="row" style="padding:0">
-                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
-                    <div class="m"><div class="t">June wellness report</div><div class="s">Score 85 · Check-in 87%</div></div>
-                    <span class="chip2 chip2--ok">Ready</span>
+        <div class="vbody has-nav" style="gap:0;padding-top:4px">
+
+            <!-- Tabs — reuses Home/Meds' .vitals-toggle/.vtog component; own .rec-vtoggle/.rec-panel
+                 classes (not .med-vtoggle/.med-panel) so switching tabs here can't collide with the
+                 Meds screen's identical-looking tab state, since both live in the DOM at once. -->
+            <div class="vitals-toggle rec-vtoggle">
+                <div class="vtog active" id="rtab-documents" onclick="switchRecordsTab('documents')">Documents</div>
+                <div class="vtog" id="rtab-history" onclick="switchRecordsTab('history')">History</div>
+            </div>
+
+            <!-- ── DOCUMENTS — personal medical document vault ── -->
+            <div class="rec-panel show" id="rpanel-documents">
+                <div style="margin-bottom:14px">
+                    <button class="mbtn mbtn--brand mbtn--block" onclick="CBH.go('addDocumentView')">
+                        <span class="icon"><svg><use href="#i-camera"/></svg></span> Upload a document
+                    </button>
+                </div>
+
+                <!-- Lab reports -->
+                <div class="inv-item" id="doc-cat-lab">
+                    <div class="inv-item-top" onclick="toggleInv('doc-cat-lab')">
+                        <div class="inv-ic" style="background:var(--danger-soft);color:var(--danger)"><span class="icon"><svg><use href="#i-lab"/></svg></span></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Lab reports</div>
+                            <div class="inv-for" id="doc-cat-lab-count">3 documents</div>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="rows" id="doc-cat-lab-list">
+                            <div class="row rec-selectable" onclick="openDocViewer('HbA1c and lipid panel','Kims Diagnostics','28 Jun 2026','lab')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">HbA1c and lipid panel</div><div class="s">Kims Diagnostics</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">28 Jun 2026</div></div>
+                            <div class="row rec-selectable" onclick="openDocViewer('Thyroid function test','Kims Diagnostics','2 Jun 2026','lab')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Thyroid function test</div><div class="s">Kims Diagnostics</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">2 Jun 2026</div></div>
+                            <div class="row rec-selectable" onclick="openDocViewer('Complete blood count','Kims Diagnostics','15 Mar 2026','lab')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Complete blood count</div><div class="s">Kims Diagnostics</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">15 Mar 2026</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescriptions -->
+                <div class="inv-item" id="doc-cat-rx">
+                    <div class="inv-item-top" onclick="toggleInv('doc-cat-rx')">
+                        <div class="inv-ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Prescriptions</div>
+                            <div class="inv-for" id="doc-cat-rx-count">2 documents</div>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="rows" id="doc-cat-rx-list">
+                            <div class="row rec-selectable" onclick="openDocViewer('Dr Rajeev Menon — general','Prescription','1 Jun 2026','prescription')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Dr Rajeev Menon — general</div><div class="s">Prescription</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">1 Jun 2026</div></div>
+                            <div class="row rec-selectable" onclick="openDocViewer('Dr Rajeev Menon — cardiology','Prescription','15 Mar 2026','prescription')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Dr Rajeev Menon — cardiology</div><div class="s">Prescription</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">15 Mar 2026</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scans & imaging -->
+                <div class="inv-item" id="doc-cat-scan">
+                    <div class="inv-item-top" onclick="toggleInv('doc-cat-scan')">
+                        <div class="inv-ic" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)"><span class="icon"><svg><use href="#i-camera"/></svg></span></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Scans &amp; imaging</div>
+                            <div class="inv-for" id="doc-cat-scan-count">1 document</div>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="rows" id="doc-cat-scan-list">
+                            <div class="row rec-selectable" onclick="openDocViewer('ECG — routine cardiac check','Apollo Kochi','15 Mar 2026','scan')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">ECG — routine cardiac check</div><div class="s">Apollo Kochi</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">15 Mar 2026</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other -->
+                <div class="inv-item" id="doc-cat-other">
+                    <div class="inv-item-top" onclick="toggleInv('doc-cat-other')">
+                        <div class="inv-ic" style="background:var(--surface-sunken);color:var(--text-muted)"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Other documents</div>
+                            <div class="inv-for" id="doc-cat-other-count">1 document</div>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="rows" id="doc-cat-other-list">
+                            <div class="row rec-selectable" onclick="openDocViewer('Health insurance card','Star Health Insurance','1 Jan 2026','other')"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div><div class="m"><div class="t">Health insurance card</div><div class="s">Star Health Insurance</div></div><div class="val" style="font-size:12px;color:var(--text-muted)">1 Jan 2026</div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card reveal">
-                <div class="card__head"><span class="card__title">Recent check-ins</span></div>
-                <div class="rows">
-                    <div class="row"><div class="m">Jun 30</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
-                    <div class="row"><div class="m">Jun 29</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
-                    <div class="row"><div class="m">Jun 28</div><div class="val"><span class="chip2 chip2--warn">Missed</span></div></div>
-                    <div class="row"><div class="m">Jun 27</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
+
+            <!-- ── HISTORY — Monthly report/check-ins/vitals unchanged, now nested under its own tab
+                 and selectable for sharing (same rec-check/rec-selectable mechanic as Documents) ── -->
+            <div class="rec-panel" id="rpanel-history">
+                <div class="card reveal hist-card rec-selectable" id="hist-report">
+                    <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="toggleInv('hist-report')">
+                        <div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                        <div class="m" style="flex:1;min-width:0"><div class="t">June wellness report</div><div class="s">Score 85 · Check-in 87%</div></div>
+                        <span class="chip2 chip2--ok">Ready</span>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="hist-body">
+                        <p class="t-body-s" style="color:var(--text-muted);margin:0 0 12px">Your full monthly summary — wellness score, check-in consistency, medication adherence and family engagement.</p>
+                        <button class="mbtn mbtn--line mbtn--block" onclick="CBH.go('monthlyReportView')">View full report</button>
+                    </div>
+                </div>
+                <div class="card reveal hist-card" id="hist-checkins">
+                    <div class="card__head" style="cursor:pointer" onclick="toggleInv('hist-checkins')">
+                        <span class="card__title">Recent check-ins</span>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="hist-body">
+                        <div class="rows">
+                            <div class="row rec-selectable"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m">Jun 30</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
+                            <div class="row rec-selectable"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m">Jun 29</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
+                            <div class="row rec-selectable"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m">Jun 28</div><div class="val"><span class="chip2 chip2--warn">Missed</span></div></div>
+                            <div class="row rec-selectable"><div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div><div class="m">Jun 27</div><div class="val"><span class="chip2 chip2--ok">Completed</span></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card reveal hist-card rec-selectable" id="hist-vitals">
+                    <div class="card__head" style="cursor:pointer" onclick="event.target.closest('.rec-check') || toggleInv('hist-vitals')">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
+                            <span class="card__title">Previous 7 days vitals</span>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="hist-body">
+                        <div style="overflow-x:auto">
+                            <table class="hist-table">
+                                <thead><tr><th>Date</th><th>BP</th><th>Pulse</th><th>Steps</th><th>Weight</th><th>Score</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Jun 30</td><td>118/75</td><td>73</td><td>4,450</td><td>62.4</td><td>87</td></tr>
+                                    <tr><td>Jun 29</td><td>120/78</td><td>75</td><td>3,980</td><td>62.5</td><td>85</td></tr>
+                                    <tr><td>Jun 28</td><td>122/80</td><td>76</td><td>3,200</td><td>62.6</td><td>78</td></tr>
+                                    <tr><td>Jun 27</td><td>119/77</td><td>72</td><td>4,600</td><td>62.5</td><td>88</td></tr>
+                                    <tr><td>Jun 26</td><td>121/79</td><td>74</td><td>4,100</td><td>62.7</td><td>84</td></tr>
+                                    <tr><td>Jun 25</td><td>117/74</td><td>71</td><td>5,200</td><td>62.6</td><td>90</td></tr>
+                                    <tr><td>Jun 24</td><td>120/76</td><td>74</td><td>4,300</td><td>62.5</td><td>86</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="card__link" style="margin-top:10px" onclick="CBH.go('wearableView')">Details <span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+                    </div>
                 </div>
             </div>
-            <div class="card reveal">
-                <div class="card__head">
-                    <span class="card__title">7-day vitals avg</span>
-                    <button class="card__link" onclick="CBH.go('wearableView')">Details <span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         ADD DOCUMENT — scan-first upload flow (UI/interaction demo only;
+         no control here performs a real camera/file-picker action).
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="addDocumentView">
+        <div class="tbar">
+            <button class="backbtn" onclick="resetAddDocFlow(); CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Add a Document</h1></div>
+        </div>
+        <div class="vbody">
+
+            <!-- Step 1 — capture -->
+            <div class="adoc-step show" id="adocStep1">
+                <div class="ci-card" style="text-align:center">
+                    <div style="background:var(--surface-sunken);border-radius:var(--radius-lg);height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin-bottom:14px">
+                        <span class="icon" style="width:34px;height:34px;color:var(--text-subtle)"><svg><use href="#i-camera"/></svg></span>
+                        <p class="t-body-s" style="color:var(--text-muted)">Point your camera at the document</p>
+                    </div>
+                    <button class="mbtn mbtn--fill mbtn--block" onclick="advanceToConfirm()">
+                        <span class="icon"><svg><use href="#i-camera"/></svg></span> Scan document
+                    </button>
+                    <button class="mbtn mbtn--line mbtn--block" style="margin-top:10px" onclick="advanceToConfirm()">
+                        <span class="icon"><svg><use href="#i-upload"/></svg></span> Choose a file instead
+                    </button>
                 </div>
-                <div class="vitals-grid" style="grid-template-columns:1fr 1fr">
-                    <div class="vstat"><div class="v" style="font-size:14px">120/76</div><div class="u">mmHg</div><div class="l">BP avg</div></div>
-                    <div class="vstat ok"><div class="v">74</div><div class="u">bpm</div><div class="l">Pulse avg</div></div>
-                    <div class="vstat"><div class="v">62.5</div><div class="u">kg</div><div class="l">Weight</div></div>
-                    <div class="vstat"><div class="v">4,200</div><div class="u">steps</div><div class="l">Daily avg</div></div>
+                <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin-top:10px">Camera capture is a UI demo only in this prototype — no photo is actually taken or stored.</p>
+            </div>
+
+            <!-- Step 2 — confirm details -->
+            <div class="adoc-step" id="adocStep2">
+                <div class="ci-card">
+                    <div style="background:var(--surface-sunken);border-radius:var(--radius-base);height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                        <span class="icon" style="width:28px;height:28px;color:var(--text-subtle)"><svg><use href="#i-document"/></svg></span>
+                    </div>
+                    <div class="field">
+                        <label>Category</label>
+                        <select id="adocCategory" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+                            <option>Lab report</option>
+                            <option>Prescription</option>
+                            <option>Scan or imaging</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" id="adocName" placeholder="e.g. HbA1c and lipid panel">
+                    </div>
+                    <div class="field">
+                        <label>Date</label>
+                        <input type="date" id="adocDate">
+                    </div>
+                    <button class="mbtn mbtn--fill mbtn--block" style="margin-top:6px" onclick="saveNewDocument()">
+                        <span class="icon"><svg><use href="#i-check"/></svg></span> Save to records
+                    </button>
+                    <button class="mbtn mbtn--line mbtn--block" style="margin-top:10px" onclick="backToScanStep()">Back</button>
                 </div>
             </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         DOCUMENT VIEWER — dummy scanned page / PDF preview so tapping
+         a document in Health Records shows something (demo content only,
+         no real file storage/rendering exists yet).
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="docViewerView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm" id="docViewerTitle">Document</h1></div>
+            <button class="iconbtn" aria-label="Download"><span class="icon"><svg><use href="#i-download"/></svg></span></button>
+        </div>
+        <div class="vbody">
+            <div class="docpage" id="docViewerPage"></div>
+            <p class="t-body-s" style="color:var(--text-muted);text-align:center" id="docViewerMeta">Kims Diagnostics · 28 Jun 2026</p>
         </div>
     </section>
 
@@ -1455,32 +1719,177 @@
     <section class="view" id="careTeamView">
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Care Team</h1></div>
+            <div class="tbar__title"><h1 class="sm">Care</h1></div>
         </div>
-        <div class="vbody has-nav">
-            <div class="card card--flush reveal">
-                <div class="rows">
-                    <div class="row">
-                        <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span>
-                        <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
-                        <div class="row-actions">
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+        <div class="vbody has-nav" style="gap:0;padding-top:4px">
+
+            <!-- Tabs — own .care-vtoggle/.care-panel namespace, same reasoning as Records'
+                 .rec-vtoggle/.rec-panel: every view's DOM persists at once, so a shared class
+                 name with Meds/Records would let their tab-switch logic collide with this one. -->
+            <div class="vitals-toggle care-vtoggle">
+                <div class="vtog active" id="ctab-team" onclick="switchCareTab('team')">Care Team</div>
+                <div class="vtog" id="ctab-own" onclick="switchCareTab('own')">Own Contacts</div>
+            </div>
+
+            <!-- ── CARE TEAM — arranged by the Care Bridge office, read-only ── -->
+            <div class="care-panel show" id="cpanel-team">
+                <div class="card card--flush reveal">
+                    <div class="rows">
+                        <div class="row">
+                            <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span>
+                            <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
-                        <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
-                        <div class="row-actions">
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                            <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                        <div class="row">
+                            <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
+                            <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <span class="row-av" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)">SM</span>
+                            <div class="m"><div class="t">Sarah Mathew</div><div class="s">Physiotherapist</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <span class="row-av" style="background:var(--danger-soft);color:var(--danger)">RT</span>
+                            <div class="m"><div class="t">Reshma Thomas</div><div class="s">Home nurse</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <p class="t-body-s" style="color:var(--text-muted);padding:8px 2px 0">This team is arranged for you by the Care Bridge office. Reach out any time — response within one business day.</p>
             </div>
-            <p class="t-body-s" style="color:var(--text-muted);padding:0 2px">Your care team reviews check-ins and vitals weekly. Reach out any time — response within one business day.</p>
+
+            <!-- ── OWN CONTACTS — member-added personal care resources ── -->
+            <div class="care-panel" id="cpanel-own">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 2px 12px">
+                    <p class="t-body-s" style="color:var(--text-muted);margin:0">Doctors, therapists or helpers you work with outside your Care Bridge team — kept here for quick reach.</p>
+                    <button class="mbtn mbtn--line" id="ownEditBtn" style="flex-shrink:0;padding:6px 16px;font-size:12.5px" onclick="toggleOwnEditMode()">Edit</button>
+                </div>
+                <div class="card card--flush reveal">
+                    <div class="rows" id="ownContactsList">
+                        <div class="row own-contact-row">
+                            <button class="own-remove-btn" onclick="removeOwnContact(this)" aria-label="Remove contact">−</button>
+                            <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">PV</span>
+                            <div class="m"><div class="t">Dr. Priya Varma</div><div class="s">Ophthalmologist</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                        <div class="row own-contact-row">
+                            <button class="own-remove-btn" onclick="removeOwnContact(this)" aria-label="Remove contact">−</button>
+                            <span class="row-av" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)">RK</span>
+                            <div class="m"><div class="t">Ravi Kumar</div><div class="s">Physiotherapist</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                        <div class="row own-contact-row">
+                            <button class="own-remove-btn" onclick="removeOwnContact(this)" aria-label="Remove contact">−</button>
+                            <span class="row-av" style="background:var(--danger-soft);color:var(--danger)">SN</span>
+                            <div class="m"><div class="t">Sunitha Nair</div><div class="s">Home nurse (backup)</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                        <div class="row own-contact-row">
+                            <button class="own-remove-btn" onclick="removeOwnContact(this)" aria-label="Remove contact">−</button>
+                            <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">SK</span>
+                            <div class="m"><div class="t">Suresh Kumar</div><div class="s">Chauffeur</div></div>
+                            <div class="row-actions">
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
+                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add-contact-row tap" style="border-top:1px solid var(--border)" onclick="CBH.go('addContactView')">
+                        <span class="icon"><svg><use href="#i-plus"/></svg></span>Add a contact
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         ADD CONTACT — new Own Contacts entry
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="addContactView">
+        <div class="tbar">
+            <button class="backbtn" onclick="resetAddContactForm(); CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Add a Contact</h1></div>
+        </div>
+        <div class="vbody">
+
+            <div class="form-sec">
+                <div class="form-sec-label">Contact details</div>
+                <div class="field">
+                    <label>Name <span style="color:var(--danger-text)">*</span></label>
+                    <input type="text" id="acName" placeholder="e.g. Dr. Anil Kumar">
+                </div>
+                <div class="field">
+                    <label>Category</label>
+                    <select id="acCategory" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+                        <option>Doctor</option>
+                        <option>Physiotherapist</option>
+                        <option>Counsellor</option>
+                        <option>Pharmacist</option>
+                        <option>Nurse</option>
+                        <option>Chauffeur</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Contact info</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="field"><label>Phone 1</label><input type="tel" id="acPhone1" placeholder="+91 98765 43210"></div>
+                    <div class="field"><label>Phone 2 (optional)</label><input type="tel" id="acPhone2" placeholder="+91 98765 43211"></div>
+                </div>
+                <div class="field"><label>Email (optional)</label><input type="email" id="acEmail" placeholder="name@email.com"></div>
+                <div class="field">
+                    <label>Address (optional)</label>
+                    <textarea class="comment-area" id="acAddress" rows="2" placeholder="House name, street, city, pincode…"></textarea>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Notes</div>
+                <div class="field">
+                    <label>Anything worth remembering (optional)</label>
+                    <textarea class="comment-area" id="acNotes" rows="3" placeholder="e.g. Visits every second Saturday, prefers WhatsApp…" oninput="updateContactNotesWordCount()"></textarea>
+                    <div class="char-count"><span id="acNotesWordCount">0</span>/100 words</div>
+                </div>
+            </div>
+
+            <button class="mbtn mbtn--fill mbtn--block" onclick="saveNewContact()" style="margin-bottom:8px">
+                <span class="icon"><svg><use href="#i-check"/></svg></span> Save contact
+            </button>
+            <button class="mbtn mbtn--line mbtn--block" onclick="resetAddContactForm(); CBH.back()">Cancel</button>
         </div>
     </section>
 
@@ -1602,7 +2011,7 @@
                     <div class="row"><div class="m">Family connections</div><div class="val">3 active</div></div>
                 </div>
             </div>
-            <div class="card reveal" style="background:var(--model-digital-wellness-soft);border-color:rgba(169,133,207,.25)">
+            <div class="card reveal" style="background:var(--model-digital-wellness-soft)">
                 <p class="t-body-m" style="color:var(--model-digital-wellness-ink)">Great job maintaining your wellness routine! Your consistency is paying off. Keep it up in July. 🌿</p>
             </div>
             <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('homeView',{reset:true})">Done</button>
@@ -1658,34 +2067,14 @@
                         <div class="m"><div class="t">Hydration</div><div class="s">Latest: <span id="trkHydLatest">0/8 glasses</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
-                    <div class="row tap" onclick="scrollToTracker('bodySection')">
-                        <span class="trk-ic" style="background:var(--model-digital-wellness-soft)">⚖️</span>
-                        <div class="m"><div class="t">Body Metrics</div><div class="s">Latest: <span id="trkWeightLatest">62.5 kg</span></div></div>
-                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                    </div>
-                    <div class="row tap" onclick="scrollToTracker('bodySection')">
+                    <div class="row tap" onclick="scrollToTracker('vitalsSection')">
                         <span class="trk-ic" style="background:var(--blue-50)">🩺</span>
-                        <div class="m"><div class="t">Blood Pressure</div><div class="s">Latest: <span id="trkBPLatest">122/78 mmHg</span></div></div>
-                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                    </div>
-                    <div class="row tap" onclick="scrollToTracker('bsSection')">
-                        <span class="trk-ic" style="background:var(--red-50)">🩸</span>
-                        <div class="m"><div class="t">Blood Sugar</div><div class="s">Latest: 118 mg/dL</div></div>
-                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                    </div>
-                    <div class="row tap" onclick="scrollToTracker('stepsSection')">
-                        <span class="trk-ic" style="background:var(--success-soft)">🚶</span>
-                        <div class="m"><div class="t">Steps</div><div class="s">Latest: 4,200 steps</div></div>
-                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                    </div>
-                    <div class="row tap" onclick="scrollToTracker('sleepSection')">
-                        <span class="trk-ic" style="background:var(--model-digital-wellness-soft)">😴</span>
-                        <div class="m"><div class="t">Sleep</div><div class="s">Latest: 7.5 hours</div></div>
+                        <div class="m"><div class="t">Vitals</div><div class="s">Weight, BP, sugar, heart rate, steps &amp; sleep</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('cycleSection')">
                         <span class="trk-ic" style="background:var(--red-50)">🌸</span>
-                        <div class="m"><div class="t">Menstrual Cycle</div><div class="s">Latest: Day 2</div></div>
+                        <div class="m"><div class="t">Menstrual Cycle</div><div class="s">Latest: <span id="trkCycleLatest">Day 2</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('nutritionSection')">
@@ -1695,12 +2084,7 @@
                     </div>
                     <div class="row tap" onclick="scrollToTracker('workoutSection')">
                         <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🏋️</span>
-                        <div class="m"><div class="t">Workout Library</div><div class="s">Latest: 30 min</div></div>
-                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                    </div>
-                    <div class="row tap" onclick="scrollToTracker('hrSection')">
-                        <span class="trk-ic" style="background:var(--red-50)">❤️</span>
-                        <div class="m"><div class="t">Heart Rate Monitor</div><div class="s">Latest: 72 bpm</div></div>
+                        <div class="m"><div class="t">Workout Log</div><div class="s">Latest: 30 min</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                 </div>
@@ -1727,48 +2111,42 @@
                 <p class="t-body-s" style="color:var(--text-muted)" id="hydMsg">Tap each glass as you drink it</p>
             </div>
 
-            <!-- Body metrics grid -->
-            <div class="overline" id="bodySection">⚖️ Body metrics</div>
-            <div class="tracker-grid reveal">
-                <div class="tracker-card">
-                    <span class="tracker-ic">⚖️</span>
-                    <div class="tracker-title">Weight</div>
-                    <div class="tracker-big" id="weightDisp">62.5</div>
-                    <div class="tracker-unit">kg today</div>
-                    <input class="t-input" type="number" step="0.1" placeholder="kg" style="margin-top:10px;font-size:15px;padding:8px" onchange="logWeight(this.value)" />
+            <!-- Vitals overview — Weight, BP, blood sugar, heart rate, steps & sleep clubbed into one
+                 spreadsheet-style card, with a Share option and a single inline log form. -->
+            <div class="overline" id="vitalsSection">🩺 Vitals overview</div>
+            <div class="card reveal" style="margin-bottom:12px">
+                <div class="card__head">
+                    <span class="card__title">Today's vitals</span>
+                    <button class="iconbtn" onclick="shareVitalsSheet()" aria-label="Share vitals"><span class="icon"><svg><use href="#i-download"/></svg></span></button>
                 </div>
-                <div class="tracker-card">
-                    <span class="tracker-ic">🩺</span>
-                    <div class="tracker-title">Blood pressure</div>
-                    <div class="tracker-big" id="bpDisp" style="font-size:22px">122/78</div>
-                    <div class="tracker-unit">mmHg today</div>
-                    <input class="t-input" type="text" placeholder="120/80" style="margin-top:10px;font-size:15px;padding:8px" onchange="logBP(this.value)" />
+                <div style="overflow-x:auto">
+                    <table class="hist-table">
+                        <thead><tr><th>Vital</th><th>Latest</th><th>Recorded</th></tr></thead>
+                        <tbody>
+                            <tr><td>Weight</td><td id="vTblWeight">62.5 kg</td><td>Today, 7:10 AM</td></tr>
+                            <tr><td>Blood pressure</td><td id="vTblBP">122/78 mmHg</td><td>Today, 7:15 AM</td></tr>
+                            <tr><td>Blood sugar</td><td id="vTblBS">118 mg/dL</td><td>Today, 8:00 AM</td></tr>
+                            <tr><td>Heart rate</td><td>72 bpm</td><td>Today, 7:30 AM · wearable</td></tr>
+                            <tr><td>Steps</td><td>4,200</td><td>As of now</td></tr>
+                            <tr><td>Sleep</td><td>7.5 hrs</td><td>Last night</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-            <div class="tracker-grid reveal" id="stepsSection">
-                <div class="tracker-card">
-                    <span class="tracker-ic">🚶</span>
-                    <div class="tracker-title">Steps today</div>
-                    <div class="tracker-big">4,200</div>
-                    <div class="tracker-unit">of 6,000 goal</div>
-                    <div style="height:5px;border-radius:99px;background:var(--neutral-100);overflow:hidden;margin:8px 0 4px">
-                        <div style="height:100%;width:70%;border-radius:99px;background:var(--accent)"></div>
+                <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+                    <p class="t-body-s" style="color:var(--text-muted);margin-bottom:8px">Log a new reading</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                        <select id="vitalsLogType" style="padding:9px 10px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:13px;background:var(--surface)">
+                            <option value="weight">Weight (kg)</option>
+                            <option value="bp">Blood pressure</option>
+                            <option value="bs">Blood sugar (mg/dL)</option>
+                        </select>
+                        <input class="t-input" id="vitalsLogValue" type="text" placeholder="e.g. 62.3" style="padding:9px 10px;font-size:13px" />
                     </div>
-                    <div class="tracker-unit">70% of goal</div>
-                </div>
-                <div class="tracker-card" id="sleepSection">
-                    <span class="tracker-ic">😴</span>
-                    <div class="tracker-title">Sleep last night</div>
-                    <div class="tracker-big">7.5</div>
-                    <div class="tracker-unit">hours</div>
-                    <div style="margin-top:8px;font-size:11px;color:var(--text-subtle)">
-                        <div>Bedtime 10:30 PM</div>
-                        <div>Wake 6:00 AM</div>
-                    </div>
+                    <button class="mbtn mbtn--line mbtn--block" onclick="logVitalReading()">Log reading</button>
                 </div>
             </div>
 
-            <!-- Menstrual cycle -->
+            <!-- Menstrual cycle — tap days to log period; predictions recalculate live -->
             <div class="overline" id="cycleSection">🌸 Menstrual cycle</div>
             <div class="card reveal">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -1777,12 +2155,17 @@
                         <span>🔴 Period</span><span style="color:var(--accent-text)">🔵 Fertile</span><span style="color:var(--warning-text)">🟡 Next</span>
                     </div>
                 </div>
+                <p class="t-body-s" style="color:var(--text-muted);margin-bottom:8px">Tap the days you're on your period to log it.</p>
                 <div class="cycle-wrap" id="cycleDays"></div>
-                <div class="rows" style="margin-top:12px">
-                    <div class="row"><div class="m">Last period</div><div class="val">1–5 June 2026</div></div>
-                    <div class="row"><div class="m">Cycle length</div><div class="val">28 days</div></div>
-                    <div class="row"><div class="m">Next predicted</div><div class="val" style="color:var(--warning-text);font-weight:700">29 June 2026</div></div>
-                    <div class="row"><div class="m">Fertile window</div><div class="val" style="color:var(--accent-text)">13–17 June</div></div>
+                <div class="field" style="margin-top:12px">
+                    <label>Average cycle length (days)</label>
+                    <input type="number" id="cycleLengthInput" class="t-input" value="28" min="21" max="40" style="padding:9px 10px;font-size:14px" onchange="cycleRecalc()" />
+                </div>
+                <div class="rows" style="margin-top:8px">
+                    <div class="row"><div class="m">Last period</div><div class="val" id="cycleLastPeriod">1–5 June 2026</div></div>
+                    <div class="row"><div class="m">Cycle length</div><div class="val" id="cycleLengthVal">28 days</div></div>
+                    <div class="row"><div class="m">Next predicted</div><div class="val" style="color:var(--warning-text);font-weight:700" id="cycleNextPredicted">29 June 2026</div></div>
+                    <div class="row"><div class="m">Fertile window</div><div class="val" style="color:var(--accent-text)" id="cycleFertileWindow">13–17 June</div></div>
                 </div>
             </div>
 
@@ -1796,25 +2179,7 @@
                 </div>
             </div>
 
-            <!-- Blood sugar log -->
-            <div class="overline" id="bsSection">🩸 Blood sugar log</div>
-            <div class="card reveal">
-                <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end">
-                    <div class="field" style="margin:0">
-                        <label>Fasting / Random (mg/dL)</label>
-                        <input type="number" class="t-input" placeholder="120" style="text-align:left;padding:10px 12px;font-size:15px" id="bsInput" />
-                    </div>
-                    <button class="mbtn mbtn--fill" style="padding:10px 16px;height:46px" onclick="logBS()">Log</button>
-                </div>
-                <div style="margin-top:12px">
-                    <div class="tlog-row"><span class="tracker-unit">Today 8:00 AM</span><span style="font-weight:600;color:var(--text-heading)">118 mg/dL</span></div>
-                    <div class="tlog-row"><span class="tracker-unit">Jun 29 8:00 AM</span><span style="font-weight:600;color:var(--text-heading)">124 mg/dL</span></div>
-                    <div class="tlog-row"><span class="tracker-unit">Jun 28 8:00 AM</span><span style="font-weight:600;color:var(--success)">112 mg/dL</span></div>
-                </div>
-                <p class="t-body-s" style="color:var(--text-subtle);margin-top:8px">Normal fasting: 70–100 mg/dL · Pre-diabetes: 100–125</p>
-            </div>
-
-            <!-- Nutrition + Workout Library -->
+            <!-- Nutrition + Workout Log -->
             <div class="overline" id="nutritionSection">🍽️ Nutrition &amp; activity</div>
             <div class="tracker-grid reveal" id="workoutSection">
                 <div class="tracker-card">
@@ -1826,34 +2191,17 @@
                 </div>
                 <div class="tracker-card">
                     <span class="tracker-ic">🏋️</span>
-                    <div class="tracker-title">Workout Library</div>
+                    <div class="tracker-title">Workout Log</div>
                     <div class="tracker-big">30</div>
                     <div class="tracker-unit">min · Yoga &amp; stretching</div>
                     <div style="margin-top:8px;font-size:11px;color:var(--text-subtle)">Last session yesterday</div>
                 </div>
             </div>
 
-            <!-- Heart rate monitor -->
-            <div class="overline" id="hrSection">❤️ Heart rate monitor</div>
-            <div class="card reveal">
-                <div class="w-score" style="margin:0">
-                    <div class="w-ring" style="width:56px;height:56px;--ring-color:var(--danger);--ring-pct:72%;--ring-ink:var(--danger-text)"><span class="w-ring-num" style="font-size:16px">72</span></div>
-                    <div class="w-score-meta">
-                        <div class="label">72 bpm</div>
-                        <div class="note">Resting · Recorded 7:30 AM via wearable</div>
-                    </div>
-                </div>
-                <div class="rows" style="margin-top:8px">
-                    <div class="row"><div class="m">Resting avg (7d)</div><div class="val">70 bpm</div></div>
-                    <div class="row"><div class="m">Highest today</div><div class="val">118 bpm</div></div>
-                    <div class="row"><div class="m">Zone</div><div class="val" style="color:var(--success-text)">Normal</div></div>
-                </div>
-            </div>
-
         </div>
 
         <!-- Floating add-data button -->
-        <button class="fab-add" onclick="scrollToTracker('bodySection')" aria-label="Add new tracker data">
+        <button class="fab-add" onclick="scrollToTracker('vitalsSection')" aria-label="Add new tracker data">
             <span class="icon"><svg><use href="#i-plus"/></svg></span>
             <span class="fab-add-label">Add New<br>Data</span>
         </button>
@@ -1991,8 +2339,7 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         TOOLS — new nav tab; houses Wearables, Trackers & Wellness Library.
-         Calculators/Exercises are placeholders — full Tools scope is an open item (handoff §5/§8)
+         TOOLS — new nav tab; houses Wearables, Trackers, Wellness Library & Exercises.
     ══════════════════════════════════════════════════════ -->
     <section class="view" id="toolsView">
         <div class="tbar">
@@ -2002,9 +2349,9 @@
         <div class="vbody has-nav">
             <div class="card card--flush reveal">
                 <div class="rows">
-                    <div class="row tap" onclick="CBH.go('wearableView')">
-                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span></div>
-                        <div class="m"><div class="t">Wearables</div><div class="s">Synced device & health insights</div></div>
+                    <div class="row tap" onclick="CBH.go('wellnessLibraryView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-library"/></svg></span></div>
+                        <div class="m"><div class="t">Wellness Library</div><div class="s">Tips &amp; guides</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="CBH.go('trackersView')">
@@ -2012,21 +2359,154 @@
                         <div class="m"><div class="t">Trackers</div><div class="s">Hydration, weight, BP, cycle &amp; more</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
-                    <div class="row tap" onclick="CBH.go('wellnessLibraryView')">
-                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-library"/></svg></span></div>
-                        <div class="m"><div class="t">Wellness Library</div><div class="s">Tips &amp; guides</div></div>
+                    <div class="row tap" onclick="CBH.go('equipmentRentalView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-wheelchair"/></svg></span></div>
+                        <div class="m"><div class="t">Equipment Rental</div><div class="s">Crutches, wheelchairs, oxygen &amp; more</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
-                    <div class="row" style="opacity:.5">
-                        <div class="ic"><span class="icon"><svg><use href="#i-activity"/></svg></span></div>
-                        <div class="m"><div class="t">Calculators</div><div class="s">Coming soon</div></div>
-                    </div>
-                    <div class="row" style="opacity:.5">
-                        <div class="ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
-                        <div class="m"><div class="t">Exercises</div><div class="s">Coming soon</div></div>
+                    <div class="row tap" onclick="CBH.go('exercisesView')">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
+                        <div class="m"><div class="t">Exercises</div><div class="s">Guided routines for common issues</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         EXERCISES — guided routines for common issues; reuses the
+         Wellness Library's lib-grid/lib-card + libArticleView renderer
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="exercisesView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Exercises</h1></div>
+        </div>
+        <div class="vbody">
+            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Gentle, guided routines for common everyday issues.</p>
+            <div class="lib-grid reveal">
+                <div class="lib-card" onclick="CBH.go('libArticleView','sciatica')">
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-bandage"/></svg></span></span>
+                    <div class="lib-title">Sciatica</div>
+                    <div class="lib-sub">Ease nerve pain down the leg</div>
+                </div>
+                <div class="lib-card" onclick="CBH.go('libArticleView','varicose')">
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-pulse"/></svg></span></span>
+                    <div class="lib-title">Varicose Veins</div>
+                    <div class="lib-sub">Improve leg circulation</div>
+                </div>
+                <div class="lib-card" onclick="CBH.go('libArticleView','frozenshoulder')">
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-therapy"/></svg></span></span>
+                    <div class="lib-title">Frozen Shoulder</div>
+                    <div class="lib-sub">Restore shoulder movement</div>
+                </div>
+                <div class="lib-card" onclick="CBH.go('libArticleView','plantarfasciitis')">
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></span>
+                    <div class="lib-title">Plantar Fasciitis</div>
+                    <div class="lib-sub">Relieve heel pain</div>
+                </div>
+                <div class="lib-card" onclick="CBH.go('libArticleView','stretches')">
+                    <span class="lib-ic"><span class="icon"><svg><use href="#i-activity"/></svg></span></span>
+                    <div class="lib-title">General Stretches</div>
+                    <div class="lib-sub">Daily mobility routine</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         EQUIPMENT RENTAL — Care Bridge rental catalogue, cart-based
+         request flow (mirrors Meds' Reorder → Cart pattern)
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="equipmentRentalView">
+        <div class="tbar">
+            <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Equipment Rental</h1></div>
+            <button class="backbtn cart-btn" onclick="openEquipCartSheet()">
+                <span class="icon"><svg><use href="#i-cart"/></svg></span>
+                <span class="cart-badge" id="equipCartBadge" style="display:none">0</span>
+            </button>
+        </div>
+        <div class="vbody has-nav">
+            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Rent mobility and home-care equipment through Care Bridge — delivered and collected by our team.</p>
+
+            <div class="inv-item" id="equip-crutches">
+                <div class="inv-item-top" style="cursor:default">
+                    <div class="inv-ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-crutches"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="inv-name">Pair of crutches</div>
+                        <div class="inv-for">Adjustable height, rubber grip</div>
+                    </div>
+                </div>
+                <div class="inv-stock-row">
+                    <span class="days-pill days-pill--ok">₹50/day</span>
+                    <span class="days-pill-sub">Available</span>
+                </div>
+                <div class="inv-reorder-row" onclick="openEquipAddSheet('Pair of crutches')">Add to cart</div>
+            </div>
+
+            <div class="inv-item" id="equip-wheelchair">
+                <div class="inv-item-top" style="cursor:default">
+                    <div class="inv-ic" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)"><span class="icon"><svg><use href="#i-wheelchair"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="inv-name">Wheelchair (standard)</div>
+                        <div class="inv-for">Foldable, all-terrain wheels</div>
+                    </div>
+                </div>
+                <div class="inv-stock-row">
+                    <span class="days-pill days-pill--ok">₹150/day</span>
+                    <span class="days-pill-sub">Available</span>
+                </div>
+                <div class="inv-reorder-row" onclick="openEquipAddSheet('Wheelchair (standard)')">Add to cart</div>
+            </div>
+
+            <div class="inv-item" id="equip-oxygen">
+                <div class="inv-item-top" style="cursor:default">
+                    <div class="inv-ic" style="background:var(--danger-soft);color:var(--danger)"><span class="icon"><svg><use href="#i-cylinder"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="inv-name">Oxygen cylinder (10L)</div>
+                        <div class="inv-for">Includes regulator &amp; mask</div>
+                    </div>
+                </div>
+                <div class="inv-stock-row">
+                    <span class="days-pill days-pill--warn">₹300/day</span>
+                    <span class="days-pill-sub">Limited stock</span>
+                </div>
+                <div class="inv-reorder-row" onclick="openEquipAddSheet('Oxygen cylinder (10L)')">Add to cart</div>
+            </div>
+
+            <div class="inv-item" id="equip-bed">
+                <div class="inv-item-top" style="cursor:default">
+                    <div class="inv-ic" style="background:var(--blue-50);color:var(--blue-600)"><span class="icon"><svg><use href="#i-bed"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="inv-name">Inclined hospital bed</div>
+                        <div class="inv-for">Electric backrest adjustment</div>
+                    </div>
+                </div>
+                <div class="inv-stock-row">
+                    <span class="days-pill days-pill--ok">₹250/day</span>
+                    <span class="days-pill-sub">Available</span>
+                </div>
+                <div class="inv-reorder-row" onclick="openEquipAddSheet('Inclined hospital bed')">Add to cart</div>
+            </div>
+
+            <div class="inv-item" id="equip-walker">
+                <div class="inv-item-top" style="cursor:default">
+                    <div class="inv-ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="inv-name">Walker (with wheels)</div>
+                        <div class="inv-for">Foldable, height adjustable</div>
+                    </div>
+                </div>
+                <div class="inv-stock-row">
+                    <span class="days-pill days-pill--ok">₹80/day</span>
+                    <span class="days-pill-sub">Available</span>
+                </div>
+                <div class="inv-reorder-row" onclick="openEquipAddSheet('Walker (with wheels)')">Add to cart</div>
+            </div>
+
+            <p class="t-body-s" style="color:var(--text-muted);text-align:center;margin-top:4px">Delivery within 24 hours across Ernakulam. Deposit may apply for high-value items.</p>
         </div>
     </section>
 
@@ -2078,10 +2558,12 @@
         </div>
     </section>
 
-    </div></div><!-- /.vbody /.screen -->
+    </div><!-- /.stack -->
 
-    <!-- Bottom Navigation — 5 tabs -->
-    <div class="bnav bnav--floating bnav--5">
+    <!-- Bottom Navigation — 5 tabs. Docked in normal flow (not floating) so it
+         never overlaps scrollable content on any screen — the .stack area above
+         it shrinks to make room instead. -->
+    <div class="bnav bnav--docked bnav--5">
         <div class="bnav__i is-active" id="bnav-home" onclick="CBH.goTab('homeView','home')">
             <div class="ic"><span class="icon"><svg><use href="#i-home"/></svg></span></div>Home
         </div>
@@ -2099,6 +2581,8 @@
         </div>
     </div>
 
+    </div><!-- /.screen -->
+
     <!-- Quick actions editor — bottom sheet. Lives at the device level (sibling of .bnav,
          not nested inside a .view) so it can stack above the floating bottom nav. -->
     <div class="overlay" id="qaOverlay" onclick="closeQAEditor()"></div>
@@ -2108,6 +2592,11 @@
         <p class="lead">Choose up to 4 to show on Home.</p>
         <div id="qaChecklist" style="margin:14px 0 4px"></div>
         <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="closeQAEditor()">Done</button>
+    </div>
+
+    <!-- Medicine Cabinet — single shared ellipsis menu, repositioned per tap (Delete only, for now) -->
+    <div class="inv-menu" id="invKebabMenu">
+        <button onclick="confirmDeleteInvItem()"><span id="invMenuDeleteLabel">Delete medication</span></button>
     </div>
 
     <!-- Reorder — bottom sheet. UI-only per Meds handoff §0/§7: adding to cart is local state,
@@ -2140,27 +2629,84 @@
         <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="sendOrder()">Send order</button>
     </div>
 
+    <!-- Records share — bottom sheet. UI-only demo: no real email/WhatsApp/file-export integration exists yet. -->
+    <div class="overlay" id="recShareOverlay" onclick="closeRecShareSheet()"></div>
+    <div class="sheet" id="recShareSheet">
+        <div class="sheet__grip"></div>
+        <h2>Share records</h2>
+        <p class="lead" id="recShareLead">Choose how to send these to a doctor or care team.</p>
+        <div class="qa-check-row" onclick="sendRecShare('email')">
+            <div class="qa-check-ic"><span class="icon"><svg><use href="#i-mail"/></svg></span></div>
+            <div class="qa-check-label"><div class="qa-check-title">Email</div></div>
+        </div>
+        <div class="qa-check-row" onclick="sendRecShare('WhatsApp')">
+            <div class="qa-check-ic"><span class="icon"><svg><use href="#i-chat"/></svg></span></div>
+            <div class="qa-check-label"><div class="qa-check-title">WhatsApp</div></div>
+        </div>
+        <div class="qa-check-row" onclick="sendRecShare('Files')">
+            <div class="qa-check-ic"><span class="icon"><svg><use href="#i-download"/></svg></span></div>
+            <div class="qa-check-label"><div class="qa-check-title">Save to Files</div></div>
+        </div>
+    </div>
+
+    <!-- Equipment rental — add sheet + cart sheet. Same UI-only caveat as Reorder/Cart: no real
+         Care Bridge ops request is submitted anywhere in this static prototype. -->
+    <div class="overlay" id="equipAddOverlay" onclick="closeEquipAddSheet()"></div>
+    <div class="sheet" id="equipAddSheet">
+        <div class="sheet__grip"></div>
+        <h2 id="equipAddItemName">Item</h2>
+        <p class="lead">Choose a quantity to add to your rental request.</p>
+        <div class="qty-stepper">
+            <button onclick="equipAddStep(-1)">–</button>
+            <span class="qty-num" id="equipAddQty">1</span>
+            <button onclick="equipAddStep(1)">+</button>
+        </div>
+        <button class="mbtn mbtn--fill mbtn--block" style="margin-top:14px" onclick="addEquipToCart()">Add to cart</button>
+    </div>
+
+    <div class="overlay" id="equipCartOverlay" onclick="closeEquipCartSheet()"></div>
+    <div class="sheet" id="equipCartSheet">
+        <div class="sheet__grip"></div>
+        <h2>Your rental request</h2>
+        <p class="lead">Review items, then tell us where and when to deliver.</p>
+        <div id="equipCartItemsList" style="margin:14px 0 4px"></div>
+        <div class="field" style="margin-top:10px">
+            <label>Delivery address</label>
+            <textarea class="comment-area" id="equipDeliveryAddress" rows="2" placeholder="House name, street, city, pincode…"></textarea>
+        </div>
+        <div class="field">
+            <label>Needed from</label>
+            <input type="date" id="equipNeededFrom" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+        </div>
+        <button class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onclick="submitEquipRequest()">Submit request</button>
+    </div>
+
 </div></div><!-- /.device /.stage -->
 
 <script>
 /* ── Wellness library content ────────────────────────────────────────────── */
 var LIB = {
-    exercise:   { em:'💪', title:'Exercise & Movement', intro:'Regular gentle movement is one of the most powerful things you can do for your health — especially in Kerala\'s warm climate. Even 20 minutes a day makes a significant difference.', tips:['Start with a 10-minute morning walk — early morning is ideal before the heat builds.','Gentle yoga or stretching for 15 minutes improves flexibility and joint health.','Chair exercises are excellent if standing for long periods is difficult.','Swimming or water aerobics are joint-friendly and widely available in Kerala.','Stair climbing counts! Avoid lifts when going 1–2 floors.','Aim for 5,000–8,000 steps per day — your wearable can help you track this.'], reminder:'Consistency matters more than intensity. A little movement every day beats a big session once a week.' },
-    diet:       { em:'🥗', title:'Balanced Diet', intro:'Kerala cuisine is rich in spices and coconut — both can be deeply nutritious when prepared mindfully. Small adjustments to traditional meals can make a big difference.', tips:['Include a palm-sized portion of protein (fish, eggs, lentils) at every meal.','Choose brown rice or millet over white rice at least once a day.','Eat 2–3 servings of vegetables — drumstick, bitter gourd and spinach are superfoods.','Coconut in moderation is fine — avoid excessive coconut oil for frying.','Stay well hydrated — Kerala\'s heat means you need at least 2.5 litres of water daily.','Limit sugar in tea and coffee; try reducing by half gradually.'], reminder:'Traditional Kerala meals with rice, sambar and a vegetable dish are naturally balanced — the key is portion control.' },
-    sleep:      { em:'😴', title:'Sleep Health', intro:'Quality sleep is when your body heals, regulates hormones and consolidates memories. Adults need 7–9 hours. Kerala\'s evening heat can disrupt sleep — these tips help.', tips:['Keep a fixed sleep and wake time, even on weekends.','Avoid mobile screens for at least 30 minutes before bed.','A ceiling fan or mild AC (26°C) helps offset humidity.','Light dinner 2–3 hours before bedtime aids digestion and sleep.','A short evening walk after dinner lowers blood sugar and prepares the body for sleep.','If you wake frequently at night, log it in your check-in — your care team will review it.'], reminder:'Poor sleep worsens blood pressure, blood sugar and mood. Improving sleep often improves everything else.' },
-    diabetes:   { em:'🩸', title:'Diabetes Care', intro:'Type 2 diabetes is highly manageable through daily habits. You don\'t need to eliminate rice or sweets entirely — understanding timing and portions is the key.', tips:['Eat meals at fixed times each day — blood sugar loves predictability.','Walk for 10 minutes after meals — this blunts the blood sugar spike significantly.','Choose smaller, more frequent meals over large infrequent ones.','Bitter gourd, fenugreek seeds and drumstick leaves have natural glucose-lowering properties.','Check your feet daily for cuts, blisters or redness — diabetes affects circulation.','Never skip your medication, even when you feel fine.'], reminder:'Your Metformin works best when taken with food at consistent times. Set a phone alarm so you never miss it.' },
-    heart:      { em:'❤️', title:'Heart Health', intro:'Heart disease is the leading cause of death in Kerala. The good news: most risk factors are within your control through daily lifestyle choices.', tips:['Limit salt to less than 5g per day — avoid pickles, papads and processed snacks.','Include omega-3 rich foods: small fish like sardines, mackerel and anchovies are excellent.','Manage stress actively — chronic stress raises blood pressure and damages arteries.','Don\'t smoke. Even secondhand smoke significantly increases cardiac risk.','Know your numbers: blood pressure, cholesterol and blood sugar should be checked regularly.','Aspirin therapy should only be taken if prescribed — consult Dr. Menon.'], reminder:'Your Atorvastatin controls cholesterol to protect your heart. Take it every night as prescribed, even if you feel well.' },
-    bp:         { em:'🫁', title:'Blood Pressure', intro:'High blood pressure is called the "silent killer" because it rarely causes symptoms until damage has occurred. In Kerala, dietary sodium is a major driver.', tips:['The DASH diet (fruits, vegetables, low-fat dairy, whole grains) can reduce BP by 8–14 mmHg.','Reduce sodium: use lemon, herbs and spices instead of salt for flavour.','Regular aerobic activity (30 min, 5 days a week) lowers BP naturally.','Limit alcohol consumption — it raises blood pressure significantly.','Manage weight: losing even 5kg can reduce BP meaningfully.','Measure your BP at the same time each day, sitting quietly for 5 minutes first.'], reminder:'Home BP monitoring is valuable — share your readings with your care team monthly.' },
-    joints:     { em:'🦴', title:'Joint & Bone Health', intro:'Arthritis and osteoporosis are common with ageing. Kerala\'s lifestyle and diet offer many natural supports for joint and bone health.', tips:['Weight-bearing exercise (walking, light resistance) strengthens bones.','Include calcium-rich foods: ragi (finger millet), sesame seeds, green leafy vegetables, dairy.','Your Vitamin D3 supplement directly supports calcium absorption and bone strength.','Swimming and cycling are excellent joint-friendly exercises.','Avoid prolonged sitting — get up and move every 45–60 minutes.','Warm coconut oil massage for arthritic joints can reduce stiffness and improve circulation.'], reminder:'Take your Vitamin D3 daily with lunch — fat-soluble vitamins absorb better with a meal.' },
-    coldflu:    { em:'🤧', title:'Cold & Flu', intro:'Frequent upper respiratory infections weaken your immune system over time. Simple daily habits dramatically reduce your risk.', tips:['Wash hands thoroughly for 20 seconds before meals and after outdoor exposure.','Drink warm water with ginger and tulsi (holy basil) daily — powerful natural antivirals.','Sleep 7–8 hours — immune function drops sharply with sleep deprivation.','Avoid touching your face in public spaces.','Eat foods rich in Vitamin C: amla, guava, citrus fruits are excellent options.','Get a flu shot annually — ask your care coordinator to arrange this.'], reminder:'If you develop fever above 100°F for more than 2 days, or have difficulty breathing, contact your care team immediately.' },
-    headache:   { em:'🤕', title:'Headaches & Migraines', intro:'Most headaches in adults are tension-type or migraine. Identifying your triggers is the most powerful step toward prevention.', tips:['Common triggers: dehydration, skipped meals, screen time, stress, poor posture, strong smells.','Drink water as your first response to a headache — dehydration is a frequent cause.','Maintain a regular sleep schedule — changes in sleep pattern commonly trigger migraines.','Limit caffeine — both excess coffee and sudden withdrawal can trigger headaches.','Apply a cold or warm compress to the forehead or neck for tension headaches.','Keep a headache diary: note time, duration, food eaten, and stress levels.'], reminder:'If headaches are frequent (more than 3 per week), log them in your check-in so your care team can review.' },
-    eyes:       { em:'👁️', title:'Eye Care', intro:'Screen time has significantly increased eye strain for all ages. Combined with strong Kerala sunlight and diabetes risk, proactive eye care is essential.', tips:['Follow the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.','Increase text size on your phone rather than straining to read small text.','Wear UV-protective sunglasses outdoors — Kerala\'s UV index is high year-round.','Diabetics should have a retinal screening at least once a year.','Avoid rubbing your eyes — it worsens strain and transfers bacteria.','Ensure good lighting when reading — avoid reading in dim conditions.'], reminder:'An annual eye check is recommended. Ask your care coordinator to arrange this as part of your care plan.' },
-    skin:       { em:'🧴', title:'Skin Care', intro:'Kerala\'s humid tropical climate means skin needs protection from both the sun and fungal infections. Simple daily habits keep skin healthy.', tips:['Apply SPF 30+ sunscreen before going outdoors — even on cloudy days.','Keep skin dry in skin folds to prevent fungal infections, common in humid Kerala.','Coconut oil remains an excellent natural moisturiser for dry skin after bathing.','Stay well hydrated — skin health starts from within.','Diabetics should be particularly vigilant about small cuts and wounds — heal more slowly.','Change bed sheets weekly to reduce bacterial and fungal exposure.'], reminder:'Any persistent skin rash, darkening in folds, or non-healing wound should be reported to your care team promptly.' },
-    depression: { em:'🧠', title:'Depression & Mood', intro:'Depression is a medical condition, not a weakness. It\'s common, treatable, and nothing to be ashamed of. Recognising it early leads to better outcomes.', tips:['Common signs: persistent sadness, loss of interest, fatigue, sleep changes, poor concentration.','Physical activity — even a short walk — releases endorphins that naturally improve mood.','Social connection matters deeply: regular calls with family reduce isolation significantly.','Limit news and social media consumption if it leaves you feeling worse.','Establish a simple daily routine — structure helps regulate mood.','If you\'ve felt low for more than 2 weeks, speak to your care coordinator — help is available.'], reminder:'Mental health is part of your wellness score. Your care team is here to support you without judgement.' },
-    anxiety:    { em:'😰', title:'Anxiety Management', intro:'Anxiety is the body\'s stress response in overdrive. It\'s very common and very treatable with the right tools and support.', tips:['Box breathing: inhale 4 counts, hold 4, exhale 4, hold 4 — repeat 4 times to calm the nervous system.','Limit caffeine — it directly amplifies anxiety and heart palpitations.','Identify your triggers and patterns by journalling or noting in your check-in.','Progressive muscle relaxation: tense and release muscle groups from feet to face.','Spend time in nature — even 10 minutes outdoors reduces cortisol significantly.','Talk to someone you trust — anxiety thrives in isolation and diminishes in connection.'], reminder:'If anxiety is interfering with daily life, mention it in your next care review. Effective support is available.' },
-    adhd:       { em:'🎯', title:'ADHD & Focus', intro:'Attention and focus challenges affect people of all ages. Structured environments and simple systems make a significant difference to daily function.', tips:['Break tasks into small, time-bound steps — 25-minute focused blocks (Pomodoro technique) work well.','Reduce distractions: phone notifications off while working or doing important tasks.','Physical exercise significantly improves focus — even a 10-minute walk helps immediately.','Consistent sleep and meal timing stabilises attention across the day.','Use written lists and alarms rather than relying on memory.','Limit screen switching — focus on one app or task at a time.'], reminder:'ADHD in adults is often underdiagnosed. If focus challenges are significantly impacting your daily life, discuss this with your care coordinator.' },
-    stress:     { em:'🧘', title:'Stress & Relaxation', intro:'Chronic stress raises cortisol, damages blood pressure, worsens blood sugar and disrupts sleep. Managing stress is not a luxury — it is essential healthcare.', tips:['Diaphragmatic breathing: breathe slowly from the belly, not the chest, for 2–5 minutes daily.','Spend 10 minutes in sunlight each morning — it resets the circadian rhythm and improves mood.','Identify your top 3 stressors and decide: can I change it, accept it, or avoid it?','Prayer, meditation or mindfulness practice — even 5 minutes — reduces cortisol measurably.','Connect with friends and family regularly — social bonds buffer stress powerfully.','Set a "worry time": schedule 15 minutes to think about problems, then stop for the day.'], reminder:'High stress is reflected in your wellness score. Your care team can connect you with support if needed.' },
-    insomnia:   { em:'💤', title:'Insomnia & Rest', intro:'Insomnia — difficulty falling or staying asleep — affects up to 1 in 3 adults. It\'s treatable. Sleep hygiene changes work as well as medication for many people.', tips:['Reserve the bed only for sleep — no phones, TV or work in bed.','If you can\'t sleep after 20 minutes, get up and do something quiet until sleepy.','Cool the room: 24–26°C is the ideal sleep temperature.','Avoid naps longer than 20 minutes after 3pm.','No screen light for 30 minutes before bed — use night mode or paper books instead.','A consistent wind-down ritual signals the brain that sleep is coming.'], reminder:'Log your sleep quality in your daily check-in. Patterns over 2–3 weeks give your care team valuable insight.' }
+    exercise:   { icon:'activity', title:'Exercise & Movement', intro:'Regular gentle movement is one of the most powerful things you can do for your health — especially in Kerala\'s warm climate. Even 20 minutes a day makes a significant difference.', tips:['Start with a 10-minute morning walk — early morning is ideal before the heat builds.','Gentle yoga or stretching for 15 minutes improves flexibility and joint health.','Chair exercises are excellent if standing for long periods is difficult.','Swimming or water aerobics are joint-friendly and widely available in Kerala.','Stair climbing counts! Avoid lifts when going 1–2 floors.','Aim for 5,000–8,000 steps per day — your wearable can help you track this.'], reminder:'Consistency matters more than intensity. A little movement every day beats a big session once a week.' },
+    diet:       { icon:'food', title:'Balanced Diet', intro:'Kerala cuisine is rich in spices and coconut — both can be deeply nutritious when prepared mindfully. Small adjustments to traditional meals can make a big difference.', tips:['Include a palm-sized portion of protein (fish, eggs, lentils) at every meal.','Choose brown rice or millet over white rice at least once a day.','Eat 2–3 servings of vegetables — drumstick, bitter gourd and spinach are superfoods.','Coconut in moderation is fine — avoid excessive coconut oil for frying.','Stay well hydrated — Kerala\'s heat means you need at least 2.5 litres of water daily.','Limit sugar in tea and coffee; try reducing by half gradually.'], reminder:'Traditional Kerala meals with rice, sambar and a vegetable dish are naturally balanced — the key is portion control.' },
+    sleep:      { icon:'zzz', title:'Sleep Health', intro:'Quality sleep is when your body heals, regulates hormones and consolidates memories. Adults need 7–9 hours. Kerala\'s evening heat can disrupt sleep — these tips help.', tips:['Keep a fixed sleep and wake time, even on weekends.','Avoid mobile screens for at least 30 minutes before bed.','A ceiling fan or mild AC (26°C) helps offset humidity.','Light dinner 2–3 hours before bedtime aids digestion and sleep.','A short evening walk after dinner lowers blood sugar and prepares the body for sleep.','If you wake frequently at night, log it in your check-in — your care team will review it.'], reminder:'Poor sleep worsens blood pressure, blood sugar and mood. Improving sleep often improves everything else.' },
+    diabetes:   { icon:'lab', title:'Diabetes Care', intro:'Type 2 diabetes is highly manageable through daily habits. You don\'t need to eliminate rice or sweets entirely — understanding timing and portions is the key.', tips:['Eat meals at fixed times each day — blood sugar loves predictability.','Walk for 10 minutes after meals — this blunts the blood sugar spike significantly.','Choose smaller, more frequent meals over large infrequent ones.','Bitter gourd, fenugreek seeds and drumstick leaves have natural glucose-lowering properties.','Check your feet daily for cuts, blisters or redness — diabetes affects circulation.','Never skip your medication, even when you feel fine.'], reminder:'Your Metformin works best when taken with food at consistent times. Set a phone alarm so you never miss it.' },
+    heart:      { icon:'heart', title:'Heart Health', intro:'Heart disease is the leading cause of death in Kerala. The good news: most risk factors are within your control through daily lifestyle choices.', tips:['Limit salt to less than 5g per day — avoid pickles, papads and processed snacks.','Include omega-3 rich foods: small fish like sardines, mackerel and anchovies are excellent.','Manage stress actively — chronic stress raises blood pressure and damages arteries.','Don\'t smoke. Even secondhand smoke significantly increases cardiac risk.','Know your numbers: blood pressure, cholesterol and blood sugar should be checked regularly.','Aspirin therapy should only be taken if prescribed — consult Dr. Menon.'], reminder:'Your Atorvastatin controls cholesterol to protect your heart. Take it every night as prescribed, even if you feel well.' },
+    bp:         { icon:'heart-pulse', title:'Blood Pressure', intro:'High blood pressure is called the "silent killer" because it rarely causes symptoms until damage has occurred. In Kerala, dietary sodium is a major driver.', tips:['The DASH diet (fruits, vegetables, low-fat dairy, whole grains) can reduce BP by 8–14 mmHg.','Reduce sodium: use lemon, herbs and spices instead of salt for flavour.','Regular aerobic activity (30 min, 5 days a week) lowers BP naturally.','Limit alcohol consumption — it raises blood pressure significantly.','Manage weight: losing even 5kg can reduce BP meaningfully.','Measure your BP at the same time each day, sitting quietly for 5 minutes first.'], reminder:'Home BP monitoring is valuable — share your readings with your care team monthly.' },
+    joints:     { icon:'walking', title:'Joint & Bone Health', intro:'Arthritis and osteoporosis are common with ageing. Kerala\'s lifestyle and diet offer many natural supports for joint and bone health.', tips:['Weight-bearing exercise (walking, light resistance) strengthens bones.','Include calcium-rich foods: ragi (finger millet), sesame seeds, green leafy vegetables, dairy.','Your Vitamin D3 supplement directly supports calcium absorption and bone strength.','Swimming and cycling are excellent joint-friendly exercises.','Avoid prolonged sitting — get up and move every 45–60 minutes.','Warm coconut oil massage for arthritic joints can reduce stiffness and improve circulation.'], reminder:'Take your Vitamin D3 daily with lunch — fat-soluble vitamins absorb better with a meal.' },
+    coldflu:    { icon:'shield', title:'Cold & Flu', intro:'Frequent upper respiratory infections weaken your immune system over time. Simple daily habits dramatically reduce your risk.', tips:['Wash hands thoroughly for 20 seconds before meals and after outdoor exposure.','Drink warm water with ginger and tulsi (holy basil) daily — powerful natural antivirals.','Sleep 7–8 hours — immune function drops sharply with sleep deprivation.','Avoid touching your face in public spaces.','Eat foods rich in Vitamin C: amla, guava, citrus fruits are excellent options.','Get a flu shot annually — ask your care coordinator to arrange this.'], reminder:'If you develop fever above 100°F for more than 2 days, or have difficulty breathing, contact your care team immediately.' },
+    headache:   { icon:'alert', title:'Headaches & Migraines', intro:'Most headaches in adults are tension-type or migraine. Identifying your triggers is the most powerful step toward prevention.', tips:['Common triggers: dehydration, skipped meals, screen time, stress, poor posture, strong smells.','Drink water as your first response to a headache — dehydration is a frequent cause.','Maintain a regular sleep schedule — changes in sleep pattern commonly trigger migraines.','Limit caffeine — both excess coffee and sudden withdrawal can trigger headaches.','Apply a cold or warm compress to the forehead or neck for tension headaches.','Keep a headache diary: note time, duration, food eaten, and stress levels.'], reminder:'If headaches are frequent (more than 3 per week), log them in your check-in so your care team can review.' },
+    eyes:       { icon:'eye', title:'Eye Care', intro:'Screen time has significantly increased eye strain for all ages. Combined with strong Kerala sunlight and diabetes risk, proactive eye care is essential.', tips:['Follow the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.','Increase text size on your phone rather than straining to read small text.','Wear UV-protective sunglasses outdoors — Kerala\'s UV index is high year-round.','Diabetics should have a retinal screening at least once a year.','Avoid rubbing your eyes — it worsens strain and transfers bacteria.','Ensure good lighting when reading — avoid reading in dim conditions.'], reminder:'An annual eye check is recommended. Ask your care coordinator to arrange this as part of your care plan.' },
+    skin:       { icon:'sun', title:'Skin Care', intro:'Kerala\'s humid tropical climate means skin needs protection from both the sun and fungal infections. Simple daily habits keep skin healthy.', tips:['Apply SPF 30+ sunscreen before going outdoors — even on cloudy days.','Keep skin dry in skin folds to prevent fungal infections, common in humid Kerala.','Coconut oil remains an excellent natural moisturiser for dry skin after bathing.','Stay well hydrated — skin health starts from within.','Diabetics should be particularly vigilant about small cuts and wounds — heal more slowly.','Change bed sheets weekly to reduce bacterial and fungal exposure.'], reminder:'Any persistent skin rash, darkening in folds, or non-healing wound should be reported to your care team promptly.' },
+    depression: { icon:'mood-sad', title:'Depression & Mood', intro:'Depression is a medical condition, not a weakness. It\'s common, treatable, and nothing to be ashamed of. Recognising it early leads to better outcomes.', tips:['Common signs: persistent sadness, loss of interest, fatigue, sleep changes, poor concentration.','Physical activity — even a short walk — releases endorphins that naturally improve mood.','Social connection matters deeply: regular calls with family reduce isolation significantly.','Limit news and social media consumption if it leaves you feeling worse.','Establish a simple daily routine — structure helps regulate mood.','If you\'ve felt low for more than 2 weeks, speak to your care coordinator — help is available.'], reminder:'Mental health is part of your wellness score. Your care team is here to support you without judgement.' },
+    anxiety:    { icon:'mood-empty', title:'Anxiety Management', intro:'Anxiety is the body\'s stress response in overdrive. It\'s very common and very treatable with the right tools and support.', tips:['Box breathing: inhale 4 counts, hold 4, exhale 4, hold 4 — repeat 4 times to calm the nervous system.','Limit caffeine — it directly amplifies anxiety and heart palpitations.','Identify your triggers and patterns by journalling or noting in your check-in.','Progressive muscle relaxation: tense and release muscle groups from feet to face.','Spend time in nature — even 10 minutes outdoors reduces cortisol significantly.','Talk to someone you trust — anxiety thrives in isolation and diminishes in connection.'], reminder:'If anxiety is interfering with daily life, mention it in your next care review. Effective support is available.' },
+    adhd:       { icon:'target', title:'ADHD & Focus', intro:'Attention and focus challenges affect people of all ages. Structured environments and simple systems make a significant difference to daily function.', tips:['Break tasks into small, time-bound steps — 25-minute focused blocks (Pomodoro technique) work well.','Reduce distractions: phone notifications off while working or doing important tasks.','Physical exercise significantly improves focus — even a 10-minute walk helps immediately.','Consistent sleep and meal timing stabilises attention across the day.','Use written lists and alarms rather than relying on memory.','Limit screen switching — focus on one app or task at a time.'], reminder:'ADHD in adults is often underdiagnosed. If focus challenges are significantly impacting your daily life, discuss this with your care coordinator.' },
+    stress:     { icon:'brain', title:'Stress & Relaxation', intro:'Chronic stress raises cortisol, damages blood pressure, worsens blood sugar and disrupts sleep. Managing stress is not a luxury — it is essential healthcare.', tips:['Diaphragmatic breathing: breathe slowly from the belly, not the chest, for 2–5 minutes daily.','Spend 10 minutes in sunlight each morning — it resets the circadian rhythm and improves mood.','Identify your top 3 stressors and decide: can I change it, accept it, or avoid it?','Prayer, meditation or mindfulness practice — even 5 minutes — reduces cortisol measurably.','Connect with friends and family regularly — social bonds buffer stress powerfully.','Set a "worry time": schedule 15 minutes to think about problems, then stop for the day.'], reminder:'High stress is reflected in your wellness score. Your care team can connect you with support if needed.' },
+    insomnia:   { icon:'moon-stars', title:'Insomnia & Rest', intro:'Insomnia — difficulty falling or staying asleep — affects up to 1 in 3 adults. It\'s treatable. Sleep hygiene changes work as well as medication for many people.', tips:['Reserve the bed only for sleep — no phones, TV or work in bed.','If you can\'t sleep after 20 minutes, get up and do something quiet until sleepy.','Cool the room: 24–26°C is the ideal sleep temperature.','Avoid naps longer than 20 minutes after 3pm.','No screen light for 30 minutes before bed — use night mode or paper books instead.','A consistent wind-down ritual signals the brain that sleep is coming.'], reminder:'Log your sleep quality in your daily check-in. Patterns over 2–3 weeks give your care team valuable insight.' },
+    sciatica:          { icon:'bandage', title:'Sciatica', intro:'Sciatica is nerve pain that radiates from the lower back through the hip and down the leg, often from a pinched nerve. Gentle movement — not bed rest — is usually the best way to ease it.', tips:['Avoid prolonged sitting — stand and walk for a few minutes every 30 minutes.','Knee-to-chest stretch: lying on your back, gently pull one knee toward your chest and hold for 20–30 seconds.','Piriformis stretch: seated, cross the affected ankle over the opposite knee and lean forward gently.','Apply a warm compress to the lower back and hip before stretching.','Sleep on your side with a pillow between your knees to keep the spine aligned.','Avoid heavy lifting and twisting motions until the pain settles.'], reminder:'If pain is severe, or you notice numbness, weakness or loss of bladder control, contact your care team immediately.' },
+    varicose:          { icon:'pulse', title:'Varicose Veins', intro:'Varicose veins occur when leg vein valves weaken, causing blood to pool. Simple daily habits improve circulation and reduce swelling and discomfort.', tips:['Elevate your legs above heart level for 15 minutes, 2–3 times a day.','Ankle pumps: flex and point your feet 15–20 times while seated to keep blood moving.','Avoid standing or sitting in one position for more than an hour at a stretch.','Wear compression stockings if prescribed — put them on first thing in the morning.','Walking is one of the best exercises — it activates the calf muscle pump.','Avoid tight clothing around the waist and legs that restricts blood flow.'], reminder:'See your care team if a vein becomes hot, red, tender, or you notice a skin ulcer near the ankle.' },
+    frozenshoulder:    { icon:'therapy', title:'Frozen Shoulder', intro:'Frozen shoulder causes stiffness and pain that limits shoulder movement, often developing gradually. Gentle, regular stretching is key to regaining range of motion.', tips:['Pendulum stretch: lean forward, let the arm hang, and gently swing it in small circles.','Towel stretch: hold a towel behind your back with both hands and gently pull upward.','Finger walk: face a wall and walk your fingers up it slowly to shoulder height.','Apply a warm compress before stretching to loosen the joint.','Stretch gently within a pain-free range — never force the movement.','Do these exercises 2–3 times daily for lasting improvement.'], reminder:'Progress is slow — often weeks to months. Your physiotherapist can tailor a program if stiffness isn\'t improving.' },
+    plantarfasciitis:  { icon:'walking', title:'Plantar Fasciitis', intro:'Plantar fasciitis causes stabbing heel pain, usually worst with the first steps in the morning. Stretching the foot and calf regularly brings significant relief.', tips:['Calf stretch: stand facing a wall, step one foot back, and press the heel down for 30 seconds.','Roll a cold water bottle or ball under the arch of your foot for 5 minutes.','Toe stretch: pull your toes back gently toward your shin before getting out of bed.','Wear supportive, cushioned footwear at all times — avoid walking barefoot on hard floors.','Rest from high-impact activity like running until the pain settles.','A night splint can help keep the foot flexed while sleeping, if recommended.'], reminder:'If heel pain persists beyond a few weeks despite these steps, ask your care coordinator about a physiotherapy referral.' },
+    stretches:         { icon:'activity', title:'General Stretches', intro:'A short daily stretching routine keeps joints mobile, reduces stiffness and lowers the risk of falls — a simple, valuable habit at any age.', tips:['Neck rolls: gently tilt your head side to side and forward, holding each position for 10 seconds.','Shoulder rolls: roll shoulders forward and backward 10 times each to ease tension.','Seated hamstring stretch: extend one leg, reach gently toward the toes, and hold for 20 seconds.','Ankle circles: rotate each ankle 10 times in both directions to support circulation.','Hold each stretch gently — never bounce, and stop if you feel sharp pain.','A 10-minute stretch routine morning and evening is a great habit to build.'], reminder:'Stretching is safest when muscles are slightly warm — a short walk beforehand helps.' }
 };
 
 /* ── Navigation ──────────────────────────────────────────────────────────── */
@@ -2174,7 +2720,8 @@ window.CBH = {
         if (viewId === 'libArticleView' && typeof arg === 'string') {
             var data = LIB[arg];
             if (data) {
-                document.getElementById('libEmoji').textContent = data.em;
+                var iconEl = document.getElementById('libIcon');
+                if (iconEl) iconEl.innerHTML = '<span class="icon" style="width:24px;height:24px"><svg><use href="#i-' + data.icon + '"/></svg></span>';
                 document.getElementById('libTitle').textContent = data.title;
                 document.getElementById('libIntro').textContent = data.intro;
                 var tipsEl = document.getElementById('libTips');
@@ -2186,7 +2733,14 @@ window.CBH = {
             viewId = 'libArticleView';
         }
         var el = document.getElementById(viewId);
-        if (el) { el.classList.add('is-active'); el.scrollTop = 0; }
+        if (el) {
+            el.classList.add('is-active');
+            el.scrollTop = 0;
+            // The section itself doesn't scroll — its inner .vbody does. Reset that too,
+            // otherwise a view reopens wherever it was last scrolled to (handoff feedback, Jul 2026).
+            var innerBody = el.querySelector('.vbody');
+            if (innerBody) innerBody.scrollTop = 0;
+        }
         if (!arg || typeof arg !== 'object' || !arg.skipHash) {
             window.location.hash = (viewId === 'homeView') ? '' : viewId;
         }
@@ -2205,7 +2759,7 @@ window.CBH = {
 var QA_CATALOG = [
     { id:'hydration', label:'Hydration',            emoji:'💧', kind:'hydration' },
     { id:'journal',   label:'My journal',           sub:'Log a note',             emoji:'📓', kind:'nav', view:'journalView' },
-    { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'recordsView' },
+    { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'addDocumentView' },
     { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'careTeamView' },
     { id:'refill',    label:'Request refill',       sub:'Medicine cabinet',       icon:'pill',     kind:'nav', view:'medicationView', tab:'meds' },
     { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'careTeamView' }
@@ -2241,7 +2795,10 @@ function renderQuickActions() {
         if (def.kind === 'hydration') {
             var count = qaHydrationCount(), target = qaHydrationTarget();
             return '<div class="acard tap acard--hydration" onclick="tapHydrationAction()">' +
-                '<div class="a-ic">' + qaIconMarkup(def) + '<span class="a-ic-badge" id="qaHydBadge">' + count + '</span></div>' +
+                '<div class="a-ic a-ic--glass">' +
+                    '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 3h12l-1.5 15a2 2 0 0 1-2 1.8H9.5a2 2 0 0 1-2-1.8L6 3z" fill="var(--accent-soft)" stroke="currentColor" stroke-width="1.6"/></svg>' +
+                    '<span class="a-ic-glassnum" id="qaHydBadge">' + count + '</span>' +
+                '</div>' +
                 '<div class="a-label">' + def.label + '</div>' +
                 '<div class="a-sub" id="qaHydSub">' + count + ' of ' + target + ' glasses · tap</div></div>';
         }
@@ -2405,25 +2962,6 @@ function updateCharCount() {
     var el = document.getElementById('charCountNum');
     if (ta && el) el.textContent = ta.value.length;
 }
-function saveNote() {
-    // Convenience/reassurance action only — Submit always reads the textarea directly (handoff §9)
-    var btn = document.getElementById('ciSaveNoteBtn');
-    if (!btn) return;
-    var original = btn.textContent;
-    btn.textContent = 'Saved ✓';
-    setTimeout(function () { btn.textContent = original; }, 1400);
-}
-
-/* ── Check-in: Aches "Where?" conditional tag row (handoff §7) ────────────── */
-function pickAche(btn) {
-    pickOpt(btn);
-    var isNone = btn.textContent.trim() === 'None';
-    var row = document.getElementById('acheWhereRow');
-    if (!row) return;
-    row.style.display = isNone ? 'none' : 'block';
-    if (isNone) row.querySelectorAll('.when-btn.sel').forEach(function (b) { b.classList.remove('sel'); });
-}
-
 /* ── Check-in: 3-tier severity scoring, shared by wellness score + Previous entries chips (handoff §4/§11) ── */
 function ciSevTier(el) {
     if (!el) return null;
@@ -2535,8 +3073,6 @@ function submitCheckIn() {
         var sel = g.querySelector('.ci-opt.selected');
         if (sel) entry[field] = sel.textContent.trim();
     });
-    var tags = Array.prototype.slice.call(document.querySelectorAll('#acheWhereRow .when-btn.sel')).map(function (b) { return b.textContent.trim(); });
-    if (tags.length) entry.achesTags = tags;
     ciPrependEntry(entry);
 
     var score = computeWellnessScore();
@@ -2557,6 +3093,49 @@ function toggleInv(id) {
     var el = document.getElementById(id);
     if (el) el.classList.toggle('open');
 }
+
+/* ── Medicine Cabinet — ellipsis menu (Delete), single shared popover positioned per tap ──────── */
+var _invMenuTarget = null;
+function toggleInvMenu(btn, itemId, name) {
+    var menu = document.getElementById('invKebabMenu');
+    if (!menu) return;
+    if (menu.classList.contains('show') && _invMenuTarget === itemId) {
+        closeInvMenu();
+        return;
+    }
+    _invMenuTarget = itemId;
+    document.getElementById('invMenuDeleteLabel').textContent = 'Delete ' + name;
+    var device = btn.closest('.device');
+    if (device) {
+        var btnRect = btn.getBoundingClientRect();
+        var deviceRect = device.getBoundingClientRect();
+        menu.style.top = (btnRect.bottom - deviceRect.top + 4) + 'px';
+        menu.style.right = (deviceRect.right - btnRect.right) + 'px';
+    }
+    menu.classList.add('show');
+}
+function closeInvMenu() {
+    var menu = document.getElementById('invKebabMenu');
+    if (menu) menu.classList.remove('show');
+    _invMenuTarget = null;
+}
+function confirmDeleteInvItem() {
+    var id = _invMenuTarget;
+    closeInvMenu();
+    if (!id) return;
+    var el = document.getElementById(id);
+    if (!el) return;
+    var nameEl = el.querySelector('.inv-name');
+    var name = nameEl ? nameEl.textContent : 'this medication';
+    if (confirm('Remove ' + name + ' from your medicine cabinet?')) {
+        el.remove();
+    }
+}
+document.addEventListener('click', function (e) {
+    if (_invMenuTarget && !e.target.closest('.inv-menu') && !e.target.closest('.inv-kebab')) {
+        closeInvMenu();
+    }
+});
 
 /* ── Wearable device settings — UI-only demo, no real device I/O (handoff §0) ── */
 function wcToggleSwitch(el) {
@@ -2666,16 +3245,36 @@ function fillDrop(idx) {
     setHydrationGlasses(newCount);
 }
 
-/* ── Body metric quick log ───────────────────────────────────────────────── */
-function logWeight(v) {
-    var el=document.getElementById('weightDisp'); if(el&&v) el.textContent=parseFloat(v).toFixed(1);
-    var s=document.getElementById('trkWeightLatest'); if(s&&v) s.textContent=parseFloat(v).toFixed(1)+' kg';
+/* ── Vitals overview — single log form updates the consolidated table (task: club all vitals) ── */
+function logVitalReading() {
+    var type = (document.getElementById('vitalsLogType') || {}).value;
+    var input = document.getElementById('vitalsLogValue');
+    var v = input ? input.value.trim() : '';
+    if (!v) { alert('Enter a value to log.'); return; }
+    var now = 'Today, ' + new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
+    if (type === 'weight') {
+        var w = document.getElementById('vTblWeight'); if (w) w.textContent = parseFloat(v).toFixed(1) + ' kg';
+    } else if (type === 'bp') {
+        var b = document.getElementById('vTblBP'); if (b) b.textContent = v + ' mmHg';
+    } else if (type === 'bs') {
+        var s = document.getElementById('vTblBS'); if (s) s.textContent = v + ' mg/dL';
+    }
+    // Update the "Recorded" cell for the matching row
+    var rowMap = { weight:'vTblWeight', bp:'vTblBP', bs:'vTblBS' };
+    var cell = document.getElementById(rowMap[type]);
+    if (cell && cell.parentElement && cell.parentElement.children[2]) {
+        cell.parentElement.children[2].textContent = now;
+    }
+    if (input) input.value = '';
+    alert('Reading logged.');
 }
-function logBP(v) {
-    var el=document.getElementById('bpDisp'); if(el&&v) el.textContent=v;
-    var s=document.getElementById('trkBPLatest'); if(s&&v) s.textContent=v+' mmHg';
+function shareVitalsSheet() {
+    _shareMode = 'vitals';
+    var lead = document.getElementById('recShareLead');
+    if (lead) lead.textContent = 'Choose how to send your vitals summary.';
+    document.getElementById('recShareOverlay').classList.add('show');
+    document.getElementById('recShareSheet').classList.add('show');
 }
-function logBS()      { var i=document.getElementById('bsInput'); if(i&&i.value) { alert('Blood sugar '+i.value+' mg/dL logged.'); i.value=''; } }
 function logNutrition(v) {
     var el=document.getElementById('nutritionDisp'); if(el&&v) el.textContent=v;
     var s=document.getElementById('trkNutritionLatest'); if(s&&v) s.textContent=v+' kcal';
@@ -2687,21 +3286,93 @@ function scrollToTracker(id) {
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-/* ── Menstrual cycle calendar ────────────────────────────────────────────── */
-(function() {
+/* ── Menstrual cycle — functional tracker: tap days to log period, predictions recalculate live.
+   Persisted in localStorage (same pattern as hydration), shared source of truth across this
+   view and the Trackers summary list. UI-only demo — no backend sync. ── */
+var CYCLE_MONTH_DAYS = 30;
+function cycleGetPeriodDays() {
+    var v = null;
+    try { v = JSON.parse(localStorage.getItem('cbh_cycle_period_days')); } catch (e) {}
+    return Array.isArray(v) ? v : [1, 2, 3, 4, 5];
+}
+function cycleSavePeriodDays(days) {
+    try { localStorage.setItem('cbh_cycle_period_days', JSON.stringify(days)); } catch (e) {}
+}
+function cycleGetLength() {
+    var v = parseInt(localStorage.getItem('cbh_cycle_length'), 10);
+    return (v >= 21 && v <= 40) ? v : 28;
+}
+function cycleSaveLength(v) {
+    try { localStorage.setItem('cbh_cycle_length', v); } catch (e) {}
+}
+function toggleCycleDay(d) {
+    var days = cycleGetPeriodDays();
+    var idx = days.indexOf(d);
+    if (idx > -1) days.splice(idx, 1); else days.push(d);
+    days.sort(function (a, b) { return a - b; });
+    cycleSavePeriodDays(days);
+    renderCycle();
+}
+function cycleRecalc() {
+    var input = document.getElementById('cycleLengthInput');
+    var len = parseInt(input && input.value, 10);
+    if (!(len >= 21 && len <= 40)) len = 28;
+    cycleSaveLength(len);
+    renderCycle();
+}
+function renderCycle() {
     var wrap = document.getElementById('cycleDays');
     if (!wrap) return;
-    var period=[1,2,3,4,5], fertile=[13,14,15,16,17], predicted=[29,30];
-    for (var d=1; d<=30; d++) {
+    var periodDays = cycleGetPeriodDays();
+    var cycleLen = cycleGetLength();
+    var lastStart = periodDays.length ? Math.min.apply(null, periodDays) : null;
+    var lastEnd = periodDays.length ? Math.max.apply(null, periodDays) : null;
+    var nextStart = lastStart ? lastStart + cycleLen : null;
+    var ovulation = nextStart ? nextStart - 14 : null;
+    var fertileStart = ovulation ? ovulation - 4 : null;
+    var fertileEnd = ovulation ? ovulation + 1 : null;
+
+    wrap.innerHTML = '';
+    for (var d = 1; d <= CYCLE_MONTH_DAYS; d++) {
         var el = document.createElement('div');
         el.className = 'c-day';
         el.textContent = d;
-        if (period.indexOf(d)    > -1) el.classList.add('period');
-        if (fertile.indexOf(d)   > -1) el.classList.add('fertile');
-        if (predicted.indexOf(d) > -1) el.classList.add('predicted');
+        el.onclick = (function (day) { return function () { toggleCycleDay(day); }; })(d);
+        if (periodDays.indexOf(d) > -1) el.classList.add('period');
+        if (fertileStart && d >= fertileStart && d <= fertileEnd) el.classList.add('fertile');
         wrap.appendChild(el);
     }
-})();
+    if (nextStart && nextStart <= CYCLE_MONTH_DAYS) {
+        var predDay = wrap.children[nextStart - 1];
+        if (predDay) predDay.classList.add('predicted');
+    }
+
+    var fmt = function (d) { return d + ' June 2026'; };
+    var lastPeriodEl = document.getElementById('cycleLastPeriod');
+    if (lastPeriodEl) lastPeriodEl.textContent = periodDays.length ? (lastStart === lastEnd ? fmt(lastStart) : (lastStart + '–' + lastEnd + ' June 2026')) : 'Not logged yet';
+    var lenEl = document.getElementById('cycleLengthVal');
+    if (lenEl) lenEl.textContent = cycleLen + ' days';
+    var nextEl = document.getElementById('cycleNextPredicted');
+    if (nextEl) nextEl.textContent = nextStart ? (nextStart <= CYCLE_MONTH_DAYS ? fmt(nextStart) : ((nextStart - CYCLE_MONTH_DAYS) + ' July 2026')) : '—';
+    var fertEl = document.getElementById('cycleFertileWindow');
+    if (fertEl) fertEl.textContent = fertileStart ? (fertileStart + '–' + fertileEnd + ' June') : '—';
+
+    // Today is fixed at 30 June 2026 in this prototype (matches the Home screen's demo date)
+    var today = 30;
+    var latestEl = document.getElementById('trkCycleLatest');
+    if (latestEl) {
+        if (lastStart) {
+            var cycleDay = today - lastStart + 1;
+            if (cycleDay < 1) cycleDay += cycleLen;
+            latestEl.textContent = 'Day ' + cycleDay;
+        } else {
+            latestEl.textContent = 'Not logged';
+        }
+    }
+    var lenInput = document.getElementById('cycleLengthInput');
+    if (lenInput) lenInput.value = cycleLen;
+}
+renderCycle();
 
 /* ── Dynamic wellness score ring ─────────────────────────────────────────── */
 function applyScoreRing(score, ringId) {
@@ -2753,21 +3424,327 @@ function switchMedTab(tab) {
     document.getElementById('panel-'+tab).classList.add('show');
 }
 
+/* ── Records tab switch — separate ids/classes from Meds' identical-looking tabs (see CSS note) ── */
+function switchRecordsTab(tab) {
+    document.querySelectorAll('.rec-vtoggle .vtog').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.rec-panel').forEach(function(el){ el.classList.remove('show'); });
+    document.getElementById('rtab-'+tab).classList.add('active');
+    document.getElementById('rpanel-'+tab).classList.add('show');
+}
+
+/* ── Records — checkbox select + share (Documents and History tabs) ──────────────────────────
+   Checkboxes are always available (no separate "Select mode" toggle) — a share/download button
+   in the Health Records top bar appears once ≥1 item is picked. UI-only demo, same caveat tier
+   as Reorder/Cart and Add stock — no real email/WhatsApp/file export exists yet, this only
+   demonstrates the interaction. */
+function toggleRecItem(checkboxEl) {
+    var item = checkboxEl.closest('.rec-selectable');
+    if (!item) return;
+    item.classList.toggle('rec-picked');
+    updateRecShareBar();
+}
+function updateRecShareBar() {
+    var btn = document.getElementById('recShareTopBtn');
+    var dot = document.getElementById('recShareTopDot');
+    if (!btn) return;
+    var n = document.querySelectorAll('.rec-panel .rec-picked').length;
+    if (n > 0) {
+        btn.style.display = 'flex';
+        if (dot) dot.textContent = n;
+    } else {
+        btn.style.display = 'none';
+    }
+}
+var _shareMode = 'records';
+function openRecShareSheet() {
+    if (!document.querySelectorAll('.rec-panel .rec-picked').length) return;
+    _shareMode = 'records';
+    var lead = document.getElementById('recShareLead');
+    if (lead) lead.textContent = 'Choose how to send these to a doctor or care team.';
+    document.getElementById('recShareOverlay').classList.add('show');
+    document.getElementById('recShareSheet').classList.add('show');
+}
+function closeRecShareSheet() {
+    document.getElementById('recShareOverlay').classList.remove('show');
+    document.getElementById('recShareSheet').classList.remove('show');
+}
+function sendRecShare(channel) {
+    // TODO: replace with real email/WhatsApp/file-export integration once available — UI-only demo
+    if (_shareMode === 'vitals') {
+        closeRecShareSheet();
+        alert('Vitals summary shared via ' + channel + '.');
+        return;
+    }
+    var count = document.querySelectorAll('.rec-panel .rec-picked').length;
+    closeRecShareSheet();
+    document.querySelectorAll('.rec-panel .rec-picked').forEach(function (el) { el.classList.remove('rec-picked'); });
+    updateRecShareBar();
+    alert(count + (count === 1 ? ' record shared via ' : ' records shared via ') + channel + '.');
+}
+
+/* ── Document viewer — builds a dummy scanned-page/PDF preview for demo documents ──────────── */
+function openDocViewer(name, sub, date, type) {
+    document.getElementById('docViewerTitle').textContent = name;
+    document.getElementById('docViewerMeta').textContent = sub + ' · ' + date;
+    var iconMap = { lab:'i-lab', prescription:'i-pill', scan:'i-camera', other:'i-document' };
+    var icon = iconMap[type] || 'i-document';
+    var isImage = type === 'scan';
+    var badge = isImage
+        ? '<div class="dp-badge" style="background:var(--accent)">IMG</div>'
+        : '<div class="dp-badge">PDF</div>';
+    var body;
+    if (isImage) {
+        body = '<div class="dp-scan"><svg viewBox="0 0 200 60" width="100%" height="60"><polyline points="0,30 20,30 28,10 36,50 44,30 60,30 68,15 76,45 84,30 100,30 108,10 116,50 124,30 140,30 148,15 156,45 164,30 200,30" fill="none" stroke="#3ddc84" stroke-width="2"/></svg></div>';
+    } else {
+        var widths = ['92%','78%','85%','60%','88%','70%','80%','55%'];
+        body = widths.map(function (w) { return '<div class="dp-line" style="width:' + w + '"></div>'; }).join('');
+    }
+    document.getElementById('docViewerPage').innerHTML =
+        '<div class="dp-letter"><span class="icon"><svg><use href="#' + icon + '"/></svg></span>' +
+        '<div><div class="name">' + sub + '</div><div class="date">' + date + '</div></div></div>' +
+        body + badge;
+    CBH.go('docViewerView');
+}
+
+/* ── Care tab switch — own ids/classes, same reasoning as Records/Meds tabs ──────────────────── */
+function switchCareTab(tab) {
+    document.querySelectorAll('.care-vtoggle .vtog').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.care-panel').forEach(function (el) { el.classList.remove('show'); });
+    document.getElementById('ctab-' + tab).classList.add('active');
+    document.getElementById('cpanel-' + tab).classList.add('show');
+}
+
+/* ── Own Contacts — Edit toggle reveals a leading "−" remove control per row ──────────────────── */
+function toggleOwnEditMode() {
+    var list = document.getElementById('ownContactsList');
+    var btn = document.getElementById('ownEditBtn');
+    if (!list || !btn) return;
+    var editing = list.classList.toggle('editing');
+    btn.textContent = editing ? 'Done' : 'Edit';
+}
+
+/* ── Own Contacts — member-added personal care resources (UI-only demo, no backend sync) ─────── */
+var _contactCategoryColor = {
+    'Doctor':          ['var(--success-soft)', 'var(--success-text)'],
+    'Physiotherapist': ['var(--model-digital-wellness-soft)', 'var(--model-digital-wellness-ink)'],
+    'Nurse':           ['var(--danger-soft)', 'var(--danger)'],
+    'Chauffeur':       ['var(--accent-soft)', 'var(--accent-text)'],
+    'Counsellor':      ['var(--accent-soft)', 'var(--accent-text)'],
+    'Pharmacist':      ['var(--accent-soft)', 'var(--accent-text)'],
+    'Other':           ['var(--accent-soft)', 'var(--accent-text)']
+};
+function initialsForName(name) {
+    var parts = name.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function removeOwnContact(btn) {
+    var row = btn.closest('.row');
+    if (!row) return;
+    var nameEl = row.querySelector('.t');
+    var name = nameEl ? nameEl.textContent : 'this contact';
+    if (!confirm('Remove ' + name + ' from your contacts?')) return;
+    row.remove();
+}
+function updateContactNotesWordCount() {
+    var ta = document.getElementById('acNotes');
+    var countEl = document.getElementById('acNotesWordCount');
+    if (!ta || !countEl) return;
+    var trimmed = ta.value.replace(/^\s+/, '');
+    var words = trimmed.length ? trimmed.split(/\s+/) : [];
+    if (words.length > 100) {
+        words = words.slice(0, 100);
+        ta.value = words.join(' ');
+    }
+    countEl.textContent = words.length;
+}
+function resetAddContactForm() {
+    ['acName', 'acPhone1', 'acPhone2', 'acEmail', 'acAddress'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    var notes = document.getElementById('acNotes'); if (notes) notes.value = '';
+    var wordCount = document.getElementById('acNotesWordCount'); if (wordCount) wordCount.textContent = '0';
+    var cat = document.getElementById('acCategory'); if (cat) cat.selectedIndex = 0;
+}
+function saveNewContact() {
+    // TODO: replace with real contacts sync once backend exists — local demo update only
+    var nameEl = document.getElementById('acName');
+    var name = ((nameEl && nameEl.value) || '').trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    var category = (document.getElementById('acCategory') || {}).value || 'Other';
+    var colors = _contactCategoryColor[category] || _contactCategoryColor.Other;
+
+    var list = document.getElementById('ownContactsList');
+    if (list) {
+        var row = document.createElement('div');
+        row.className = 'row own-contact-row';
+        row.innerHTML = '<button class="own-remove-btn" onclick="removeOwnContact(this)" aria-label="Remove contact">−</button>' +
+            '<span class="row-av" style="background:' + colors[0] + ';color:' + colors[1] + '">' + initialsForName(name) + '</span>' +
+            '<div class="m"><div class="t">' + name + '</div><div class="s">' + category + '</div></div>' +
+            '<div class="row-actions">' +
+            '<button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>' +
+            '<button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>' +
+            '<button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>' +
+            '</div>';
+        list.appendChild(row);
+    }
+
+    resetAddContactForm();
+    switchCareTab('own');
+    CBH.goTab('careTeamView', 'care');
+}
+
+/* ── Equipment rental — cart-based request flow, mirrors Meds' Reorder→Cart pattern ───────────
+   UI-only demo, same caveat tier: no real Care Bridge ops request is ever submitted. */
+var equipCartItems = [];
+var _equipAddTarget = null;
+var _equipAddQty = 1;
+function openEquipAddSheet(itemName) {
+    _equipAddTarget = itemName;
+    _equipAddQty = 1;
+    document.getElementById('equipAddItemName').textContent = itemName;
+    document.getElementById('equipAddQty').textContent = _equipAddQty;
+    document.getElementById('equipAddOverlay').classList.add('show');
+    document.getElementById('equipAddSheet').classList.add('show');
+}
+function closeEquipAddSheet() {
+    document.getElementById('equipAddOverlay').classList.remove('show');
+    document.getElementById('equipAddSheet').classList.remove('show');
+}
+function equipAddStep(delta) {
+    _equipAddQty = Math.max(1, _equipAddQty + delta);
+    document.getElementById('equipAddQty').textContent = _equipAddQty;
+}
+function addEquipToCart() {
+    var existing = equipCartItems.filter(function (i) { return i.name === _equipAddTarget; })[0];
+    if (existing) existing.qty += _equipAddQty;
+    else equipCartItems.push({ name: _equipAddTarget, qty: _equipAddQty });
+    renderEquipCartBadge();
+    closeEquipAddSheet();
+}
+function renderEquipCartBadge() {
+    var badge = document.getElementById('equipCartBadge');
+    if (!badge) return;
+    var count = equipCartItems.reduce(function (sum, i) { return sum + i.qty; }, 0);
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+}
+function renderEquipCartList() {
+    var wrap = document.getElementById('equipCartItemsList');
+    if (!wrap) return;
+    if (!equipCartItems.length) {
+        wrap.innerHTML = '<p class="t-body-s" style="color:var(--text-muted);text-align:center;padding:8px 0">Your cart is empty.</p>';
+        return;
+    }
+    wrap.innerHTML = equipCartItems.map(function (i) {
+        return '<div class="tlog-row"><span>' + i.name + '</span><span style="font-weight:700">×' + i.qty + '</span></div>';
+    }).join('');
+}
+function openEquipCartSheet() {
+    renderEquipCartList();
+    document.getElementById('equipCartOverlay').classList.add('show');
+    document.getElementById('equipCartSheet').classList.add('show');
+}
+function closeEquipCartSheet() {
+    document.getElementById('equipCartOverlay').classList.remove('show');
+    document.getElementById('equipCartSheet').classList.remove('show');
+}
+function submitEquipRequest() {
+    // TODO: replace with a real rental-request submission to Care Bridge ops once backend exists
+    if (!equipCartItems.length) { alert('Add at least one item to your cart first.'); return; }
+    equipCartItems = [];
+    renderEquipCartBadge();
+    closeEquipCartSheet();
+    var addrEl = document.getElementById('equipDeliveryAddress');
+    var dateEl = document.getElementById('equipNeededFrom');
+    if (addrEl) addrEl.value = '';
+    if (dateEl) dateEl.value = '';
+    alert('Your rental request has been sent to the Care Bridge office.');
+}
+
+/* ── Add document — scan-first upload flow (UI-only demo, see handoff caveat) ────────────────── */
+var _docCategoryKey = { 'Lab report':'lab', 'Prescription':'rx', 'Scan or imaging':'scan', 'Other':'other' };
+function advanceToConfirm() {
+    document.getElementById('adocStep1').classList.remove('show');
+    document.getElementById('adocStep2').classList.add('show');
+}
+function backToScanStep() {
+    document.getElementById('adocStep2').classList.remove('show');
+    document.getElementById('adocStep1').classList.add('show');
+}
+function resetAddDocFlow() {
+    backToScanStep();
+    var nameEl = document.getElementById('adocName');
+    var dateEl = document.getElementById('adocDate');
+    var catSel = document.getElementById('adocCategory');
+    if (nameEl) nameEl.value = '';
+    if (dateEl) dateEl.value = '';
+    if (catSel) catSel.selectedIndex = 0;
+}
+function formatDocDate(iso) {
+    var mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d = new Date(iso + 'T00:00:00');
+    return d.getDate() + ' ' + mos[d.getMonth()] + ' ' + d.getFullYear();
+}
+function saveNewDocument() {
+    // TODO: replace with real document upload/storage once backend exists — local demo update only
+    var nameEl = document.getElementById('adocName');
+    var dateEl = document.getElementById('adocDate');
+    var catSel = document.getElementById('adocCategory');
+    var name = ((nameEl && nameEl.value) || '').trim() || 'Untitled document';
+    var key = _docCategoryKey[catSel ? catSel.value : ''] || 'other';
+    var dateLabel = (dateEl && dateEl.value) ? formatDocDate(dateEl.value) : 'Just now';
+
+    var list = document.getElementById('doc-cat-' + key + '-list');
+    if (list) {
+        var row = document.createElement('div');
+        row.className = 'row rec-selectable';
+        row.innerHTML = '<div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>' +
+            '<div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>' +
+            '<div class="m"><div class="t">' + name + '</div><div class="s">Added by you</div></div>' +
+            '<div class="val" style="font-size:12px;color:var(--text-muted)">' + dateLabel + '</div>';
+        list.appendChild(row);
+        var countEl = document.getElementById('doc-cat-' + key + '-count');
+        if (countEl) {
+            var n = list.querySelectorAll('.row').length;
+            countEl.textContent = n + (n === 1 ? ' document' : ' documents');
+        }
+    }
+
+    resetAddDocFlow();
+    switchRecordsTab('documents');
+    CBH.goTab('recordsView', 'records');
+}
+
 /* ── Time-of-day band collapse/expand — all start expanded (Meds handoff §3) ── */
 function toggleTodBand(id) {
     var band = document.getElementById(id);
     if (band) band.classList.toggle('collapsed');
 }
 
-/* ── Mark medication taken (schedule check-circles) ──────────────────────── */
+/* ── Mark medication taken (schedule check-circles) — toggles both ways ──────
+   Previously this only ever added the "taken" state and returned early if it
+   was already taken, so a checked item could never be unchecked (handoff
+   feedback, Jul 2026). Now it toggles, and pre-marked-taken rows in the
+   markup also carry the onclick so they're toggleable too. */
 function markTaken(el) {
     var row = el && el.closest ? el.closest('.tod-row') : document.getElementById('vitD-tl');
-    if (!row || row.classList.contains('taken')) return;
-    row.classList.add('taken');
+    if (!row) return;
+    var wasTaken = row.classList.contains('taken');
     var circle = row.querySelector('.tod-check-circle');
-    if (circle) circle.classList.add('checked');
     var noteEl = row.querySelector('.tod-note');
-    if (noteEl) noteEl.textContent = noteEl.textContent.replace(' · Due now', '') + ' · Taken just now';
+    var takenEl = document.getElementById('adhCountNum');
+
+    if (wasTaken) {
+        row.classList.remove('taken');
+        if (circle) circle.classList.remove('checked');
+        if (noteEl) noteEl.textContent = noteEl.textContent.replace(/ · Taken.*$/, '');
+        if (takenEl) takenEl.textContent = Math.max(0, parseInt(takenEl.textContent, 10) - 1);
+    } else {
+        row.classList.add('taken');
+        if (circle) circle.classList.add('checked');
+        if (noteEl) noteEl.textContent = noteEl.textContent.replace(/ · Due now\s*$/, '').replace(/ · Taken.*$/, '') + ' · Taken just now';
+        if (takenEl) takenEl.textContent = parseInt(takenEl.textContent, 10) + 1;
+    }
 
     var band = row.closest('.tod-band');
     if (band) {
@@ -2779,22 +3756,50 @@ function markTaken(el) {
         }
     }
 
-    var takenEl = document.getElementById('adhCountNum');
     var totalEl = document.getElementById('adhCountTotal');
     if (takenEl && totalEl) {
-        var t = parseInt(takenEl.textContent, 10) + 1;
+        var t = parseInt(takenEl.textContent, 10);
         var tot = parseInt(totalEl.textContent, 10);
-        takenEl.textContent = t;
-        var pct = Math.round((t / tot) * 100);
+        var pct = tot > 0 ? Math.round((t / tot) * 100) : 0;
         var ringNum = document.getElementById('adhRingNum');
         if (ringNum) ringNum.textContent = pct + '%';
         var nextWrap = document.getElementById('adhNextWrap');
         if (nextWrap) {
-            nextWrap.innerHTML = (t >= tot)
+            nextWrap.innerHTML = (t >= tot && tot > 0)
                 ? ' · all medications taken for today ✓'
                 : ' · next due <span class="adh-strong">Atorvastatin</span> at 8:00 PM';
         }
     }
+    syncHomeMedCard();
+}
+
+/* ── Remove a medication from today's schedule ───────────────────────────── */
+function removeSchedItem(btn) {
+    var row = btn && btn.closest ? btn.closest('.tod-row') : null;
+    if (!row) return;
+    if (!confirm('Remove this medication from today\'s schedule?')) return;
+
+    var band = row.closest('.tod-band');
+    var wasTaken = row.classList.contains('taken');
+    row.remove();
+
+    if (band) {
+        var countEl = band.querySelector('.tod-band-count');
+        var body = band.querySelector('.tod-band-body');
+        var remaining = band.querySelectorAll('.tod-row').length;
+        var takenInBand = band.querySelectorAll('.tod-row.taken').length;
+        if (countEl) countEl.textContent = takenInBand + '/' + remaining;
+        if (remaining === 0 && body) {
+            var labelEl = band.querySelector('.tod-band-label');
+            var bandName = labelEl ? labelEl.textContent.toLowerCase() : 'this time';
+            body.innerHTML = '<div class="tod-empty">Nothing scheduled for ' + bandName + '</div>';
+        }
+    }
+
+    var totalEl = document.getElementById('adhCountTotal');
+    var takenEl = document.getElementById('adhCountNum');
+    if (totalEl) totalEl.textContent = Math.max(0, parseInt(totalEl.textContent, 10) - 1);
+    if (wasTaken && takenEl) takenEl.textContent = Math.max(0, parseInt(takenEl.textContent, 10) - 1);
     syncHomeMedCard();
 }
 

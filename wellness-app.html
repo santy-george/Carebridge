@@ -60,8 +60,14 @@
             display:flex; align-items:center; justify-content:center; flex-shrink:0;
         }
 
+        /* Weekly activity goal — plain progress bar, no gamification */
+        .goal-bar { width:100%; height:10px; border-radius:99px; background:var(--border); overflow:hidden; }
+        .goal-bar-fill { height:100%; border-radius:99px; background:var(--accent); transition:width .25s var(--ease); }
+
         /* Vitals area */
         .vitals-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 8px; }
+        .vitals-grid.has-sugar { grid-template-columns:repeat(4,1fr); }
+        .vitals-manual.has-sugar { grid-template-columns:repeat(4,1fr); }
         .vstat { background:var(--surface-sunken); border-radius:var(--radius-base); padding:11px 8px; text-align:center; }
         .vstat .v { font-family:var(--font-heading); font-weight:700; font-size:17px; color:var(--text-heading); line-height:1; }
         .vstat .u { font-size:10px; color:var(--text-muted); margin-top:2px; }
@@ -223,10 +229,17 @@
         .rec-panel { display:none; }
         .rec-panel.show { display:block; }
 
-        /* Care — own .care-vtoggle/.care-panel namespace, same reasoning as Records' */
-        .care-vtoggle { margin-bottom:14px; }
-        .care-panel { display:none; }
-        .care-panel.show { display:block; }
+        /* Health — own .health-vtoggle/.health-panel namespace, same reasoning as Records' */
+        .health-vtoggle { margin-bottom:14px; }
+        .health-vtoggle .vtog { font-size:11px; white-space:nowrap; padding:6px 4px; }
+        .health-panel { display:none; }
+        .health-panel.show { display:block; }
+
+        /* Appointment request — type/reminder toggles reuse .vitals-toggle/.vtog (Home), scoped
+           icon sizing so the shared 20px .icon default doesn't dwarf the 12px button label */
+        .apptType-toggle .vtog, .apptReminder-toggle .vtog { display:inline-flex; align-items:center; justify-content:center; gap:5px; }
+        .apptType-toggle .vtog .icon { width:15px; height:15px; }
+        .apptReminder-toggle .vtog { font-size:11.5px; padding:6px 4px; }
 
         /* Add-document flow — scan-first, two steps within one view */
         .adoc-step { display:none; }
@@ -485,7 +498,7 @@
         .row-actions .iconbtn .icon { width:16px; height:16px; }
         .add-contact-row { display:flex; align-items:center; justify-content:center; gap:6px; padding:13px 14px; color:var(--accent-text); font-weight:700; font-size:13.5px; }
         .add-contact-row .icon { width:16px; height:16px; }
-        /* Own Contacts — Edit mode reveals a leading "−" remove control per row (Care Team stays read-only) */
+        /* My Contacts — Edit mode reveals a leading "−" remove control per row */
         .own-remove-btn { display:none; width:24px; height:24px; flex-shrink:0; border-radius:50%; background:var(--danger); color:#fff; font-size:18px; line-height:1; font-weight:700; align-items:center; justify-content:center; padding:0; margin-right:2px; }
         #ownContactsList.editing .own-remove-btn { display:flex; }
         #ownContactsList.editing .row-actions { display:none; }
@@ -627,7 +640,7 @@
                             <div class="note" id="scoreNote">↑ Up from 78 last month</div>
                         </div>
                     </div>
-                    <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px">Last check-in today 8:00 AM · All vitals normal</p>
+                    <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px">Last check-in today 8:00 AM · All readings normal</p>
                     <button class="mbtn mbtn--fill mbtn--block" onclick="CBH.go('checkInView')">
                         <span class="icon"><svg><use href="#i-plus"/></svg></span> Log today's check-in
                     </button>
@@ -640,10 +653,10 @@
                 <p class="t-body-s" id="homeNoteText" style="color:var(--text-body)"></p>
             </div>
 
-            <!-- Today's vitals with source toggle -->
+            <!-- Today's health with source toggle -->
             <div class="card reveal">
                 <div class="card__head">
-                    <span class="card__title">Today's vitals</span>
+                    <span class="card__title">Today's health</span>
                     <button class="card__link" onclick="CBH.go('wearableConfigView')"><span class="icon"><svg><use href="#i-settings"/></svg></span>Settings</button>
                 </div>
                 <!-- Source toggle -->
@@ -663,12 +676,14 @@
                     </div>
                     <div class="vstat ok"><div class="v">72</div><div class="u">bpm</div><div class="l">Pulse</div></div>
                     <div class="vstat ok"><div class="v">98</div><div class="u">%</div><div class="l">SpO₂</div></div>
+                    <div class="vstat ok" id="vitalsSugarStat" style="display:none"><div class="v">118</div><div class="u">mg/dL</div><div class="l">Sugar</div></div>
                 </div>
                 <!-- Manual entry -->
                 <div class="vitals-manual" id="vitalsManual">
                     <div class="vman"><label>BP</label><input type="text" placeholder="120/80"><div class="u">mmHg</div></div>
                     <div class="vman"><label>Pulse</label><input type="number" placeholder="72"><div class="u">bpm</div></div>
                     <div class="vman"><label>SpO₂</label><input type="number" placeholder="98"><div class="u">%</div></div>
+                    <div class="vman" id="vitalsSugarManual" style="display:none"><label>Sugar</label><input type="number" placeholder="118"><div class="u">mg/dL</div></div>
                 </div>
                 <div id="vitalsManualSave" style="display:none;margin-top:10px">
                     <button class="mbtn mbtn--fill mbtn--block" style="padding:10px;font-size:13px" onclick="saveVitals()">
@@ -688,6 +703,21 @@
                         <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="homeMedNote">Next due: Vitamin D3, 12:00 PM</div>
                     </div>
                     <span class="icon" style="width:18px;height:18px;color:var(--text-subtle);flex-shrink:0"><svg><use href="#i-chevron"/></svg></span>
+                </div>
+            </div>
+
+            <!-- Today's schedule — lightweight deep-link into the Health tab's Appointments panel -->
+            <div class="card reveal tap" onclick="CBH.goTab('healthView','health'); switchHealthTab('appts')">
+                <div class="card__head">
+                    <span class="card__title">Today's schedule</span>
+                    <button class="card__link" onclick="event.stopPropagation(); CBH.go('appointmentRequestView')">
+                        <span class="icon"><svg><use href="#i-plus"/></svg></span>Schedule
+                    </button>
+                </div>
+                <div class="row" style="padding:0">
+                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>
+                    <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician · 10:30 AM · In-person</div></div>
+                    <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                 </div>
             </div>
 
@@ -1334,7 +1364,7 @@
                     <div class="card__head" style="cursor:pointer" onclick="event.target.closest('.rec-check') || toggleInv('hist-vitals')">
                         <div style="display:flex;align-items:center;gap:8px">
                             <div class="rec-check" onclick="event.stopPropagation();toggleRecItem(this)"><span class="icon"><svg><use href="#i-check"/></svg></span></div>
-                            <span class="card__title">Previous 7 days vitals</span>
+                            <span class="card__title">Previous 7 days health</span>
                         </div>
                         <span class="inv-twistie">›</span>
                     </div>
@@ -1675,7 +1705,7 @@
                 <div class="rows">
                     <div class="row">
                         <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">PN</span>
-                        <div class="m"><div class="t">Priya Nair</div><div class="s">Full access · Vitals, Check-ins, Medications</div></div>
+                        <div class="m"><div class="t">Priya Nair</div><div class="s">Full access · Health, Check-ins, Medications</div></div>
                         <span style="width:9px;height:9px;border-radius:50%;background:var(--success);display:block;flex-shrink:0;margin-right:2px"></span>
                         <div class="row-actions">
                             <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
@@ -1684,7 +1714,7 @@
                     </div>
                     <div class="row">
                         <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">MJ</span>
-                        <div class="m"><div class="t">Mike Johnson</div><div class="s">Limited · Emergency alerts, Limited vitals</div></div>
+                        <div class="m"><div class="t">Mike Johnson</div><div class="s">Limited · Emergency alerts, Limited health data</div></div>
                         <span style="width:9px;height:9px;border-radius:50%;background:var(--success);display:block;flex-shrink:0;margin-right:2px"></span>
                         <div class="row-actions">
                             <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
@@ -1716,68 +1746,64 @@
     <!-- ══════════════════════════════════════════════════════
          CARE TEAM — coordinator + clinicians (professional, distinct from Family Circle)
     ══════════════════════════════════════════════════════ -->
-    <section class="view" id="careTeamView">
+    <section class="view" id="healthView">
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">Care</h1></div>
+            <div class="tbar__title"><h1 class="sm">Health</h1></div>
         </div>
         <div class="vbody has-nav" style="gap:0;padding-top:4px">
 
-            <!-- Tabs — own .care-vtoggle/.care-panel namespace, same reasoning as Records'
+            <!-- Tabs — own .health-vtoggle/.health-panel namespace, same reasoning as Records'
                  .rec-vtoggle/.rec-panel: every view's DOM persists at once, so a shared class
                  name with Meds/Records would let their tab-switch logic collide with this one. -->
-            <div class="vitals-toggle care-vtoggle">
-                <div class="vtog active" id="ctab-team" onclick="switchCareTab('team')">Care Team</div>
-                <div class="vtog" id="ctab-own" onclick="switchCareTab('own')">Own Contacts</div>
+            <div class="vitals-toggle health-vtoggle">
+                <div class="vtog active" id="htab-appts" onclick="switchHealthTab('appts')">Appointments</div>
+                <div class="vtog" id="htab-contacts" onclick="switchHealthTab('contacts')">My Contacts</div>
+                <div class="vtog" id="htab-wellness" onclick="switchHealthTab('wellness')">Wellness</div>
             </div>
 
-            <!-- ── CARE TEAM — arranged by the Care Bridge office, read-only ── -->
-            <div class="care-panel show" id="cpanel-team">
-                <div class="card card--flush reveal">
+            <!-- ── APPOINTMENTS — view/request, coordinator stays source of truth ── -->
+            <div class="health-panel show" id="hpanel-appts">
+                <div class="card reveal">
+                    <div class="card__head"><span class="card__title">Upcoming appointments</span></div>
                     <div class="rows">
                         <div class="row">
-                            <span class="row-av" style="background:var(--accent-soft);color:var(--accent-text)">JA</span>
-                            <div class="m"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div>
-                            <div class="row-actions">
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                            </div>
+                            <div class="ic ic--accent"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>
+                            <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician · Fri, 18 Jul · 10:30 AM</div></div>
+                            <span class="chip2 chip2--ok">In-person</span>
                         </div>
                         <div class="row">
-                            <span class="row-av" style="background:var(--success-soft);color:var(--success-text)">DR</span>
-                            <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician</div></div>
-                            <div class="row-actions">
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <span class="row-av" style="background:var(--model-digital-wellness-soft);color:var(--model-digital-wellness-ink)">SM</span>
-                            <div class="m"><div class="t">Sarah Mathew</div><div class="s">Physiotherapist</div></div>
-                            <div class="row-actions">
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <span class="row-av" style="background:var(--danger-soft);color:var(--danger)">RT</span>
-                            <div class="m"><div class="t">Reshma Thomas</div><div class="s">Home nurse</div></div>
-                            <div class="row-actions">
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-mail"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-chat"/></svg></span></button>
-                                <button class="iconbtn"><span class="icon"><svg><use href="#i-phone"/></svg></span></button>
-                            </div>
+                            <div class="ic ic--accent"><span class="icon"><svg><use href="#i-video"/></svg></span></div>
+                            <div class="m"><div class="t">Sarah Mathew</div><div class="s">Physiotherapist · Tue, 22 Jul · 4:00 PM</div></div>
+                            <span class="chip2 chip2--ok">Video call</span>
                         </div>
                     </div>
                 </div>
-                <p class="t-body-s" style="color:var(--text-muted);padding:8px 2px 0">This team is arranged for you by the Care Bridge office. Reach out any time — response within one business day.</p>
+                <button class="mbtn mbtn--line mbtn--block" style="margin:12px 0 4px" onclick="CBH.go('appointmentRequestView')">
+                    <span class="icon"><svg><use href="#i-plus"/></svg></span> Request an appointment
+                </button>
+                <p class="t-body-s" style="color:var(--text-muted);padding:4px 2px 18px">Appointments are confirmed by your care coordinator — requests are usually actioned within one business day.</p>
+
+                <div class="card reveal tap" onclick="CBH.go('monthlyReportView')">
+                    <div class="row" style="padding:0">
+                        <div class="ic ic--accent"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                        <div class="m"><div class="t">Monthly wellness report</div><div class="s">June report · Score 85 · Check-in 87%</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                </div>
+
+                <div class="card reveal" style="margin-top:12px">
+                    <div class="card__head"><span class="card__title">Preventive health calendar</span></div>
+                    <div class="rows">
+                        <div class="row"><div class="m">Annual eye exam</div><div class="val" style="font-size:12px;color:var(--text-muted)">Due Sep 2026</div></div>
+                        <div class="row"><div class="m">Flu vaccination</div><div class="val" style="font-size:12px;color:var(--text-muted)">Due Nov 2026</div></div>
+                        <div class="row"><div class="m">Annual full check-up</div><div class="val" style="font-size:12px;color:var(--text-muted)">Due Mar 2027</div></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- ── OWN CONTACTS — member-added personal care resources ── -->
-            <div class="care-panel" id="cpanel-own">
+            <!-- ── MY CONTACTS — member-added personal care resources (was "Own Contacts") ── -->
+            <div class="health-panel" id="hpanel-contacts">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 2px 12px">
                     <p class="t-body-s" style="color:var(--text-muted);margin:0">Doctors, therapists or helpers you work with outside your Care Bridge team — kept here for quick reach.</p>
                     <button class="mbtn mbtn--line" id="ownEditBtn" style="flex-shrink:0;padding:6px 16px;font-size:12.5px" onclick="toggleOwnEditMode()">Edit</button>
@@ -1831,6 +1857,113 @@
                 </div>
             </div>
 
+            <!-- ── WELLNESS PROFILE — threshold-based flagging, not a self-computed risk score.
+                 Ranges come from the care-plan/assessment side (Admin); this panel only displays
+                 and flags against them, with a trend view to support what's flagged. ── -->
+            <div class="health-panel" id="hpanel-wellness">
+                <p class="t-body-s" style="color:var(--text-muted);padding:0 2px 12px">Your readings are checked against the ranges your care team set for your plan — this isn't a self-diagnosis, just a clear flag when something's worth a look.</p>
+
+                <div class="card reveal">
+                    <div class="card__head"><span class="card__title">Latest readings</span></div>
+                    <div class="rows">
+                        <div class="row"><div class="m">Blood pressure</div><div class="val">122/78 mmHg</div><span class="chip2 chip2--ok" style="margin-left:8px">In range</span></div>
+                        <div class="row"><div class="m">Pulse</div><div class="val">72 bpm</div><span class="chip2 chip2--ok" style="margin-left:8px">In range</span></div>
+                        <div class="row"><div class="m">SpO₂</div><div class="val">98%</div><span class="chip2 chip2--ok" style="margin-left:8px">In range</span></div>
+                        <div class="row" id="wpSugarRow" style="display:none"><div class="m">Blood sugar</div><div class="val">118 mg/dL</div><span class="chip2 chip2--ok" style="margin-left:8px">In range</span></div>
+                    </div>
+                </div>
+
+                <div class="card reveal" style="margin-top:12px;border:1.5px solid var(--warning);background:var(--warning-soft)">
+                    <div class="card__head"><span class="card__title" style="color:var(--warning-text)">⚠ Blood pressure trending up</span></div>
+                    <p class="t-body-s" style="color:var(--text-body);margin:0 0 10px">3 of your last 7 morning readings were above the range set for your care plan (avg 142/91 mmHg). 2-week trend below.</p>
+                    <svg viewBox="0 0 280 56" style="width:100%;height:56px;display:block;margin-bottom:12px" aria-label="Blood pressure trending upward over the last 2 weeks">
+                        <polyline points="0,42 20,40 40,38 60,38 80,32 100,33 120,26 140,24 160,19 180,21 200,15 220,13 240,9 260,11" fill="none" stroke="var(--warning-text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div style="display:flex;gap:8px">
+                        <button class="mbtn mbtn--line" style="flex:1;font-size:12.5px;padding:9px" onclick="shareVitalsSheet()">Share with health provider</button>
+                        <button class="mbtn mbtn--fill" style="flex:1;font-size:12.5px;padding:9px" onclick="messageCoordinatorAboutFlag()">Message coordinator</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         APPOINTMENT REQUEST — view/request only, coordinator confirms
+    ══════════════════════════════════════════════════════ -->
+    <section class="view" id="appointmentRequestView">
+        <div class="tbar">
+            <button class="backbtn" onclick="resetAppointmentRequestForm(); CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
+            <div class="tbar__title"><h1 class="sm">Request an Appointment</h1></div>
+        </div>
+        <div class="vbody">
+
+            <div class="form-sec">
+                <div class="form-sec-label">Appointment type</div>
+                <div class="vitals-toggle apptType-toggle" id="apptTypeToggle">
+                    <button class="vtog active" id="apptTypeInPerson" onclick="setApptType('inperson')">
+                        <span class="icon"><svg><use href="#i-stethoscope"/></svg></span>In-person
+                    </button>
+                    <button class="vtog" id="apptTypeVideo" onclick="setApptType('video')">
+                        <span class="icon"><svg><use href="#i-video"/></svg></span>Video call
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Who would you like to see</div>
+                <div class="field">
+                    <label>Doctor or health professional's name</label>
+                    <input type="text" id="apptWith" placeholder="e.g. Dr. Anil Kumar, or a clinic name">
+                    <p class="t-body-s" style="color:var(--text-muted);margin:6px 2px 0">Doesn't need to be someone already in your contacts — write in anyone.</p>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Preferred timing</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="field"><label>Preferred date</label><input type="date" id="apptDate"></div>
+                    <div class="field">
+                        <label>Preferred time</label>
+                        <select id="apptTime" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:14px;background:var(--surface)">
+                            <option>Morning (9am–12pm)</option>
+                            <option>Afternoon (12pm–4pm)</option>
+                            <option>Evening (4pm–7pm)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Reason for visit</div>
+                <div class="field">
+                    <label>Anything your coordinator should know (optional)</label>
+                    <textarea class="comment-area" id="apptReason" rows="3" placeholder="e.g. Follow-up on blood pressure medication…"></textarea>
+                </div>
+            </div>
+
+            <div class="form-sec">
+                <div class="form-sec-label">Calendar &amp; reminders</div>
+                <div class="wc-share-row" style="padding:9px 2px">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-calendar"/></svg></span></div>
+                    <div class="wc-share-label">Add to phone calendar<div class="ci-sub" style="font-weight:400;margin-top:2px">Saves an event you can open in your phone's default calendar app</div></div>
+                    <div class="switch" id="apptCalendarSwitch" onclick="toggleApptCalendarSync(this)"></div>
+                </div>
+                <div id="apptReminderRow" style="display:none;padding:4px 2px 0">
+                    <label style="font-size:12.5px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:6px">Remind me</label>
+                    <div class="vitals-toggle apptReminder-toggle" id="apptReminderToggle">
+                        <button class="vtog" id="apptRemNone" onclick="setApptReminder('none')">No reminder</button>
+                        <button class="vtog active" id="apptRemDayBefore" onclick="setApptReminder('daybefore')">1 day before</button>
+                        <button class="vtog" id="apptRemMorning" onclick="setApptReminder('morning')">Morning of</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="mbtn mbtn--fill mbtn--block" onclick="submitAppointmentRequest()" style="margin-bottom:8px">
+                <span class="icon"><svg><use href="#i-check"/></svg></span> Send request
+            </button>
+            <button class="mbtn mbtn--line mbtn--block" onclick="resetAppointmentRequestForm(); CBH.back()">Cancel</button>
         </div>
     </section>
 
@@ -1925,6 +2058,19 @@
                     <div class="row"><div class="m">Care review</div><div class="val">Every 6 months</div></div>
                 </div>
             </div>
+            <div class="card reveal">
+                <div class="card__head"><span class="card__title">Tracked readings</span></div>
+                <div class="wc-share-row" style="padding:9px 0">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></div>
+                    <div class="wc-share-label">Blood pressure<div class="ci-sub" style="font-weight:400;margin-top:2px">On by default — shown on Home and Health</div></div>
+                    <div class="switch on" style="opacity:.5;pointer-events:none"></div>
+                </div>
+                <div class="wc-share-row">
+                    <div class="wc-row-ic"><span class="icon"><svg><use href="#i-lab"/></svg></span></div>
+                    <div class="wc-share-label">Blood sugar<div class="ci-sub" style="font-weight:400;margin-top:2px">Opt-in — turn on if you're tracking diabetes/glucose</div></div>
+                    <div class="switch" id="settingBloodSugarSwitch" onclick="toggleBloodSugarTracking(this)"></div>
+                </div>
+            </div>
             <!-- Family circle entry point in profile -->
             <div class="card reveal tap" onclick="CBH.go('familyView')">
                 <div class="row" style="padding:0">
@@ -1980,7 +2126,7 @@
                 </div>
                 <div class="notif-row">
                     <div class="notif-ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-family"/></svg></span></div>
-                    <div style="flex:1"><div class="notif-title">Priya checked in</div><div class="notif-sub">Your family member viewed your vitals</div></div>
+                    <div style="flex:1"><div class="notif-title">Priya checked in</div><div class="notif-sub">Your family member viewed your health readings</div></div>
                     <div class="notif-time">Jun 28</div>
                 </div>
             </div>
@@ -2069,7 +2215,7 @@
                     </div>
                     <div class="row tap" onclick="scrollToTracker('vitalsSection')">
                         <span class="trk-ic" style="background:var(--blue-50)">🩺</span>
-                        <div class="m"><div class="t">Vitals</div><div class="s">Weight, BP, sugar, heart rate, steps &amp; sleep</div></div>
+                        <div class="m"><div class="t">Health</div><div class="s">Weight, BP, sugar, heart rate, steps &amp; sleep</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('cycleSection')">
@@ -2085,6 +2231,11 @@
                     <div class="row tap" onclick="scrollToTracker('workoutSection')">
                         <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🏋️</span>
                         <div class="m"><div class="t">Workout Log</div><div class="s">Latest: 30 min</div></div>
+                        <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                    </div>
+                    <div class="row tap" onclick="scrollToTracker('goalSection')">
+                        <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🎯</span>
+                        <div class="m"><div class="t">Weekly Activity Goal</div><div class="s"><span id="trkGoalLatest">0/150 min this week</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                 </div>
@@ -2111,21 +2262,21 @@
                 <p class="t-body-s" style="color:var(--text-muted)" id="hydMsg">Tap each glass as you drink it</p>
             </div>
 
-            <!-- Vitals overview — Weight, BP, blood sugar, heart rate, steps & sleep clubbed into one
-                 spreadsheet-style card, with a Share option and a single inline log form. -->
-            <div class="overline" id="vitalsSection">🩺 Vitals overview</div>
+            <!-- Health overview — Weight, BP, (opt-in) blood sugar, heart rate, steps & sleep clubbed
+                 into one spreadsheet-style card, with a Share option and a single inline log form. -->
+            <div class="overline" id="vitalsSection">🩺 Health overview</div>
             <div class="card reveal" style="margin-bottom:12px">
                 <div class="card__head">
-                    <span class="card__title">Today's vitals</span>
-                    <button class="iconbtn" onclick="shareVitalsSheet()" aria-label="Share vitals"><span class="icon"><svg><use href="#i-download"/></svg></span></button>
+                    <span class="card__title">Today's health</span>
+                    <button class="iconbtn" onclick="shareVitalsSheet()" aria-label="Share readings"><span class="icon"><svg><use href="#i-download"/></svg></span></button>
                 </div>
                 <div style="overflow-x:auto">
                     <table class="hist-table">
-                        <thead><tr><th>Vital</th><th>Latest</th><th>Recorded</th></tr></thead>
+                        <thead><tr><th>Reading</th><th>Latest</th><th>Recorded</th></tr></thead>
                         <tbody>
                             <tr><td>Weight</td><td id="vTblWeight">62.5 kg</td><td>Today, 7:10 AM</td></tr>
                             <tr><td>Blood pressure</td><td id="vTblBP">122/78 mmHg</td><td>Today, 7:15 AM</td></tr>
-                            <tr><td>Blood sugar</td><td id="vTblBS">118 mg/dL</td><td>Today, 8:00 AM</td></tr>
+                            <tr id="vRowBS" style="display:none"><td>Blood sugar</td><td id="vTblBS">118 mg/dL</td><td>Today, 8:00 AM</td></tr>
                             <tr><td>Heart rate</td><td>72 bpm</td><td>Today, 7:30 AM · wearable</td></tr>
                             <tr><td>Steps</td><td>4,200</td><td>As of now</td></tr>
                             <tr><td>Sleep</td><td>7.5 hrs</td><td>Last night</td></tr>
@@ -2138,7 +2289,7 @@
                         <select id="vitalsLogType" style="padding:9px 10px;border:1.5px solid var(--border);border-radius:var(--radius-base);font-size:13px;background:var(--surface)">
                             <option value="weight">Weight (kg)</option>
                             <option value="bp">Blood pressure</option>
-                            <option value="bs">Blood sugar (mg/dL)</option>
+                            <option value="bs" id="vitalsLogTypeBS" style="display:none">Blood sugar (mg/dL)</option>
                         </select>
                         <input class="t-input" id="vitalsLogValue" type="text" placeholder="e.g. 62.3" style="padding:9px 10px;font-size:13px" />
                     </div>
@@ -2195,6 +2346,24 @@
                     <div class="tracker-big">30</div>
                     <div class="tracker-unit">min · Yoga &amp; stretching</div>
                     <div style="margin-top:8px;font-size:11px;color:var(--text-subtle)">Last session yesterday</div>
+                </div>
+            </div>
+
+            <!-- Weekly activity goal — simple personal progress, no streaks/badges/leaderboards
+                 (explicitly out of scope per research review: this population responds better
+                 to calm, non-competitive framing than gamification). -->
+            <div class="overline" id="goalSection">🎯 Weekly activity goal</div>
+            <div class="card reveal" style="margin-bottom:12px">
+                <div class="card__head">
+                    <span class="card__title">Active minutes this week</span>
+                    <span id="goalMinutesLabel" style="font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--accent-text)">0/150 min</span>
+                </div>
+                <div class="goal-bar"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
+                <p class="t-body-s" style="color:var(--text-muted);margin:8px 0 12px" id="goalMsg">A gentle weekly target — walking, stretching, physio exercises, all count. No streaks to keep, just your own pace.</p>
+                <div style="display:flex;gap:8px">
+                    <button class="mbtn mbtn--line" style="flex:1;font-size:12.5px;padding:9px" onclick="logActivityMinutes(10)">+10 min</button>
+                    <button class="mbtn mbtn--line" style="flex:1;font-size:12.5px;padding:9px" onclick="logActivityMinutes(30)">+30 min</button>
+                    <button class="mbtn mbtn--line" style="flex:1;font-size:12.5px;padding:9px" onclick="logActivityMinutes(60)">+60 min</button>
                 </div>
             </div>
 
@@ -2573,8 +2742,8 @@
         <div class="bnav__i" id="bnav-records" onclick="CBH.goTab('recordsView','records')">
             <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>Records
         </div>
-        <div class="bnav__i" id="bnav-care" onclick="CBH.goTab('careTeamView','care')">
-            <div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>Care
+        <div class="bnav__i" id="bnav-health" onclick="CBH.goTab('healthView','health')">
+            <div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>Health
         </div>
         <div class="bnav__i" id="bnav-tools" onclick="CBH.goTab('toolsView','tools')">
             <div class="ic"><span class="icon"><svg><use href="#i-cog"/></svg></span></div>Tools
@@ -2710,7 +2879,7 @@ var LIB = {
 };
 
 /* ── Navigation ──────────────────────────────────────────────────────────── */
-var TAB_ITEMS = { home:'bnav-home', meds:'bnav-meds', records:'bnav-records', care:'bnav-care', tools:'bnav-tools' };
+var TAB_ITEMS = { home:'bnav-home', meds:'bnav-meds', records:'bnav-records', health:'bnav-health', tools:'bnav-tools' };
 var _activeTab = 'home';
 
 window.CBH = {
@@ -2760,9 +2929,9 @@ var QA_CATALOG = [
     { id:'hydration', label:'Hydration',            emoji:'💧', kind:'hydration' },
     { id:'journal',   label:'My journal',           sub:'Log a note',             emoji:'📓', kind:'nav', view:'journalView' },
     { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'addDocumentView' },
-    { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'careTeamView' },
+    { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'healthView', tab:'health' },
     { id:'refill',    label:'Request refill',       sub:'Medicine cabinet',       icon:'pill',     kind:'nav', view:'medicationView', tab:'meds' },
-    { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'careTeamView' }
+    { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'appointmentRequestView' }
 ];
 var QA_DEFAULT_IDS = ['hydration','journal'];
 var QA_MAX = 4;
@@ -3271,7 +3440,7 @@ function logVitalReading() {
 function shareVitalsSheet() {
     _shareMode = 'vitals';
     var lead = document.getElementById('recShareLead');
-    if (lead) lead.textContent = 'Choose how to send your vitals summary.';
+    if (lead) lead.textContent = 'Choose how to send your health summary.';
     document.getElementById('recShareOverlay').classList.add('show');
     document.getElementById('recShareSheet').classList.add('show');
 }
@@ -3392,6 +3561,68 @@ function applyScoreRing(score, ringId) {
 applyScoreRing(85, 'scoreRing');
 applyScoreRing(85, 'reportScoreRing');
 
+/* ── Weekly activity goal — simple personal progress bar, resets each Monday. UI-only demo
+   state kept in localStorage (no backend), no streaks/points/leaderboards by design. ── */
+var GOAL_WEEKLY_TARGET = 150;
+function _goalWeekKey() {
+    var d = new Date();
+    var day = (d.getDay() + 6) % 7; // Monday = 0
+    d.setDate(d.getDate() - day);
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+}
+function _goalGetMinutes() {
+    var key = _goalWeekKey();
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem('cbh_goal_minutes')); } catch (e) {}
+    if (!stored || stored.week !== key) return 0;
+    return stored.minutes || 0;
+}
+function _goalSaveMinutes(minutes) {
+    try { localStorage.setItem('cbh_goal_minutes', JSON.stringify({ week: _goalWeekKey(), minutes: minutes })); } catch (e) {}
+}
+function renderGoalProgress() {
+    var minutes = _goalGetMinutes();
+    var pct = Math.min(100, Math.round((minutes / GOAL_WEEKLY_TARGET) * 100));
+    var fill = document.getElementById('goalBarFill'); if (fill) fill.style.width = pct + '%';
+    var label = document.getElementById('goalMinutesLabel'); if (label) label.textContent = minutes + '/' + GOAL_WEEKLY_TARGET + ' min';
+    var latest = document.getElementById('trkGoalLatest'); if (latest) latest.textContent = minutes + '/' + GOAL_WEEKLY_TARGET + ' min this week';
+    var msg = document.getElementById('goalMsg');
+    if (msg) {
+        msg.textContent = minutes >= GOAL_WEEKLY_TARGET
+            ? 'You\'ve reached this week\'s target — anything more is a bonus. Great pace.'
+            : 'A gentle weekly target — walking, stretching, physio exercises, all count. No streaks to keep, just your own pace.';
+    }
+}
+function logActivityMinutes(mins) {
+    var minutes = _goalGetMinutes() + mins;
+    _goalSaveMinutes(minutes);
+    renderGoalProgress();
+}
+
+/* ── Blood sugar — opt-in tracked metric (per member, diabetic members only). BP stays
+   default-on and always shown; sugar only appears once switched on in Profile. ── */
+function applyBloodSugarSetting(enabled) {
+    var sw = document.getElementById('settingBloodSugarSwitch');
+    if (sw) sw.classList.toggle('on', enabled);
+    var stat = document.getElementById('vitalsSugarStat'); if (stat) stat.style.display = enabled ? '' : 'none';
+    var manual = document.getElementById('vitalsSugarManual'); if (manual) manual.style.display = enabled ? '' : 'none';
+    document.getElementById('vitalsWearable').classList.toggle('has-sugar', enabled);
+    document.getElementById('vitalsManual').classList.toggle('has-sugar', enabled);
+    var row = document.getElementById('vRowBS'); if (row) row.style.display = enabled ? '' : 'none';
+    var opt = document.getElementById('vitalsLogTypeBS'); if (opt) opt.style.display = enabled ? '' : 'none';
+    var wpRow = document.getElementById('wpSugarRow'); if (wpRow) wpRow.style.display = enabled ? '' : 'none';
+}
+function toggleBloodSugarTracking(el) {
+    var enabled = !el.classList.contains('on');
+    try { localStorage.setItem('cbh_track_blood_sugar', enabled ? '1' : '0'); } catch (e) {}
+    applyBloodSugarSetting(enabled);
+}
+function initBloodSugarSetting() {
+    var enabled = false;
+    try { enabled = localStorage.getItem('cbh_track_blood_sugar') === '1'; } catch (e) {}
+    applyBloodSugarSetting(enabled);
+}
+
 /* ── Vitals source toggle ────────────────────────────────────────────────── */
 function setVitalsSource(src) {
     var isWearable = (src === 'wearable');
@@ -3472,7 +3703,7 @@ function sendRecShare(channel) {
     // TODO: replace with real email/WhatsApp/file-export integration once available — UI-only demo
     if (_shareMode === 'vitals') {
         closeRecShareSheet();
-        alert('Vitals summary shared via ' + channel + '.');
+        alert('Health summary shared via ' + channel + '.');
         return;
     }
     var count = document.querySelectorAll('.rec-panel .rec-picked').length;
@@ -3506,12 +3737,100 @@ function openDocViewer(name, sub, date, type) {
     CBH.go('docViewerView');
 }
 
-/* ── Care tab switch — own ids/classes, same reasoning as Records/Meds tabs ──────────────────── */
-function switchCareTab(tab) {
-    document.querySelectorAll('.care-vtoggle .vtog').forEach(function (el) { el.classList.remove('active'); });
-    document.querySelectorAll('.care-panel').forEach(function (el) { el.classList.remove('show'); });
-    document.getElementById('ctab-' + tab).classList.add('active');
-    document.getElementById('cpanel-' + tab).classList.add('show');
+/* ── Health tab switch — own ids/classes, same reasoning as Records/Meds tabs ──────────────────── */
+function switchHealthTab(tab) {
+    document.querySelectorAll('.health-vtoggle .vtog').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.health-panel').forEach(function (el) { el.classList.remove('show'); });
+    document.getElementById('htab-' + tab).classList.add('active');
+    document.getElementById('hpanel-' + tab).classList.add('show');
+}
+/* ── Wellness Profile flag actions — UI-only demo, no live chat exists yet ── */
+function messageCoordinatorAboutFlag() {
+    alert('Your care coordinator has been notified about this reading and will follow up with you shortly.');
+}
+
+/* ── Appointment request — view/request flow (coordinator confirms, no self-service booking).
+   The request itself is a UI-only demo (no Care Bridge backend), but "Add to phone calendar"
+   is a real feature: it builds a .ics file client-side so the browser hands off to whatever
+   calendar app the phone has set as default. ── */
+var _apptType = 'inperson';
+var _apptReminder = 'daybefore';
+function setApptType(type) {
+    _apptType = type;
+    document.getElementById('apptTypeInPerson').classList.toggle('active', type === 'inperson');
+    document.getElementById('apptTypeVideo').classList.toggle('active', type === 'video');
+}
+function setApptReminder(type) {
+    _apptReminder = type;
+    document.getElementById('apptRemNone').classList.toggle('active', type === 'none');
+    document.getElementById('apptRemDayBefore').classList.toggle('active', type === 'daybefore');
+    document.getElementById('apptRemMorning').classList.toggle('active', type === 'morning');
+}
+function toggleApptCalendarSync(el) {
+    wcToggleSwitch(el);
+    var row = document.getElementById('apptReminderRow');
+    if (row) row.style.display = el.classList.contains('on') ? 'block' : 'none';
+}
+function resetAppointmentRequestForm() {
+    setApptType('inperson');
+    setApptReminder('daybefore');
+    var dateEl = document.getElementById('apptDate'); if (dateEl) dateEl.value = '';
+    var reasonEl = document.getElementById('apptReason'); if (reasonEl) reasonEl.value = '';
+    var withEl = document.getElementById('apptWith'); if (withEl) withEl.value = '';
+    var timeEl = document.getElementById('apptTime'); if (timeEl) timeEl.selectedIndex = 0;
+    var sw = document.getElementById('apptCalendarSwitch');
+    if (sw) sw.classList.remove('on');
+    var row = document.getElementById('apptReminderRow'); if (row) row.style.display = 'none';
+}
+/* Builds an .ics file for the requested appointment and hands it to the phone's default
+   calendar app via an object URL — works the same way "Add to Calendar" links do on most
+   mobile browsers, no native app integration required. */
+function downloadApptICS(withWho, dateStr, timeWindow, reminder) {
+    var timeMap = { 'Morning (9am–12pm)': '09:00', 'Afternoon (12pm–4pm)': '12:00', 'Evening (4pm–7pm)': '16:00' };
+    var startTime = timeMap[timeWindow] || '09:00';
+    var dt = dateStr ? dateStr.replace(/-/g, '') : '';
+    if (!dt) return;
+    var startStr = dt + 'T' + startTime.replace(':', '') + '00';
+    var endHour = parseInt(startTime, 10) + 1;
+    var endHourStr = endHour < 10 ? '0' + endHour : String(endHour);
+    var endStr = dt + 'T' + endHourStr + '0000';
+    var alarms = '';
+    if (reminder === 'daybefore') {
+        alarms = 'BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:Appointment tomorrow with ' + withWho + '\r\nEND:VALARM\r\n';
+    } else if (reminder === 'morning') {
+        alarms = 'BEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Appointment today with ' + withWho + '\r\nEND:VALARM\r\n';
+    }
+    var ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Care Bridge Home//Wellness App//EN\r\n' +
+        'BEGIN:VEVENT\r\nUID:' + Date.now() + '@carebridgehome\r\n' +
+        'DTSTART:' + startStr + '\r\nDTEND:' + endStr + '\r\n' +
+        'SUMMARY:Appointment with ' + withWho + '\r\n' +
+        'DESCRIPTION:Care Bridge Home appointment request\r\n' +
+        alarms + 'END:VEVENT\r\nEND:VCALENDAR';
+    var blob = new Blob([ics], { type: 'text/calendar' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'appointment.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+}
+function submitAppointmentRequest() {
+    var withEl = document.getElementById('apptWith');
+    var withWho = (withEl && withEl.value.trim()) || 'your health professional';
+    var syncOn = document.getElementById('apptCalendarSwitch').classList.contains('on');
+    if (syncOn) {
+        var dateEl = document.getElementById('apptDate');
+        var timeEl = document.getElementById('apptTime');
+        if (dateEl && dateEl.value) {
+            downloadApptICS(withWho, dateEl.value, timeEl ? timeEl.value : '', _apptReminder);
+        }
+    }
+    alert('Your appointment request has been sent to your care coordinator. They\'ll confirm within one business day.' + (syncOn ? ' A calendar event has also been saved for you to open.' : ''));
+    resetAppointmentRequestForm();
+    CBH.goTab('healthView', 'health');
+    switchHealthTab('appts');
 }
 
 /* ── Own Contacts — Edit toggle reveals a leading "−" remove control per row ──────────────────── */
@@ -3589,8 +3908,8 @@ function saveNewContact() {
     }
 
     resetAddContactForm();
-    switchCareTab('own');
-    CBH.goTab('careTeamView', 'care');
+    switchHealthTab('contacts');
+    CBH.goTab('healthView', 'health');
 }
 
 /* ── Equipment rental — cart-based request flow, mirrors Meds' Reorder→Cart pattern ───────────
@@ -3852,6 +4171,8 @@ syncHomeMedCard();
 renderJournalEntries();
 ciSeedEntries();
 renderCiPrevEntries();
+initBloodSugarSetting();
+renderGoalProgress();
 
 /* ── Hash routing ────────────────────────────────────────────────────────── */
 window.addEventListener('hashchange', function() {

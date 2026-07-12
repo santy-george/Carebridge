@@ -97,7 +97,9 @@
             font-family:var(--font-body); font-size:12px; font-weight:600;
             color:var(--text-muted); cursor:pointer; text-align:center;
             transition:all .15s var(--ease);
+            display:inline-flex; align-items:center; justify-content:center; gap:5px;
         }
+        .vtog .icon { width:15px; height:15px; }
         .vtog.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); }
 
         /* Quick action grid */
@@ -354,7 +356,8 @@
 
         /* Date navigator (medication schedule) */
         .date-nav { display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:14px; }
-        .date-nav-arrow { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--text-muted); flex-shrink:0; }
+        .date-nav-arrow { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--text-muted); flex-shrink:0; position:relative; }
+        .date-nav-arrow::before { content:''; position:absolute; inset:-7px; } /* expand tap area to 44px without growing the visual circle */
         .date-nav-arrow:active { background:var(--surface-sunken); }
         .date-nav-label { font-family:var(--font-heading); font-weight:700; font-size:14px; color:var(--text-heading); }
 
@@ -393,6 +396,7 @@
 
         /* Tracker summary list */
         .trk-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+        .trk-ic .icon { width:19px; height:19px; }
 
         /* Floating add-data button (Trackers) */
         .fab-add {
@@ -449,7 +453,8 @@
         /* Health metrics with normal ranges */
         .h-metric { border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; background:var(--surface); margin-bottom:10px; }
         .h-metric-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-        .h-name { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text-subtle); }
+        .h-name { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text-subtle); display:flex; align-items:center; gap:5px; }
+        .h-name .icon { width:14px; height:14px; }
         .h-val { font-family:var(--font-heading); font-weight:800; font-size:28px; color:var(--text-heading); line-height:1; }
         .h-range { font-size:11px; color:var(--text-subtle); }
         .h-status { font-size:11px; font-weight:700; padding:3px 9px; border-radius:var(--radius-full); flex-shrink:0; }
@@ -461,15 +466,20 @@
 
         /* Tracker styles */
         .hydration-drops { display:flex; gap:5px; flex-wrap:wrap; margin:12px 0; }
-        .h-drop { width:34px; height:42px; border-radius:50% 50% 42% 42%/55% 55% 45% 45%; border:2px solid var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:background .15s; background:var(--accent-soft); }
+        .h-drop { width:34px; height:42px; border-radius:50% 50% 42% 42%/55% 55% 45% 45%; border:2px solid var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:background .15s; background:var(--accent-soft); color:var(--accent-text); }
+        .h-drop .icon { width:16px; height:16px; }
         .h-drop.filled { background:var(--accent); color:var(--accent-on); }
         .tracker-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
         .tracker-card { border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:14px; background:var(--surface); }
         .tracker-ic { font-size:22px; margin-bottom:6px; display:block; }
+        .tracker-ic .icon { width:22px; height:22px; color:var(--accent-text); }
         .tracker-title { font-family:var(--font-heading); font-weight:700; font-size:13px; color:var(--text-heading); }
         .tracker-big { font-family:var(--font-heading); font-weight:800; font-size:28px; color:var(--text-heading); line-height:1; margin:5px 0 2px; }
         .tracker-unit { font-size:11px; color:var(--text-muted); }
         .cycle-wrap { display:flex; flex-wrap:wrap; gap:4px; margin:10px 0; }
+        /* .c-day stays under the 44px touch-target guideline on purpose: with only 4px gutters in a
+           dense ~30-cell calendar grid, an expanded hit area would overlap neighbouring days and
+           cause more mis-taps than the small target itself. Revisit if the grid gets more breathing room. */
         .c-day { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--text-subtle); }
         .c-day.period { background:#EF4444; color:#fff; border-color:#EF4444; }
         .c-day.fertile { background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent); }
@@ -575,7 +585,8 @@
 
         /* Remove-from-schedule control (Meds > Today's Schedule) */
         .tod-row { align-items:center; }
-        .tod-remove { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-subtle); cursor:pointer; margin-left:auto; }
+        .tod-remove { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-subtle); cursor:pointer; margin-left:auto; position:relative; }
+        .tod-remove::before { content:''; position:absolute; inset:-8px; } /* expand tap area toward 44px; kept slightly tighter than usual to avoid overlapping the row above/below */
         .tod-remove .icon { width:12px; height:12px; }
         .tod-remove:active { background:var(--surface-sunken); }
 
@@ -662,10 +673,10 @@
                 <!-- Source toggle -->
                 <div class="vitals-toggle">
                     <button class="vtog active" id="togWearable" onclick="setVitalsSource('wearable')">
-                        ⌚ Wearables
+                        <span class="icon"><svg><use href="#i-watch"/></svg></span> Wearables
                     </button>
                     <button class="vtog" id="togManual" onclick="setVitalsSource('manual')">
-                        ✏️ Enter manually
+                        <span class="icon"><svg><use href="#i-edit"/></svg></span> Enter manually
                     </button>
                 </div>
                 <!-- Wearable display -->
@@ -1485,7 +1496,7 @@
             <div class="h-metric reveal">
                 <div class="h-metric-head">
                     <div>
-                        <div class="h-name">❤️ Heart rate</div>
+                        <div class="h-name"><span class="icon"><svg><use href="#i-heart-pulse"/></svg></span>Heart rate</div>
                         <div style="margin-top:4px"><span class="h-val">72</span> <span style="font-size:14px;color:var(--text-muted)">bpm</span></div>
                     </div>
                     <span class="h-status ok">Normal</span>
@@ -1502,7 +1513,7 @@
             <div class="h-metric reveal">
                 <div class="h-metric-head">
                     <div>
-                        <div class="h-name">🩺 Blood pressure</div>
+                        <div class="h-name"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span>Blood pressure</div>
                         <div style="margin-top:4px"><span class="h-val" style="font-size:24px">122<span style="font-size:16px">/78</span></span> <span style="font-size:14px;color:var(--text-muted)">mmHg</span></div>
                     </div>
                     <span class="h-status warn">Elevated</span>
@@ -1519,7 +1530,7 @@
             <div class="h-metric reveal">
                 <div class="h-metric-head">
                     <div>
-                        <div class="h-name">💨 Blood oxygen (SpO₂)</div>
+                        <div class="h-name"><span class="icon"><svg><use href="#i-lungs"/></svg></span>Blood oxygen (SpO₂)</div>
                         <div style="margin-top:4px"><span class="h-val">98</span> <span style="font-size:14px;color:var(--text-muted)">%</span></div>
                     </div>
                     <span class="h-status ok">Excellent</span>
@@ -1536,7 +1547,7 @@
             <div class="h-metric reveal">
                 <div class="h-metric-head">
                     <div>
-                        <div class="h-name">😴 Sleep score</div>
+                        <div class="h-name"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span>Sleep score</div>
                         <div style="margin-top:4px"><span class="h-val">85</span> <span style="font-size:14px;color:var(--text-muted)">/100</span></div>
                     </div>
                     <span class="h-status ok">Good</span>
@@ -1553,7 +1564,7 @@
             <div class="h-metric reveal">
                 <div class="h-metric-head">
                     <div>
-                        <div class="h-name">🧘 Stress level</div>
+                        <div class="h-name"><span class="icon"><svg><use href="#i-brain"/></svg></span>Stress level</div>
                         <div style="margin-top:4px"><span class="h-val">35</span> <span style="font-size:14px;color:var(--text-muted)">/100</span></div>
                     </div>
                     <span class="h-status warn">Elevated</span>
@@ -1874,7 +1885,7 @@
                 </div>
 
                 <div class="card reveal" style="margin-top:12px;border:1.5px solid var(--warning);background:var(--warning-soft)">
-                    <div class="card__head"><span class="card__title" style="color:var(--warning-text)">⚠ Blood pressure trending up</span></div>
+                    <div class="card__head"><span class="card__title" style="color:var(--warning-text);display:inline-flex;align-items:center;gap:6px"><span class="icon" style="width:18px;height:18px"><svg><use href="#i-alert"/></svg></span>Blood pressure trending up</span></div>
                     <p class="t-body-s" style="color:var(--text-body);margin:0 0 10px">3 of your last 7 morning readings were above the range set for your care plan (avg 142/91 mmHg). 2-week trend below.</p>
                     <svg viewBox="0 0 280 56" style="width:100%;height:56px;display:block;margin-bottom:12px" aria-label="Blood pressure trending upward over the last 2 weeks">
                         <polyline points="0,42 20,40 40,38 60,38 80,32 100,33 120,26 140,24 160,19 180,21 200,15 220,13 240,9 260,11" fill="none" stroke="var(--warning-text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2209,32 +2220,32 @@
             <div class="card card--flush reveal" style="margin-bottom:14px">
                 <div class="rows">
                     <div class="row tap" onclick="scrollToTracker('hydSection')">
-                        <span class="trk-ic" style="background:var(--blue-50)">💧</span>
+                        <span class="trk-ic" style="background:var(--blue-50);color:var(--blue-600)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></span>
                         <div class="m"><div class="t">Hydration</div><div class="s">Latest: <span id="trkHydLatest">0/8 glasses</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('vitalsSection')">
-                        <span class="trk-ic" style="background:var(--blue-50)">🩺</span>
+                        <span class="trk-ic" style="background:var(--blue-50);color:var(--blue-600)"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></span>
                         <div class="m"><div class="t">Health</div><div class="s">Weight, BP, sugar, heart rate, steps &amp; sleep</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('cycleSection')">
-                        <span class="trk-ic" style="background:var(--red-50)">🌸</span>
+                        <span class="trk-ic" style="background:var(--red-50);color:var(--red-600)"><span class="icon"><svg><use href="#i-flower"/></svg></span></span>
                         <div class="m"><div class="t">Menstrual Cycle</div><div class="s">Latest: <span id="trkCycleLatest">Day 2</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('nutritionSection')">
-                        <span class="trk-ic" style="background:var(--amber-50)">🍽️</span>
+                        <span class="trk-ic" style="background:var(--amber-50);color:var(--amber-600)"><span class="icon"><svg><use href="#i-food"/></svg></span></span>
                         <div class="m"><div class="t">Nutrition</div><div class="s">Latest: <span id="trkNutritionLatest">1,800 kcal</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('workoutSection')">
-                        <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🏋️</span>
+                        <span class="trk-ic" style="background:var(--model-virtual-care-soft);color:var(--model-virtual-care-ink)"><span class="icon"><svg><use href="#i-walking"/></svg></span></span>
                         <div class="m"><div class="t">Workout Log</div><div class="s">Latest: 30 min</div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
                     <div class="row tap" onclick="scrollToTracker('goalSection')">
-                        <span class="trk-ic" style="background:var(--model-virtual-care-soft)">🎯</span>
+                        <span class="trk-ic" style="background:var(--model-virtual-care-soft);color:var(--model-virtual-care-ink)"><span class="icon"><svg><use href="#i-target"/></svg></span></span>
                         <div class="m"><div class="t">Weekly Activity Goal</div><div class="s"><span id="trkGoalLatest">0/150 min this week</span></div></div>
                         <span class="chev"><svg><use href="#i-chevron"/></svg></span>
                     </div>
@@ -2242,7 +2253,7 @@
             </div>
 
             <!-- Hydration -->
-            <div class="overline" id="hydSection">💧 Hydration</div>
+            <div class="overline" id="hydSection">Hydration</div>
             <div class="card reveal" style="margin-bottom:12px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
                     <span class="card__title">Water intake today</span>
@@ -2250,21 +2261,21 @@
                 </div>
                 <p class="t-body-s" style="color:var(--text-muted);margin-bottom:12px">Goal: 8 glasses · Tap each as you drink</p>
                 <div class="hydration-drops" id="hydDrops">
-                    <div class="h-drop" onclick="fillDrop(0)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(1)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(2)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(3)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(4)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(5)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(6)">💧</div>
-                    <div class="h-drop" onclick="fillDrop(7)">💧</div>
+                    <div class="h-drop" onclick="fillDrop(0)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(1)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(2)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(3)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(4)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(5)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(6)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
+                    <div class="h-drop" onclick="fillDrop(7)"><span class="icon"><svg><use href="#i-droplet"/></svg></span></div>
                 </div>
                 <p class="t-body-s" style="color:var(--text-muted)" id="hydMsg">Tap each glass as you drink it</p>
             </div>
 
             <!-- Health overview — Weight, BP, (opt-in) blood sugar, heart rate, steps & sleep clubbed
                  into one spreadsheet-style card, with a Share option and a single inline log form. -->
-            <div class="overline" id="vitalsSection">🩺 Health overview</div>
+            <div class="overline" id="vitalsSection">Health overview</div>
             <div class="card reveal" style="margin-bottom:12px">
                 <div class="card__head">
                     <span class="card__title">Today's health</span>
@@ -2298,12 +2309,12 @@
             </div>
 
             <!-- Menstrual cycle — tap days to log period; predictions recalculate live -->
-            <div class="overline" id="cycleSection">🌸 Menstrual cycle</div>
+            <div class="overline" id="cycleSection">Menstrual cycle</div>
             <div class="card reveal">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                     <span class="card__title">June 2026</span>
                     <div style="display:flex;gap:8px;font-size:10px;color:var(--text-subtle)">
-                        <span>🔴 Period</span><span style="color:var(--accent-text)">🔵 Fertile</span><span style="color:var(--warning-text)">🟡 Next</span>
+                        <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-right:3px"></span>Period</span><span style="color:var(--accent-text)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:3px"></span>Fertile</span><span style="color:var(--warning-text)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warning);margin-right:3px"></span>Next</span>
                     </div>
                 </div>
                 <p class="t-body-s" style="color:var(--text-muted);margin-bottom:8px">Tap the days you're on your period to log it.</p>
@@ -2321,7 +2332,7 @@
             </div>
 
             <!-- Medication reminders quick view -->
-            <div class="overline">💊 Today's medication reminders</div>
+            <div class="overline">Today's medication reminders</div>
             <div class="card card--flush reveal tap" onclick="CBH.goTab('medicationView','meds')">
                 <div class="rows">
                     <div class="row"><span class="chip2 chip2--ok" style="margin-right:8px;min-width:40px;text-align:center">8 AM</span><div class="m">Metformin 500mg</div><span class="chip2 chip2--ok">✓</span></div>
@@ -2331,17 +2342,17 @@
             </div>
 
             <!-- Nutrition + Workout Log -->
-            <div class="overline" id="nutritionSection">🍽️ Nutrition &amp; activity</div>
+            <div class="overline" id="nutritionSection">Nutrition &amp; activity</div>
             <div class="tracker-grid reveal" id="workoutSection">
                 <div class="tracker-card">
-                    <span class="tracker-ic">🍽️</span>
+                    <span class="tracker-ic"><span class="icon"><svg><use href="#i-food"/></svg></span></span>
                     <div class="tracker-title">Nutrition</div>
                     <div class="tracker-big" id="nutritionDisp">1,800</div>
                     <div class="tracker-unit">kcal today</div>
                     <input class="t-input" type="number" placeholder="kcal" style="margin-top:10px;font-size:15px;padding:8px" onchange="logNutrition(this.value)" />
                 </div>
                 <div class="tracker-card">
-                    <span class="tracker-ic">🏋️</span>
+                    <span class="tracker-ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></span>
                     <div class="tracker-title">Workout Log</div>
                     <div class="tracker-big">30</div>
                     <div class="tracker-unit">min · Yoga &amp; stretching</div>
@@ -2352,7 +2363,7 @@
             <!-- Weekly activity goal — simple personal progress, no streaks/badges/leaderboards
                  (explicitly out of scope per research review: this population responds better
                  to calm, non-competitive framing than gamification). -->
-            <div class="overline" id="goalSection">🎯 Weekly activity goal</div>
+            <div class="overline" id="goalSection">Weekly activity goal</div>
             <div class="card reveal" style="margin-bottom:12px">
                 <div class="card__head">
                     <span class="card__title">Active minutes this week</span>
@@ -2926,8 +2937,8 @@ window.CBH = {
 
 /* ── Quick actions — dynamic, user-editable grid ─────────────────────────── */
 var QA_CATALOG = [
-    { id:'hydration', label:'Hydration',            emoji:'💧', kind:'hydration' },
-    { id:'journal',   label:'My journal',           sub:'Log a note',             emoji:'📓', kind:'nav', view:'journalView' },
+    { id:'hydration', label:'Hydration',            icon:'droplet', kind:'hydration' },
+    { id:'journal',   label:'My journal',           sub:'Log a note',             icon:'journal',   kind:'nav', view:'journalView' },
     { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'addDocumentView' },
     { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'healthView', tab:'health' },
     { id:'refill',    label:'Request refill',       sub:'Medicine cabinet',       icon:'pill',     kind:'nav', view:'medicationView', tab:'meds' },
@@ -2941,7 +2952,6 @@ function qaFindDef(id) {
     return null;
 }
 function qaIconMarkup(def) {
-    if (def.emoji) return '<span style="font-size:16px;line-height:1">' + def.emoji + '</span>';
     return '<span class="icon"><svg><use href="#i-' + def.icon + '"/></svg></span>';
 }
 function qaGetSelected() {

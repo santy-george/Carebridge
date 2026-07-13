@@ -19,9 +19,16 @@
             padding: 0; position: relative; overflow: hidden;
             box-shadow: var(--shadow-md);
         }
+        .hero-wellness::after {
+            content:""; position:absolute; inset:0; pointer-events:none;
+            background:url("assets/wellness-calm-companion.png") right center / cover no-repeat;
+            opacity:.16; mix-blend-mode:multiply;
+        }
+        .hero-wellness > * { position:relative; z-index:1; }
         .hero-band {
-            background: linear-gradient(120deg, var(--model-digital-wellness) 0%, var(--purple-400) 100%);
+            background:var(--model-digital-wellness-ink);
             padding: 14px 18px; position: relative; overflow: hidden;
+            display:flex; align-items:center; justify-content:space-between; gap:10px;
         }
         .hero-band::before {
             content:""; position:absolute; top:-40px; right:-30px;
@@ -31,6 +38,11 @@
         .hero-band-label {
             position: relative; color:#fff; font-family:var(--font-heading);
             font-weight:700; font-size:14px; letter-spacing:.2px;
+        }
+        .hero-band-logo {
+            position: relative; height:42px; width:42px; object-fit:contain; flex-shrink:0;
+            background:#fff; border-radius:var(--radius-sm);
+            padding:3px;
         }
         .hero-body { padding: 16px 18px 18px; position: relative; }
 
@@ -107,9 +119,10 @@
         .acard {
             border-radius:var(--radius-lg); border:1.5px solid var(--border);
             background:var(--surface); padding:14px; cursor:pointer;
-            transition:border-color .15s var(--ease),background .15s var(--ease); text-align:left;
+            transition:border-color .18s var(--ease),background .18s var(--ease),transform .18s var(--ease); text-align:left;
         }
-        .acard:hover { border-color:var(--accent); background:var(--accent-soft); }
+        .acard:hover { border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); }
+        .acard:active { transform:scale(.98); }
         .acard .a-ic {
             width:36px; height:36px; border-radius:var(--radius-base);
             background:var(--accent-soft); color:var(--accent-text);
@@ -119,9 +132,7 @@
         .acard.primary .a-ic { background:var(--accent); color:var(--accent-on); }
         .acard .a-label { font-size:13px; font-weight:600; color:var(--text-heading); line-height:1.3; }
         .acard .a-sub   { font-size:11px; color:var(--text-muted); margin-top:3px; }
-        /* Library tile uses emoji icon */
-        .acard .a-em { font-size:22px; margin-bottom:8px; display:block; }
-        .acard--hydration .a-ic { background:transparent; }
+        .acard--hydration .a-ic { background:var(--info-soft); color:var(--info-text); }
 
         /* Overline section label */
         .overline { font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--text-subtle); padding:4px 0; }
@@ -544,7 +555,7 @@
         .a-ic--glass svg { position:absolute; inset:0; margin:auto; color:var(--accent-text); }
         .a-ic-glassnum { position:relative; font-size:13px; font-weight:700; color:var(--accent-text); padding-top:3px; }
         .overline.qa-head { display:flex; align-items:center; justify-content:space-between; }
-        .qa-edit-link { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--accent-text); cursor:pointer; }
+        .qa-edit-link { display:inline-flex; align-items:center; justify-content:center; gap:4px; font-size:11.5px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--accent-text); cursor:pointer; min-height:44px; min-width:44px; padding:0 10px; margin:0 -10px; }
         .qa-edit-link .icon { width:14px; height:14px; }
 
         /* Quick actions editor — bottom sheet.
@@ -642,7 +653,10 @@
 
             <!-- Hero — banner header + wellness score body -->
             <div class="hero-wellness reveal">
-                <div class="hero-band"><span class="hero-band-label">Self Care · Standard</span></div>
+                <div class="hero-band">
+                    <span class="hero-band-label">Self Care · Standard</span>
+                    <img class="hero-band-logo" src="assets/Carebridge Logo.PNG" alt="Care Bridge Home">
+                </div>
                 <div class="hero-body">
                     <div class="w-score">
                         <div class="w-ring" id="scoreRing"><span class="w-ring-num" id="scoreNum">85</span></div>
@@ -662,6 +676,34 @@
             <div id="homeNoteCard" class="card reveal home-note" style="display:none;padding:12px 14px">
                 <div class="overline" style="margin-bottom:4px;padding:0">Today's note</div>
                 <p class="t-body-s" id="homeNoteText" style="color:var(--text-body)"></p>
+            </div>
+
+            <!-- Today's schedule — lightweight deep-link into the Health tab's Appointments panel -->
+            <div class="card reveal tap" onclick="CBH.goTab('healthView','health'); switchHealthTab('appts')">
+                <div class="card__head">
+                    <span class="card__title">Today's schedule</span>
+                    <button class="card__link" onclick="event.stopPropagation(); CBH.go('appointmentRequestView')">
+                        <span class="icon"><svg><use href="#i-plus"/></svg></span>Schedule
+                    </button>
+                </div>
+                <div class="row" style="padding:0">
+                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>
+                    <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician · 10:30 AM · In-person</div></div>
+                    <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                </div>
+            </div>
+
+            <!-- Today's medications — summary only; tick-off stays exclusively in the Meds tab -->
+            <div class="card reveal tap" onclick="CBH.goTab('medicationView','meds')">
+                <div class="card__head"><span class="card__title">Today's medications</span></div>
+                <div style="display:flex;align-items:center;gap:14px">
+                    <div class="stock-ring" id="homeMedRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="homeMedRingNum">50%</span></div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-weight:700;font-size:14px;color:var(--text-heading)"><span id="homeMedCountNum">2</span> of <span id="homeMedCountTotal">4</span> medications taken</div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="homeMedNote">Next due: Vitamin D3, 12:00 PM</div>
+                    </div>
+                    <span class="icon" style="width:18px;height:18px;color:var(--text-subtle);flex-shrink:0"><svg><use href="#i-chevron"/></svg></span>
+                </div>
             </div>
 
             <!-- Today's health with source toggle -->
@@ -702,34 +744,6 @@
                     </button>
                 </div>
                 <p class="t-body-s" style="color:var(--text-muted);margin-top:6px" id="vitalsFooter">Recorded 7:30 AM · All readings excellent</p>
-            </div>
-
-            <!-- Today's medications — summary only; tick-off stays exclusively in the Meds tab -->
-            <div class="card reveal tap" onclick="CBH.goTab('medicationView','meds')">
-                <div class="card__head"><span class="card__title">Today's medications</span></div>
-                <div style="display:flex;align-items:center;gap:14px">
-                    <div class="stock-ring" id="homeMedRing" style="--stock-ring-pct:50%"><span class="stock-ring-num" id="homeMedRingNum">50%</span></div>
-                    <div style="flex:1;min-width:0">
-                        <div style="font-weight:700;font-size:14px;color:var(--text-heading)"><span id="homeMedCountNum">2</span> of <span id="homeMedCountTotal">4</span> medications taken</div>
-                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="homeMedNote">Next due: Vitamin D3, 12:00 PM</div>
-                    </div>
-                    <span class="icon" style="width:18px;height:18px;color:var(--text-subtle);flex-shrink:0"><svg><use href="#i-chevron"/></svg></span>
-                </div>
-            </div>
-
-            <!-- Today's schedule — lightweight deep-link into the Health tab's Appointments panel -->
-            <div class="card reveal tap" onclick="CBH.goTab('healthView','health'); switchHealthTab('appts')">
-                <div class="card__head">
-                    <span class="card__title">Today's schedule</span>
-                    <button class="card__link" onclick="event.stopPropagation(); CBH.go('appointmentRequestView')">
-                        <span class="icon"><svg><use href="#i-plus"/></svg></span>Schedule
-                    </button>
-                </div>
-                <div class="row" style="padding:0">
-                    <div class="ic ic--accent"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>
-                    <div class="m"><div class="t">Dr. Rajeev Menon</div><div class="s">Family physician · 10:30 AM · In-person</div></div>
-                    <span class="chev"><svg><use href="#i-chevron"/></svg></span>
-                </div>
             </div>
 
             <!-- Quick actions — dynamic, user-editable grid (max 4, data-driven from QA_CATALOG) -->
@@ -1323,6 +1337,42 @@
                     </div>
                 </div>
 
+                <!-- Insurance & reimbursement forms — external gov/insurer links, opened in a new tab -->
+                <div class="inv-item" id="doc-cat-insurance">
+                    <div class="inv-item-top" onclick="toggleInv('doc-cat-insurance')">
+                        <div class="inv-ic" style="background:var(--success-soft);color:var(--success-text)"><span class="icon"><svg><use href="#i-shield"/></svg></span></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="inv-name">Insurance Forms</div>
+                            <div class="inv-for">4 forms</div>
+                        </div>
+                        <span class="inv-twistie">›</span>
+                    </div>
+                    <div class="inv-details">
+                        <div class="rows">
+                            <a class="row" href="https://medisep.kerala.gov.in/Reimbursement.jsp" target="_blank" rel="noopener">
+                                <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                                <div class="m"><div class="t">MEDISEP reimbursement</div><div class="s">How to claim back medical expenses under the Kerala state employees &amp; pensioners insurance scheme, and which documents to attach</div></div>
+                                <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                            </a>
+                            <a class="row" href="https://keralaagriculture.gov.in/wp-content/uploads/2021/04/mr.pdf" target="_blank" rel="noopener">
+                                <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                                <div class="m"><div class="t">Government medical reimbursement form</div><div class="s">Standard Kerala Government claim form for medical expenses of government servants and their families, plus the doctor's essentiality certificate</div></div>
+                                <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                            </a>
+                            <a class="row" href="https://portal.uiic.in/ArogyaSuraksha/claimformInsured.pdf" target="_blank" rel="noopener">
+                                <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                                <div class="m"><div class="t">Arogya Suraksha claim form — Part A</div><div class="s">United India Insurance health claim form for you (the insured) to fill in with your policy and treatment details</div></div>
+                                <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                            </a>
+                            <a class="row" href="https://portal.uiic.in/ArogyaSuraksha/claimformHospital.pdf" target="_blank" rel="noopener">
+                                <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>
+                                <div class="m"><div class="t">Arogya Suraksha claim form — Part B</div><div class="s">Companion form for your hospital to fill in and certify — hand this to them alongside Part A</div></div>
+                                <span class="chev"><svg><use href="#i-chevron"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Other -->
                 <div class="inv-item" id="doc-cat-other">
                     <div class="inv-item-top" onclick="toggleInv('doc-cat-other')">
@@ -1646,7 +1696,7 @@
                 <div class="wc-share-row" style="border-top:none;padding-top:0">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-cog"/></svg></span></div>
                     <div class="wc-share-label">Sync in background<div class="ci-sub" style="font-weight:400;margin-top:2px">Keeps readings current even when the app is closed</div></div>
-                    <div class="switch switch--lg on" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch switch--lg on" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
             </div>
 
@@ -1659,27 +1709,27 @@
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></div>
                     <div class="wc-share-label">Heart rate</div>
-                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-moon-stars"/></svg></span></div>
                     <div class="wc-share-label">Sleep</div>
-                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-lungs"/></svg></span></div>
                     <div class="wc-share-label">Blood oxygen (SpO₂)</div>
-                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-walking"/></svg></span></div>
                     <div class="wc-share-label">Steps &amp; activity</div>
-                    <div class="switch on" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch on" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-brain"/></svg></span></div>
                     <div class="wc-share-label">Stress level</div>
-                    <div class="switch" onclick="wcToggleSwitch(this)"></div>
+                    <div class="switch" onclick="wcToggleSwitch(this)"><span class="switch-knob"></span></div>
                 </div>
             </div>
 
@@ -1959,7 +2009,7 @@
                 <div class="wc-share-row" style="padding:9px 2px">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-calendar"/></svg></span></div>
                     <div class="wc-share-label">Add to phone calendar<div class="ci-sub" style="font-weight:400;margin-top:2px">Saves an event you can open in your phone's default calendar app</div></div>
-                    <div class="switch" id="apptCalendarSwitch" onclick="toggleApptCalendarSync(this)"></div>
+                    <div class="switch" id="apptCalendarSwitch" onclick="toggleApptCalendarSync(this)"><span class="switch-knob"></span></div>
                 </div>
                 <div id="apptReminderRow" style="display:none;padding:4px 2px 0">
                     <label style="font-size:12.5px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:6px">Remind me</label>
@@ -2074,12 +2124,12 @@
                 <div class="wc-share-row" style="padding:9px 0">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-heart"/></svg></span></div>
                     <div class="wc-share-label">Blood pressure<div class="ci-sub" style="font-weight:400;margin-top:2px">On by default — shown on Home and Health</div></div>
-                    <div class="switch on" style="opacity:.5;pointer-events:none"></div>
+                    <div class="switch on" style="opacity:.5;pointer-events:none"><span class="switch-knob"></span></div>
                 </div>
                 <div class="wc-share-row">
                     <div class="wc-row-ic"><span class="icon"><svg><use href="#i-lab"/></svg></span></div>
                     <div class="wc-share-label">Blood sugar<div class="ci-sub" style="font-weight:400;margin-top:2px">Opt-in — turn on if you're tracking diabetes/glucose</div></div>
-                    <div class="switch" id="settingBloodSugarSwitch" onclick="toggleBloodSugarTracking(this)"></div>
+                    <div class="switch" id="settingBloodSugarSwitch" onclick="toggleBloodSugarTracking(this)"><span class="switch-knob"></span></div>
                 </div>
             </div>
             <!-- Family circle entry point in profile -->
@@ -2497,10 +2547,10 @@
     <section class="view" id="journalView">
         <div class="tbar">
             <button class="backbtn" onclick="CBH.back()"><span class="icon"><svg><use href="#i-chevron"/></svg></span></button>
-            <div class="tbar__title"><h1 class="sm">My Journal</h1></div>
+            <div class="tbar__title"><h1 class="sm">My journal</h1></div>
         </div>
         <div class="vbody">
-            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Jot down anything you'd like to remember or share with your care team. This is an early placeholder — the full journal experience is still being designed.</p>
+            <p class="t-body-m" style="color:var(--text-muted);padding:0 2px">Jot down anything you'd like to remember or share with your care team.</p>
             <div class="card reveal">
                 <div class="field" style="margin:0">
                     <label>New entry</label>
@@ -2745,19 +2795,19 @@
          it shrinks to make room instead. -->
     <div class="bnav bnav--docked bnav--5">
         <div class="bnav__i is-active" id="bnav-home" onclick="CBH.goTab('homeView','home')">
-            <div class="ic"><span class="icon"><svg><use href="#i-home"/></svg></span></div>Home
+            <div class="ic"><span class="icon"><svg><use href="#i-wellness-home"/></svg></span></div>Home
         </div>
         <div class="bnav__i" id="bnav-meds" onclick="CBH.goTab('medicationView','meds')">
-            <div class="ic"><span class="icon"><svg><use href="#i-pill"/></svg></span></div>Meds
+            <div class="ic"><span class="icon"><svg><use href="#i-medicine-care"/></svg></span></div>Meds
         </div>
         <div class="bnav__i" id="bnav-records" onclick="CBH.goTab('recordsView','records')">
-            <div class="ic"><span class="icon"><svg><use href="#i-document"/></svg></span></div>Records
+            <div class="ic"><span class="icon"><svg><use href="#i-health-records"/></svg></span></div>Records
         </div>
         <div class="bnav__i" id="bnav-health" onclick="CBH.goTab('healthView','health')">
-            <div class="ic"><span class="icon"><svg><use href="#i-stethoscope"/></svg></span></div>Health
+            <div class="ic"><span class="icon"><svg><use href="#i-care-team"/></svg></span></div>Health
         </div>
         <div class="bnav__i" id="bnav-tools" onclick="CBH.goTab('toolsView','tools')">
-            <div class="ic"><span class="icon"><svg><use href="#i-cog"/></svg></span></div>Tools
+            <div class="ic"><span class="icon"><svg><use href="#i-wellness-tools"/></svg></span></div>Tools
         </div>
     </div>
 
@@ -2942,7 +2992,10 @@ var QA_CATALOG = [
     { id:'upload',    label:'Upload a record',      sub:'Add to Records',         icon:'upload',   kind:'nav', view:'addDocumentView' },
     { id:'message',   label:'Message coordinator',  sub:'Chat with your team',    icon:'chat',     kind:'nav', view:'healthView', tab:'health' },
     { id:'refill',    label:'Request refill',       sub:'Medicine cabinet',       icon:'pill',     kind:'nav', view:'medicationView', tab:'meds' },
-    { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'appointmentRequestView' }
+    { id:'consult',   label:'Book a consultation',  sub:'Schedule a visit',       icon:'calendar', kind:'nav', view:'appointmentRequestView' },
+    { id:'trackers',  label:'Trackers',             sub:'Weight, BP, steps & more', icon:'trending', kind:'nav', view:'trackersView', tab:'tools' },
+    { id:'exercises', label:'Exercises',            sub:'Guided routines',        icon:'walking',  kind:'nav', view:'exercisesView', tab:'tools' },
+    { id:'library',   label:'Wellness library',     sub:'Tips & guides',          icon:'library',  kind:'nav', view:'wellnessLibraryView', tab:'tools' }
 ];
 var QA_DEFAULT_IDS = ['hydration','journal'];
 var QA_MAX = 4;

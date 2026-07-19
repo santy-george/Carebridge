@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Emergency SOS">
+        <div class="tbar">
+          <a class="backbtn" href="Home.dc.html"><span class="icon"><svg><use href="#i-chevron"></use></svg></span></a>
+          <div class="tbar__title"><h1 class="sm">Emergency SOS</h1></div>
+        </div>
+        <div class="vbody has-cta" style="align-items:center;text-align:center;justify-content:center">
+          <div style="width:96px;height:96px;border-radius:50%;background:var(--danger-soft);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:20px auto 6px">
+            <span class="icon" style="width:44px;height:44px"><svg style="width:44px;height:44px"><use href="#i-emergency"></use></svg></span>
+          </div>
+          <h2 style="font-family:var(--font-heading);font-weight:700;font-size:22px;color:var(--text-heading);margin:8px 0 4px">Send an emergency alert?</h2>
+          <p style="font-size:14px;color:var(--text-muted);max-width:280px;margin:0 auto">This will immediately call your care team and notify Sarah Doe and Michael Doe with your location.</p>
+
+          <div class="card reveal" style="width:100%;text-align:left;margin-top:22px">
+            <div class="row"><span class="avatar avatar--sm" style="background:var(--accent-soft);color:var(--accent-text);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">RA</span><div class="m"><div class="t">Rita Alvarez</div><div class="s">Primary nurse · will be called</div></div></div>
+            <div class="row"><span class="avatar avatar--sm" style="background:var(--purple-100);color:var(--purple-700);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">SD</span><div class="m"><div class="t">Sarah Doe</div><div class="s">Daughter · will be notified</div></div></div>
+          </div>
+        </div>
+        <div class="cta-bar">
+          <button class="mbtn mbtn--sos mbtn--block"><span class="icon"><svg><use href="#i-emergency"></use></svg></span>Confirm — call for help</button>
+          <a href="Home.dc.html"><button class="mbtn mbtn--ghost mbtn--block" style="margin-top:8px">Cancel</button></a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+</body>
+</html>

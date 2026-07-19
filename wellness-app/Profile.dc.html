@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Profile">
+        <div class="tbar">
+          <a class="backbtn" href="More.dc.html"><span class="icon"><svg><use href="#i-chevron"></use></svg></span></a>
+          <div class="tbar__title"><h1 class="sm">Profile &amp; settings</h1></div>
+        </div>
+        <div class="vbody has-nav">
+          <div class="idblock reveal" style="padding:4px 2px">
+            <span class="av">JD</span>
+            <div><div class="nm">Jane Doe</div><div class="sub">71 years old · Member since Jan 2025</div></div>
+          </div>
+          <span class="tierbadge tierbadge--self reveal"><span class="icon"><svg><use href="#i-shield"></use></svg></span>Self Care · Standard</span>
+
+          <div class="sec">Account</div>
+          <div class="card card--flush reveal">
+            <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-user"></use></svg></span></div><div class="m"><div class="t">Personal details</div><div class="s">Name, date of birth, address</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-shield"></use></svg></span></div><div class="m"><div class="t">Care model &amp; plan</div><div class="s">Self Care · Standard</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-device-watch"></use></svg></span></div><div class="m"><div class="t">Connected wearable</div><div class="s">CareBand Pro · Connected</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+          </div>
+
+          <div class="sec">Preferences</div>
+          <div class="card card--flush reveal">
+            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-bell"></use></svg></span></div><div class="m"><div class="t">Notifications</div><div class="s">Medication &amp; appointment reminders</div></div><div class="sw on"></div></div>
+            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-language"></use></svg></span></div><div class="m"><div class="t">Language</div><div class="s">English</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></div>
+            <div class="row"><div class="ic"><span class="icon"><svg><use href="#i-hands"></use></svg></span></div><div class="m"><div class="t">Privacy &amp; sharing</div><div class="s">Manage what your family can see</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></div>
+          </div>
+
+          <a href="More.dc.html"><button class="mbtn mbtn--line mbtn--block">Help &amp; support</button></a>
+          <a href="Login.dc.html"><button class="mbtn mbtn--ghost mbtn--block" style="color:var(--danger)">Log out</button></a>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Care">
+        <div class="tbar"><div class="tbar__title"><h1 class="sm">Care</h1></div></div>
+        <div class="vbody has-nav">
+          <div class="sec">Your care team<a href="#" onClick="{{ openCareSheet }}">+ Add</a></div>
+          <div class="card card--flush reveal">
+            <sc-for list="{{ careTeam }}" as="member" hint-placeholder-count="2">
+              <div class="row"><span class="avatar avatar--sm" style="background:{{ member.bg }};color:{{ member.fg }};width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ member.initials }}</span><div class="m"><div class="t">{{ member.name }}</div><div class="s">{{ member.role }}</div></div><div class="row-actions"><a class="iconbtn"><span class="icon"><svg><use href="#i-chat"></use></svg></span></a><a class="iconbtn"><span class="icon"><svg><use href="#i-phone"></use></svg></span></a></div></div>
+            </sc-for>
+          </div>
+
+          <div class="sec">Family Circle</div>
+          <div class="card reveal">
+            <div class="circle-member">
+              <span class="av">SD</span>
+              <div class="info"><div class="nm">Sarah Doe</div><div class="rel"><span class="icon"><svg><use href="#i-globe"></use></svg></span>Daughter · Toronto, Canada</div></div>
+              <span class="perm lvl-full">Full access</span>
+            </div>
+            <div class="circle-member">
+              <span class="av">MD</span>
+              <div class="info"><div class="nm">Michael Doe</div><div class="rel">Son · San Jose, CA</div></div>
+              <span class="perm">View only</span>
+            </div>
+          </div>
+          <button class="mbtn mbtn--soft mbtn--block reveal"><span class="icon"><svg><use href="#i-plus"></use></svg></span>Invite family member</button>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i is-active" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+
+        <div class="{{ scrimClass }}" onClick="{{ closeSheet }}"></div>
+        <div class="{{ careSheetClass }}">
+          <div class="sheet__grip"></div>
+          <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+          <h2>Add care team member</h2>
+          <p class="lead">Add a person who supports Jane's care.</p>
+          <form onSubmit="{{ submitCare }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-height:60vh;overflow-y:auto;padding-right:2px">
+            <div class="field"><label>Name</label><input type="text" placeholder="e.g. Dr. Priya Menon" value="{{ careName }}" onChange="{{ onCareName }}"></div>
+            <div class="field"><label>Description / role</label><input type="text" placeholder="e.g. Primary physician" value="{{ careDesc }}" onChange="{{ onCareDesc }}"></div>
+            <div class="field"><label>Phone</label><input type="tel" placeholder="e.g. (555) 010-1234" value="{{ carePhone }}" onChange="{{ onCarePhone }}"></div>
+            <div class="field"><label>Email (optional)</label><input type="email" placeholder="e.g. priya@clinic.com" value="{{ careEmail }}" onChange="{{ onCareEmail }}"></div>
+            <div class="field"><label>Address</label><input type="text" placeholder="e.g. 214 Elm St, Springfield" value="{{ careAddress }}" onChange="{{ onCareAddress }}"></div>
+            <div class="field"><label>Notes</label><textarea placeholder="Anything the family should know" value="{{ careNotes }}" onChange="{{ onCareNotes }}"></textarea></div>
+            <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save care member</button>
+          </form>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  state = {
+    sheet: null,
+    careTeam: [
+      { initials: 'RA', name: 'Rita Alvarez', role: 'Primary nurse', bg: 'var(--accent-soft)', fg: 'var(--accent-text)' },
+      { initials: 'TB', name: 'Tom Bennett', role: 'Care coordinator', bg: 'var(--purple-100)', fg: 'var(--purple-700)' },
+    ],
+    careName: '', careDesc: '', carePhone: '', careEmail: '', careAddress: '', careNotes: '',
+  };
+
+  openCareSheet = e => { e.preventDefault(); this.setState({ sheet: 'care' }); };
+  closeSheet = () => this.setState({ sheet: null });
+
+  submitCare = e => {
+    e.preventDefault();
+    const { careName, careDesc } = this.state;
+    if (!careName.trim()) return;
+    const initials = careName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    this.setState({
+      careTeam: [...this.state.careTeam, { initials, name: careName, role: careDesc || 'Care team member', bg: 'var(--accent-soft)', fg: 'var(--accent-text)' }],
+      careName: '', careDesc: '', carePhone: '', careEmail: '', careAddress: '', careNotes: '', sheet: null,
+    });
+  };
+
+  renderVals() {
+    const s = this.state;
+    return {
+      careTeam: s.careTeam,
+      openCareSheet: this.openCareSheet,
+      closeSheet: this.closeSheet,
+      submitCare: this.submitCare,
+      scrimClass: 'scrim' + (s.sheet ? ' show' : ''),
+      careSheetClass: 'sheet' + (s.sheet === 'care' ? ' show' : ''),
+      careName: s.careName, careDesc: s.careDesc, carePhone: s.carePhone, careEmail: s.careEmail, careAddress: s.careAddress, careNotes: s.careNotes,
+      onCareName: e => this.setState({ careName: e.target.value }),
+      onCareDesc: e => this.setState({ careDesc: e.target.value }),
+      onCarePhone: e => this.setState({ carePhone: e.target.value }),
+      onCareEmail: e => this.setState({ careEmail: e.target.value }),
+      onCareAddress: e => this.setState({ careAddress: e.target.value }),
+      onCareNotes: e => this.setState({ careNotes: e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>

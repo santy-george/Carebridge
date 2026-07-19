@@ -1,0 +1,4 @@
+/* Care Bridge Home — Corner-radius tokens */
+:root {
+  --radius-sm:4px; --radius:8px; --radius-base:12px; --radius-lg:16px; --radius-xl:18px; --radius-2xl:24px; --radius-full:999px;
+}

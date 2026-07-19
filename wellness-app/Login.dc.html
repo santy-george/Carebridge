@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="login">
+        <div class="login__art">
+          <img class="login__logo" src="assets/cbh-logo.svg" alt="Care Bridge Home">
+          <span class="login__app"><span class="icon"><svg><use href="#i-pulse"></use></svg></span>Wellness App</span>
+          <h1>Welcome back, Jane</h1>
+          <p>Sign in to see today's check-in, medications and vitals.</p>
+        </div>
+        <div class="login__form">
+          <div class="field"><label>Mobile number</label><input type="text" value="+1 (415) 555-0148" readonly></div>
+          <div class="field"><label>PIN</label><input type="password" value="1234" readonly></div>
+          <div class="login__row"><span></span><a href="#">Forgot PIN?</a></div>
+          <a href="Home.dc.html"><button class="mbtn mbtn--fill mbtn--block">Sign in</button></a>
+          <div class="login__demo">Demo login — <b>+1 (415) 555-0148</b> · PIN <b>1234</b></div>
+        </div>
+        <div class="login__foot"><span>Secure sign-in · Care Bridge Home</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

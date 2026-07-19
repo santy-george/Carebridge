@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+    @media print { .bnav, .tbar { display:none !important; } .device, .stage, .screen, .stack, .view, .vbody { overflow:visible !important; height:auto !important; position:static !important; } }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Health">
+        <div class="tbar"><div class="tbar__title"><h1 class="sm" style="color: var(--purple-700)">Observations</h1></div></div>
+        <div class="vbody has-nav">
+          <p style="font-size:12.5px;color:var(--text-muted);margin:0">These observations are from the readings collected from your smart devices and manual entries. Please reach out to your care team or general physician for professional medical advice.</p>
+
+          <div class="sec">All readings<span onClick="{{ toggleExport }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--accent-text)"><span class="icon" style="width:14px;height:14px"><svg><use href="#i-download"></use></svg></span>Export</span></div>
+
+          <sc-if value="{{ exportOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:8px;margin:-4px 0 4px">
+              <button onClick="{{ printPdf }}" class="mbtn mbtn--line mbtn--sm" style="flex:1"><span class="icon"><svg><use href="#i-document"></use></svg></span>Print PDF</button>
+              <button onClick="{{ exportPng }}" class="mbtn mbtn--line mbtn--sm" style="flex:1"><span class="icon"><svg><use href="#i-camera"></use></svg></span>Export PNG</button>
+            </div>
+          </sc-if>
+
+          <div class="card card--flush reveal">
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+              <div style="border-top:1px solid var(--border);background:{{ r.rowBg }}">
+                <div onClick="{{ r.toggle }}" style="display:grid;grid-template-columns:1fr 76px 96px 18px;align-items:center;gap:8px;padding:12px 14px;cursor:pointer">
+                  <div>
+                    <div style="font-weight:600;font-size:13.5px;color:var(--text-heading)">{{ r.name }}</div>
+                    <div style="font-size:10px;color:var(--text-subtle);margin-top:1px">{{ r.category }}</div>
+                  </div>
+                  <div style="text-align:right;font-family:var(--font-heading);font-weight:700;font-size:13px;color:var(--text-heading)">{{ r.value }}</div>
+                  <div style="text-align:right"><span class="chip2 {{ r.chipClass }}">{{ r.statusLabel }}</span></div>
+                  <span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ r.chevTransform }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span>
+                </div>
+                <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:0 14px 16px;background:var(--surface-sunken)">
+                    <div style="font-size:10.5px;color:var(--text-subtle);margin-bottom:6px">Normal range: {{ r.range }}</div>
+                    <svg viewBox="0 0 280 40" style="width:100%;height:40px;display:block">
+                      <polyline points="{{ r.pts }}" fill="none" stroke="var(--purple-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                      <sc-if value="{{ r.hasSecondary }}" hint-placeholder-val="{{ false }}">
+                        <polyline points="{{ r.ptsSecondary }}" fill="none" stroke="var(--cyan-400)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                      </sc-if>
+                    </svg>
+                    <div style="display:flex;justify-content:space-between;margin-top:2px">
+                      <sc-for list="{{ r.dayRows }}" as="d" hint-placeholder-count="7">
+                        <div style="text-align:center;flex:1">
+                          <div style="font-size:8.5px;color:var(--text-subtle);text-transform:uppercase;font-weight:700">{{ d.day }}</div>
+                          <div style="font-size:10px;color:var(--text-heading);font-weight:600;margin-top:1px">{{ d.val }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="font-size:12px;color:var(--text-body);line-height:1.5;margin-top:10px">{{ r.note }}</div>
+                    <sc-if value="{{ r.hasSuggestion }}" hint-placeholder-val="{{ false }}">
+                      <div class="banner banner--warn" style="margin-top:10px;padding:10px">
+                        <div class="ic" style="width:28px;height:28px"><span class="icon" style="width:15px;height:15px"><svg><use href="#i-alert"></use></svg></span></div>
+                        <div><div class="bt" style="font-size:12.5px">Suggested next step</div><div class="bs">{{ r.suggestion }}</div></div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i is-active" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  state = { open: {}, exportOpen: false, bmiHistory: null };
+
+  componentDidMount() {
+    let history;
+    try { history = JSON.parse(localStorage.getItem('cbh-bmi-log')); } catch (e) { history = null; }
+    if (!Array.isArray(history) || history.length === 0) {
+      history = [
+        { date: '2026-07-08', weight: 71.5, height: 162 },
+        { date: '2026-07-10', weight: 71.2, height: 162 },
+        { date: '2026-07-12', weight: 70.8, height: 162 },
+        { date: '2026-07-15', weight: 70.6, height: 162 },
+        { date: '2026-07-17', weight: 70.4, height: 162 },
+      ];
+    }
+    this.setState({ bmiHistory: history });
+  }
+  bmiOf(weight, height) {
+    const h = height / 100;
+    return Math.round((weight / (h * h)) * 10) / 10;
+  }
+  bmiCategory(bmi) {
+    if (bmi < 18.5) return { label: 'Underweight', status: 'warn' };
+    if (bmi < 25) return { label: 'Normal', status: 'ok' };
+    if (bmi < 30) return { label: 'Overweight', status: 'warn' };
+    return { label: 'Obese', status: 'critical' };
+  }
+  fmtShortDate(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  scaleY(values, h, pad) {
+    const min = Math.min(...values), max = Math.max(...values);
+    const range = (max - min) || 1;
+    return values.map(v => Math.round((pad + (1 - (v - min) / range) * (h - 2 * pad)) * 10) / 10);
+  }
+  buildPoints(ys, w) {
+    const n = ys.length;
+    return ys.map((y, i) => Math.round(i * (w / (n - 1))) + ',' + y).join(' ');
+  }
+  toggleRow(id) {
+    this.setState(s => ({ open: { ...s.open, [id]: !s.open[id] } }));
+  }
+  toggleExport = () => this.setState(s => ({ exportOpen: !s.exportOpen }));
+  printPdf = () => { this.setState({ exportOpen: false }); window.print(); };
+  exportPng = () => { this.setState({ exportOpen: false }); window.print(); };
+
+  renderVals() {
+    const days = ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Today'];
+    const defs = [
+      { id: 'hr', category: 'Cardiovascular', name: 'Heart rate', unit: 'bpm', range: '60–100 bpm', status: 'ok',
+        values: [70, 74, 71, 73, 69, 72, 72],
+        note: "A resting rate in this range means your heart is working efficiently. Left unchecked over time, a persistently high or low rate can signal strain on the heart or an underlying rhythm issue." },
+      { id: 'bp', category: 'Cardiovascular', name: 'Blood pressure', unit: 'mmHg', range: 'below 120/80', status: 'ok',
+        values: [122, 124, 120, 126, 121, 118, 120], secondaryValues: [80, 81, 79, 82, 80, 78, 80],
+        note: "Sustained readings above 130/80 raise the risk of stroke, heart disease and kidney strain if not managed with your care team." },
+      { id: 'hrv', category: 'Cardiovascular', name: 'Heart rate variability', unit: 'ms', range: 'baseline 40–55 ms', status: 'ok',
+        values: [42, 45, 40, 47, 44, 50, 48],
+        note: "Higher HRV generally reflects good recovery. A steady drop over several days can be an early sign of stress, illness or overtraining." },
+      { id: 'glucose', category: 'Metabolic', name: 'Blood glucose', unit: 'mg/dL', range: 'below 140 post-meal', status: 'warn',
+        values: [128, 135, 118, 142, 110, 130, 140],
+        note: "Repeated highs over weeks raise the risk of diabetes-related complications, including nerve, eye and kidney damage.",
+        suggestion: "Log meals alongside your next few readings and share this trend with Rita Alvarez." },
+      { id: 'spo2', category: 'Respiratory', name: 'SpO2', unit: '%', range: '95–100%', status: 'ok',
+        values: [97, 98, 97, 98, 97, 99, 97],
+        note: "Readings below 92% can indicate your body isn't getting enough oxygen and should be checked promptly, especially alongside breathlessness." },
+      { id: 'resp', category: 'Respiratory', name: 'Respiratory rate', unit: 'breaths/min', range: '12–20', status: 'ok',
+        values: [14, 15, 16, 14, 15, 15, 15],
+        note: "A consistently faster rate can be an early sign of infection, anxiety or a respiratory condition worth mentioning at your next check-in." },
+      { id: 'sleep', category: 'Sleep & recovery', name: 'Sleep duration', unit: 'hrs', range: '7–9 hrs recommended', status: 'warn',
+        values: [7.2, 6.8, 7.5, 6.5, 6.9, 6.2, 6.75],
+        note: "Ongoing short sleep can raise blood pressure, affect blood sugar control and mood over time.",
+        suggestion: "Try winding down 30 minutes earlier tonight; flag it to your care team if it continues past this week." },
+      { id: 'steps', category: 'Activity', name: 'Steps today', unit: 'steps', range: 'goal 5,000–8,000', status: 'warn',
+        values: [5200, 4800, 6100, 3900, 5400, 4600, 4120],
+        note: "Long stretches of inactivity raise fall and cardiovascular risk over time.",
+        suggestion: "A short walk after lunch can help close today's gap." },
+    ];
+
+    const sevRank = { critical: 2, warn: 1, ok: 0 };
+    const sorted = defs.map((d, i) => ({ ...d, idx: i })).sort((a, b) => sevRank[b.status] - sevRank[a.status] || a.idx - b.idx);
+    const chipClass = s => s === 'critical' ? 'chip2--alert' : s === 'warn' ? 'chip2--warn' : 'chip2--ok';
+    const chipLabel = s => s === 'critical' ? 'Critical' : s === 'warn' ? 'Needs attention' : 'Normal';
+    const fmt = v => Number.isInteger(v) ? v : v.toFixed(1);
+
+    const rows = sorted.map(d => {
+      const last = d.values[d.values.length - 1];
+      const valueLabel =
+        d.id === 'bp' ? Math.round(last) + '/' + Math.round(d.secondaryValues[d.secondaryValues.length - 1]) :
+        d.id === 'sleep' ? Math.floor(last) + 'h ' + Math.round((last % 1) * 60) + 'm' :
+        d.id === 'steps' ? Math.round(last).toLocaleString() :
+        fmt(last) + ' ' + d.unit;
+      const pts = this.buildPoints(this.scaleY(d.values, 40, 6), 280);
+      const ptsSecondary = d.secondaryValues ? this.buildPoints(this.scaleY(d.secondaryValues, 40, 6), 280) : '';
+      const dayRows = days.map((day, i) => ({
+        day,
+        val: d.id === 'bp' ? Math.round(d.values[i]) + '/' + Math.round(d.secondaryValues[i]) : fmt(d.values[i]),
+      }));
+      return {
+        id: d.id, category: d.category, name: d.name, range: d.range, value: valueLabel,
+        chipClass: chipClass(d.status), statusLabel: chipLabel(d.status),
+        note: d.note, suggestion: d.suggestion || '', hasSuggestion: !!d.suggestion,
+        open: !!this.state.open[d.id],
+        chevTransform: this.state.open[d.id] ? 'rotate(180deg)' : 'none',
+        toggle: () => this.toggleRow(d.id),
+        pts, ptsSecondary, hasSecondary: !!d.secondaryValues, dayRows,
+      };
+    });
+
+    const history = this.state.bmiHistory || [{ date: '2026-07-17', weight: 70.4, height: 162 }];
+    const recentH = history.slice(-7);
+    const bmis = recentH.map(h => this.bmiOf(h.weight, h.height));
+    const lastBmi = bmis[bmis.length - 1];
+    const bmiCat = this.bmiCategory(lastBmi);
+    const bmiPts = this.buildPoints(this.scaleY(bmis, 40, 6), 280);
+    const bmiDayRows = recentH.map((h, i) => ({ day: this.fmtShortDate(h.date), val: bmis[i].toFixed(1) }));
+    const bmiRow = {
+      id: 'bmi', category: 'Body composition', name: 'Body Mass Index', range: '18.5–24.9',
+      value: lastBmi.toFixed(1),
+      chipClass: chipClass(bmiCat.status), statusLabel: bmiCat.status === 'ok' ? 'Normal' : bmiCat.label,
+      note: "BMI is a screening measure calculated from your logged weight and height. Values outside the normal range are linked to higher risk of heart disease, diabetes and joint strain — your care team can help interpret it alongside your other vitals.",
+      suggestion: bmiCat.status !== 'ok' ? 'Share this trend with Rita Alvarez at your next check-in and keep logging weight regularly.' : '',
+      hasSuggestion: bmiCat.status !== 'ok',
+      open: !!this.state.open['bmi'],
+      chevTransform: this.state.open['bmi'] ? 'rotate(180deg)' : 'none',
+      toggle: () => this.toggleRow('bmi'),
+      pts: bmiPts, ptsSecondary: '', hasSecondary: false, dayRows: bmiDayRows,
+      sevRank: sevRank[bmiCat.status],
+    };
+    const allRows = [...rows.map((r, i) => ({ ...r, sevRank: sevRank[sorted[i].status] })), bmiRow]
+      .sort((a, b) => b.sevRank - a.sevRank)
+      .map((r, i) => ({ ...r, rowBg: i % 2 === 1 ? 'var(--purple-50)' : 'transparent' }));
+
+    return {
+      rows: allRows,
+      exportOpen: this.state.exportOpen,
+      toggleExport: this.toggleExport,
+      printPdf: this.printPdf,
+      exportPng: this.exportPng,
+    };
+  }
+}
+</script>
+</body>
+</html>

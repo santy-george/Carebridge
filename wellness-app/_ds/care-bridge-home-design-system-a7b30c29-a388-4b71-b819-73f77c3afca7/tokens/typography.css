@@ -1,0 +1,28 @@
+/* Care Bridge Home — Typography tokens
+   One family (Urbanist) shared by every app; the .t-* utility classes are
+   the product's own type scale — reuse them instead of ad-hoc font-sizes. */
+
+:root {
+  --font-heading:"Urbanist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-body:"Urbanist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+.t-display-l{ font-family:var(--font-heading); font-weight:700; font-size:56px; line-height:1.08; letter-spacing:-1px; color:var(--text-heading) }
+.t-display-m{ font-family:var(--font-heading); font-weight:700; font-size:40px; line-height:1.12; letter-spacing:-.6px; color:var(--text-heading) }
+.t-heading-xl{ font-family:var(--font-heading); font-weight:700; font-size:32px; line-height:1.18; letter-spacing:-.4px; color:var(--text-heading) }
+.t-heading-l{ font-family:var(--font-heading); font-weight:600; font-size:26px; line-height:1.22; letter-spacing:-.3px; color:var(--text-heading) }
+.t-heading-m{ font-family:var(--font-heading); font-weight:600; font-size:22px; line-height:1.26; letter-spacing:-.2px; color:var(--text-heading) }
+.t-heading-s{ font-family:var(--font-heading); font-weight:600; font-size:18px; line-height:1.32; letter-spacing:-.1px; color:var(--text-heading) }
+.t-heading-xs{ font-family:var(--font-heading); font-weight:600; font-size:16px; line-height:1.36; color:var(--text-heading) }
+.t-title{ font-family:var(--font-body); font-weight:600; font-size:15px; line-height:1.4; color:var(--text-heading) }
+.t-body-l{ font-size:16px; line-height:1.5 }
+.t-body-m{ font-size:14px; line-height:1.48 }
+.t-body-s{ font-size:13px; line-height:1.46 }
+.t-label-l{ font-weight:500; font-size:14px; line-height:1.2 }
+.t-label-m{ font-weight:500; font-size:12px; line-height:1.2; letter-spacing:.2px }
+.t-label-s{ font-weight:600; font-size:11px; line-height:1.1; letter-spacing:.4px }
+.t-overline{ font-weight:600; font-size:11px; line-height:1.1; letter-spacing:.6px; text-transform:uppercase; color:var(--text-subtle) }
+
+/* Wellness App (Self Care) hierarchy — larger, bolder, for an older/low-vision audience */
+.t-greeting{ font-family:var(--font-heading); font-weight:700; font-size:24px; line-height:1.2; letter-spacing:-.4px; color:var(--text-heading) }
+.t-stat{ font-family:var(--font-heading); font-weight:700; font-size:22px; line-height:1; color:var(--text-heading) }

@@ -1,0 +1,22 @@
+/* Care Bridge Home — Typeface
+   Urbanist (variable, wght 100–900) — the single family across all three apps.
+   Local files shipped in /assets/fonts (sourced from the product codebase);
+   Google Fonts is used as the fallback CDN in the original product. */
+
+@font-face {
+  font-family: "Urbanist";
+  src: url("../assets/fonts/Urbanist-VariableFont_wght.ttf") format("truetype-variations"),
+       url("../assets/fonts/Urbanist-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Urbanist";
+  src: url("../assets/fonts/Urbanist-Italic-VariableFont_wght.ttf") format("truetype-variations"),
+       url("../assets/fonts/Urbanist-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}

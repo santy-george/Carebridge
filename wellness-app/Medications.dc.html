@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+    .cup-btn{ border:none; background:none; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; height:36px; transition:transform .12s var(--ease) }
+    .cup-btn .icon{ width:22px; height:22px }
+    .cup-btn:active{ transform:scale(.9) }
+    .goal-step{ width:32px; height:32px; border-radius:50%; border:1px solid var(--border-strong); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-heading) }
+    .goal-step:active{ transform:scale(.94) }
+    .seg button.is-active{ background:var(--purple-700); color:#fff; box-shadow:var(--shadow-xs) }
+    .card--flush .med-item{ padding-left:16px; padding-right:16px }
+    .med-item__toggle{ cursor:pointer }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Medications">
+        <div class="tbar"><div class="tbar__title"><h1 class="sm">My Schedule</h1></div>
+          <sc-if value="{{ showMedAdd }}" hint-placeholder-val="{{ false }}">
+            <a class="iconbtn" onClick="{{ openMedSheet }}"><span class="icon"><svg><use href="#i-plus"></use></svg></span></a>
+          </sc-if>
+        </div>
+        <div class="vbody has-nav">
+          <div class="seg" style="margin-bottom:4px">
+            <button class="{{ tabApptClass }}" onClick="{{ setTabAppt }}">Appointments</button>
+            <button class="{{ tabMedClass }}" onClick="{{ setTabMed }}">Medications</button>
+            <button class="{{ tabActClass }}" onClick="{{ setTabAct }}">Activity</button>
+          </div>
+
+          <sc-if value="{{ isApptTab }}" hint-placeholder-val="{{ true }}">
+            <div class="sec">Upcoming</div>
+            <div class="card reveal" style="background:var(--purple-50)">
+              <div style="display:flex;gap:6px;margin-bottom:14px">
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">SUN</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">19</div><div style="width:4px;height:4px;border-radius:50%;background:var(--accent);margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">MON</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">20</div><div style="width:4px;height:4px;margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--purple-700)"><div style="font-size:10.5px;color:rgba(255,255,255,.8);font-weight:600">TUE</div><div style="font-size:14px;font-weight:700;color:#fff;margin-top:2px">21</div><div style="width:4px;height:4px;margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">WED</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">22</div><div style="width:4px;height:4px;border-radius:50%;background:var(--accent);margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">THU</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">23</div><div style="width:4px;height:4px;margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">FRI</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">24</div><div style="width:4px;height:4px;margin:4px auto 0"></div></div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-base);background:var(--surface)"><div style="font-size:10.5px;color:var(--text-muted);font-weight:600">SAT</div><div style="font-size:14px;font-weight:700;color:var(--text-heading);margin-top:2px">25</div><div style="width:4px;height:4px;margin:4px auto 0"></div></div>
+              </div>
+              <sc-for list="{{ appointments }}" as="appt" hint-placeholder-count="2">
+                <div class="med-item">
+                  <div class="ic"><span class="icon"><svg><use href="{{ appt.iconHref }}"></use></svg></span></div>
+                  <div class="m"><div class="t">{{ appt.title }}</div><div class="s"><span class="dose">{{ appt.sub }}</span><span>{{ appt.when }}</span></div></div>
+                  <span class="chip chip--scheduled">Upcoming</span>
+                </div>
+              </sc-for>
+            </div>
+            <button type="button" class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onClick="{{ openApptSheet }}">Add appointment</button>
+          </sc-if>
+
+          <sc-if value="{{ isMedTab }}" hint-placeholder-val="{{ false }}">
+            <div class="sec tap" onClick="{{ toggleMorning }}">Morning<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ morningChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ morningOpen }}" hint-placeholder-val="{{ true }}">
+              <div class="card card--flush reveal" style="background:var(--amber-50)">
+                <div class="{{ m0Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Metformin 500mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m0Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ m1Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Atorvastatin 10mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m1Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ m2Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Aspirin 75mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m2Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+              </div>
+            </sc-if>
+
+            <div class="sec tap" onClick="{{ toggleNoon }}">Noon<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ noonChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ noonOpen }}" hint-placeholder-val="{{ true }}">
+              <div class="card card--flush reveal" style="background:var(--blue-50)">
+                <div class="{{ n0Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Vitamin D3</div><div class="s"><span class="dose">1 capsule</span><span>1:00 PM</span></div></div><div class="med-item__toggle" onClick="{{ n0Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ n1Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Omega-3 Fish Oil</div><div class="s"><span class="dose">1 capsule</span><span>1:00 PM</span></div></div><div class="med-item__toggle" onClick="{{ n1Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+              </div>
+            </sc-if>
+
+            <div class="sec tap" onClick="{{ toggleEvening }}">Evening<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ eveningChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ eveningOpen }}" hint-placeholder-val="{{ true }}">
+              <div class="card card--flush reveal" style="background:var(--purple-50)">
+                <div class="{{ e0Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Lisinopril 10mg</div><div class="s"><span class="dose">1 tablet</span><span>6:00 PM</span></div></div><div class="med-item__toggle" onClick="{{ e0Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ e1Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Metformin 500mg</div><div class="s"><span class="dose">1 tablet</span><span>6:00 PM</span></div></div><div class="med-item__toggle" onClick="{{ e1Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+              </div>
+            </sc-if>
+
+            <div class="sec tap" onClick="{{ toggleNight }}">Night<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ nightChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ nightOpen }}" hint-placeholder-val="{{ true }}">
+              <div class="card card--flush reveal" style="background:var(--mint-50)">
+                <div class="{{ ni0Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Melatonin 3mg</div><div class="s"><span class="dose">1 tablet</span><span>9:30 PM</span></div></div><div class="med-item__toggle" onClick="{{ ni0Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ ni1Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Magnesium Glycinate</div><div class="s"><span class="dose">1 capsule</span><span>9:30 PM</span></div></div><div class="med-item__toggle" onClick="{{ ni1Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasExtraMeds }}" hint-placeholder-val="{{ false }}">
+              <div class="sec">Added by you</div>
+              <div class="card card--flush reveal">
+                <sc-for list="{{ extraMeds }}" as="med" hint-placeholder-count="1">
+                  <div class="{{ med.itemClass }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">{{ med.name }}</div><div class="s"><span class="dose">{{ med.dose }}</span><span>{{ med.time }}</span></div></div><div class="med-item__toggle" onClick="{{ med.toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <div class="sec">Today's completion</div>
+            <div class="card reveal" style="display:flex;align-items:center;gap:18px">
+              <div style="width:88px;height:88px;border-radius:50%;flex:0 0 auto;background:conic-gradient(var(--accent) 0 {{ todayPercent }}%, var(--border) {{ todayPercent }}% 100%);display:flex;align-items:center;justify-content:center">
+                <div style="width:66px;height:66px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <b style="font-size:16px;color:var(--text-heading)">{{ todayPercent }}%</b>
+                </div>
+              </div>
+              <div><div style="font-size:13px;color:var(--text-muted)">Doses taken today</div><b style="font-size:15px;color:var(--text-heading);display:block;margin-top:2px">{{ todayTaken }} of {{ todayTotal }}</b></div>
+            </div>
+
+            <div class="sec tap" onClick="{{ toggleStock }}">Medicine stock level<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ stockChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ stockOpen }}" hint-placeholder-val="{{ true }}">
+              <div class="card card--pad0 reveal" style="overflow:hidden">
+                <table class="table" style="font-size:12.5px">
+                  <thead><tr><th>Medicine</th><th class="t-right">In stock</th><th class="t-right">Days left</th></tr></thead>
+                  <tbody>
+                    <tr><td>Metformin 500mg</td><td class="t-right">12 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--warning-text)">6</span></td></tr>
+                    <tr><td>Atorvastatin 10mg</td><td class="t-right">24 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">18</span></td></tr>
+                    <tr><td>Aspirin 75mg</td><td class="t-right">30 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">30</span></td></tr>
+                    <tr><td>Vitamin D3</td><td class="t-right">4 capsules</td><td class="t-right"><span style="font-weight:700;color:var(--danger-text)">4</span></td></tr>
+                    <tr><td>Lisinopril 10mg</td><td class="t-right">20 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">20</span></td></tr>
+                    <tr><td>Melatonin 3mg</td><td class="t-right">9 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--warning-text)">9</span></td></tr>
+                    <sc-for list="{{ extraStock }}" as="item" hint-placeholder-count="0">
+                      <tr><td>{{ item.name }}</td><td class="t-right">{{ item.qty }}</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">—</span></td></tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+              <button type="button" class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onClick="{{ openRefillSheet }}">Refill stock</button>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ isActTab }}" hint-placeholder-val="{{ false }}">
+            <div class="sec">Hydration</div>
+            <div class="card reveal">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div><div style="font-size:14px;font-weight:700;color:var(--text-heading)">{{ hydrationFilled }} of {{ hydrationGoal }} glasses</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">1 drop = 1 x 250 ml cup</div></div>
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:16px">
+                <sc-for list="{{ cups }}" as="cup" hint-placeholder-count="8">
+                  <button class="cup-btn" style="flex:1;min-width:0" onClick="{{ cup.onClick }}" title="{{ cup.label }}">
+                    <span class="icon" style="{{ cup.style }}"><svg viewBox="0 0 24 24" fill="{{ cup.fill }}" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5C9.5 6.2 5.5 11.3 5.5 15.2a6.5 6.5 0 0 0 13 0c0-3.9-4-9-6.5-12.7z"></path></svg></span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)">
+                <span style="font-size:13px;color:var(--text-muted)">Daily goal</span>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="goal-step" onClick="{{ decGoal }}">–</div>
+                  <b style="font-size:14px;color:var(--text-heading);min-width:16px;text-align:center">{{ hydrationGoal }}</b>
+                  <div class="goal-step" onClick="{{ incGoal }}">+</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec">Goals</div>
+            <div class="card card--flush reveal">
+              <sc-for list="{{ goals }}" as="goal" hint-placeholder-count="1">
+                <div class="{{ goal.itemClass }}"><div class="ic"><span class="icon"><svg><use href="#i-activity"></use></svg></span></div><div class="m"><div class="t">{{ goal.text }}</div><div class="s"><span class="dose">{{ goal.sub }}</span></div></div><div class="med-item__toggle" onClick="{{ goal.toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+              </sc-for>
+            </div>
+            <div class="field reveal" style="margin-top:10px">
+              <label>Add a goal</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" placeholder="e.g. 30 min walk" value="{{ newGoalText }}" onChange="{{ onNewGoalText }}" style="flex:1">
+                <button type="button" class="mbtn mbtn--fill" onClick="{{ addGoal }}">Add</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i is-active" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+
+        <div class="{{ scrimClass }}" onClick="{{ closeSheet }}"></div>
+        <div class="{{ apptSheetClass }}">
+          <div class="sheet__grip"></div>
+          <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+          <h2>New appointment</h2>
+          <p class="lead">Add a doctor visit or care provider appointment.</p>
+          <form onSubmit="{{ submitAppointment }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+            <div class="field"><label>Provider / reason</label><input type="text" placeholder="e.g. Dr. Sarah Chen — Cardiology" value="{{ apptTitle }}" onChange="{{ onApptTitle }}"></div>
+            <div class="field"><label>Visit type</label><input type="text" placeholder="e.g. Follow-up visit" value="{{ apptSub }}" onChange="{{ onApptSub }}"></div>
+            <div class="vgrid">
+              <div class="field"><label>Date</label><input type="date" value="{{ apptDate }}" onChange="{{ onApptDate }}"></div>
+              <div class="field"><label>Time</label><input type="time" value="{{ apptTime }}" onChange="{{ onApptTime }}"></div>
+            </div>
+            <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save appointment</button>
+          </form>
+        </div>
+
+        <div class="{{ medSheetClass }}">
+          <div class="sheet__grip"></div>
+          <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+          <h2>New medication</h2>
+          <p class="lead">Add a medication to your schedule.</p>
+          <form onSubmit="{{ submitMedication }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+            <div class="field"><label>Medication name &amp; dose</label><input type="text" placeholder="e.g. Vitamin B12 1000mcg" value="{{ medName }}" onChange="{{ onMedName }}"></div>
+            <div class="field"><label>Dosage</label><input type="text" placeholder="e.g. 1 tablet" value="{{ medDose }}" onChange="{{ onMedDose }}"></div>
+            <div class="field"><label>Time</label><input type="time" value="{{ medTime }}" onChange="{{ onMedTime }}"></div>
+            <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save medication</button>
+          </form>
+        </div>
+
+        <div class="{{ refillSheetClass }}">
+          <div class="sheet__grip"></div>
+          <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+          <h2>Refill stock</h2>
+          <p class="lead">Add a new medicine to your stock.</p>
+          <form onSubmit="{{ submitRefill }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-height:60vh;overflow-y:auto;padding-right:2px">
+            <div class="field"><label>Medicine name</label><input type="text" placeholder="e.g. Vitamin B12 1000mcg" value="{{ refillName }}" onChange="{{ onRefillName }}"></div>
+            <div class="vgrid">
+              <div class="field"><label>Quantity</label><input type="text" placeholder="e.g. 30 tablets" value="{{ refillQty }}" onChange="{{ onRefillQty }}"></div>
+              <div class="field"><label>Dosage</label><input type="text" placeholder="e.g. 1 tablet daily" value="{{ refillDosage }}" onChange="{{ onRefillDosage }}"></div>
+            </div>
+            <div class="field"><label>Taken for</label><input type="text" placeholder="e.g. Blood pressure" value="{{ refillFor }}" onChange="{{ onRefillFor }}"></div>
+            <div class="field">
+              <label>Prescription medicine?</label>
+              <div class="seg">
+                <button type="button" class="{{ refillRxYesClass }}" onClick="{{ setRefillRxYes }}">Yes</button>
+                <button type="button" class="{{ refillRxNoClass }}" onClick="{{ setRefillRxNo }}">No</button>
+              </div>
+            </div>
+            <sc-if value="{{ isRefillRx }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Prescribed by</label><input type="text" placeholder="e.g. Dr. Sarah Chen" value="{{ refillPrescriber }}" onChange="{{ onRefillPrescriber }}"></div>
+            </sc-if>
+            <div class="field"><label>Expiry date</label><input type="date" value="{{ refillExpiry }}" onChange="{{ onRefillExpiry }}"></div>
+            <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save to stock</button>
+          </form>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  state = {
+    tab: 'appt',
+    sheet: null,
+    appointments: [
+      { icon: 'stethoscope', title: 'Dr. Sarah Chen — Cardiology', sub: 'Follow-up visit', when: 'Tue 21 Jul, 2:30 PM' },
+      { icon: 'hr', title: 'Physical Therapy', sub: 'Routine session', when: 'Wed 22 Jul, 10:00 AM' },
+    ],
+    apptTitle: '', apptSub: '', apptDate: '', apptTime: '',
+    extraMeds: [],
+    medName: '', medDose: '', medTime: '',
+    extraStock: [],
+    refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '',
+    hydrationGoal: 8,
+    hydrationFilled: 6,
+    goals: [{ id: 1, text: '30 min walk', done: false, completedAt: null }],
+    newGoalText: '',
+    periodOpen: { morning: true, noon: true, evening: true, night: true },
+    stockOpen: true,
+    takenMap: { m0: true, m1: true, m2: false, n0: false, n1: false, e0: false, e1: false, ni0: false, ni1: false },
+  };
+
+  setTab = tab => this.setState({ tab });
+  togglePeriod = p => this.setState(s => ({ periodOpen: { ...s.periodOpen, [p]: !s.periodOpen[p] } }));
+  toggleStock = () => this.setState(s => ({ stockOpen: !s.stockOpen }));
+  toggleTaken = key => this.setState(s => ({ takenMap: { ...s.takenMap, [key]: !s.takenMap[key] } }));
+  toggleExtraMed = i => this.setState(s => ({
+    extraMeds: s.extraMeds.map((m, idx) => idx === i ? { ...m, taken: !m.taken } : m),
+  }));
+  openApptSheet = () => this.setState({ sheet: 'appt' });
+  openMedSheet = () => this.setState({ sheet: 'med' });
+  openRefillSheet = () => this.setState({ sheet: 'refill' });
+  closeSheet = () => this.setState({ sheet: null });
+
+  submitAppointment = e => {
+    e.preventDefault();
+    const { apptTitle, apptSub, apptDate, apptTime } = this.state;
+    if (!apptTitle.trim()) return;
+    const when = apptDate && apptTime
+      ? new Date(apptDate + 'T' + apptTime).toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+      : (apptDate || apptTime || 'Date to be confirmed');
+    this.setState({
+      appointments: [...this.state.appointments, { icon: 'calendar', title: apptTitle, sub: apptSub || 'Appointment', when }],
+      apptTitle: '', apptSub: '', apptDate: '', apptTime: '', sheet: null,
+    });
+  };
+
+  submitMedication = e => {
+    e.preventDefault();
+    const { medName, medDose, medTime } = this.state;
+    if (!medName.trim()) return;
+    this.setState({
+      extraMeds: [...this.state.extraMeds, { name: medName, dose: medDose || '1 dose', time: medTime || 'As needed', taken: false }],
+      medName: '', medDose: '', medTime: '', sheet: null,
+    });
+  };
+
+  submitRefill = e => {
+    e.preventDefault();
+    const { refillName, refillQty } = this.state;
+    if (!refillName.trim()) return;
+    this.setState({
+      extraStock: [...this.state.extraStock, { name: refillName, qty: refillQty || '—' }],
+      refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '', sheet: null,
+    });
+  };
+  setRefillRx = v => this.setState({ refillRx: v });
+
+  decGoal = () => this.setState(s => {
+    const goal = Math.max(0, s.hydrationGoal - 1);
+    return { hydrationGoal: goal, hydrationFilled: Math.min(s.hydrationFilled, goal) };
+  });
+  incGoal = () => this.setState(s => ({ hydrationGoal: Math.min(15, s.hydrationGoal + 1) }));
+  setCups = i => this.setState(s => ({ hydrationFilled: s.hydrationFilled === i + 1 ? i : i + 1 }));
+  // Goal completion auto-resets 24h after being checked. This client-side timer is a
+  // prototype stand-in — a real backend/scheduled job should own the reset once built.
+  componentDidMount() {
+    this._resetInterval = setInterval(() => {
+      const now = Date.now();
+      this.setState(s => ({
+        goals: s.goals.map(g => (g.done && g.completedAt && now - g.completedAt > 86400000)
+          ? { ...g, done: false, completedAt: null } : g),
+      }));
+    }, 60000);
+  }
+  componentWillUnmount() {
+    clearInterval(this._resetInterval);
+  }
+
+  toggleGoal = id => this.setState(s => ({
+    goals: s.goals.map(g => g.id === id ? { ...g, done: !g.done, completedAt: !g.done ? Date.now() : null } : g),
+  }));
+  addGoal = () => {
+    const text = this.state.newGoalText.trim();
+    if (!text) return;
+    this.setState(s => ({
+      goals: [...s.goals, { id: Date.now(), text, done: false, completedAt: null }],
+      newGoalText: '',
+    }));
+  };
+
+  renderVals() {
+    const s = this.state;
+    const cups = Array.from({ length: s.hydrationGoal }, (_, i) => ({
+      onClick: () => this.setCups(i),
+      label: `Glass ${i + 1}`,
+      style: `color:${i < s.hydrationFilled ? 'var(--accent)' : 'var(--border-strong)'}`,
+      fill: i < s.hydrationFilled ? 'currentColor' : 'none',
+    }));
+    return {
+      isApptTab: s.tab === 'appt',
+      isMedTab: s.tab === 'med',
+      isActTab: s.tab === 'act',
+      showApptAdd: s.tab === 'appt',
+      showMedAdd: s.tab === 'med',
+      tabApptClass: s.tab === 'appt' ? 'is-active' : '',
+      tabMedClass: s.tab === 'med' ? 'is-active' : '',
+      tabActClass: s.tab === 'act' ? 'is-active' : '',
+      setTabAppt: () => this.setTab('appt'),
+      setTabMed: () => this.setTab('med'),
+      setTabAct: () => this.setTab('act'),
+      appointments: s.appointments.map(a => ({ ...a, iconHref: '#i-' + a.icon })),
+      hasExtraMeds: s.extraMeds.length > 0,
+      extraMeds: s.extraMeds.map((m, i) => ({
+        ...m,
+        itemClass: 'med-item' + (m.taken ? ' med-item--taken' : ''),
+        toggle: () => this.toggleExtraMed(i),
+      })),
+      m0Class: 'med-item' + (s.takenMap.m0 ? ' med-item--taken' : ''), m0Toggle: () => this.toggleTaken('m0'),
+      m1Class: 'med-item' + (s.takenMap.m1 ? ' med-item--taken' : ''), m1Toggle: () => this.toggleTaken('m1'),
+      m2Class: 'med-item' + (s.takenMap.m2 ? ' med-item--taken' : ''), m2Toggle: () => this.toggleTaken('m2'),
+      n0Class: 'med-item' + (s.takenMap.n0 ? ' med-item--taken' : ''), n0Toggle: () => this.toggleTaken('n0'),
+      n1Class: 'med-item' + (s.takenMap.n1 ? ' med-item--taken' : ''), n1Toggle: () => this.toggleTaken('n1'),
+      e0Class: 'med-item' + (s.takenMap.e0 ? ' med-item--taken' : ''), e0Toggle: () => this.toggleTaken('e0'),
+      e1Class: 'med-item' + (s.takenMap.e1 ? ' med-item--taken' : ''), e1Toggle: () => this.toggleTaken('e1'),
+      ni0Class: 'med-item' + (s.takenMap.ni0 ? ' med-item--taken' : ''), ni0Toggle: () => this.toggleTaken('ni0'),
+      ni1Class: 'med-item' + (s.takenMap.ni1 ? ' med-item--taken' : ''), ni1Toggle: () => this.toggleTaken('ni1'),
+      todayTaken: Object.values(s.takenMap).filter(Boolean).length + s.extraMeds.filter(m => m.taken).length,
+      todayTotal: Object.keys(s.takenMap).length + s.extraMeds.length,
+      todayPercent: Math.round((Object.values(s.takenMap).filter(Boolean).length + s.extraMeds.filter(m => m.taken).length) / (Object.keys(s.takenMap).length + s.extraMeds.length) * 100),
+      hydrationGoal: s.hydrationGoal,
+      hydrationFilled: s.hydrationFilled,
+      cups,
+      decGoal: this.decGoal,
+      incGoal: this.incGoal,
+      goals: s.goals.map(g => ({
+        ...g,
+        itemClass: 'med-item' + (g.done ? ' med-item--taken' : ''),
+        sub: g.done ? 'Done today' : 'Not started',
+        toggle: () => this.toggleGoal(g.id),
+      })),
+      newGoalText: s.newGoalText,
+      onNewGoalText: e => this.setState({ newGoalText: e.target.value }),
+      addGoal: this.addGoal,
+      morningOpen: s.periodOpen.morning, noonOpen: s.periodOpen.noon, eveningOpen: s.periodOpen.evening, nightOpen: s.periodOpen.night,
+      morningChevron: s.periodOpen.morning ? 'rotate(180deg)' : 'none',
+      noonChevron: s.periodOpen.noon ? 'rotate(180deg)' : 'none',
+      eveningChevron: s.periodOpen.evening ? 'rotate(180deg)' : 'none',
+      nightChevron: s.periodOpen.night ? 'rotate(180deg)' : 'none',
+      toggleMorning: () => this.togglePeriod('morning'),
+      toggleNoon: () => this.togglePeriod('noon'),
+      toggleEvening: () => this.togglePeriod('evening'),
+      toggleNight: () => this.togglePeriod('night'),
+      stockOpen: s.stockOpen,
+      stockChevron: s.stockOpen ? 'rotate(180deg)' : 'none',
+      toggleStock: this.toggleStock,
+      scrimClass: 'scrim' + (s.sheet ? ' show' : ''),
+      closeSheet: this.closeSheet,
+      apptSheetClass: 'sheet' + (s.sheet === 'appt' ? ' show' : ''),
+      medSheetClass: 'sheet' + (s.sheet === 'med' ? ' show' : ''),
+      refillSheetClass: 'sheet' + (s.sheet === 'refill' ? ' show' : ''),
+      openApptSheet: this.openApptSheet,
+      openMedSheet: this.openMedSheet,
+      openRefillSheet: this.openRefillSheet,
+      submitAppointment: this.submitAppointment,
+      submitMedication: this.submitMedication,
+      submitRefill: this.submitRefill,
+      extraStock: s.extraStock,
+      refillName: s.refillName, refillQty: s.refillQty, refillDosage: s.refillDosage, refillFor: s.refillFor,
+      refillPrescriber: s.refillPrescriber, refillExpiry: s.refillExpiry,
+      isRefillRx: s.refillRx === 'yes',
+      refillRxYesClass: s.refillRx === 'yes' ? 'is-active' : '',
+      refillRxNoClass: s.refillRx === 'no' ? 'is-active' : '',
+      setRefillRxYes: () => this.setRefillRx('yes'),
+      setRefillRxNo: () => this.setRefillRx('no'),
+      onRefillName: e => this.setState({ refillName: e.target.value }),
+      onRefillQty: e => this.setState({ refillQty: e.target.value }),
+      onRefillDosage: e => this.setState({ refillDosage: e.target.value }),
+      onRefillFor: e => this.setState({ refillFor: e.target.value }),
+      onRefillPrescriber: e => this.setState({ refillPrescriber: e.target.value }),
+      onRefillExpiry: e => this.setState({ refillExpiry: e.target.value }),
+      apptTitle: s.apptTitle, apptSub: s.apptSub, apptDate: s.apptDate, apptTime: s.apptTime,
+      onApptTitle: e => this.setState({ apptTitle: e.target.value }),
+      onApptSub: e => this.setState({ apptSub: e.target.value }),
+      onApptDate: e => this.setState({ apptDate: e.target.value }),
+      onApptTime: e => this.setState({ apptTime: e.target.value }),
+      medName: s.medName, medDose: s.medDose, medTime: s.medTime,
+      onMedName: e => this.setState({ medName: e.target.value }),
+      onMedDose: e => this.setState({ medDose: e.target.value }),
+      onMedTime: e => this.setState({ medTime: e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>

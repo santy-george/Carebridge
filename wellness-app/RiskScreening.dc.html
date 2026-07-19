@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Risk screening">
+        <div class="tbar">
+          <a class="backbtn" href="Health.dc.html"><span class="icon"><svg><use href="#i-chevron"></use></svg></span></a>
+          <div class="tbar__title"><h1 class="sm">Risk screening</h1></div>
+        </div>
+        <div class="vbody has-nav">
+          <p style="font-size:13px;color:var(--text-muted);margin:0">Based on your check-ins, vitals and last health assessment, here's where extra attention may help.</p>
+
+          <div class="pathway reveal">
+            <div class="pathway__icon"><span class="icon"><svg><use href="#i-shield"></use></svg></span></div>
+            <div class="pathway__body">
+              <div class="nm">Fall risk</div>
+              <div class="stage">Low risk · screened 3 weeks ago</div>
+              <div class="pathway__prog"><span style="width:20%"></span></div>
+              <span class="risk risk--low">Low</span>
+            </div>
+          </div>
+          <div class="pathway reveal" style="margin-top:10px">
+            <div class="pathway__icon pathway__icon--warn"><span class="icon"><svg><use href="#i-heart"></use></svg></span></div>
+            <div class="pathway__body">
+              <div class="nm">Cardiovascular risk</div>
+              <div class="stage">Moderate · blood pressure trending up over 2 weeks</div>
+              <div class="pathway__prog"><span style="width:55%"></span></div>
+              <span class="risk risk--medium">Moderate</span>
+            </div>
+          </div>
+          <div class="pathway reveal" style="margin-top:10px">
+            <div class="pathway__icon"><span class="icon"><svg><use href="#i-activity"></use></svg></span></div>
+            <div class="pathway__body">
+              <div class="nm">Diabetes risk</div>
+              <div class="stage">Low risk · blood sugar within normal range</div>
+              <div class="pathway__prog"><span style="width:15%"></span></div>
+              <span class="risk risk--low">Low</span>
+            </div>
+          </div>
+          <div class="pathway reveal" style="margin-top:10px">
+            <div class="pathway__icon"><span class="icon"><svg><use href="#i-brain"></use></svg></span></div>
+            <div class="pathway__body">
+              <div class="nm">Mood &amp; cognitive wellbeing</div>
+              <div class="stage">Low risk · consistent mood over 30 days</div>
+              <div class="pathway__prog"><span style="width:10%"></span></div>
+              <span class="risk risk--low">Low</span>
+            </div>
+          </div>
+
+          <div class="banner banner--info reveal" style="margin-top:4px">
+            <div class="ic"><span class="icon"><svg><use href="#i-info"></use></svg></span></div>
+            <div><div class="bt">Rita Alvarez reviewed your cardiovascular trend</div><div class="bs">She's added a blood pressure check to your preventive plan.</div></div>
+          </div>
+
+          <a href="Assessment.dc.html"><button class="mbtn mbtn--line mbtn--block" style="margin-top:2px">Retake full health assessment</button></a>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i is-active" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+</body>
+</html>

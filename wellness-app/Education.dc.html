@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Health education">
+        <div class="tbar">
+          <a class="backbtn" href="More.dc.html"><span class="icon"><svg><use href="#i-chevron"></use></svg></span></a>
+          <div class="tbar__title"><h1 class="sm">Health education</h1></div>
+        </div>
+        <div class="vbody has-nav">
+          <p style="font-size:13px;color:var(--text-muted);margin:0">Picked for you based on your risk screening and preventive plan.</p>
+          <div class="lib-grid reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="educard"><div class="educard__thumb"><span class="icon"><svg><use href="#i-heart"></use></svg></span></div><div class="educard__body"><div class="t">Managing high blood pressure at home</div><div class="meta"><span class="icon"><svg><use href="#i-clock"></use></svg></span>4 min read</div><span class="educard__tag">Heart health</span></div></div>
+            <div class="educard"><div class="educard__thumb"><span class="icon"><svg><use href="#i-shield"></use></svg></span></div><div class="educard__body"><div class="t">Preventing falls at home</div><div class="meta"><span class="icon"><svg><use href="#i-clock"></use></svg></span>3 min read</div><span class="educard__tag">Safety</span></div></div>
+            <div class="educard"><div class="educard__thumb"><span class="icon"><svg><use href="#i-food"></use></svg></span></div><div class="educard__body"><div class="t">Eating well after 60</div><div class="meta"><span class="icon"><svg><use href="#i-clock"></use></svg></span>5 min read</div><span class="educard__tag">Nutrition</span></div></div>
+            <div class="educard"><div class="educard__thumb"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="educard__body"><div class="t">Understanding your medications</div><div class="meta"><span class="icon"><svg><use href="#i-clock"></use></svg></span>3 min read</div><span class="educard__tag">Medication</span></div></div>
+          </div>
+
+          <div class="sec">Recommended tips</div>
+          <div class="card reveal">
+            <div class="lib-tip-item"><span class="lib-tip-num">1</span><span class="lib-tip-text">Check your blood pressure at the same time each day for a more consistent trend.</span></div>
+            <div class="lib-tip-item"><span class="lib-tip-num">2</span><span class="lib-tip-text">Keep pathways and stairs well lit to reduce fall risk at home.</span></div>
+            <div class="lib-tip-item"><span class="lib-tip-num">3</span><span class="lib-tip-text">Pair each medication with an existing daily habit, like brushing your teeth.</span></div>
+          </div>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+</body>
+</html>

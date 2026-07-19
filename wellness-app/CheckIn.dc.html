@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="Check-in">
+        <div class="tbar">
+          <a class="backbtn" href="Home.dc.html"><span class="icon"><svg><use href="#i-chevron"></use></svg></span></a>
+          <div class="tbar__title"><h1 class="sm">Daily check-in</h1></div>
+        </div>
+        <div class="vbody has-cta">
+          <div class="checkin reveal">
+            <div class="checkin__head"><h3>How are you feeling today?</h3><span class="day">Thu, 17 Jul</span></div>
+            <div class="checkin__q">
+              <div class="ql">Mood</div>
+              <div class="checkin__choices">
+                <span class="choice">Low</span><span class="choice">Okay</span><span class="choice on">Good</span><span class="choice">Great</span>
+              </div>
+            </div>
+            <div class="checkin__q">
+              <div class="ql">Sleep last night</div>
+              <div class="checkin__choices">
+                <span class="choice on-warn">Poor</span><span class="choice">Fair</span><span class="choice on">Good</span><span class="choice">Excellent</span>
+              </div>
+            </div>
+            <div class="checkin__q">
+              <div class="ql">Energy level</div>
+              <div class="checkin__choices">
+                <span class="choice">Low</span><span class="choice on">Okay</span><span class="choice">Good</span><span class="choice">Great</span>
+              </div>
+            </div>
+            <div class="checkin__q">
+              <div class="ql">Any pain or discomfort?</div>
+              <div class="checkin__choices">
+                <span class="choice on">None</span><span class="choice">Mild</span><span class="choice">Moderate</span><span class="choice">Severe</span>
+              </div>
+            </div>
+          </div>
+          <div class="field reveal">
+            <label>Add a note for your care team (optional)</label>
+            <textarea placeholder="e.g. Felt a bit tired after lunch, otherwise fine.">Slept a little late but feeling steady today.</textarea>
+          </div>
+        </div>
+        <div class="cta-bar">
+          <a href="Home.dc.html"><button class="mbtn mbtn--fill mbtn--block">Save check-in</button></a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+</body>
+</html>

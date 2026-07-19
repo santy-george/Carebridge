@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/shadow.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/tokens/reset.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/components.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/app-shell.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles/mobile.css">
+  <link rel="stylesheet" href="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/styles.css">
+  <script src="_ds/care-bridge-home-design-system-a7b30c29-a388-4b71-b819-73f77c3afca7/_ds_bundle.js"></script>
+  <style>
+    body { margin:0; }
+    a { color:var(--accent-text); text-decoration:none; }
+    a:hover { color:var(--accent-hover); }
+    .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+  </style>
+</helmet>
+<div class="stage" data-app="admin">
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-battery-4"></use></svg></span></span></div>
+      <div class="stack"><div class="view is-active" data-screen-label="More">
+        <div class="tbar"><div class="tbar__title"><h1 class="sm">More</h1></div></div>
+        <div class="vbody has-nav">
+          <div class="idblock reveal" style="padding:6px 2px 4px">
+            <span class="av">JD</span>
+            <div><div class="nm">Jane Doe</div><div class="sub">Self Care · Standard</div></div>
+          </div>
+
+          <div class="card card--flush reveal">
+            <a class="row tap" href="Profile.dc.html"><div class="ic"><span class="icon"><svg><use href="#i-user"></use></svg></span></div><div class="m"><div class="t">Profile &amp; settings</div><div class="s">Personal details, plan, notifications</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" href="PreventivePlan.dc.html"><div class="ic ic--accent"><span class="icon"><svg><use href="#i-target"></use></svg></span></div><div class="m"><div class="t">Preventive health plan</div><div class="s">3 of 5 goals on track</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" href="Reports.dc.html"><div class="ic"><span class="icon"><svg><use href="#i-reports"></use></svg></span></div><div class="m"><div class="t">Wellness reports</div><div class="s">Monthly summaries for you and your family</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" href="Education.dc.html"><div class="ic"><span class="icon"><svg><use href="#i-education"></use></svg></span></div><div class="m"><div class="t">Health education</div><div class="s">Articles and tips picked for you</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+          </div>
+
+          <div class="sec">My documents</div>
+          <div class="card card--flush reveal">
+            <div class="row tap" onClick="{{ toggleRx }}"><div class="ic" style="background:var(--accent-soft);color:var(--accent-text)"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Prescriptions</div><div class="s">2 documents</div></div><span class="icon chev" style="transform:{{ rxChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ rxOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 16px 12px;display:flex;flex-direction:column;gap:8px">
+                <div class="doccard"><div class="doccard__ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="doccard__body"><div class="nm">Dr Rajeev Menon — general</div><div class="meta">Prescription · 1 Jun 2026</div></div></div>
+                <div class="doccard"><div class="doccard__ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="doccard__body"><div class="nm">Dr Rajeev Menon — cardiology</div><div class="meta">Prescription · 15 Mar 2026</div></div></div>
+              </div>
+            </sc-if>
+
+            <div class="row tap" onClick="{{ toggleIns }}"><div class="ic" style="background:var(--success-soft);color:var(--success-text)"><span class="icon"><svg><use href="#i-shield"></use></svg></span></div><div class="m"><div class="t">Insurance forms</div><div class="s">Kerala govt. &amp; insurer forms</div></div><span class="icon chev" style="transform:{{ insChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <sc-if value="{{ insOpen }}" hint-placeholder-val="{{ false }}">
+              <div class="rows" style="border-top:1px solid var(--border)">
+                <a class="row" href="https://medisep.kerala.gov.in/Reimbursement.jsp" target="_blank" rel="noopener"><div class="ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="m"><div class="t">MEDISEP reimbursement</div><div class="s">Claim medical expenses under the Kerala state employees &amp; pensioners insurance scheme</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+                <a class="row" href="https://keralaagriculture.gov.in/wp-content/uploads/2021/04/mr.pdf" target="_blank" rel="noopener"><div class="ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="m"><div class="t">Government medical reimbursement form</div><div class="s">Standard Kerala Government claim form, plus doctor's essentiality certificate</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+                <a class="row" href="https://portal.uiic.in/ArogyaSuraksha/claimformInsured.pdf" target="_blank" rel="noopener"><div class="ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="m"><div class="t">Arogya Suraksha claim form — Part A</div><div class="s">United India Insurance form for you to fill in with policy &amp; treatment details</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+                <a class="row" href="https://portal.uiic.in/ArogyaSuraksha/claimformHospital.pdf" target="_blank" rel="noopener"><div class="ic"><span class="icon"><svg><use href="#i-document"></use></svg></span></div><div class="m"><div class="t">Arogya Suraksha claim form — Part B</div><div class="s">Companion form for your hospital to fill in and certify</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+              </div>
+            </sc-if>
+          </div>
+
+          <div class="card card--flush reveal">
+            <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-help"></use></svg></span></div><div class="m"><div class="t">Help &amp; support</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" href="Emergency.dc.html"><div class="ic ic--alert"><span class="icon"><svg><use href="#i-emergency"></use></svg></span></div><div class="m"><div class="t" style="color:var(--danger)">Emergency SOS</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" href="Login.dc.html"><div class="ic"><span class="icon"><svg><use href="#i-logout"></use></svg></span></div><div class="m"><div class="t">Log out</div></div></a>
+          </div>
+        </div>
+        <nav class="bnav">
+          <a class="bnav__i" href="Home.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-home"></use></svg></span></span>Summary</a>
+          <a class="bnav__i" href="Health.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pulse"></use></svg></span></span>My Health</a>
+          <a class="bnav__i" href="Medications.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></span>My Schedule</a>
+          <a class="bnav__i" href="Care.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-family"></use></svg></span></span>My Care</a>
+          <a class="bnav__i is-active" href="More.dc.html"><span class="ic"><span class="icon"><svg><use href="#i-more"></use></svg></span></span>More</a>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  state = { rxOpen: false, insOpen: false };
+  toggleRx = () => this.setState(s => ({ rxOpen: !s.rxOpen }));
+  toggleIns = () => this.setState(s => ({ insOpen: !s.insOpen }));
+  renderVals() {
+    const s = this.state;
+    return {
+      rxOpen: s.rxOpen, insOpen: s.insOpen,
+      rxChevron: s.rxOpen ? 'rotate(180deg)' : 'none',
+      insChevron: s.insOpen ? 'rotate(180deg)' : 'none',
+      toggleRx: this.toggleRx, toggleIns: this.toggleIns,
+    };
+  }
+}
+</script>
+</body>
+</html>

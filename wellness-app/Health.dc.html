@@ -103,7 +103,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
 class Component extends DCLogic {
-  state = { open: {}, exportOpen: false, bmiHistory: null };
+  state = { open: {}, exportOpen: false, bmiHistory: null, glucoseLog: null };
 
   componentDidMount() {
     let history;
@@ -117,7 +117,28 @@ class Component extends DCLogic {
         { date: '2026-07-17', weight: 70.4, height: 162 },
       ];
     }
-    this.setState({ bmiHistory: history });
+    let glucoseLog;
+    try { glucoseLog = JSON.parse(localStorage.getItem('cbh-glucose-log')); } catch (e) { glucoseLog = null; }
+    if (!Array.isArray(glucoseLog) || glucoseLog.length === 0) {
+      glucoseLog = [
+        { date: '2026-07-11', time: '07:30', value: 96, context: 'fasting' },
+        { date: '2026-07-12', time: '08:10', value: 132, context: 'post-meal' },
+        { date: '2026-07-13', time: '12:45', value: 108, context: 'pre-meal' },
+        { date: '2026-07-14', time: '13:20', value: 142, context: 'post-meal' },
+        { date: '2026-07-15', time: '07:15', value: 101, context: 'fasting' },
+        { date: '2026-07-16', time: '21:40', value: 118, context: 'bedtime' },
+        { date: '2026-07-17', time: '08:05', value: 140, context: 'post-meal' },
+      ];
+    }
+    this.setState({ bmiHistory: history, glucoseLog });
+  }
+  classifyGlucose(value, context) {
+    if (context === 'post-meal') return value < 140 ? 'ok' : value < 180 ? 'warn' : 'critical';
+    if (context === 'fasting' || context === 'pre-meal') return value < 100 ? 'ok' : value < 126 ? 'warn' : 'critical';
+    return value < 140 ? 'ok' : value < 160 ? 'warn' : 'critical';
+  }
+  contextShort(context) {
+    return { fasting: 'fast', 'pre-meal': 'pre', 'post-meal': 'post', bedtime: 'bed' }[context] || context;
   }
   bmiOf(weight, height) {
     const h = height / 100;
@@ -161,10 +182,6 @@ class Component extends DCLogic {
       { id: 'hrv', category: 'Cardiovascular', name: 'Heart rate variability', unit: 'ms', range: 'baseline 40–55 ms', status: 'ok',
         values: [42, 45, 40, 47, 44, 50, 48],
         note: "Higher HRV generally reflects good recovery. A steady drop over several days can be an early sign of stress, illness or overtraining." },
-      { id: 'glucose', category: 'Metabolic', name: 'Blood glucose', unit: 'mg/dL', range: 'below 140 post-meal', status: 'warn',
-        values: [128, 135, 118, 142, 110, 130, 140],
-        note: "Repeated highs over weeks raise the risk of diabetes-related complications, including nerve, eye and kidney damage.",
-        suggestion: "Log meals alongside your next few readings and share this trend with Rita Alvarez." },
       { id: 'spo2', category: 'Respiratory', name: 'SpO2', unit: '%', range: '95–100%', status: 'ok',
         values: [97, 98, 97, 98, 97, 99, 97],
         note: "Readings below 92% can indicate your body isn't getting enough oxygen and should be checked promptly, especially alongside breathlessness." },
@@ -231,7 +248,28 @@ class Component extends DCLogic {
       pts: bmiPts, ptsSecondary: '', hasSecondary: false, dayRows: bmiDayRows,
       sevRank: sevRank[bmiCat.status],
     };
-    const allRows = [...rows.map((r, i) => ({ ...r, sevRank: sevRank[sorted[i].status] })), bmiRow]
+    const glucoseHistory = this.state.glucoseLog || [];
+    const recentG = glucoseHistory.slice(-7);
+    const latestG = recentG[recentG.length - 1];
+    const gStatus = latestG ? this.classifyGlucose(latestG.value, latestG.context) : 'ok';
+    const gPts = recentG.length ? this.buildPoints(this.scaleY(recentG.map(e => e.value), 40, 6), 280) : '';
+    const gDayRows = recentG.map(e => ({ day: this.fmtShortDate(e.date), val: e.value + ' (' + this.contextShort(e.context) + ')' }));
+    const glucoseRow = {
+      id: 'glucose', category: 'Metabolic', name: 'Blood glucose',
+      range: 'below 100 fasting/pre-meal · below 140 post-meal',
+      value: latestG ? latestG.value + ' mg/dL (' + this.contextShort(latestG.context) + ')' : '—',
+      chipClass: chipClass(gStatus), statusLabel: chipLabel(gStatus),
+      note: "Repeated highs over weeks raise the risk of diabetes-related complications, including nerve, eye and kidney damage. Ranges above assume fasting/pre-meal and post-meal readings separately, since a normal post-meal value is naturally higher than a normal fasting one.",
+      suggestion: gStatus !== 'ok' ? 'Log meals alongside your next few readings and share this trend with Rita Alvarez.' : '',
+      hasSuggestion: gStatus !== 'ok',
+      open: !!this.state.open['glucose'],
+      chevTransform: this.state.open['glucose'] ? 'rotate(180deg)' : 'none',
+      toggle: () => this.toggleRow('glucose'),
+      pts: gPts, ptsSecondary: '', hasSecondary: false, dayRows: gDayRows,
+      sevRank: sevRank[gStatus],
+    };
+
+    const allRows = [...rows.map((r, i) => ({ ...r, sevRank: sevRank[sorted[i].status] })), bmiRow, glucoseRow]
       .sort((a, b) => b.sevRank - a.sevRank)
       .map((r, i) => ({ ...r, rowBg: i % 2 === 1 ? 'var(--purple-50)' : 'transparent' }));
 

@@ -50,8 +50,21 @@
           <div class="acc reveal">
             <div class="acc__h"><div class="acc__num">2</div><div class="acc__t"><div class="tt">Symptoms</div><div class="ss">Anything new or ongoing</div></div><span class="icon acc__chev"><svg><use href="#i-chevron-down"></use></svg></span></div>
           </div>
-          <div class="acc reveal">
-            <div class="acc__h"><div class="acc__num">3</div><div class="acc__t"><div class="tt">Medical history</div><div class="ss">Conditions, allergies, past surgeries</div></div><span class="icon acc__chev"><svg><use href="#i-chevron-down"></use></svg></span></div>
+          <div class="{{ medHistoryClass }}">
+            <div class="acc__h" onClick="{{ toggleMedHistory }}"><div class="acc__num">3</div><div class="acc__t"><div class="tt">Medical history</div><div class="ss">Conditions, allergies, past surgeries</div></div><span class="icon acc__chev"><svg><use href="#i-chevron-down"></use></svg></span></div>
+            <div class="acc__b">
+              <div class="fl">
+                <div class="lab">Existing conditions</div>
+                <div class="choices">
+                  <sc-for list="{{ conditionChoices }}" as="c" hint-placeholder-count="7">
+                    <span class="{{ c.cls }}" onClick="{{ c.onClick }}">{{ c.label }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div class="fl"><div class="lab">Other condition</div><input type="text" placeholder="e.g. Parkinson's disease" value="{{ conditionsOther }}" onChange="{{ onConditionsOther }}"></div>
+              <div class="fl"><div class="lab">Allergies</div><input type="text" placeholder="e.g. Penicillin, Peanuts" value="{{ allergies }}" onChange="{{ onAllergies }}"></div>
+              <button type="button" class="mbtn mbtn--fill mbtn--sm" onClick="{{ saveMedHistory }}">Save</button>
+            </div>
           </div>
         </div>
         <div class="cta-bar">
@@ -62,6 +75,61 @@
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  CONDITIONS = ['Diabetes', 'High BP', 'Heart condition', 'Arthritis', 'Thyroid', 'Asthma', 'Memory issues'];
+
+  state = { medHistoryOpen: false, profile: null, conditions: [], conditionsOther: '', allergies: '' };
+
+  componentDidMount() {
+    let profile;
+    try { profile = JSON.parse(localStorage.getItem('cbh-medical-profile')); } catch (e) { profile = null; }
+    if (profile && typeof profile === 'object') {
+      this.setState({
+        profile,
+        conditions: profile.conditions || [],
+        conditionsOther: profile.conditionsOther || '',
+        allergies: (profile.allergies || []).join(', '),
+      });
+    }
+  }
+
+  toggleMedHistory = () => this.setState(s => ({ medHistoryOpen: !s.medHistoryOpen }));
+  toggleCondition = c => this.setState(s => ({
+    conditions: s.conditions.includes(c) ? s.conditions.filter(x => x !== c) : [...s.conditions, c],
+  }));
+
+  saveMedHistory = () => {
+    const { conditions, conditionsOther, allergies, profile } = this.state;
+    const merged = {
+      ...(profile || {}),
+      conditions,
+      conditionsOther: conditionsOther.trim(),
+      allergies: allergies.split(',').map(a => a.trim()).filter(Boolean),
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem('cbh-medical-profile', JSON.stringify(merged));
+    this.setState({ profile: merged });
+  };
+
+  renderVals() {
+    const s = this.state;
+    return {
+      medHistoryClass: 'acc reveal' + (s.medHistoryOpen ? ' active' : ''),
+      toggleMedHistory: this.toggleMedHistory,
+      conditionChoices: this.CONDITIONS.map(c => ({
+        label: c,
+        cls: 'choice' + (s.conditions.includes(c) ? ' on' : ''),
+        onClick: () => this.toggleCondition(c),
+      })),
+      conditionsOther: s.conditionsOther,
+      onConditionsOther: e => this.setState({ conditionsOther: e.target.value }),
+      allergies: s.allergies,
+      onAllergies: e => this.setState({ allergies: e.target.value }),
+      saveMedHistory: this.saveMedHistory,
+    };
+  }
+}
+</script>
 </body>
 </html>

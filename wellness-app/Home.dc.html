@@ -26,6 +26,11 @@
     a:hover { color:var(--accent-hover); }
     .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
     .hero-card::before { display:none; }
+    .kv { display:flex; flex-direction:column; gap:0 }
+    .kv__row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:9px 0 }
+    .kv__row + .kv__row { border-top:1px solid var(--border) }
+    .kv__k { font-size:12.5px; color:var(--text-muted) }
+    .kv__v { font-size:13px; color:var(--text-heading); font-weight:500; text-align:right }
   </style>
 </helmet>
 <div class="stage" data-app="admin">
@@ -37,11 +42,26 @@
         <div class="tbar">
           <div class="tbar__title"><div class="eyebrow" style="color: var(--purple-400)">Thursday, 17 July</div><h1 style="color: var(--purple-700)">Good morning, Jane</h1></div>
           <a class="iconbtn" href="Emergency.dc.html" style="border-color:var(--danger); color:var(--danger)" aria-label="Emergency SOS"><span class="icon"><svg><use href="#i-emergency"></use></svg></span></a>
-          <a class="iconbtn"><span class="icon"><svg><use href="#i-bell"></use></svg></span><span class="dot"></span></a>
+          <a class="iconbtn" href="Medications.dc.html"><span class="icon"><svg><use href="#i-bell"></use></svg></span><sc-if value="{{ hasLowStockAlert }}" hint-placeholder-val="{{ false }}"><span class="dot"></span></sc-if></a>
           <a class="avatar-btn" href="Profile.dc.html">JD</a>
         </div>
         <div class="vbody has-nav">
-          
+
+          <sc-if value="{{ hasMedicalProfile }}" hint-placeholder-val="{{ false }}">
+            <div class="card card--flush reveal" style="padding:2px 14px">
+              <div class="kv">
+                <div class="kv__row"><span class="kv__k">Conditions</span><span class="kv__v">{{ conditionsText }}</span></div>
+                <div class="kv__row"><span class="kv__k">Allergies</span><span class="kv__v">{{ allergiesText }}</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noMedicalProfile }}" hint-placeholder-val="{{ false }}">
+            <a href="Profile.dc.html" class="card reveal" style="display:flex;align-items:center;gap:10px;padding:12px 14px">
+              <span class="icon" style="width:18px;height:18px;color:var(--accent-text)"><svg><use href="#i-clipboard"></use></svg></span>
+              <span style="font-size:13px;font-weight:600;color:var(--text-heading)">Add your health profile</span>
+              <span class="icon chev" style="margin-left:auto"><svg><use href="#i-chevron"></use></svg></span>
+            </a>
+          </sc-if>
 
           <div class="hero-card reveal" style="text-align: center; padding: 11px 9px; width: 100%; margin: 0 auto; background: url(&quot;./wellness-calm-companion-mrot0rhu-kay3.png&quot;) center / cover no-repeat">
             <div style="width:75px;height:75px;border-radius:50%;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--cyan-500) 0% 72%, var(--neutral-100) 72% 100%)">
@@ -91,6 +111,26 @@
             <span style="width:56px">Normal</span><span style="width:56px;color:var(--warning-text);font-weight:600">Needs attention</span><span style="width:56px">Normal</span>
           </div>
 
+          <div class="sec" style="color:var(--purple-700)">BLOOD GLUCOSE</div>
+          <div class="card reveal">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;color:var(--text-heading);line-height:1">{{ glucoseLatestValue }}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">{{ glucoseLatestContext }} · logged {{ glucoseLatestDate }}</div>
+              </div>
+              <span class="chip2 {{ glucoseChipClass }}">{{ glucoseChipLabel }}</span>
+            </div>
+            <div class="seg" style="margin-top:10px">
+              <button type="button" class="{{ glucoseCtxFastingClass }}" onClick="{{ setGlucoseCtxFasting }}">Fasting</button>
+              <button type="button" class="{{ glucoseCtxPreClass }}" onClick="{{ setGlucoseCtxPre }}">Pre-meal</button>
+              <button type="button" class="{{ glucoseCtxPostClass }}" onClick="{{ setGlucoseCtxPost }}">Post-meal</button>
+              <button type="button" class="{{ glucoseCtxBedClass }}" onClick="{{ setGlucoseCtxBed }}">Bedtime</button>
+            </div>
+            <div class="vin" style="margin-top:8px"><label>Blood glucose</label><div class="r"><input type="number" step="1" value="{{ glucoseInput }}" onChange="{{ onGlucoseChange }}"><span class="u">mg/dL</span></div></div>
+            <button class="mbtn mbtn--fill mbtn--block mbtn--sm" onClick="{{ logGlucose }}" style="margin-top:10px"><span class="icon"><svg><use href="#i-droplet"></use></svg></span>Log reading</button>
+            <a href="Health.dc.html" style="display:block;text-align:center;font-size:12px;font-weight:600;margin-top:10px">View full history on My Health</a>
+          </div>
+
           <div class="sec" style="color:var(--purple-700)">MY BODY</div>
           <div class="card reveal">
             <div style="display:flex;align-items:center;justify-content:space-between">
@@ -125,7 +165,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
 class Component extends DCLogic {
-  state = { weightInput: '', heightInput: '', history: null };
+  state = { weightInput: '', heightInput: '', history: null, medicalProfile: null, stockList: [], glucoseLog: null, glucoseInput: '', glucoseContext: 'post-meal' };
 
   componentDidMount() {
     let history;
@@ -141,7 +181,28 @@ class Component extends DCLogic {
       localStorage.setItem('cbh-bmi-log', JSON.stringify(history));
     }
     const last = history[history.length - 1];
-    this.setState({ history, weightInput: String(last.weight), heightInput: String(last.height) });
+    let medicalProfile;
+    try { medicalProfile = JSON.parse(localStorage.getItem('cbh-medical-profile')); } catch (e) { medicalProfile = null; }
+    let stockList;
+    try { stockList = JSON.parse(localStorage.getItem('cbh-med-stock')); } catch (e) { stockList = null; }
+    if (!Array.isArray(stockList)) stockList = [];
+
+    let glucoseLog;
+    try { glucoseLog = JSON.parse(localStorage.getItem('cbh-glucose-log')); } catch (e) { glucoseLog = null; }
+    if (!Array.isArray(glucoseLog) || glucoseLog.length === 0) {
+      glucoseLog = [
+        { date: '2026-07-11', time: '07:30', value: 96, context: 'fasting' },
+        { date: '2026-07-12', time: '08:10', value: 132, context: 'post-meal' },
+        { date: '2026-07-13', time: '12:45', value: 108, context: 'pre-meal' },
+        { date: '2026-07-14', time: '13:20', value: 142, context: 'post-meal' },
+        { date: '2026-07-15', time: '07:15', value: 101, context: 'fasting' },
+        { date: '2026-07-16', time: '21:40', value: 118, context: 'bedtime' },
+        { date: '2026-07-17', time: '08:05', value: 140, context: 'post-meal' },
+      ];
+      localStorage.setItem('cbh-glucose-log', JSON.stringify(glucoseLog));
+    }
+
+    this.setState({ history, weightInput: String(last.weight), heightInput: String(last.height), medicalProfile, stockList, glucoseLog });
   }
 
   bmiOf(weight, height) {
@@ -179,6 +240,30 @@ class Component extends DCLogic {
     this.setState({ history });
   };
 
+  contextLabel(context) {
+    return { fasting: 'Fasting', 'pre-meal': 'Pre-meal', 'post-meal': 'Post-meal', bedtime: 'Bedtime' }[context] || context;
+  }
+  classifyGlucose(value, context) {
+    if (context === 'post-meal') return value < 140 ? 'ok' : value < 180 ? 'warn' : 'alert';
+    if (context === 'fasting' || context === 'pre-meal') return value < 100 ? 'ok' : value < 126 ? 'warn' : 'alert';
+    return value < 140 ? 'ok' : value < 160 ? 'warn' : 'alert';
+  }
+  setGlucoseContext = c => this.setState({ glucoseContext: c });
+  onGlucoseChange = e => this.setState({ glucoseInput: e.target.value });
+  logGlucose = () => {
+    const value = parseFloat(this.state.glucoseInput);
+    if (!value) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const time = new Date().toTimeString().slice(0, 5);
+    const context = this.state.glucoseContext;
+    const log = [...(this.state.glucoseLog || [])];
+    const idx = log.findIndex(e => e.date === today && e.context === context);
+    const entry = { date: today, time, value, context };
+    if (idx >= 0) log[idx] = entry; else log.push(entry);
+    localStorage.setItem('cbh-glucose-log', JSON.stringify(log));
+    this.setState({ glucoseLog: log, glucoseInput: '' });
+  };
+
   renderVals() {
     const history = this.state.history || [{ date: '2026-07-17', weight: 70.4, height: 162 }];
     const recent = history.slice(-7);
@@ -187,7 +272,40 @@ class Component extends DCLogic {
     const bmi = bmis[bmis.length - 1];
     const cat = this.categoryOf(bmi);
     const bmiPts = this.buildPoints(this.scaleY(bmis, 36, 5), 280);
+    const p = this.state.medicalProfile;
+    const hasMedicalProfile = !!(p && ((p.conditions && p.conditions.length) || (p.conditionsOther) || (p.allergies && p.allergies.length)));
+    const conditionsList = p ? [...(p.conditions || []), ...(p.conditionsOther ? [p.conditionsOther] : [])] : [];
+    const hasLowStockAlert = (this.state.stockList || []).some(item => {
+      const dosesPerDay = item.dosesPerDay > 0 ? item.dosesPerDay : 1;
+      return Math.floor(item.qty / dosesPerDay) <= 7;
+    });
+    const sortedGlucose = [...(this.state.glucoseLog || [])].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    const latestGlucose = sortedGlucose[sortedGlucose.length - 1];
+    const glucoseStatus = latestGlucose ? this.classifyGlucose(latestGlucose.value, latestGlucose.context) : 'ok';
+    const glucoseChipMap = { ok: ['chip2--ok', 'Normal'], warn: ['chip2--warn', 'Needs attention'], alert: ['chip2--alert', 'High'] };
+
     return {
+      hasLowStockAlert,
+      hasMedicalProfile,
+      glucoseLatestValue: latestGlucose ? latestGlucose.value + ' mg/dL' : '—',
+      glucoseLatestContext: latestGlucose ? this.contextLabel(latestGlucose.context) : 'No readings yet',
+      glucoseLatestDate: latestGlucose ? latestGlucose.date : '',
+      glucoseChipClass: glucoseChipMap[glucoseStatus][0],
+      glucoseChipLabel: glucoseChipMap[glucoseStatus][1],
+      glucoseInput: this.state.glucoseInput,
+      onGlucoseChange: this.onGlucoseChange,
+      logGlucose: this.logGlucose,
+      glucoseCtxFastingClass: this.state.glucoseContext === 'fasting' ? 'is-active' : '',
+      glucoseCtxPreClass: this.state.glucoseContext === 'pre-meal' ? 'is-active' : '',
+      glucoseCtxPostClass: this.state.glucoseContext === 'post-meal' ? 'is-active' : '',
+      glucoseCtxBedClass: this.state.glucoseContext === 'bedtime' ? 'is-active' : '',
+      setGlucoseCtxFasting: () => this.setGlucoseContext('fasting'),
+      setGlucoseCtxPre: () => this.setGlucoseContext('pre-meal'),
+      setGlucoseCtxPost: () => this.setGlucoseContext('post-meal'),
+      setGlucoseCtxBed: () => this.setGlucoseContext('bedtime'),
+      noMedicalProfile: !hasMedicalProfile,
+      conditionsText: conditionsList.length ? conditionsList.join(', ') : 'None on file',
+      allergiesText: p && p.allergies && p.allergies.length ? p.allergies.join(', ') : 'None on file',
       bmiValue: bmi.toFixed(1),
       bmiWeight: last.weight,
       bmiHeight: last.height,

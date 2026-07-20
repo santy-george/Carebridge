@@ -47,6 +47,7 @@
           <div class="sec">Account</div>
           <div class="card card--flush reveal">
             <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-user"></use></svg></span></div><div class="m"><div class="t">Personal details</div><div class="s">Name, date of birth, address</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
+            <a class="row tap" onClick="{{ openMedicalSheet }}"><div class="ic"><span class="icon"><svg><use href="#i-clipboard"></use></svg></span></div><div class="m"><div class="t">Medical profile</div><div class="s">{{ medicalSummary }}</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
             <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-shield"></use></svg></span></div><div class="m"><div class="t">Care model &amp; plan</div><div class="s">Self Care · Standard</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
             <a class="row tap"><div class="ic"><span class="icon"><svg><use href="#i-device-watch"></use></svg></span></div><div class="m"><div class="t">Connected wearable</div><div class="s">CareBand Pro · Connected</div></div><span class="icon chev"><svg><use href="#i-chevron"></use></svg></span></a>
           </div>
@@ -72,7 +73,105 @@
     </div>
   </div>
 </div>
+
+<div class="{{ scrimClass }}" onClick="{{ closeSheet }}"></div>
+<div class="{{ medicalSheetClass }}">
+  <div class="sheet__grip"></div>
+  <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+  <h2>Medical profile</h2>
+  <p class="lead">Existing diagnoses and allergies, shared across your Care Bridge Home apps.</p>
+  <form onSubmit="{{ submitMedical }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-height:60vh;overflow-y:auto;padding-right:2px">
+    <div class="field">
+      <label>Existing conditions</label>
+      <div class="choices">
+        <sc-for list="{{ conditionChoices }}" as="c" hint-placeholder-count="7">
+          <button type="button" class="{{ c.cls }}" onClick="{{ c.onClick }}">{{ c.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div class="field"><label>Other condition</label><input type="text" placeholder="e.g. Parkinson's disease" value="{{ conditionsOther }}" onChange="{{ onConditionsOther }}"></div>
+    <div class="field"><label>Allergies</label><input type="text" placeholder="e.g. Penicillin, Peanuts" value="{{ allergies }}" onChange="{{ onAllergies }}"></div>
+    <div class="field"><label>Notes</label><textarea placeholder="Anything your care team should know" value="{{ notes }}" onChange="{{ onNotes }}"></textarea></div>
+    <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save medical profile</button>
+  </form>
+</div>
+
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}"></script>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  CONDITIONS = ['Diabetes', 'High BP', 'Heart condition', 'Arthritis', 'Thyroid', 'Asthma', 'Memory issues'];
+
+  state = {
+    sheet: null,
+    profile: null,
+    conditions: [], conditionsOther: '', allergies: '', notes: '',
+  };
+
+  componentDidMount() {
+    let profile;
+    try { profile = JSON.parse(localStorage.getItem('cbh-medical-profile')); } catch (e) { profile = null; }
+    if (profile && typeof profile === 'object') {
+      this.setState({
+        profile,
+        conditions: profile.conditions || [],
+        conditionsOther: profile.conditionsOther || '',
+        allergies: (profile.allergies || []).join(', '),
+        notes: profile.notes || '',
+      });
+    }
+  }
+
+  openMedicalSheet = e => { e.preventDefault(); this.setState({ sheet: 'medical' }); };
+  closeSheet = () => this.setState({ sheet: null });
+  toggleCondition = c => this.setState(s => ({
+    conditions: s.conditions.includes(c) ? s.conditions.filter(x => x !== c) : [...s.conditions, c],
+  }));
+
+  submitMedical = e => {
+    e.preventDefault();
+    const { conditions, conditionsOther, allergies, notes } = this.state;
+    const profile = {
+      conditions,
+      conditionsOther: conditionsOther.trim(),
+      allergies: allergies.split(',').map(a => a.trim()).filter(Boolean),
+      notes: notes.trim(),
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem('cbh-medical-profile', JSON.stringify(profile));
+    this.setState({ profile, sheet: null });
+  };
+
+  renderVals() {
+    const s = this.state;
+    const p = s.profile;
+    let medicalSummary = 'Add your health profile';
+    if (p && ((p.conditions && p.conditions.length) || (p.allergies && p.allergies.length))) {
+      const parts = [];
+      if (p.conditions && p.conditions.length) parts.push(p.conditions.length + (p.conditions.length > 1 ? ' conditions' : ' condition'));
+      if (p.allergies && p.allergies.length) parts.push(p.allergies.length + (p.allergies.length > 1 ? ' allergies' : ' allergy'));
+      medicalSummary = parts.join(' · ');
+    }
+    return {
+      medicalSummary,
+      scrimClass: 'scrim' + (s.sheet ? ' show' : ''),
+      medicalSheetClass: 'sheet' + (s.sheet === 'medical' ? ' show' : ''),
+      openMedicalSheet: this.openMedicalSheet,
+      closeSheet: this.closeSheet,
+      submitMedical: this.submitMedical,
+      conditionChoices: this.CONDITIONS.map(c => ({
+        label: c,
+        cls: 'choice' + (s.conditions.includes(c) ? ' on' : ''),
+        onClick: () => this.toggleCondition(c),
+      })),
+      conditionsOther: s.conditionsOther,
+      onConditionsOther: e => this.setState({ conditionsOther: e.target.value }),
+      allergies: s.allergies,
+      onAllergies: e => this.setState({ allergies: e.target.value }),
+      notes: s.notes,
+      onNotes: e => this.setState({ notes: e.target.value }),
+    };
+  }
+}
+</script>
 </body>
 </html>

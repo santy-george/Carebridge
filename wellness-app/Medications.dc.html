@@ -34,6 +34,8 @@
     .seg button.is-active{ background:var(--purple-700); color:#fff; box-shadow:var(--shadow-xs) }
     .card--flush .med-item{ padding-left:16px; padding-right:16px }
     .med-item__toggle{ cursor:pointer }
+    .med-item--highrisk{ background:var(--danger-soft) }
+    .med-item--highrisk .ic{ background:var(--danger-soft); color:var(--danger) }
   </style>
 </helmet>
 <div class="stage" data-app="admin">
@@ -78,12 +80,22 @@
           </sc-if>
 
           <sc-if value="{{ isMedTab }}" hint-placeholder-val="{{ false }}">
+            <div class="banner banner--warn reveal" style="margin-bottom:12px">
+              <div class="ic"><span class="icon"><svg><use href="#i-bandage"></use></svg></span></div>
+              <div><div class="bt">Allergies</div><div class="bs">{{ allergiesText }}</div></div>
+            </div>
+            <sc-if value="{{ hasLowStock }}" hint-placeholder-val="{{ false }}">
+              <div class="{{ lowStockBannerClass }}" style="margin-bottom:12px">
+                <div class="ic"><span class="icon"><svg><use href="#i-alert"></use></svg></span></div>
+                <div><div class="bt">Running low on stock</div><div class="bs">{{ lowStockMessage }}</div></div>
+              </div>
+            </sc-if>
             <div class="sec tap" onClick="{{ toggleMorning }}">Morning<span class="icon" style="width:16px;height:16px;color:var(--text-subtle);transform:{{ morningChevron }};transition:transform .2s"><svg><use href="#i-chevron-down"></use></svg></span></div>
             <sc-if value="{{ morningOpen }}" hint-placeholder-val="{{ true }}">
               <div class="card card--flush reveal" style="background:var(--amber-50)">
                 <div class="{{ m0Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Metformin 500mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m0Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
                 <div class="{{ m1Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Atorvastatin 10mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m1Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
-                <div class="{{ m2Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Aspirin 75mg</div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m2Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                <div class="{{ m2Class }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">Aspirin 75mg <span class="chip2 chip2--alert"><span class="icon"><svg><use href="#i-alert"></use></svg></span>High risk</span></div><div class="s"><span class="dose">1 tablet</span><span>8:00 AM</span></div></div><div class="med-item__toggle" onClick="{{ m2Toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
               </div>
             </sc-if>
 
@@ -115,7 +127,7 @@
               <div class="sec">Added by you</div>
               <div class="card card--flush reveal">
                 <sc-for list="{{ extraMeds }}" as="med" hint-placeholder-count="1">
-                  <div class="{{ med.itemClass }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">{{ med.name }}</div><div class="s"><span class="dose">{{ med.dose }}</span><span>{{ med.time }}</span></div></div><div class="med-item__toggle" onClick="{{ med.toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
+                  <div class="{{ med.itemClass }}"><div class="ic"><span class="icon"><svg><use href="#i-pill"></use></svg></span></div><div class="m"><div class="t">{{ med.name }}<sc-if value="{{ med.highRisk }}" hint-placeholder-val="{{ false }}"> <span class="chip2 chip2--alert"><span class="icon"><svg><use href="#i-alert"></use></svg></span>High risk</span></sc-if></div><div class="s"><span class="dose">{{ med.dose }}</span><span>{{ med.time }}</span></div></div><div class="med-item__toggle" onClick="{{ med.toggle }}"><span class="icon"><svg><use href="#i-check"></use></svg></span></div></div>
                 </sc-for>
               </div>
             </sc-if>
@@ -136,19 +148,18 @@
                 <table class="table" style="font-size:12.5px">
                   <thead><tr><th>Medicine</th><th class="t-right">In stock</th><th class="t-right">Days left</th></tr></thead>
                   <tbody>
-                    <tr><td>Metformin 500mg</td><td class="t-right">12 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--warning-text)">6</span></td></tr>
-                    <tr><td>Atorvastatin 10mg</td><td class="t-right">24 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">18</span></td></tr>
-                    <tr><td>Aspirin 75mg</td><td class="t-right">30 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">30</span></td></tr>
-                    <tr><td>Vitamin D3</td><td class="t-right">4 capsules</td><td class="t-right"><span style="font-weight:700;color:var(--danger-text)">4</span></td></tr>
-                    <tr><td>Lisinopril 10mg</td><td class="t-right">20 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">20</span></td></tr>
-                    <tr><td>Melatonin 3mg</td><td class="t-right">9 tablets</td><td class="t-right"><span style="font-weight:700;color:var(--warning-text)">9</span></td></tr>
-                    <sc-for list="{{ extraStock }}" as="item" hint-placeholder-count="0">
-                      <tr><td>{{ item.name }}</td><td class="t-right">{{ item.qty }}</td><td class="t-right"><span style="font-weight:700;color:var(--text-heading)">—</span></td></tr>
+                    <sc-for list="{{ stockList }}" as="item" hint-placeholder-count="6">
+                      <tr style="{{ item.rowStyle }}">
+                        <td>{{ item.name }}<sc-if value="{{ item.highRisk }}" hint-placeholder-val="{{ false }}"> <span class="chip2 chip2--alert"><span class="icon"><svg><use href="#i-alert"></use></svg></span>High risk</span></sc-if></td>
+                        <td class="t-right">{{ item.qty }} {{ item.unit }}</td>
+                        <td class="t-right"><span class="chip2 {{ item.daysChipClass }}">{{ item.daysLeft }}</span></td>
+                      </tr>
                     </sc-for>
                   </tbody>
                 </table>
               </div>
               <button type="button" class="mbtn mbtn--fill mbtn--block" style="margin-top:10px" onClick="{{ openRefillSheet }}">Refill stock</button>
+              <button type="button" class="mbtn mbtn--line mbtn--block" style="margin-top:8px" onClick="{{ openPharmacistSheet }}"><span class="icon"><svg><use href="#i-mail"></use></svg></span>Send to pharmacist</button>
             </sc-if>
           </sc-if>
 
@@ -224,6 +235,13 @@
             <div class="field"><label>Medication name &amp; dose</label><input type="text" placeholder="e.g. Vitamin B12 1000mcg" value="{{ medName }}" onChange="{{ onMedName }}"></div>
             <div class="field"><label>Dosage</label><input type="text" placeholder="e.g. 1 tablet" value="{{ medDose }}" onChange="{{ onMedDose }}"></div>
             <div class="field"><label>Time</label><input type="time" value="{{ medTime }}" onChange="{{ onMedTime }}"></div>
+            <div class="field">
+              <label>High-risk medication? (e.g. anticoagulant)</label>
+              <div class="seg">
+                <button type="button" class="{{ medHighRiskYesClass }}" onClick="{{ setMedHighRiskYes }}">Yes</button>
+                <button type="button" class="{{ medHighRiskNoClass }}" onClick="{{ setMedHighRiskNo }}">No</button>
+              </div>
+            </div>
             <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save medication</button>
           </form>
         </div>
@@ -240,6 +258,14 @@
               <div class="field"><label>Dosage</label><input type="text" placeholder="e.g. 1 tablet daily" value="{{ refillDosage }}" onChange="{{ onRefillDosage }}"></div>
             </div>
             <div class="field"><label>Taken for</label><input type="text" placeholder="e.g. Blood pressure" value="{{ refillFor }}" onChange="{{ onRefillFor }}"></div>
+            <div class="field"><label>Doses per day</label><input type="number" min="1" step="1" placeholder="e.g. 2" value="{{ refillDosesPerDay }}" onChange="{{ onRefillDosesPerDay }}"></div>
+            <div class="field">
+              <label>High-risk medication? (e.g. anticoagulant)</label>
+              <div class="seg">
+                <button type="button" class="{{ refillHighRiskYesClass }}" onClick="{{ setRefillHighRiskYes }}">Yes</button>
+                <button type="button" class="{{ refillHighRiskNoClass }}" onClick="{{ setRefillHighRiskNo }}">No</button>
+              </div>
+            </div>
             <div class="field">
               <label>Prescription medicine?</label>
               <div class="seg">
@@ -252,6 +278,25 @@
             </sc-if>
             <div class="field"><label>Expiry date</label><input type="date" value="{{ refillExpiry }}" onChange="{{ onRefillExpiry }}"></div>
             <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px">Save to stock</button>
+          </form>
+        </div>
+
+        <div class="{{ pharmSheetClass }}">
+          <div class="sheet__grip"></div>
+          <a class="iconbtn" style="position:absolute;top:14px;right:14px" onClick="{{ closeSheet }}"><span class="icon"><svg><use href="#i-close"></use></svg></span></a>
+          <h2>Send to pharmacist</h2>
+          <p class="lead">Email your pharmacist the medicines you need to reorder.</p>
+          <form onSubmit="{{ submitPharmacist }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-height:60vh;overflow-y:auto;padding-right:2px">
+            <div class="field"><label>Pharmacist email</label><input type="email" placeholder="e.g. orders@springfieldpharmacy.com" value="{{ pharmEmail }}" onChange="{{ onPharmEmail }}"></div>
+            <div class="field">
+              <label>Items to include</label>
+              <div class="card card--flush" style="border:1px solid var(--border)">
+                <sc-for list="{{ pharmItems }}" as="item" hint-placeholder-count="3">
+                  <label class="row" style="cursor:pointer"><input type="checkbox" checked="{{ item.checked }}" onChange="{{ item.onToggle }}" style="width:18px;height:18px;margin-right:4px"><div class="m"><div class="t">{{ item.name }}</div><div class="s">{{ item.qty }} {{ item.unit }} · {{ item.daysLeft }} days left</div></div></label>
+                </sc-for>
+              </div>
+            </div>
+            <button type="submit" class="mbtn mbtn--fill mbtn--block" style="margin-top:8px"><span class="icon"><svg><use href="#i-mail"></use></svg></span>Send email</button>
           </form>
         </div>
       </div></div>
@@ -271,9 +316,9 @@ class Component extends DCLogic {
     ],
     apptTitle: '', apptSub: '', apptDate: '', apptTime: '',
     extraMeds: [],
-    medName: '', medDose: '', medTime: '',
-    extraStock: [],
-    refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '',
+    medName: '', medDose: '', medTime: '', medHighRisk: 'no',
+    stockList: [],
+    refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '', refillDosesPerDay: '1', refillHighRisk: 'no',
     hydrationGoal: 8,
     hydrationFilled: 6,
     goals: [{ id: 1, text: '30 min walk', done: false, completedAt: null }],
@@ -281,19 +326,62 @@ class Component extends DCLogic {
     periodOpen: { morning: true, noon: true, evening: true, night: true },
     stockOpen: true,
     takenMap: { m0: true, m1: true, m2: false, n0: false, n1: false, e0: false, e1: false, ni0: false, ni1: false },
+    highRiskMap: { m2: true },
+    medicalProfile: null,
+    careTeam: null,
+    pharmEmail: '', pharmChecked: {},
   };
+
+  SEED_STOCK = [
+    { id: 'seed-metformin', name: 'Metformin 500mg', qty: 12, unit: 'tablets', dosesPerDay: 2, highRisk: false },
+    { id: 'seed-atorvastatin', name: 'Atorvastatin 10mg', qty: 24, unit: 'tablets', dosesPerDay: 1, highRisk: false },
+    { id: 'seed-aspirin', name: 'Aspirin 75mg', qty: 30, unit: 'tablets', dosesPerDay: 1, highRisk: false },
+    { id: 'seed-vitamind3', name: 'Vitamin D3', qty: 4, unit: 'capsules', dosesPerDay: 1, highRisk: false },
+    { id: 'seed-lisinopril', name: 'Lisinopril 10mg', qty: 20, unit: 'tablets', dosesPerDay: 1, highRisk: false },
+    { id: 'seed-melatonin', name: 'Melatonin 3mg', qty: 9, unit: 'tablets', dosesPerDay: 1, highRisk: false },
+  ];
+
+  SEED_CARE_TEAM = [
+    { initials: 'RA', name: 'Rita Alvarez', role: 'Primary nurse', bg: 'var(--accent-soft)', fg: 'var(--accent-text)' },
+    { initials: 'TB', name: 'Tom Bennett', role: 'Care coordinator', bg: 'var(--purple-100)', fg: 'var(--purple-700)' },
+  ];
+
+  computeStock(items) {
+    return items.map(item => {
+      const dosesPerDay = item.dosesPerDay > 0 ? item.dosesPerDay : 1;
+      const daysLeft = Math.floor(item.qty / dosesPerDay);
+      const daysChipClass = daysLeft <= 7 ? 'chip2--alert' : daysLeft <= 14 ? 'chip2--warn' : 'chip2--ok';
+      return { ...item, daysLeft, daysChipClass, rowStyle: item.highRisk ? 'background:var(--danger-soft)' : '' };
+    });
+  }
+
+  parseQty(text) {
+    const m = String(text || '').trim().match(/^(\d+)\s*(.*)$/);
+    if (!m) return { qty: 0, unit: text || '' };
+    return { qty: parseInt(m[1], 10), unit: m[2] || 'units' };
+  }
 
   setTab = tab => this.setState({ tab });
   togglePeriod = p => this.setState(s => ({ periodOpen: { ...s.periodOpen, [p]: !s.periodOpen[p] } }));
   toggleStock = () => this.setState(s => ({ stockOpen: !s.stockOpen }));
   toggleTaken = key => this.setState(s => ({ takenMap: { ...s.takenMap, [key]: !s.takenMap[key] } }));
-  toggleExtraMed = i => this.setState(s => ({
-    extraMeds: s.extraMeds.map((m, idx) => idx === i ? { ...m, taken: !m.taken } : m),
-  }));
+  toggleExtraMed = i => this.setState(s => {
+    const extraMeds = s.extraMeds.map((m, idx) => idx === i ? { ...m, taken: !m.taken } : m);
+    localStorage.setItem('cbh-med-list', JSON.stringify(extraMeds));
+    return { extraMeds };
+  });
   openApptSheet = () => this.setState({ sheet: 'appt' });
   openMedSheet = () => this.setState({ sheet: 'med' });
   openRefillSheet = () => this.setState({ sheet: 'refill' });
+  openPharmacistSheet = () => {
+    const computed = this.computeStock(this.state.stockList);
+    const pharmChecked = {};
+    computed.forEach(i => { pharmChecked[i.id] = i.daysLeft <= 14; });
+    const pharmacist = (this.state.careTeam || []).find(m => (m.role || '').toLowerCase().indexOf('pharmac') !== -1);
+    this.setState({ sheet: 'pharm', pharmChecked, pharmEmail: pharmacist ? (pharmacist.email || '') : '' });
+  };
   closeSheet = () => this.setState({ sheet: null });
+  togglePharmItem = id => this.setState(s => ({ pharmChecked: { ...s.pharmChecked, [id]: !s.pharmChecked[id] } }));
 
   submitAppointment = e => {
     e.preventDefault();
@@ -310,24 +398,45 @@ class Component extends DCLogic {
 
   submitMedication = e => {
     e.preventDefault();
-    const { medName, medDose, medTime } = this.state;
+    const { medName, medDose, medTime, medHighRisk } = this.state;
     if (!medName.trim()) return;
+    const extraMeds = [...this.state.extraMeds, { name: medName, dose: medDose || '1 dose', time: medTime || 'As needed', taken: false, highRisk: medHighRisk === 'yes' }];
+    localStorage.setItem('cbh-med-list', JSON.stringify(extraMeds));
     this.setState({
-      extraMeds: [...this.state.extraMeds, { name: medName, dose: medDose || '1 dose', time: medTime || 'As needed', taken: false }],
-      medName: '', medDose: '', medTime: '', sheet: null,
+      extraMeds,
+      medName: '', medDose: '', medTime: '', medHighRisk: 'no', sheet: null,
     });
   };
+  setMedHighRisk = v => this.setState({ medHighRisk: v });
 
   submitRefill = e => {
     e.preventDefault();
-    const { refillName, refillQty } = this.state;
+    const { refillName, refillQty, refillDosesPerDay, refillHighRisk } = this.state;
     if (!refillName.trim()) return;
+    const { qty, unit } = this.parseQty(refillQty);
+    const dosesPerDay = parseInt(refillDosesPerDay, 10) || 1;
+    const stockList = [...this.state.stockList, { id: 'stock-' + Date.now(), name: refillName, qty, unit, dosesPerDay, highRisk: refillHighRisk === 'yes' }];
+    localStorage.setItem('cbh-med-stock', JSON.stringify(stockList));
     this.setState({
-      extraStock: [...this.state.extraStock, { name: refillName, qty: refillQty || '—' }],
-      refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '', sheet: null,
+      stockList,
+      refillName: '', refillQty: '', refillDosage: '', refillFor: '', refillRx: 'yes', refillPrescriber: '', refillExpiry: '', refillDosesPerDay: '1', refillHighRisk: 'no', sheet: null,
     });
   };
   setRefillRx = v => this.setState({ refillRx: v });
+  setRefillHighRisk = v => this.setState({ refillHighRisk: v });
+
+  submitPharmacist = e => {
+    e.preventDefault();
+    const computed = this.computeStock(this.state.stockList);
+    const items = computed.filter(i => this.state.pharmChecked[i.id]);
+    const email = this.state.pharmEmail.trim();
+    if (!items.length || !email) return;
+    const lines = items.map(i => i.name + ' — reorder ' + i.qty + ' ' + i.unit);
+    const body = lines.join('\n') + '\n\nSent from Care Bridge Home.';
+    const url = 'mailto:' + email + '?subject=' + encodeURIComponent('Medicine order') + '&body=' + encodeURIComponent(body);
+    window.location.href = url;
+    this.setState({ sheet: null });
+  };
 
   decGoal = () => this.setState(s => {
     const goal = Math.max(0, s.hydrationGoal - 1);
@@ -345,6 +454,26 @@ class Component extends DCLogic {
           ? { ...g, done: false, completedAt: null } : g),
       }));
     }, 60000);
+
+    let extraMeds;
+    try { extraMeds = JSON.parse(localStorage.getItem('cbh-med-list')); } catch (e) { extraMeds = null; }
+    if (!Array.isArray(extraMeds)) extraMeds = [];
+
+    let stockList;
+    try { stockList = JSON.parse(localStorage.getItem('cbh-med-stock')); } catch (e) { stockList = null; }
+    if (!Array.isArray(stockList) || stockList.length === 0) {
+      stockList = this.SEED_STOCK;
+      localStorage.setItem('cbh-med-stock', JSON.stringify(stockList));
+    }
+
+    let medicalProfile;
+    try { medicalProfile = JSON.parse(localStorage.getItem('cbh-medical-profile')); } catch (e) { medicalProfile = null; }
+
+    let careTeam;
+    try { careTeam = JSON.parse(localStorage.getItem('cbh-care-team')); } catch (e) { careTeam = null; }
+    if (!Array.isArray(careTeam) || careTeam.length === 0) careTeam = this.SEED_CARE_TEAM;
+
+    this.setState({ extraMeds, stockList, medicalProfile, careTeam });
   }
   componentWillUnmount() {
     clearInterval(this._resetInterval);
@@ -370,6 +499,19 @@ class Component extends DCLogic {
       style: `color:${i < s.hydrationFilled ? 'var(--accent)' : 'var(--border-strong)'}`,
       fill: i < s.hydrationFilled ? 'currentColor' : 'none',
     }));
+
+    const computedStock = this.computeStock(s.stockList);
+    const lowItems = computedStock.filter(i => i.daysLeft <= 7).sort((a, b) => a.daysLeft - b.daysLeft);
+    const hasLowStock = lowItems.length > 0;
+    const worst = lowItems[0];
+    const lowStockMessage = !worst ? '' : lowItems.length === 1
+      ? worst.name + ' runs out in ' + (worst.daysLeft <= 0 ? 'less than a day' : worst.daysLeft + (worst.daysLeft === 1 ? ' day' : ' days')) + ' — refill soon'
+      : lowItems.length + ' medicines are running low — refill soon';
+    const lowStockBannerClass = 'banner ' + (worst && worst.daysLeft <= 3 ? 'banner--alert' : 'banner--warn');
+
+    const mp = s.medicalProfile;
+    const allergiesText = mp && mp.allergies && mp.allergies.length ? mp.allergies.join(', ') : 'No known allergies on file';
+
     return {
       isApptTab: s.tab === 'appt',
       isMedTab: s.tab === 'med',
@@ -386,12 +528,12 @@ class Component extends DCLogic {
       hasExtraMeds: s.extraMeds.length > 0,
       extraMeds: s.extraMeds.map((m, i) => ({
         ...m,
-        itemClass: 'med-item' + (m.taken ? ' med-item--taken' : ''),
+        itemClass: 'med-item' + (m.taken ? ' med-item--taken' : '') + (m.highRisk ? ' med-item--highrisk' : ''),
         toggle: () => this.toggleExtraMed(i),
       })),
       m0Class: 'med-item' + (s.takenMap.m0 ? ' med-item--taken' : ''), m0Toggle: () => this.toggleTaken('m0'),
       m1Class: 'med-item' + (s.takenMap.m1 ? ' med-item--taken' : ''), m1Toggle: () => this.toggleTaken('m1'),
-      m2Class: 'med-item' + (s.takenMap.m2 ? ' med-item--taken' : ''), m2Toggle: () => this.toggleTaken('m2'),
+      m2Class: 'med-item' + (s.takenMap.m2 ? ' med-item--taken' : '') + (s.highRiskMap.m2 ? ' med-item--highrisk' : ''), m2Toggle: () => this.toggleTaken('m2'),
       n0Class: 'med-item' + (s.takenMap.n0 ? ' med-item--taken' : ''), n0Toggle: () => this.toggleTaken('n0'),
       n1Class: 'med-item' + (s.takenMap.n1 ? ' med-item--taken' : ''), n1Toggle: () => this.toggleTaken('n1'),
       e0Class: 'med-item' + (s.takenMap.e0 ? ' med-item--taken' : ''), e0Toggle: () => this.toggleTaken('e0'),
@@ -432,26 +574,45 @@ class Component extends DCLogic {
       apptSheetClass: 'sheet' + (s.sheet === 'appt' ? ' show' : ''),
       medSheetClass: 'sheet' + (s.sheet === 'med' ? ' show' : ''),
       refillSheetClass: 'sheet' + (s.sheet === 'refill' ? ' show' : ''),
+      pharmSheetClass: 'sheet' + (s.sheet === 'pharm' ? ' show' : ''),
       openApptSheet: this.openApptSheet,
       openMedSheet: this.openMedSheet,
       openRefillSheet: this.openRefillSheet,
+      openPharmacistSheet: this.openPharmacistSheet,
       submitAppointment: this.submitAppointment,
       submitMedication: this.submitMedication,
       submitRefill: this.submitRefill,
-      extraStock: s.extraStock,
+      submitPharmacist: this.submitPharmacist,
+      stockList: computedStock,
+      hasLowStock,
+      lowStockBannerClass,
+      lowStockMessage,
+      allergiesText,
+      pharmEmail: s.pharmEmail,
+      onPharmEmail: e => this.setState({ pharmEmail: e.target.value }),
+      pharmItems: computedStock.map(i => ({
+        id: i.id, name: i.name, qty: i.qty, unit: i.unit, daysLeft: i.daysLeft,
+        checked: !!s.pharmChecked[i.id],
+        onToggle: () => this.togglePharmItem(i.id),
+      })),
       refillName: s.refillName, refillQty: s.refillQty, refillDosage: s.refillDosage, refillFor: s.refillFor,
-      refillPrescriber: s.refillPrescriber, refillExpiry: s.refillExpiry,
+      refillPrescriber: s.refillPrescriber, refillExpiry: s.refillExpiry, refillDosesPerDay: s.refillDosesPerDay,
       isRefillRx: s.refillRx === 'yes',
       refillRxYesClass: s.refillRx === 'yes' ? 'is-active' : '',
       refillRxNoClass: s.refillRx === 'no' ? 'is-active' : '',
       setRefillRxYes: () => this.setRefillRx('yes'),
       setRefillRxNo: () => this.setRefillRx('no'),
+      refillHighRiskYesClass: s.refillHighRisk === 'yes' ? 'is-active' : '',
+      refillHighRiskNoClass: s.refillHighRisk === 'no' ? 'is-active' : '',
+      setRefillHighRiskYes: () => this.setRefillHighRisk('yes'),
+      setRefillHighRiskNo: () => this.setRefillHighRisk('no'),
       onRefillName: e => this.setState({ refillName: e.target.value }),
       onRefillQty: e => this.setState({ refillQty: e.target.value }),
       onRefillDosage: e => this.setState({ refillDosage: e.target.value }),
       onRefillFor: e => this.setState({ refillFor: e.target.value }),
       onRefillPrescriber: e => this.setState({ refillPrescriber: e.target.value }),
       onRefillExpiry: e => this.setState({ refillExpiry: e.target.value }),
+      onRefillDosesPerDay: e => this.setState({ refillDosesPerDay: e.target.value }),
       apptTitle: s.apptTitle, apptSub: s.apptSub, apptDate: s.apptDate, apptTime: s.apptTime,
       onApptTitle: e => this.setState({ apptTitle: e.target.value }),
       onApptSub: e => this.setState({ apptSub: e.target.value }),
@@ -461,6 +622,10 @@ class Component extends DCLogic {
       onMedName: e => this.setState({ medName: e.target.value }),
       onMedDose: e => this.setState({ medDose: e.target.value }),
       onMedTime: e => this.setState({ medTime: e.target.value }),
+      medHighRiskYesClass: s.medHighRisk === 'yes' ? 'is-active' : '',
+      medHighRiskNoClass: s.medHighRisk === 'no' ? 'is-active' : '',
+      setMedHighRiskYes: () => this.setMedHighRisk('yes'),
+      setMedHighRiskNo: () => this.setMedHighRisk('no'),
     };
   }
 }

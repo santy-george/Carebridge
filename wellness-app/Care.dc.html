@@ -74,7 +74,7 @@
           <p class="lead">Add a person who supports Jane's care.</p>
           <form onSubmit="{{ submitCare }}" style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-height:60vh;overflow-y:auto;padding-right:2px">
             <div class="field"><label>Name</label><input type="text" placeholder="e.g. Dr. Priya Menon" value="{{ careName }}" onChange="{{ onCareName }}"></div>
-            <div class="field"><label>Description / role</label><input type="text" placeholder="e.g. Primary physician" value="{{ careDesc }}" onChange="{{ onCareDesc }}"></div>
+            <div class="field"><label>Description / role</label><input type="text" placeholder="e.g. Primary physician, or Pharmacist — Springfield Pharmacy" value="{{ careDesc }}" onChange="{{ onCareDesc }}"></div>
             <div class="field"><label>Phone</label><input type="tel" placeholder="e.g. (555) 010-1234" value="{{ carePhone }}" onChange="{{ onCarePhone }}"></div>
             <div class="field"><label>Email (optional)</label><input type="email" placeholder="e.g. priya@clinic.com" value="{{ careEmail }}" onChange="{{ onCareEmail }}"></div>
             <div class="field"><label>Address</label><input type="text" placeholder="e.g. 214 Elm St, Springfield" value="{{ careAddress }}" onChange="{{ onCareAddress }}"></div>
@@ -99,16 +99,28 @@ class Component extends DCLogic {
     careName: '', careDesc: '', carePhone: '', careEmail: '', careAddress: '', careNotes: '',
   };
 
+  componentDidMount() {
+    let careTeam;
+    try { careTeam = JSON.parse(localStorage.getItem('cbh-care-team')); } catch (e) { careTeam = null; }
+    if (Array.isArray(careTeam) && careTeam.length > 0) {
+      this.setState({ careTeam });
+    } else {
+      localStorage.setItem('cbh-care-team', JSON.stringify(this.state.careTeam));
+    }
+  }
+
   openCareSheet = e => { e.preventDefault(); this.setState({ sheet: 'care' }); };
   closeSheet = () => this.setState({ sheet: null });
 
   submitCare = e => {
     e.preventDefault();
-    const { careName, careDesc } = this.state;
+    const { careName, careDesc, carePhone, careEmail, careAddress, careNotes } = this.state;
     if (!careName.trim()) return;
     const initials = careName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const careTeam = [...this.state.careTeam, { initials, name: careName, role: careDesc || 'Care team member', email: careEmail, phone: carePhone, address: careAddress, notes: careNotes, bg: 'var(--accent-soft)', fg: 'var(--accent-text)' }];
+    localStorage.setItem('cbh-care-team', JSON.stringify(careTeam));
     this.setState({
-      careTeam: [...this.state.careTeam, { initials, name: careName, role: careDesc || 'Care team member', bg: 'var(--accent-soft)', fg: 'var(--accent-text)' }],
+      careTeam,
       careName: '', careDesc: '', carePhone: '', careEmail: '', careAddress: '', careNotes: '', sheet: null,
     });
   };

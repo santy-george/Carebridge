@@ -48,7 +48,7 @@
 
   function render(el){
     var active = el.getAttribute('data-active') || 'dashboard';
-    var html = '<div class="sidebar__logo"><a href="admin-dashboard.html"><img src="assets/cbh-logo.svg" alt="Care Bridge Home"></a></div>';
+    var html = '<div class="sidebar__logo"><a href="admin-dashboard.html"><img src="../assets/cbh-logo.png" alt="Care Bridge Home"></a></div>';
     html += '<nav class="sidebar__nav">';
     GROUPS.forEach(function(g){
       html += '<div class="nav-tag">'+g.name+'</div>';

@@ -299,7 +299,7 @@
 .login{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:0 26px; background:var(--surface-page); overflow-y:auto }
 .login > *{ flex:0 0 auto }
 .login__art{ flex:0 0 auto; padding:18px 0 6px; display:flex; flex-direction:column; align-items:center; text-align:center }
-.login__logo{ height:46px; width:auto; max-width:88%; margin:14px 0 16px }   /* prominent brand mark, on white */
+.login__logo{ height:64px; width:auto; max-width:88%; margin:14px 0 16px }   /* prominent brand mark, on white */
 .login__app{ display:inline-flex; align-items:center; gap:7px; padding:6px 14px; border-radius:var(--radius-full); background:var(--accent-soft); color:var(--accent-text); font-weight:700; font-size:12.5px; letter-spacing:.3px; text-transform:uppercase } .login__app .icon{ width:15px; height:15px }
 .login__art h1{ font-family:var(--font-heading); font-weight:700; font-size:26px; letter-spacing:-.4px; color:var(--text-heading); margin-top:16px }
 .login__art p{ font-size:14px; color:var(--text-muted); margin-top:6px; max-width:280px }
@@ -311,7 +311,7 @@
 
 /* ---- Role switcher (white bg, logo) ----------------------------------- */
 .rs{ min-height:100vh; background:linear-gradient(180deg,var(--neutral-25),var(--neutral-50)); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:36px 22px; text-align:center }
-.rs__logo{ height:60px; width:auto; max-width:88%; margin-bottom:22px }
+.rs__logo{ height:76px; width:auto; max-width:88%; margin-bottom:22px }
 .rs h1{ font-family:var(--font-heading); font-weight:700; font-size:28px; letter-spacing:-.5px; color:var(--text-heading) }
 .rs p{ color:var(--text-muted); font-size:14.5px; margin-top:8px; max-width:440px }
 .rs__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:30px; width:100%; max-width:760px }

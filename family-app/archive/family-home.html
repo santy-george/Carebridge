@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-app="family">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Care — Home</title>
+<link rel="stylesheet" href="../../css/tokens.css"><link rel="stylesheet" href="../../css/components.css"><link rel="stylesheet" href="../../css/mobile.css">
+</head>
+<body>
+<script src="../../js/icons.js"></script>
+<a class="back-rs" href="../../index.html" style="position:fixed;top:18px;left:18px;font-size:13px;font-weight:600;color:var(--text-muted);display:inline-flex;gap:6px;align-items:center;z-index:5"><span class="icon" style="width:15px;height:15px;transform:scaleX(-1)"><svg><use href="#i-chevron"/></svg></span>All apps</a>
+<div class="stage">
+  <div class="device">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero__in">
+          <div class="sbar sbar--light" style="padding:0 0 12px"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-heart"/></svg></span><span class="icon"><svg><use href="#i-bell"/></svg></span></span></div>
+          <div class="hero__row">
+            <div><div class="sub">Good morning, Anita</div><h1>Amma is doing well</h1></div>
+            <span class="av">AM</span>
+          </div>
+          <div style="margin-top:14px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-base);padding:11px 13px">
+            <span class="av" style="width:38px;height:38px;font-size:13px">LP</span>
+            <div style="flex:1"><div style="font-weight:700;font-size:15px">Lakshmi Pillai</div><div class="sub" style="font-size:12px">Direct Care · Essential plan</div></div>
+            <span class="icon" style="width:18px;height:18px;opacity:.85"><svg><use href="#i-chevron-down"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="body-m">
+        <div class="banner banner--ok"><span class="ic"><span class="icon"><svg><use href="#i-check"/></svg></span></span><div style="flex:1"><div class="bt">All good today</div><div class="bs">Morning visit completed · vitals normal</div></div></div>
+
+        <div class="sec-label">Next visit</div>
+        <a class="vc" href="family-visits.html" style="display:block">
+          <div class="vc__t">
+            <div class="vc__time"><div class="h">10:30</div><div class="d">Today</div></div>
+            <div class="vc__div"></div>
+            <div class="vc__b"><div class="nm">Home nursing</div><div class="mt">Vitals + wound dressing</div></div>
+            <span class="avatar avatar--sm" style="background:var(--accent-soft);color:var(--accent-text)">SN</span>
+          </div>
+          <div class="vc__foot"><span class="loc"><span class="icon"><svg><use href="#i-user"/></svg></span>Sree Nair · Registered Nurse</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-text)">On the way</span></div>
+        </a>
+
+        <div class="mc">
+          <div class="mc__head"><span class="mc__title">Latest wellbeing</span><a class="mc__link" href="family-health.html">Details <span class="icon"><svg><use href="#i-chevron"/></svg></span></a></div>
+          <div class="vitals">
+            <div class="vital"><div class="v">138/86</div><div class="u">mmHg</div><div class="k">Blood pressure</div></div>
+            <div class="vital"><div class="v">78</div><div class="u">bpm</div><div class="k">Pulse</div></div>
+            <div class="vital"><div class="v warn">186</div><div class="u">mg/dL</div><div class="k">Blood sugar</div></div>
+          </div>
+          <div class="muted" style="font-size:12px;margin-top:10px">Updated today 8:10 AM · blood sugar slightly elevated, nurse advised on diet.</div>
+        </div>
+
+        <div class="sec-label">Care team</div>
+        <div class="mc mc--flush">
+          <div class="mrow"><span class="avatar avatar--sm" style="background:var(--accent-soft);color:var(--accent-text)">SN</span><div class="main"><div class="t">Sree Nair</div><div class="s">Primary nurse</div></div><a class="iconbtn" href="tel:#" style="border:1px solid var(--border)"><span class="icon"><svg><use href="#i-phone"/></svg></span></a></div>
+          <div class="mrow"><span class="avatar avatar--sm" style="background:var(--purple-100);color:var(--purple-700)">JA</span><div class="main"><div class="t">Joel Abraham</div><div class="s">Care coordinator</div></div><a class="iconbtn" href="tel:#" style="border:1px solid var(--border)"><span class="icon"><svg><use href="#i-phone"/></svg></span></a></div>
+        </div>
+
+        <a class="sos" href="#"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Emergency — call for help</a>
+        <div style="height:6px"></div>
+      </div>
+
+      <nav class="tabbar">
+        <a class="tab-m is-active" href="family-home.html"><span class="ti"><span class="icon"><svg><use href="#i-heart"/></svg></span></span>Home</a>
+        <a class="tab-m" href="family-visits.html"><span class="ti"><span class="icon"><svg><use href="#i-scheduler"/></svg></span></span>Visits</a>
+        <a class="tab-m" href="family-health.html"><span class="ti"><span class="icon"><svg><use href="#i-pulse"/></svg></span></span>Health</a>
+        <a class="tab-m" href="family-billing.html"><span class="ti"><span class="icon"><svg><use href="#i-billing"/></svg></span></span>Billing</a>
+      </nav>
+    </div>
+  </div>
+</div>
+</body>
+</html>

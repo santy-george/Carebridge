@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Billing & Invoices</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>.li{display:flex;align-items:center;justify-content:space-between;padding:9px 0;font-size:14px}.li+.li{border-top:1px solid var(--border)}.li .k{color:var(--text-body)}.li .v{font-weight:600;color:var(--text-heading)}.li--total{border-top:2px solid var(--border-strong);padding-top:12px}.li--total .v{font-family:var(--font-heading);font-size:18px}</style>
+</head>
+<body>
+<script src="../js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="billing"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt"><h1>Billing &amp; Invoices</h1><p>Membership fees, visit charges, add-ons and payments</p></div>
+        <div class="page-header__actions"><span class="freshness">Reconciled 23 Jun · 08:45</span>
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export</button>
+          <button class="btn btn--primary btn--sm"><span class="icon"><svg><use href="#i-plus"/></svg></span>Create invoice</button>
+        </div>
+      </div>
+      <div class="metric-row reveal reveal-2">
+        <div class="metric metric--success"><div class="metric__label">Monthly revenue</div><div class="metric__num">₹4.2L</div><div class="metric__sub">+14% vs last month</div></div>
+        <div class="metric metric--warn"><div class="metric__label">Outstanding</div><div class="metric__num">₹68K</div><div class="metric__sub">8 open invoices</div></div>
+        <div class="metric metric--danger"><div class="metric__label">Overdue</div><div class="metric__num">₹24K</div><div class="metric__sub">3 accounts</div></div>
+        <div class="metric"><div class="metric__label">Collected (month)</div><div class="metric__num">₹3.5L</div><div class="metric__sub">83% collection rate</div></div>
+      </div>
+      <div class="toolbar reveal reveal-2">
+        <div class="toolbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search invoices or members…"></div>
+        <button class="filter">Status<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Care model<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter"><span class="icon"><svg><use href="#i-calendar"/></svg></span>June 2026<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+      </div>
+      <div class="notice-strip reveal reveal-2"><span class="icon"><svg><use href="#i-billing"/></svg></span><div style="flex:1"><p><strong>Reconciliation queue · 2 items</strong><br>One international transfer needs reference confirmation and one partial payment needs allocation.</p></div><span class="owner">Finance · Riya</span><button class="btn btn--secondary btn--sm">Review queue</button></div>
+      <div class="table-card reveal reveal-3">
+        <table class="table">
+          <thead><tr><th>Invoice</th><th>Member</th><th>Care model</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr onclick="openDrawer('invDetail')"><td><span class="cell-link">CBH-INV-0048</span></td><td>Kumari Lakshmi N.</td><td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td><td class="num">₹12,400</td><td class="num">₹12,400</td><td class="num">₹0</td><td>01 Jun</td><td><span class="chip chip--completed"><span class="dot"></span>Paid</span></td></tr>
+            <tr onclick="openDrawer('invDetail')"><td><span class="cell-link">CBH-INV-0049</span></td><td>Anjali Mohan</td><td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td><td class="num">₹6,800</td><td class="num">₹0</td><td class="num">₹6,800</td><td>03 Jun</td><td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td></tr>
+            <tr onclick="openDrawer('invDetail')"><td><span class="cell-link">CBH-INV-0050</span></td><td>Gopal Nair</td><td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td><td class="num">₹9,200</td><td class="num">₹0</td><td class="num">₹9,200</td><td>02 May</td><td><span class="chip chip--missed"><span class="dot"></span>Overdue</span></td></tr>
+            <tr onclick="openDrawer('invDetail')"><td><span class="cell-link">CBH-INV-0051</span></td><td>Radha Krishnan</td><td><span class="model-chip model-chip--self"><span class="dot"></span>Self Care</span></td><td class="num">₹3,200</td><td class="num">₹0</td><td class="num">₹3,200</td><td>05 Jun</td><td><span class="chip chip--scheduled"><span class="dot"></span>Invoiced</span></td></tr>
+            <tr onclick="openDrawer('invDetail')"><td><span class="cell-link">CBH-INV-0047</span></td><td>Babu Thomas</td><td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td><td class="num">₹4,500</td><td class="num">₹2,000</td><td class="num">₹2,500</td><td>28 May</td><td><span class="chip chip--pending"><span class="dot"></span>Partial</span></td></tr>
+          </tbody>
+        </table>
+        <div class="pagination"><div class="pagination__info">Showing 5 of 132 invoices</div>
+          <div class="pagination__rows">Rows per page <select class="select-sm"><option>5</option><option selected>10</option><option>20</option></select>
+          <div class="pager"><button disabled><span class="icon" style="transform:scaleX(-1)"><svg><use href="#i-chevron"/></svg></span></button><button><span class="icon"><svg><use href="#i-chevron"/></svg></span></button></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay"></div>
+<aside class="drawer" id="invDetail" aria-label="Invoice detail">
+  <div class="drawer__head"><span class="drawer__title">CBH-INV-0048</span><button class="x-btn" onclick="closeDrawer()"><span class="icon icon--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span></button></div>
+  <div class="drawer__body">
+    <div class="profile-hero"><span class="avatar-lg">KL</span><div><h2 style="font-size:18px">Kumari Lakshmi N.</h2><div class="meta">Direct Care · Premium · June 2026</div></div></div>
+    <div>
+      <div class="section-card__title" style="margin-bottom:6px">Charges</div>
+      <div class="li"><span class="k">Membership fee — Direct Care (Premium)</span><span class="v">₹6,500</span></div>
+      <div class="li"><span class="k">Home nursing visits (×4)</span><span class="v">₹2,400</span></div>
+      <div class="li"><span class="k">Add-on — Physiotherapy (×2)</span><span class="v">₹1,600</span></div>
+      <div class="li"><span class="k">Add-on — Wound care</span><span class="v">₹700</span></div>
+      <div class="li"><span class="k">GST (18%)</span><span class="v">₹1,200</span></div>
+      <div class="li li--total"><span class="k">Total</span><span class="v">₹12,400</span></div>
+      <div class="li"><span class="k">Paid · 01 Jun · UPI</span><span class="v" style="color:var(--success-text)">₹12,400</span></div>
+      <div class="li"><span class="k">Balance</span><span class="v">₹0</span></div>
+    </div>
+    <div class="info-card info-card--success"><span class="info-card__icon"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span></span><div><h4>Paid in full</h4><p>Settled by Arun Kumar via international transfer · Ref TXN8823.</p></div></div>
+    <div class="kv"><div class="kv__row"><span class="kv__k">Invoice created by</span><span class="kv__v">Riya Francis · 01 Jun</span></div><div class="kv__row"><span class="kv__k">Payment reconciled by</span><span class="kv__v">Finance admin · 02 Jun</span></div><div class="kv__row"><span class="kv__k">Tax treatment</span><span class="kv__v">GST invoice · verified</span></div></div>
+    <div class="audit-line">Every adjustment, credit note and payment allocation is retained in the invoice audit history.</div>
+  </div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Download PDF</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Update payment</button></div>
+</aside>
+
+<script src="../js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

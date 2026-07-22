@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Settings</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>
+  .set-grid{ display:grid; grid-template-columns:230px minmax(0,1fr); gap:24px; align-items:start }
+  @media(max-width:980px){ .set-grid{ grid-template-columns:1fr } }
+  .set-nav{ position:sticky; top:84px; display:flex; flex-direction:column; gap:2px }
+  .set-nav a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-base); font-size:14px; color:var(--text-body); cursor:pointer }
+  .set-nav a .icon{ width:18px; height:18px; color:var(--text-muted) }
+  .set-nav a:hover{ background:var(--surface-variant) }
+  .set-nav a.is-active{ background:var(--accent-soft); color:var(--accent-text); font-weight:500 } .set-nav a.is-active .icon{ color:var(--accent-text) }
+  .panel{ display:none } .panel.is-active{ display:flex; flex-direction:column; gap:20px }
+  .switch{ display:flex; align-items:center; justify-content:space-between; padding:13px 0 } .switch + .switch{ border-top:1px solid var(--border) }
+  .switch__txt .t{ font-weight:600; font-size:14px; color:var(--text-heading) } .switch__txt .s{ font-size:13px; color:var(--text-muted) }
+  .sw{ width:42px; height:24px; border-radius:999px; background:var(--neutral-300); position:relative; cursor:pointer; transition:background .15s; flex:0 0 auto }
+  .sw::after{ content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .15s }
+  .sw.on{ background:var(--accent) } .sw.on::after{ transform:translateX(18px) }
+</style>
+</head>
+<body>
+<script src="../js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="settings"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal"><div class="page-header__txt"><h1>Settings</h1><p>Organisation, billing, care models and access configuration</p></div></div>
+
+      <div class="set-grid reveal reveal-2">
+        <nav class="set-nav">
+          <a class="is-active" onclick="setPanel('org',this)"><span class="icon"><svg><use href="#i-dashboard"/></svg></span>Organisation</a>
+          <a onclick="setPanel('area',this)"><span class="icon"><svg><use href="#i-pin"/></svg></span>Branch &amp; areas</a>
+          <a onclick="setPanel('notif',this)"><span class="icon"><svg><use href="#i-bell"/></svg></span>Notifications</a>
+          <a onclick="setPanel('billing',this)"><span class="icon"><svg><use href="#i-billing"/></svg></span>Billing</a>
+          <a onclick="setPanel('models',this)"><span class="icon"><svg><use href="#i-models"/></svg></span>Care model defaults</a>
+          <a onclick="setPanel('addons',this)"><span class="icon"><svg><use href="#i-catalogue"/></svg></span>Add-on defaults</a>
+          <a href="users-roles.html"><span class="icon"><svg><use href="#i-shield"/></svg></span>Roles &amp; access</a>
+          <a onclick="setPanel('data',this)"><span class="icon"><svg><use href="#i-document"/></svg></span>Export &amp; data</a>
+        </nav>
+
+        <div>
+          <div class="panel is-active" id="p-org">
+            <div class="section-card">
+              <div class="section-card__head"><span class="section-card__title">Organisation</span></div>
+              <div class="field-grid">
+                <div class="field"><label>Organisation name</label><div class="control"><input value="Care Bridge Home"></div></div>
+                <div class="field"><label>Registration no.</label><div class="control"><input value="CBH/KL/2026/0142"></div></div>
+                <div class="field"><label>Primary contact</label><div class="control"><input value="+91 1800-XXX-XXXX"></div></div>
+                <div class="field"><label>Support email</label><div class="control"><input value="care@carebridge.in"></div></div>
+                <div class="field field--full"><label>Head office address</label><textarea>2nd Floor, Wellness Plaza, Kakkanad, Ernakulam, Kerala 682030</textarea></div>
+              </div>
+              <div class="form-actions"><button class="btn btn--outline btn--sm">Cancel</button><button class="btn btn--primary btn--sm">Save changes</button></div>
+            </div>
+          </div>
+
+          <div class="panel" id="p-area">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Branch &amp; service areas</span><button class="btn btn--primary btn--sm"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add area</button></div>
+              <table class="table"><thead><tr><th>Area / cluster</th><th>District</th><th>Radius</th><th>Status</th></tr></thead><tbody>
+                <tr><td><span class="cell-link">Kakkanad</span></td><td>Ernakulam</td><td>10 km</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+                <tr><td><span class="cell-link">Thrissur</span></td><td>Thrissur</td><td>20 km</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+                <tr><td><span class="cell-link">Kottayam</span></td><td>Kottayam</td><td>25 km</td><td><span class="chip chip--completed"><span class="dot"></span>Active</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <div class="panel" id="p-notif">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Notifications</span></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Emergency SOS alerts</div><div class="s">Notify coordinators instantly on any SOS</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Abnormal reading escalation</div><div class="s">Alert when vitals breach thresholds</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Missed visit alerts</div><div class="s">Notify if a visit is not started on time</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Renewal &amp; payment reminders</div><div class="s">WhatsApp / SMS to members and family</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Daily operations digest</div><div class="s">Morning summary email to admins</div></div><div class="sw" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+          </div>
+
+          <div class="panel" id="p-billing">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Billing</span></div>
+              <div class="field-grid">
+                <div class="field"><label>Currency</label><select><option>INR (₹)</option></select></div>
+                <div class="field"><label>GST rate</label><div class="control"><input value="18%"></div></div>
+                <div class="field"><label>Invoice prefix</label><div class="control"><input value="CBH-INV-"></div></div>
+                <div class="field"><label>Payment due (days)</label><div class="control"><input value="7"></div></div>
+              </div>
+              <div class="form-actions"><button class="btn btn--primary btn--sm">Save changes</button></div>
+            </div>
+          </div>
+
+          <div class="panel" id="p-models">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Care model defaults</span></div>
+              <div class="field-grid">
+                <div class="field"><label><span class="mk mk--self"><span class="dot"></span>Self Care</span> default plan</label><select><option>Standard</option><option>Basic</option><option>Premium</option></select></div>
+                <div class="field"><label><span class="mk mk--virtual"><span class="dot"></span>Virtual Care</span> default plan</label><select><option>Standard</option><option>Basic</option><option>Premium</option></select></div>
+                <div class="field"><label><span class="mk mk--direct"><span class="dot"></span>Direct Care</span> default plan</label><select><option>Standard</option><option>Basic</option><option>Premium</option></select></div>
+                <div class="field"><label>Reassessment cadence</label><select><option>Quarterly</option><option>Monthly</option><option>Half-yearly</option></select></div>
+              </div>
+              <div class="form-actions"><button class="btn btn--primary btn--sm">Save changes</button></div>
+            </div>
+          </div>
+
+          <div class="panel" id="p-addons">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Add-on defaults</span><a class="card__link" href="care-models.html">Manage catalogue <span class="icon"><svg><use href="#i-chevron"/></svg></span></a></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Family can request add-ons</div><div class="s">Requests require CBH confirmation before scheduling</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Auto-recommend from clinical signals</div><div class="s">e.g. dietitian add-on on high glucose</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="switch"><div class="switch__txt"><div class="t">Show pricing to family</div><div class="s">Display indicative add-on prices in the family app</div></div><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+          </div>
+
+          <div class="panel" id="p-data">
+            <div class="section-card"><div class="section-card__head"><span class="section-card__title">Export &amp; data</span></div>
+              <div class="kv">
+                <div class="kv__row"><span class="kv__k">Members &amp; care models</span><span class="kv__v"><button class="btn btn--outline btn--sm">Export XLS</button> <button class="btn btn--outline btn--sm">Export CSV</button></span></div>
+                <div class="kv__row"><span class="kv__k">Visits &amp; reports</span><span class="kv__v"><button class="btn btn--outline btn--sm">Export XLS</button></span></div>
+                <div class="kv__row"><span class="kv__k">Billing &amp; payments</span><span class="kv__v"><button class="btn btn--outline btn--sm">Export XLS</button></span></div>
+                <div class="kv__row"><span class="kv__k">Full data backup</span><span class="kv__v"><button class="btn btn--outline btn--sm">Request backup</button></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script>
+function setPanel(p,el){ document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('is-active')}); document.getElementById('p-'+p).classList.add('is-active'); el.parentElement.querySelectorAll('a').forEach(function(a){a.classList.remove('is-active')}); el.classList.add('is-active'); }
+(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Leads & Enquiries</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>.prob{display:flex;align-items:center;gap:8px}.prob .bar{width:54px}.prob span{font-weight:600;font-size:13px;color:var(--text-heading);width:34px}</style>
+</head>
+<body>
+<script src="../js/icons.js"></script>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="leads"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search">
+        <span class="icon"><svg><use href="#i-search"/></svg></span>
+        <input placeholder="Search members, visits, invoices…">
+      </div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary" onclick="openDrawer('addEnquiry')"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt">
+          <h1>Leads &amp; Enquiries</h1>
+          <p>Track enquiries from first contact to enrolled member</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export</button>
+          <button class="btn btn--primary btn--sm" onclick="openDrawer('addEnquiry')"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+        </div>
+      </div>
+
+      <div class="metric-row reveal reveal-2">
+        <div class="metric"><div class="metric__label">Open leads</div><div class="metric__num">5</div><div class="metric__sub">2 high intent</div></div>
+        <div class="metric metric--warn"><div class="metric__label">Need follow-up</div><div class="metric__num">3</div><div class="metric__sub">Due today</div></div>
+        <div class="metric"><div class="metric__label">Assessment booked</div><div class="metric__num">4</div><div class="metric__sub">This week</div></div>
+        <div class="metric metric--success"><div class="metric__label">Converted (month)</div><div class="metric__num">9</div><div class="metric__sub">62% conversion</div></div>
+      </div>
+
+      <div class="toolbar reveal reveal-2">
+        <div class="toolbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search leads…"></div>
+        <button class="filter">Source<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Location<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Service interest<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Urgency<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+        <button class="filter">Status<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button>
+      </div>
+
+      <div class="table-card reveal reveal-3">
+        <table class="table">
+          <thead><tr>
+            <th>Lead</th><th>Source</th><th>Location</th><th>Service interest</th><th>Urgency</th><th>Follow-up</th><th>Probability</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr data-href="lead-profile.html">
+              <td><div class="u__txt"><div class="name cell-link">Priya Suresh</div><div class="sub">F · 64y · +91 98001 11222</div></div></td>
+              <td>WhatsApp</td><td>Thrissur</td><td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td>
+              <td><span class="risk risk--medium">Medium</span></td><td>Today</td>
+              <td><div class="prob"><div class="bar"><span style="width:70%;background:var(--accent)"></span></div><span>70%</span></div></td>
+              <td><span class="chip chip--scheduled"><span class="dot"></span>New</span></td>
+            </tr>
+            <tr data-href="lead-profile.html">
+              <td><div class="u__txt"><div class="name cell-link">John Varghese</div><div class="sub">M · 77y · +91 94400 55666</div></div></td>
+              <td>Hospital referral</td><td>Ernakulam</td><td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td>
+              <td><span class="risk risk--high">High</span></td><td>24 Jun</td>
+              <td><div class="prob"><div class="bar"><span style="width:85%;background:var(--accent)"></span></div><span>85%</span></div></td>
+              <td><span class="chip chip--inprogress"><span class="dot"></span>Assessment booked</span></td>
+            </tr>
+            <tr data-href="lead-profile.html">
+              <td><div class="u__txt"><div class="name cell-link">Shyamala Devi</div><div class="sub">F · 70y · +91 80000 77888</div></div></td>
+              <td>Phone</td><td>Palakkad</td><td><span class="model-chip model-chip--self"><span class="dot"></span>Self Care</span></td>
+              <td><span class="risk risk--low">Low</span></td><td>Overdue</td>
+              <td><div class="prob"><div class="bar"><span style="width:40%;background:var(--accent)"></span></div><span>40%</span></div></td>
+              <td><span class="chip chip--pending"><span class="dot"></span>Follow-up</span></td>
+            </tr>
+            <tr data-href="lead-profile.html">
+              <td><div class="u__txt"><div class="name cell-link">Rajan Menon</div><div class="sub">M · 69y · +91 96300 44555</div></div></td>
+              <td>Website</td><td>Kozhikode</td><td><span class="model-chip model-chip--virtual"><span class="dot"></span>Virtual Care</span></td>
+              <td><span class="risk risk--medium">Medium</span></td><td>26 Jun</td>
+              <td><div class="prob"><div class="bar"><span style="width:55%;background:var(--accent)"></span></div><span>55%</span></div></td>
+              <td><span class="chip chip--scheduled"><span class="dot"></span>Contacted</span></td>
+            </tr>
+            <tr data-href="lead-profile.html">
+              <td><div class="u__txt"><div class="name cell-link">Thankam George</div><div class="sub">F · 82y · +91 91100 22333</div></div></td>
+              <td>Community referral</td><td>Thiruvananthapuram</td><td><span class="model-chip model-chip--direct"><span class="dot"></span>Direct Care</span></td>
+              <td><span class="risk risk--high">High</span></td><td>Today</td>
+              <td><div class="prob"><div class="bar"><span style="width:78%;background:var(--accent)"></span></div><span>78%</span></div></td>
+              <td><span class="chip chip--pending"><span class="dot"></span>Follow-up</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <div class="pagination__info">Showing 5 of 5 open leads</div>
+          <div class="pagination__rows">Rows per page
+            <select class="select-sm"><option>5</option><option selected>10</option><option>20</option></select>
+            <div class="pager"><button disabled><span class="icon" style="transform:scaleX(-1)"><svg><use href="#i-chevron"/></svg></span></button><button disabled><span class="icon"><svg><use href="#i-chevron"/></svg></span></button></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Enquiry drawer -->
+<div class="overlay"></div>
+<aside class="drawer" id="addEnquiry" aria-label="Add Enquiry">
+  <div class="drawer__head">
+    <span class="drawer__title">Add Enquiry</span>
+    <button class="x-btn" onclick="closeDrawer()"><span class="icon icon--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span></button>
+  </div>
+  <div class="drawer__body">
+    <div class="field-grid">
+      <div class="field"><label>Full name <span class="req">*</span></label><div class="control"><input placeholder="e.g. Priya Suresh"></div></div>
+      <div class="field"><label>Phone <span class="req">*</span></label><div class="control"><input placeholder="+91 …"></div></div>
+      <div class="field"><label>Location (town) <span class="req">*</span></label><div class="control"><input list="towns" placeholder="Start typing…"></div>
+        <datalist id="towns"><option>Ernakulam</option><option>Thrissur</option><option>Kottayam</option><option>Palakkad</option><option>Kozhikode</option><option>Thiruvananthapuram</option></datalist></div>
+      <div class="field"><label>Landmark notes</label><div class="control"><input placeholder="Near…"></div></div>
+      <div class="field"><label>Lead source</label><select><option>WhatsApp</option><option>Phone</option><option>Website</option><option>Hospital referral</option><option>Community referral</option><option>Walk-in</option></select></div>
+      <div class="field"><label>Urgency</label><select><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></div>
+    </div>
+    <div class="field field--full"><label>Service interest</label>
+      <div class="checks">
+        <label class="check"><input type="checkbox">Self Care</label>
+        <label class="check"><input type="checkbox">Virtual Care</label>
+        <label class="check"><input type="checkbox">Direct Care</label>
+        <label class="check"><input type="checkbox">Home nursing</label>
+        <label class="check"><input type="checkbox">Physiotherapy</label>
+        <label class="check"><input type="checkbox">Bystander / 24×7</label>
+      </div>
+    </div>
+    <div class="field field--full"><label>Conversion probability</label>
+      <div class="slider-row"><input type="range" min="0" max="100" value="60" step="5" oninput="document.getElementById('probVal').value=this.value+'%'"><input class="val" id="probVal" value="60%"></div>
+    </div>
+    <div class="field field--full"><label>Follow-up date</label><div class="control"><input type="date"></div></div>
+    <div class="field field--full"><label>Notes</label><textarea placeholder="Context, who referred, care needs…"></textarea></div>
+  </div>
+  <div class="drawer__foot">
+    <button class="btn btn--outline btn--sm" onclick="closeDrawer()">Cancel</button>
+    <button class="btn btn--primary btn--sm" onclick="closeDrawer()">Save enquiry</button>
+  </div>
+</aside>
+
+<script src="../js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);
+document.querySelectorAll('.check input').forEach(function(c){c.addEventListener('change',function(){c.closest('.check').classList.toggle('is-on',c.checked);});});})();</script>
+</body>
+</html>

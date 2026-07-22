@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Visit Reports</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>.rsec{border:1px solid var(--border);border-radius:var(--radius-base);padding:13px 14px}.rsec h5{font-family:var(--font-heading);font-weight:600;font-size:13px;color:var(--text-heading);margin-bottom:6px}.rsec p{font-size:13px;color:var(--text-body)}</style>
+</head>
+<body>
+<script src="../js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="reports-visit"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt"><h1>Visit Reports</h1><p>Coordinator review of clinical visit reports</p></div>
+        <div class="page-header__actions"><button class="btn btn--outline btn--sm"><span class="icon"><svg><use href="#i-document"/></svg></span>Export</button></div>
+      </div>
+      <div class="metric-row reveal reveal-2">
+        <div class="metric metric--warn"><div class="metric__label">Pending review</div><div class="metric__num">3</div><div class="metric__sub">Awaiting coordinator</div></div>
+        <div class="metric metric--danger"><div class="metric__label">Abnormal readings</div><div class="metric__num">2</div><div class="metric__sub">Escalation flagged</div></div>
+        <div class="metric metric--success"><div class="metric__label">Approved (week)</div><div class="metric__num">46</div><div class="metric__sub">Reviewed</div></div>
+        <div class="metric"><div class="metric__label">Submitted today</div><div class="metric__num">11</div><div class="metric__sub">of 18 visits</div></div>
+      </div>
+      <div class="tabs reveal reveal-2" style="margin-bottom:4px">
+        <span class="tab is-active">Pending review <span class="count">3</span></span>
+        <span class="tab">Abnormal readings <span class="count">2</span></span>
+        <span class="tab">All submitted <span class="count">46</span></span>
+      </div>
+      <div class="table-card reveal reveal-3">
+        <table class="table">
+          <thead><tr><th>Member</th><th>Staff</th><th>Visit date</th><th>Report type</th><th>Abnormal</th><th>Coordinator review</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr onclick="openDrawer('reportDetail')"><td><span class="cell-link">Kumari Lakshmi N.</span></td><td>Sree Rekha R.</td><td>23 Jun</td><td>Home nursing</td><td><span class="chip chip--missed"><span class="dot"></span>Glucose ↑</span></td><td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td><td><span class="chip chip--completed"><span class="dot"></span>Submitted</span></td></tr>
+            <tr onclick="openDrawer('reportDetail')"><td><span class="cell-link">Gopal Nair</span></td><td>Meera P.</td><td>23 Jun</td><td>Physiotherapy</td><td><span class="chip chip--completed"><span class="dot"></span>Normal</span></td><td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td><td><span class="chip chip--completed"><span class="dot"></span>Submitted</span></td></tr>
+            <tr onclick="openDrawer('reportDetail')"><td><span class="cell-link">Rajan Nair</span></td><td>Vijay Nair</td><td>23 Jun</td><td>Bystander duty</td><td><span class="chip chip--missed"><span class="dot"></span>BP ↑ · Fall</span></td><td><span class="chip chip--pending"><span class="dot"></span>Pending</span></td><td><span class="chip chip--completed"><span class="dot"></span>Submitted</span></td></tr>
+            <tr onclick="openDrawer('reportDetail')"><td><span class="cell-link">Anjali Mohan</span></td><td>Manu Kumar</td><td>22 Jun</td><td>Caregiver visit</td><td><span class="chip chip--completed"><span class="dot"></span>Normal</span></td><td><span class="chip chip--completed"><span class="dot"></span>Approved</span></td><td><span class="chip chip--completed"><span class="dot"></span>Submitted</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay"></div>
+<aside class="drawer" id="reportDetail" aria-label="Report detail" style="width:560px">
+  <div class="drawer__head"><span class="drawer__title">Visit report · Kumari Lakshmi N.</span><button class="x-btn" onclick="closeDrawer()"><span class="icon icon--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span></button></div>
+  <div class="drawer__body">
+    <div class="info-card info-card--danger"><span class="info-card__icon"><span class="icon"><svg><use href="#i-emergency"/></svg></span></span><div><h4>Abnormal reading — Glucose 142 mg/dL</h4><p>Above target. Dietitian add-on recommended; flagged for coordinator review.</p></div></div>
+    <div class="rsec"><h5>Health monitoring</h5><p>BP 138/88 mmHg · Pulse 82 · SpO₂ 97% · Temp 37.1°C · Glucose 142 mg/dL (high) · Weight 58.2 kg</p></div>
+    <div class="rsec"><h5>Symptom review</h5><p>Mild dizziness reported this morning. No chest pain, breathlessness or swelling.</p></div>
+    <div class="rsec"><h5>Medication</h5><p>All scheduled medication taken. Metformin dose observed. No missed doses since last visit.</p></div>
+    <div class="rsec"><h5>Functional assessment</h5><p>Independent transfers, walks short distances with stick. Wound healing well, dressing changed.</p></div>
+    <div class="rsec"><h5>Mental wellbeing</h5><p>Mood stable, engaged. No signs of low mood or confusion.</p></div>
+    <div class="rsec"><h5>Preventive care &amp; education</h5><p>Diet review advised for elevated glucose. Family educated on hydration and foot care.</p></div>
+    <div class="rsec"><h5>Referrals</h5><p>Recommend dietitian add-on. No GP referral needed at this time.</p></div>
+    <div class="section-card" style="box-shadow:none;background:var(--surface-sunken)"><div class="section-card__title" style="margin-bottom:8px">Abnormal-reading resolution</div><div class="field-grid"><div class="field"><label>Action</label><select><option>Coordinator call</option><option>Repeat reading</option><option>GP review</option><option>Emergency escalation</option></select></div><div class="field"><label>Owner</label><select><option>Joel Abraham</option><option>Clinical supervisor</option><option>Assigned nurse</option></select></div><div class="field"><label>Due</label><div class="control"><input type="datetime-local"></div></div><div class="field"><label>Status</label><select><option>Open</option><option>Monitoring</option><option>Resolved</option></select></div></div></div>
+    <div class="field field--full"><label>Family-facing summary</label><textarea>Mary’s blood sugar was slightly above her target range. The care team will call today and arrange a nutrition review. No urgent symptoms were reported.</textarea><span class="field__hint">Only this approved summary is shared with authorised family members.</span></div>
+    <div class="field field--full"><label>Coordinator notes</label><textarea placeholder="Add review notes…"></textarea></div>
+  </div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Return to staff</button><button class="btn btn--secondary btn--sm" onclick="closeDrawer()">Assign follow-up</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Approve &amp; publish summary</button></div>
+</aside>
+
+<script src="../js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

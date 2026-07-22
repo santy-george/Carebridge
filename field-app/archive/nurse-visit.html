@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-app="field">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Care — Visit</title>
+<link rel="stylesheet" href="../../css/tokens.css"><link rel="stylesheet" href="../../css/components.css"><link rel="stylesheet" href="../../css/mobile.css">
+<style>
+  .mapbox{ height:140px; border-radius:var(--radius-lg); position:relative; overflow:hidden; border:1px solid var(--border);
+    background:linear-gradient(135deg,#dff7f0,#cdeee6); background-image:linear-gradient(rgba(0,120,94,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,120,94,.08) 1px,transparent 1px); background-size:100% 100%,26px 26px,26px 26px }
+  .mapbox .pin{ position:absolute; top:50%; left:52%; transform:translate(-50%,-100%); width:40px; height:40px; border-radius:50%; background:var(--accent); color:var(--accent-on); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 14px rgba(0,0,0,.18); border:3px solid #fff }
+  .mapbox .pin .icon{ width:20px; height:20px }
+  .mapbox .tagm{ position:absolute; left:12px; bottom:12px; background:rgba(255,255,255,.92); border-radius:var(--radius-full); padding:6px 12px; font-size:12px; font-weight:600; color:var(--text-heading); display:flex; gap:6px; align-items:center } .mapbox .tagm .icon{ width:14px;height:14px;color:var(--accent-text) }
+  .disc{ border-top:1px solid var(--border); padding-top:12px; margin-top:4px } .disc summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-weight:600; font-size:14px; color:var(--text-heading) } .disc summary::-webkit-details-marker{ display:none } .disc summary .icon{ width:18px;height:18px;color:var(--text-subtle);transition:transform .2s } .disc[open] summary .icon{ transform:rotate(180deg) }
+</style>
+</head>
+<body>
+<script src="../../js/icons.js"></script>
+<div class="stage">
+  <div class="device">
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="dots"><span class="icon"><svg><use href="#i-gps"/></svg></span><span class="icon"><svg><use href="#i-bell"/></svg></span></span></div>
+      <div class="hdr">
+        <a class="back" href="nurse-home.html"><span class="icon"><svg><use href="#i-chevron"/></svg></span>Today</a>
+        <a class="iconbtn" href="tel:#" aria-label="Call"><span class="icon"><svg><use href="#i-phone"/></svg></span></a>
+      </div>
+
+      <div class="body-m">
+        <div class="mc">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="avatar avatar--lg" style="background:var(--accent-soft);color:var(--accent-text);font-weight:700">LP</span>
+            <div style="flex:1"><div style="font-family:var(--font-heading);font-weight:700;font-size:19px;color:var(--text-heading)">Lakshmi Pillai</div><div class="muted" style="font-size:13px">Female · 72 · ID CBH-1042</div></div>
+            <span class="model-chip" style="background:var(--model-direct-care-soft);color:var(--model-direct-care-ink)">Direct Care</span>
+          </div>
+          <div class="mapbox" style="margin-top:14px"><div class="pin"><span class="icon"><svg><use href="#i-pin"/></svg></span></div><div class="tagm"><span class="icon"><svg><use href="#i-pin"/></svg></span>Flat 4B, Panampilly Nagar · 3.2 km</div></div>
+          <a class="btn-lg btn-fill" href="#" style="margin-top:12px"><span class="icon"><svg><use href="#i-gps"/></svg></span>Check in at location</a>
+          <div class="muted" style="font-size:12px;text-align:center;margin-top:8px">Check-in is GPS-verified when you’re within 100 m</div>
+        </div>
+
+        <div class="mc">
+          <div class="mc__head"><span class="mc__title">Care tasks</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-text)">0 / 4 done</span></div>
+          <div class="task"><span class="box"></span><span class="tl">Record vitals (BP, pulse, SpO₂, temp)</span></div>
+          <div class="task"><span class="box"></span><span class="tl">Clean &amp; re-dress left-leg wound</span></div>
+          <div class="task"><span class="box"></span><span class="tl">Administer 9:30 medication</span></div>
+          <div class="task"><span class="box"></span><span class="tl">Confirm next-visit plan with family</span></div>
+
+          <details class="disc">
+            <summary>Care plan &amp; history <span class="icon"><svg><use href="#i-chevron-down"/></svg></span></summary>
+            <div style="margin-top:10px" class="kv">
+              <div class="mrow" style="padding:8px 0"><div class="main"><div class="t" style="font-size:13px">Conditions</div><div class="s">Type 2 diabetes · post-op wound care · hypertension</div></div></div>
+              <div class="mrow" style="padding:8px 0;border-top:1px solid var(--border)"><div class="main"><div class="t" style="font-size:13px">Allergies</div><div class="s">Penicillin</div></div></div>
+              <div class="mrow" style="padding:8px 0;border-top:1px solid var(--border)"><div class="main"><div class="t" style="font-size:13px">Last visit</div><div class="s">23 Jun · BP 138/86 · wound healing well</div></div></div>
+            </div>
+          </details>
+        </div>
+
+        <a class="banner banner--alert" href="#" style="text-decoration:none"><span class="ic"><span class="icon"><svg><use href="#i-emergency"/></svg></span></span><div style="flex:1"><div class="bt">Raise emergency</div><div class="bs">Escalate to the coordination team instantly</div></div><span class="chev" style="color:var(--danger-text)"><svg><use href="#i-chevron"/></svg></span></a>
+        <div style="height:4px"></div>
+      </div>
+
+      <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--surface)">
+        <a class="btn-lg btn-fill" href="nurse-report.html"><span class="icon"><svg><use href="#i-document"/></svg></span>Record visit report</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

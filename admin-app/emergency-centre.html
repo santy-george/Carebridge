@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-app="admin">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Bridge Home — Emergency Centre</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/app.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>
+  .eactive{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px }
+  @media(max-width:1100px){ .eactive{ grid-template-columns:1fr } }
+  .ecard{ border-radius:var(--radius-lg); background:var(--danger-soft); border:1.5px solid color-mix(in srgb,var(--danger) 22%,transparent); padding:16px 18px }
+  .ecard__top{ display:flex; align-items:center; gap:10px; margin-bottom:10px }
+  .ecard__dot{ width:11px; height:11px; border-radius:var(--radius-full); background:var(--danger); flex:0 0 auto; animation:pulse-dot 1.4s ease infinite }
+  @keyframes pulse-dot{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--danger) 60%,transparent) } 50%{ box-shadow:0 0 0 5px transparent } }
+  .ecard__name{ font-family:var(--font-heading); font-weight:700; font-size:16px; color:var(--danger-text); flex:1 }
+  .ecard__meta{ font-size:13px; color:var(--text-body); margin-bottom:14px }
+  .ecard__row{ display:flex; gap:8px }
+  .tl{ display:flex; flex-direction:column }
+  .tl li{ position:relative; padding:0 0 16px 22px; list-style:none }
+  .tl li::before{ content:""; position:absolute; left:4px; top:4px; width:9px; height:9px; border-radius:var(--radius-full); background:var(--accent) }
+  .tl li::after{ content:""; position:absolute; left:8px; top:14px; bottom:0; width:1.5px; background:var(--border) }
+  .tl li:last-child::after{ display:none }
+  .tl .tt{ font-weight:600; font-size:13px; color:var(--text-heading) }
+  .tl .ts{ font-size:12px; color:var(--text-muted) }
+</style>
+</head>
+<body>
+<script src="../js/icons.js"></script>
+<div class="app">
+  <aside class="sidebar" id="sidebar" data-active="emergency"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__search"><span class="icon"><svg><use href="#i-search"/></svg></span><input placeholder="Search members, visits, invoices…"></div>
+      <div class="topbar__actions">
+        <button class="icon-btn" aria-label="Messages"><span class="icon"><svg><use href="#i-mail"/></svg></span><span class="badge">2</span></button>
+        <button class="icon-btn" aria-label="Notifications"><span class="icon"><svg><use href="#i-bell"/></svg></span><span class="badge">5</span></button>
+        <div class="topbar-right">
+          <span class="date-chip"><span class="icon"><svg><use href="#i-calendar"/></svg></span>Tue, 23 June 2026</span>
+          <span class="date-chip"><span class="icon"><svg><use href="#i-clock"/></svg></span><span class="liveClock">09:14:22</span>&nbsp;IST</span>
+        </div>
+        <button class="btn btn--primary"><span class="icon"><svg><use href="#i-plus"/></svg></span>Add Enquiry</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header reveal">
+        <div class="page-header__txt"><h1>Emergency Centre</h1><p>Active SOS response, dispatch and incident history</p></div>
+        <div class="page-header__actions"><span class="freshness">Live queue · updated now</span><button class="btn btn--danger btn--sm" onclick="openDrawer('raiseEm')"><span class="icon"><svg><use href="#i-emergency"/></svg></span>Raise emergency</button></div>
+      </div>
+      <div class="metric-row reveal reveal-2">
+        <div class="metric metric--danger"><div class="metric__label">Active now</div><div class="metric__num">2</div><div class="metric__sub">Immediate response</div></div>
+        <div class="metric metric--success"><div class="metric__label">Resolved today</div><div class="metric__num">3</div><div class="metric__sub">All within SLA</div></div>
+        <div class="metric"><div class="metric__label">Avg response</div><div class="metric__num">7m</div><div class="metric__sub">From SOS to dispatch</div></div>
+        <div class="metric"><div class="metric__label">This month</div><div class="metric__num">14</div><div class="metric__sub">Incidents logged</div></div>
+      </div>
+
+      <div class="eactive reveal reveal-2">
+        <div class="ecard">
+          <div class="ecard__top"><span class="ecard__dot"></span><span class="ecard__name">Kumari Lakshmi N.</span><span class="chip" style="background:var(--danger);color:#fff"><span class="dot" style="background:#fff"></span>SOS · Fall</span></div>
+          <div class="ecard__meta">Kakkanad, Ernakulam · Raised 09:14 · Owner: Joel Abraham · Nurse notified</div>
+          <div class="notice-strip" style="background:var(--surface);margin-bottom:12px"><span class="icon"><svg><use href="#i-clock"/></svg></span><p><strong>Acknowledgement overdue · 02:11</strong><br>Escalate to backup nurse and operations lead now.</p></div>
+          <div class="ecard__row"><button class="btn btn--danger btn--sm" onclick="openDrawer('emDetail')">Respond now</button><button class="btn btn--outline btn--sm" onclick="openDrawer('emDetail')">View profile</button></div>
+        </div>
+        <div class="ecard">
+          <div class="ecard__top"><span class="ecard__dot"></span><span class="ecard__name">Rajan Nair</span><span class="chip" style="background:var(--danger);color:#fff"><span class="dot" style="background:#fff"></span>SOS · Chest pain</span></div>
+          <div class="ecard__meta">Thrissur · Raised 08:56 · Owner: Anitha K. · Field staff en route · ETA 12 min</div>
+          <div class="notice-strip" style="background:var(--surface);margin-bottom:12px"><span class="icon"><svg><use href="#i-check"/></svg></span><p><strong>Acknowledged in 1m 42s</strong><br>Ambulance standby confirmed · family contacted.</p></div>
+          <div class="ecard__row"><button class="btn btn--danger btn--sm" onclick="openDrawer('emDetail')">Respond now</button><button class="btn btn--outline btn--sm" onclick="openDrawer('emDetail')">View profile</button></div>
+        </div>
+      </div>
+
+      <div class="section-card reveal reveal-3">
+        <div class="section-card__head"><span class="section-card__title">Emergency history</span>
+          <div style="display:flex;gap:8px"><button class="filter">Type<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button><button class="filter">Outcome<span class="icon"><svg><use href="#i-chevron-down"/></svg></span></button></div></div>
+        <table class="table">
+          <thead><tr><th>Member</th><th>Type</th><th>Date / time</th><th>Responder</th><th>Outcome</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr onclick="openDrawer('emDetail')"><td><span class="cell-link">Gopal Nair</span></td><td>Breathing difficulty</td><td>23 Jun · 06:20</td><td>Meera P.</td><td>Stabilised at home</td><td><span class="chip chip--completed"><span class="dot"></span>Resolved</span></td></tr>
+            <tr onclick="openDrawer('emDetail')"><td><span class="cell-link">Leela Varma</span></td><td>Fall</td><td>22 Jun · 21:40</td><td>Divya M.</td><td>Hospital transfer</td><td><span class="chip chip--completed"><span class="dot"></span>Resolved</span></td></tr>
+            <tr onclick="openDrawer('emDetail')"><td><span class="cell-link">Babu Thomas</span></td><td>Confusion</td><td>21 Jun · 14:05</td><td>Anitha K.</td><td>GP review arranged</td><td><span class="chip chip--completed"><span class="dot"></span>Resolved</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay"></div>
+<aside class="drawer" id="emDetail" aria-label="Emergency detail" style="width:540px">
+  <div class="drawer__head"><span class="drawer__title">Emergency · Kumari Lakshmi N.</span><button class="x-btn" onclick="closeDrawer()"><span class="icon icon--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span></button></div>
+  <div class="drawer__body">
+    <div class="info-card info-card--danger"><span class="info-card__icon"><span class="icon"><svg><use href="#i-emergency"/></svg></span></span><div><h4>SOS — Fall · Kakkanad</h4><p>Raised 09:14. Member conscious, complaining of hip pain. Family notified.</p></div></div>
+    <div class="section-card" style="box-shadow:none;padding:0;border:none">
+      <div class="section-card__title" style="margin-bottom:8px">Emergency profile</div>
+      <div class="kv">
+        <div class="kv__row"><span class="kv__k">Care model</span><span class="kv__v"><span class="mk mk--direct"><span class="dot"></span>Direct Care · Premium</span></span></div>
+        <div class="kv__row"><span class="kv__k">Conditions</span><span class="kv__v">Type 2 Diabetes, Hypertension</span></div>
+        <div class="kv__row"><span class="kv__k">Allergies</span><span class="kv__v">Penicillin</span></div>
+        <div class="kv__row"><span class="kv__k">Nearest staff</span><span class="kv__v">Sree Rekha R. · 1.2 km</span></div>
+        <div class="kv__row"><span class="kv__k">Family contact</span><span class="kv__v">Arun Kumar (son) · +971 50 123 4567</span></div>
+        <div class="kv__row"><span class="kv__k">Doctor</span><span class="kv__v">Dr. Nair · Amrita Hospital</span></div>
+        <div class="kv__row"><span class="kv__k">Ambulance</span><span class="kv__v">108 · ETA on request</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-card__title" style="margin-bottom:10px">Response timeline</div>
+      <ul class="tl">
+        <li><div class="tt">SOS raised</div><div class="ts">09:14 · Family app trigger</div></li>
+        <li><div class="tt">Coordinator alerted</div><div class="ts">09:14 · Joel Abraham</div></li>
+        <li><div class="tt">Nearest nurse notified</div><div class="ts">09:15 · Sree Rekha R.</div></li>
+        <li><div class="tt">Awaiting acknowledgement</div><div class="ts">In progress</div></li>
+      </ul>
+    </div>
+    <div class="notice-strip" style="background:var(--danger-soft);border-color:color-mix(in srgb,var(--danger) 20%,transparent)"><span class="icon" style="color:var(--danger-text)"><svg><use href="#i-emergency"/></svg></span><p><strong>Escalation rule triggered</strong><br>No responder acknowledgement within 2 minutes. Notify backup nurse and operations lead.</p><button class="btn btn--danger btn--sm">Escalate</button></div>
+    <div class="field field--full"><label>Incident notes</label><textarea placeholder="Document response and actions taken…"></textarea></div>
+    <div class="section-card" style="box-shadow:none;background:var(--surface-sunken)"><div class="section-card__title" style="margin-bottom:10px">Closure checklist</div><div class="checks" style="flex-direction:column;align-items:flex-start"><label class="check"><input type="checkbox">Member outcome documented</label><label class="check"><input type="checkbox">Family updated</label><label class="check"><input type="checkbox">Responder and arrival time confirmed</label><label class="check"><input type="checkbox">Follow-up owner and due time assigned</label><label class="check"><input type="checkbox">Post-incident review scheduled</label></div></div>
+  </div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Reassign responder</button><button class="btn btn--primary btn--sm" onclick="closeDrawer()">Complete closure review</button></div>
+</aside>
+
+<aside class="drawer" id="raiseEm" aria-label="Raise emergency">
+  <div class="drawer__head"><span class="drawer__title">Raise emergency</span><button class="x-btn" onclick="closeDrawer()"><span class="icon icon--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span></button></div>
+  <div class="drawer__body">
+    <div class="info-card info-card--danger"><span class="info-card__icon"><span class="icon"><svg><use href="#i-emergency"/></svg></span></span><div><h4>Log an emergency</h4><p>This alerts the coordinator and nearest staff immediately.</p></div></div>
+    <div class="field field--full"><label>Member <span class="req">*</span></label><div class="control"><input list="emlist" placeholder="Search member…"></div><datalist id="emlist"><option>Kumari Lakshmi N.</option><option>Gopal Nair</option><option>Rajan Nair</option></datalist></div>
+    <div class="field-grid">
+      <div class="field"><label>Emergency type</label><select><option>Fall</option><option>Chest pain</option><option>Breathing difficulty</option><option>Stroke symptoms</option><option>Confusion</option><option>Unconsciousness</option><option>Injury</option><option>Medication issue</option><option>Wandering</option><option>Other</option></select></div>
+      <div class="field"><label>Severity</label><select><option>Critical</option><option>Urgent</option><option>Moderate</option></select></div>
+    </div>
+    <div class="field field--full"><label>Location</label><div class="control"><input placeholder="Member's home / current location"></div></div>
+    <div class="field field--full"><label>Notes</label><textarea placeholder="What happened, member's condition…"></textarea></div>
+  </div>
+  <div class="drawer__foot"><button class="btn btn--outline btn--sm" onclick="closeDrawer()">Cancel</button><button class="btn btn--danger btn--sm" onclick="closeDrawer()">Raise &amp; dispatch</button></div>
+</aside>
+
+<script src="../js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script>(function(){function tick(){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));var t=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0')}).join(':');document.querySelectorAll('.liveClock').forEach(function(el){el.textContent=t});}tick();setInterval(tick,1000);})();</script>
+</body>
+</html>

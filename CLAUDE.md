@@ -31,7 +31,7 @@ The whole product revolves around the **Care Model** (see §4).
 - Reusable components — `css/components.css`.
 - App shell (sidebar + topbar + grid) — `css/app.css`.
 - Shared icon sprite — `js/icons.js`. Shared sidebar — `js/sidebar.js`.
-- Screens: **`admin-dashboard.html`**, **`care-models.html`**.
+- Screens: **`admin-app/admin-dashboard.html`**, **`admin-app/care-models.html`**.
 
 **Next (priority order — the operational lifecycle)**
 Members list → Member profile → Assessments → Scheduler → Visits & Duties → Visit Reports → Billing & Invoices → Staff Payments → Reports/Health Analytics → Emergency Centre. Then the Field and Family apps (set `data-app="field"` / `"family"`).
@@ -43,9 +43,19 @@ Members list → Member profile → Assessments → Scheduler → Visits & Dutie
 **No build step.** Static HTML/CSS/JS. Open any `*.html` directly in a browser. Vanilla JS only, no framework, no bundler.
 
 ```
-CBH-HTML/
-  admin-dashboard.html      # screens (one file per screen)
-  care-models.html
+Carebridge/
+  index.html                # demo launcher — links into each app below
+  admin-app/                # Admin Portal — one file per screen (data-app="admin")
+    admin-dashboard.html
+    care-models.html
+    ...
+  field-app/                # Field Staff App — current build (data-app="field")
+    nurse-app.html
+    archive/                # superseded per-screen prototype, kept for reference only
+  family-app/                # legacy Family App prototype (data-app="family")
+    family-app.html
+    archive/                # superseded per-screen prototype, kept for reference only
+  wellness-app/               # current Family/Self-Care surface — see wellness-app/CLAUDE.md
   css/
     tokens.css              # design tokens + per-app theming + Stack Sans @font-face
     components.css          # reusable UI: btn, chip, card, kpi, nav-item, info-card, input, tabs, table…
@@ -56,6 +66,8 @@ CBH-HTML/
   assets/
     cbh-logo.svg            # brand lockup
 ```
+
+Each app folder is self-contained apart from the shared `css/`, `js/`, `assets/` at repo root — a screen inside `admin-app/` or `field-app/` reaches them via `../css/...` etc, and a file inside an `archive/` subfolder via `../../css/...`. This split means working inside one app folder (e.g. `field-app/`) never touches the other apps' markup.
 
 **Every screen** links the three CSS files, sets `<html data-app="admin">` (or field/family), includes `js/icons.js` as the **first element in `<body>`** (so `<use>` resolves), an empty `<aside class="sidebar" id="sidebar" data-active="SCREEN_ID">`, and `js/sidebar.js` before `</body>`.
 
@@ -108,9 +120,9 @@ Active = purple left border + pale-purple bg. Hover = subtle pale purple. Badges
 
 ## 6. How to add a new screen (recipe)
 
-1. Copy `admin-dashboard.html` as the skeleton.
+1. Copy `admin-app/admin-dashboard.html` as the skeleton.
 2. Set `data-app`, the `<title>`, and `data-active="SCREEN_ID"` (ID must match an item in `sidebar.js` GROUPS).
-3. Build content inside `<main class="content">` using existing components from `components.css`. Add screen-only layout in a scoped `<style>` (see `care-models.html`) or extend `app.css` if reusable.
+3. Build content inside `<main class="content">` using existing components from `components.css`. Add screen-only layout in a scoped `<style>` (see `admin-app/care-models.html`) or extend `app.css` if reusable.
 4. Reuse: `.card`, `.kpi`, `.chip`/`.tier-chip`/`.model-chip`/`.risk`, `.btn--*`, `.info-card--*`, `.table`, `.tabs`, `.field`, `.avatar`, `.segmented`.
 5. Keep sentence case, token colours, and run the cohesion check (consistent status/colour/entity representation across apps).
 
@@ -128,6 +140,6 @@ Key Notion pages: Project Brief & Goals · Design Principles & Cohesion Standard
 
 ## 8. Design Context (impeccable)
 
-`PRODUCT.md` and `DESIGN.md` at the repo root are scoped to the **Wellness App** (`wellness-app.html`, the Self Care / Family-facing mobile surface) — not the Admin Portal. They cover: register (product), the member/family user profile, the "Calm Companion" brand personality (reassuring, warm, unhurried — distinct from Admin's "quiet authority"), and the visual system (Reassurance Blue `#3E6FB8` accent, Urbanist type, soft-lifted card hierarchy, bold 2.2px icon strokes). `.impeccable/design.json` carries the extended token metadata (tonal ramps, component snippets) for the `/impeccable live` visual-iteration mode, which is pre-configured for this repo (`.impeccable/live/config.json`).
+`PRODUCT.md` and `DESIGN.md` at the repo root are scoped to the **Wellness App** (`wellness-app/`, the Self Care / Family-facing mobile surface) — not the Admin Portal. They cover: register (product), the member/family user profile, the "Calm Companion" brand personality (reassuring, warm, unhurried — distinct from Admin's "quiet authority"), and the visual system (Reassurance Blue `#3E6FB8` accent, Urbanist type, soft-lifted card hierarchy, bold 2.2px icon strokes). `.impeccable/design.json` carries the extended token metadata (tonal ramps, component snippets) for the `/impeccable live` visual-iteration mode, which is pre-configured for this repo (`.impeccable/live/config.json`).
 
 If future work documents the Admin Portal or Field Staff app design systems, either re-scope these files or split into per-app variants — they are currently wellness-app-specific, not platform-wide.

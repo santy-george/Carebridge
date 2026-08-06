@@ -503,6 +503,95 @@ export type Database = {
           },
         ]
       }
+      member_invites: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          is_self: boolean
+          member_id: string
+          relationship_label: string
+          used_at: string | null
+          used_by_user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          is_self?: boolean
+          member_id: string
+          relationship_label?: string
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          is_self?: boolean
+          member_id?: string
+          relationship_label?: string
+          used_at?: string | null
+          used_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_invites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_invites_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_links: {
+        Row: {
+          created_at: string
+          id: string
+          is_self: boolean
+          member_id: string
+          relationship_label: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_self?: boolean
+          member_id: string
+          relationship_label?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_self?: boolean
+          member_id?: string
+          relationship_label?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_links_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           address: string | null
@@ -519,7 +608,6 @@ export type Database = {
           phone: string | null
           plan_level: Database["public"]["Enums"]["plan_level"]
           updated_at: string
-          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -536,7 +624,6 @@ export type Database = {
           phone?: string | null
           plan_level?: Database["public"]["Enums"]["plan_level"]
           updated_at?: string
-          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -553,7 +640,6 @@ export type Database = {
           phone?: string | null
           plan_level?: Database["public"]["Enums"]["plan_level"]
           updated_at?: string
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -817,6 +903,7 @@ export type Database = {
       }
       is_coordinator: { Args: never; Returns: boolean }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
+      redeem_invite_code: { Args: { p_code: string }; Returns: string }
     }
     Enums: {
       care_model: "self_care" | "virtual_care" | "direct_care"

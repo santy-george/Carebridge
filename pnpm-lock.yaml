@@ -71,15 +71,24 @@ importers:
       '@capacitor/ios':
         specifier: ^8.5.0
         version: 8.5.0(@capacitor/core@8.5.0)
+      '@carebridge/db-types':
+        specifier: workspace:*
+        version: link:../../packages/db-types
       '@carebridge/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@supabase/supabase-js':
+        specifier: ^2.112.1
+        version: 2.112.1
       react:
         specifier: ^19.2.8
         version: 19.2.8
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
+      react-router-dom:
+        specifier: ^7.18.2
+        version: 7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@capacitor/cli':
         specifier: ^8.5.0

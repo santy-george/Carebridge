@@ -76,3 +76,14 @@ values (
   88
 )
 on conflict do nothing;
+
+insert into public.sos_alerts (id, member_id, alert_type, status, location_lat, location_lng)
+values (
+  '20000000-0000-0000-0000-000000000001',
+  '10000000-0000-0000-0000-000000000001',
+  'manual',
+  'open',
+  9.9816,
+  76.2999
+)
+on conflict do nothing;

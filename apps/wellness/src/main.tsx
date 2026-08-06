@@ -16,9 +16,9 @@ import { Medications } from './pages/Medications';
 import { Care } from './pages/Care';
 import { Sos } from './pages/Sos';
 import { Health } from './pages/Health';
+import { Profile } from './pages/Profile';
 import { More } from './pages/More';
 import { AppShell } from './shell/AppShell';
-import { ComingSoon } from './shell/ComingSoon';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -41,7 +41,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/care" element={<Care />} />
               <Route path="/more" element={<More />} />
               <Route path="/sos" element={<Sos />} />
-              <Route path="/profile" element={<ComingSoon title="Profile" />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -65,7 +65,11 @@ export function CheckIn() {
         <div className="checkin__head">
           <h3>How are you feeling today?</h3>
           <span className="day">
-            {new Date().toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+            })}
           </span>
         </div>
 

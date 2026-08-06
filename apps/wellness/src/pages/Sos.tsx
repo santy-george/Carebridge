@@ -80,7 +80,10 @@ export function Sos() {
 
   if (status === 'sent') {
     return (
-      <div className="vbody" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
+      <div
+        className="vbody"
+        style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}
+      >
         <div
           style={{
             width: '96px',
@@ -149,8 +152,8 @@ export function Sos() {
         </div>
         <h2>Send an emergency alert?</h2>
         <p style={{ maxWidth: '280px', margin: '0 auto' }}>
-          This creates an emergency alert for your care coordinator, with your location if available. They
-          will follow up with you directly.
+          This creates an emergency alert for your care coordinator, with your location if
+          available. They will follow up with you directly.
         </p>
 
         {careTeam.length > 0 && (
@@ -208,7 +211,11 @@ export function Sos() {
           {status === 'sending' ? 'Sending…' : 'Confirm — send alert'}
         </button>
         <Link to="/">
-          <button type="button" className="mbtn mbtn--ghost mbtn--block" style={{ marginTop: '8px' }}>
+          <button
+            type="button"
+            className="mbtn mbtn--ghost mbtn--block"
+            style={{ marginTop: '8px' }}
+          >
             Cancel
           </button>
         </Link>

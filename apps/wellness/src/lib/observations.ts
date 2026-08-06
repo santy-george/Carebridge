@@ -9,10 +9,17 @@ export function scaleY(values: number[], height: number, pad: number): number[] 
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  return values.map((v) => Math.round((pad + (1 - (v - min) / range) * (height - 2 * pad)) * 10) / 10);
+  return values.map(
+    (v) => Math.round((pad + (1 - (v - min) / range) * (height - 2 * pad)) * 10) / 10,
+  );
 }
 
-export function buildSparklinePoints(values: number[], width: number, height: number, pad: number): string {
+export function buildSparklinePoints(
+  values: number[],
+  width: number,
+  height: number,
+  pad: number,
+): string {
   if (values.length === 0) return '';
   const ys = scaleY(values, height, pad);
   if (ys.length === 1) return `0,${ys[0]}`;

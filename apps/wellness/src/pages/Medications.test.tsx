@@ -47,7 +47,13 @@ describe('Medications', () => {
     tableResponses.medical_profile = { data: { allergies: ['Peanuts'] }, error: null };
     tableResponses.medications = {
       data: [
-        { id: 'med1', name: 'Metformin', dosage: '500mg', high_risk: false, time_of_day: ['morning'] },
+        {
+          id: 'med1',
+          name: 'Metformin',
+          dosage: '500mg',
+          high_risk: false,
+          time_of_day: ['morning'],
+        },
         { id: 'med2', name: 'Aspirin', dosage: '75mg', high_risk: true, time_of_day: ['morning'] },
       ],
       error: null,
@@ -57,7 +63,16 @@ describe('Medications', () => {
       error: null,
     };
     tableResponses.med_stock = {
-      data: [{ id: 'stock1', name: 'Metformin', qty: 4, unit: 'tablets', doses_per_day: 2, high_risk: false }],
+      data: [
+        {
+          id: 'stock1',
+          name: 'Metformin',
+          qty: 4,
+          unit: 'tablets',
+          doses_per_day: 2,
+          high_risk: false,
+        },
+      ],
       error: null,
     };
   });
@@ -78,7 +93,9 @@ describe('Medications', () => {
     expect(
       screen.getByRole('button', { name: /mark metformin morning as not taken/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /mark aspirin morning as taken/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /mark aspirin morning as taken/i }),
+    ).toBeInTheDocument();
   });
 
   it('shows the low-stock banner when a stock item is running low', async () => {
@@ -113,7 +130,13 @@ describe('Medications', () => {
 
   it('adds a medication through the sheet', async () => {
     singleResponses.medications = {
-      data: { id: 'med3', name: 'Vitamin D3', dosage: '1 capsule', high_risk: false, time_of_day: ['noon'] },
+      data: {
+        id: 'med3',
+        name: 'Vitamin D3',
+        dosage: '1 capsule',
+        high_risk: false,
+        time_of_day: ['noon'],
+      },
       error: null,
     };
     const { default: userEvent } = await import('@testing-library/user-event');
@@ -143,7 +166,14 @@ describe('Medications', () => {
 
   it('refills stock through the sheet', async () => {
     singleResponses.med_stock = {
-      data: { id: 'stock2', name: 'Aspirin', qty: 30, unit: 'tablets', doses_per_day: 1, high_risk: false },
+      data: {
+        id: 'stock2',
+        name: 'Aspirin',
+        qty: 30,
+        unit: 'tablets',
+        doses_per_day: 1,
+        high_risk: false,
+      },
       error: null,
     };
     const { default: userEvent } = await import('@testing-library/user-event');

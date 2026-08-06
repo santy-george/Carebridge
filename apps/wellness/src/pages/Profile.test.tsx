@@ -81,7 +81,12 @@ describe('Profile', () => {
 
   it('shows the medical summary when a profile exists', async () => {
     tableResponses.medical_profile = {
-      data: { conditions: ['Diabetes'], conditions_other: null, allergies: ['Peanuts'], notes: null },
+      data: {
+        conditions: ['Diabetes'],
+        conditions_other: null,
+        allergies: ['Peanuts'],
+        notes: null,
+      },
       error: null,
     };
     renderProfile();
@@ -93,7 +98,9 @@ describe('Profile', () => {
     const user = userEvent.setup();
     renderProfile();
 
-    await user.click(await screen.findByRole('button', { name: 'Medical profile Add your health profile' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'Medical profile Add your health profile' }),
+    );
     await user.click(screen.getByRole('button', { name: 'Diabetes' }));
     await user.type(screen.getByLabelText(/allergies/i), 'Peanuts, Penicillin');
     await user.click(screen.getByRole('button', { name: /save medical profile/i }));
@@ -120,7 +127,9 @@ describe('Profile', () => {
     const user = userEvent.setup();
     renderProfile();
 
-    await user.click(await screen.findByRole('button', { name: 'Medical profile Add your health profile' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'Medical profile Add your health profile' }),
+    );
     await user.click(screen.getByRole('button', { name: /save medical profile/i }));
 
     expect(await screen.findByText(/couldn.t save your medical profile/i)).toBeInTheDocument();

@@ -98,7 +98,9 @@ export function Profile() {
         .filter(Boolean),
       notes: notes.trim() || null,
     };
-    const { error } = await supabase.from('medical_profile').upsert(payload, { onConflict: 'member_id' });
+    const { error } = await supabase
+      .from('medical_profile')
+      .upsert(payload, { onConflict: 'member_id' });
     setSaving(false);
     if (error) {
       setSaveError(true);
@@ -172,7 +174,10 @@ export function Profile() {
           <div className="m">
             <div className="t">Medical profile</div>
             <div className="s">
-              {medicalSummary(medicalProfile?.conditions.length ?? 0, medicalProfile?.allergies.length ?? 0)}
+              {medicalSummary(
+                medicalProfile?.conditions.length ?? 0,
+                medicalProfile?.allergies.length ?? 0,
+              )}
             </div>
           </div>
           <span className="icon chev">
@@ -206,7 +211,9 @@ export function Profile() {
           </span>
         </button>
         <h2>Medical profile</h2>
-        <p className="lead">Existing diagnoses and allergies, shared across your Care Bridge Home apps.</p>
+        <p className="lead">
+          Existing diagnoses and allergies, shared across your Care Bridge Home apps.
+        </p>
         <form
           style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
           onSubmit={(e) => {
@@ -258,7 +265,12 @@ export function Profile() {
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
-          <button type="submit" className="mbtn mbtn--fill mbtn--block" style={{ marginTop: '8px' }} disabled={saving}>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block"
+            style={{ marginTop: '8px' }}
+            disabled={saving}
+          >
             {saving ? 'Saving…' : 'Save medical profile'}
           </button>
           {saveError && (

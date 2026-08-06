@@ -110,7 +110,11 @@ export function Care() {
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {member.phone && (
-                    <a className="iconbtn" href={`tel:${member.phone}`} aria-label={`Call ${member.name}`}>
+                    <a
+                      className="iconbtn"
+                      href={`tel:${member.phone}`}
+                      aria-label={`Call ${member.name}`}
+                    >
                       <span className="icon">
                         <svg>
                           <use href="#i-phone" />
@@ -119,7 +123,11 @@ export function Care() {
                     </a>
                   )}
                   {member.email && (
-                    <a className="iconbtn" href={`mailto:${member.email}`} aria-label={`Email ${member.name}`}>
+                    <a
+                      className="iconbtn"
+                      href={`mailto:${member.email}`}
+                      aria-label={`Email ${member.name}`}
+                    >
                       <span className="icon">
                         <svg>
                           <use href="#i-mail" />

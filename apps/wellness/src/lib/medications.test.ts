@@ -29,7 +29,13 @@ describe('computeStockDaysLeft', () => {
 
 describe('lowStockMessage', () => {
   it('is empty when nothing is low', () => {
-    expect(lowStockMessage(computeStockDaysLeft([{ id: '1', name: 'A', qty: 30, unit: 'tablets', doses_per_day: 1, high_risk: false }]))).toBe('');
+    expect(
+      lowStockMessage(
+        computeStockDaysLeft([
+          { id: '1', name: 'A', qty: 30, unit: 'tablets', doses_per_day: 1, high_risk: false },
+        ]),
+      ),
+    ).toBe('');
   });
 
   it('names the single low item and its days left', () => {
@@ -51,8 +57,20 @@ describe('lowStockMessage', () => {
 describe('buildDosesByBand', () => {
   it('groups doses by band and marks taken from matching logs', () => {
     const meds = [
-      { id: 'm1', name: 'Metformin', dosage: '500mg', high_risk: false, time_of_day: ['morning', 'evening'] as const },
-      { id: 'm2', name: 'Aspirin', dosage: '75mg', high_risk: true, time_of_day: ['morning'] as const },
+      {
+        id: 'm1',
+        name: 'Metformin',
+        dosage: '500mg',
+        high_risk: false,
+        time_of_day: ['morning', 'evening'] as const,
+      },
+      {
+        id: 'm2',
+        name: 'Aspirin',
+        dosage: '75mg',
+        high_risk: true,
+        time_of_day: ['morning'] as const,
+      },
     ];
     const logs = [{ medication_id: 'm1', time_of_day: 'morning' as const, taken: true }];
 

@@ -9,7 +9,12 @@ import {
   glucoseContextLabel,
   type GlucoseContext,
 } from '../lib/vitals';
-import { buildBmiSeries, buildSparklinePoints, formatShortDate, severityRank } from '../lib/observations';
+import {
+  buildBmiSeries,
+  buildSparklinePoints,
+  formatShortDate,
+  severityRank,
+} from '../lib/observations';
 
 interface VitalRow {
   vital_type: string;
@@ -230,8 +235,8 @@ export function Health() {
       </div>
 
       <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: 0 }}>
-        These observations are from readings collected via manual entries. Please reach out to your care
-        team or general physician for professional medical advice.
+        These observations are from readings collected via manual entries. Please reach out to your
+        care team or general physician for professional medical advice.
       </p>
 
       <div className="sec">All readings</div>
@@ -264,14 +269,23 @@ export function Health() {
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '13.5px', color: 'var(--text-heading)' }}>
+                  <div
+                    style={{ fontWeight: 600, fontSize: '13.5px', color: 'var(--text-heading)' }}
+                  >
                     {row.name}
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-subtle)', marginTop: '1px' }}>
                     {row.category}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '13px', color: 'var(--text-heading)' }}>
+                <div
+                  style={{
+                    textAlign: 'right',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    color: 'var(--text-heading)',
+                  }}
+                >
                   {row.value}
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -294,10 +308,15 @@ export function Health() {
               </div>
               {open[row.id] && (
                 <div style={{ padding: '0 14px 16px', background: 'var(--surface-sunken)' }}>
-                  <div style={{ fontSize: '10.5px', color: 'var(--text-subtle)', marginBottom: '6px' }}>
+                  <div
+                    style={{ fontSize: '10.5px', color: 'var(--text-subtle)', marginBottom: '6px' }}
+                  >
                     Normal range: {row.range}
                   </div>
-                  <svg viewBox="0 0 280 40" style={{ width: '100%', height: '40px', display: 'block' }}>
+                  <svg
+                    viewBox="0 0 280 40"
+                    style={{ width: '100%', height: '40px', display: 'block' }}
+                  >
                     <polyline
                       points={row.pts}
                       fill="none"
@@ -307,7 +326,9 @@ export function Health() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px' }}>
+                  <div
+                    style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px' }}
+                  >
                     {row.dayRows.map((d, di) => (
                       <div key={di} style={{ textAlign: 'center', flex: 1 }}>
                         <div
@@ -320,17 +341,34 @@ export function Health() {
                         >
                           {d.day}
                         </div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-heading)', fontWeight: 600, marginTop: '1px' }}>
+                        <div
+                          style={{
+                            fontSize: '10px',
+                            color: 'var(--text-heading)',
+                            fontWeight: 600,
+                            marginTop: '1px',
+                          }}
+                        >
                           {d.val}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-body)', lineHeight: 1.5, marginTop: '10px' }}>
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      color: 'var(--text-body)',
+                      lineHeight: 1.5,
+                      marginTop: '10px',
+                    }}
+                  >
                     {row.note}
                   </div>
                   {row.suggestion && (
-                    <div className="banner banner--warn" style={{ marginTop: '10px', padding: '10px' }}>
+                    <div
+                      className="banner banner--warn"
+                      style={{ marginTop: '10px', padding: '10px' }}
+                    >
                       <div className="ic" style={{ width: '28px', height: '28px' }}>
                         <span className="icon" style={{ width: '15px', height: '15px' }}>
                           <svg>

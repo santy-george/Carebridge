@@ -28,7 +28,8 @@ export function computeStockDaysLeft(items: StockItem[]): StockWithDaysLeft[] {
     .map((item) => {
       const dosesPerDay = item.doses_per_day > 0 ? item.doses_per_day : 1;
       const daysLeft = Math.floor(item.qty / dosesPerDay);
-      const chipClass = daysLeft <= 7 ? 'chip2--alert' : daysLeft <= 14 ? 'chip2--warn' : 'chip2--ok';
+      const chipClass =
+        daysLeft <= 7 ? 'chip2--alert' : daysLeft <= 14 ? 'chip2--warn' : 'chip2--ok';
       return { ...item, daysLeft, chipClass };
     })
     .sort((a, b) => a.daysLeft - b.daysLeft);
@@ -40,7 +41,9 @@ export function lowStockMessage(items: StockWithDaysLeft[]): string {
   if (low.length === 1) {
     const worst = low[0];
     const dayText =
-      worst.daysLeft <= 0 ? 'less than a day' : `${worst.daysLeft} day${worst.daysLeft === 1 ? '' : 's'}`;
+      worst.daysLeft <= 0
+        ? 'less than a day'
+        : `${worst.daysLeft} day${worst.daysLeft === 1 ? '' : 's'}`;
     return `${worst.name} runs out in ${dayText} — refill soon`;
   }
   return `${low.length} medicines are running low — refill soon`;
@@ -74,7 +77,9 @@ export function buildDosesByBand(
   medications: MedicationForDoses[],
   logs: MedicationLogForDoses[],
 ): Record<TimeOfDayBand, Dose[]> {
-  const takenByKey = new Map(logs.map((log) => [`${log.medication_id}:${log.time_of_day}`, log.taken]));
+  const takenByKey = new Map(
+    logs.map((log) => [`${log.medication_id}:${log.time_of_day}`, log.taken]),
+  );
   const byBand: Record<TimeOfDayBand, Dose[]> = { morning: [], noon: [], evening: [], night: [] };
   for (const med of medications) {
     for (const band of med.time_of_day) {

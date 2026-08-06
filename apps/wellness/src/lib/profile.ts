@@ -49,7 +49,8 @@ export function formatMemberSince(iso: string): string {
 
 export function medicalSummary(conditionsCount: number, allergiesCount: number): string {
   const parts: string[] = [];
-  if (conditionsCount > 0) parts.push(`${conditionsCount} condition${conditionsCount > 1 ? 's' : ''}`);
+  if (conditionsCount > 0)
+    parts.push(`${conditionsCount} condition${conditionsCount > 1 ? 's' : ''}`);
   if (allergiesCount > 0) parts.push(`${allergiesCount} allerg${allergiesCount > 1 ? 'ies' : 'y'}`);
   return parts.length ? parts.join(' · ') : 'Add your health profile';
 }

@@ -103,7 +103,14 @@ describe('Health', () => {
 
   it('shows a glucose row from glucose_readings', async () => {
     tableResponses.glucose_readings = {
-      data: [{ value_mg_dl: 118, context: 'post_meal', reading_date: '2026-08-01', reading_time: '08:00' }],
+      data: [
+        {
+          value_mg_dl: 118,
+          context: 'post_meal',
+          reading_date: '2026-08-01',
+          reading_time: '08:00',
+        },
+      ],
       error: null,
     };
     render(<Health />);

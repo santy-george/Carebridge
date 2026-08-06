@@ -202,7 +202,12 @@ export function Medications() {
         <div className="tbar__title">
           <h1 className="sm">My Schedule</h1>
         </div>
-        <button type="button" className="iconbtn" aria-label="Add medication" onClick={() => setSheet('med')}>
+        <button
+          type="button"
+          className="iconbtn"
+          aria-label="Add medication"
+          onClick={() => setSheet('med')}
+        >
           <span className="icon">
             <svg>
               <use href="#i-plus" />
@@ -248,7 +253,9 @@ export function Medications() {
           </div>
           {periodOpen[band] && (
             <div className="card card--flush">
-              {dosesByBand[band].length === 0 && <div className="med-item">No medications scheduled</div>}
+              {dosesByBand[band].length === 0 && (
+                <div className="med-item">No medications scheduled</div>
+              )}
               {dosesByBand[band].map((dose) => (
                 <div
                   key={dose.key}
@@ -470,7 +477,11 @@ export function Medications() {
               </button>
             </div>
           </div>
-          <button type="submit" className="mbtn mbtn--fill mbtn--block" style={{ marginTop: '8px' }}>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block"
+            style={{ marginTop: '8px' }}
+          >
             Save medication
           </button>
           {medError && (
@@ -569,7 +580,11 @@ export function Medications() {
               </button>
             </div>
           </div>
-          <button type="submit" className="mbtn mbtn--fill mbtn--block" style={{ marginTop: '8px' }}>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block"
+            style={{ marginTop: '8px' }}
+          >
             Save to stock
           </button>
           {refillError && (

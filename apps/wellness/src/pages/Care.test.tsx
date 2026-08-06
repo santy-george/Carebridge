@@ -44,8 +44,22 @@ describe('Care', () => {
   it('lists care team members with initials, role, and contact links', async () => {
     tableResponses.care_team = {
       data: [
-        { id: 'c1', name: 'Rita Alvarez', role_label: 'Primary nurse', initials: null, phone: '555-0101', email: null },
-        { id: 'c2', name: 'Tom Bennett', role_label: 'Care coordinator', initials: 'TB', phone: null, email: 'tom@carebridge.example' },
+        {
+          id: 'c1',
+          name: 'Rita Alvarez',
+          role_label: 'Primary nurse',
+          initials: null,
+          phone: '555-0101',
+          email: null,
+        },
+        {
+          id: 'c2',
+          name: 'Tom Bennett',
+          role_label: 'Care coordinator',
+          initials: 'TB',
+          phone: null,
+          email: 'tom@carebridge.example',
+        },
       ],
       error: null,
     };
@@ -54,7 +68,10 @@ describe('Care', () => {
     expect(await screen.findByText('Rita Alvarez')).toBeInTheDocument();
     expect(screen.getByText('Primary nurse')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /call rita alvarez/i })).toHaveAttribute('href', 'tel:555-0101');
+    expect(screen.getByRole('link', { name: /call rita alvarez/i })).toHaveAttribute(
+      'href',
+      'tel:555-0101',
+    );
 
     expect(screen.getByText('Tom Bennett')).toBeInTheDocument();
     expect(screen.getByText('TB')).toBeInTheDocument();

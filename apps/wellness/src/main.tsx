@@ -15,6 +15,7 @@ import { CheckIn } from './pages/CheckIn';
 import { Medications } from './pages/Medications';
 import { Care } from './pages/Care';
 import { Sos } from './pages/Sos';
+import { Health } from './pages/Health';
 import { More } from './pages/More';
 import { AppShell } from './shell/AppShell';
 import { ComingSoon } from './shell/ComingSoon';
@@ -35,7 +36,7 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<AppShell />}>
               <Route path="/" element={<Home />} />
               <Route path="/check-in" element={<CheckIn />} />
-              <Route path="/health" element={<ComingSoon title="My Health" />} />
+              <Route path="/health" element={<Health />} />
               <Route path="/medications" element={<Medications />} />
               <Route path="/care" element={<Care />} />
               <Route path="/more" element={<More />} />

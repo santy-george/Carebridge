@@ -19,10 +19,9 @@ where id = '00000000-0000-0000-0000-000000000001';
 update public.profiles set full_name = 'Jane Doe (seed member)'
 where id = '00000000-0000-0000-0000-000000000002';
 
-insert into public.members (id, user_id, full_name, date_of_birth, phone, location, care_model, plan_level, emergency_contact_name, emergency_contact_phone, created_by)
+insert into public.members (id, full_name, date_of_birth, phone, location, care_model, plan_level, emergency_contact_name, emergency_contact_phone, created_by)
 values (
   '10000000-0000-0000-0000-000000000001',
-  '00000000-0000-0000-0000-000000000002',
   'Jane Doe',
   '1954-03-12',
   '+91 98470 00001',
@@ -34,6 +33,15 @@ values (
   '00000000-0000-0000-0000-000000000001'
 )
 on conflict (id) do nothing;
+
+insert into public.member_links (member_id, user_id, relationship_label, is_self)
+values (
+  '10000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  'Self',
+  true
+)
+on conflict (member_id, user_id) do nothing;
 
 insert into public.care_assignments (member_id, coordinator_id)
 values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001')

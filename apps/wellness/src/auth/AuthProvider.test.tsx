@@ -20,7 +20,9 @@ function mockNoSubscription() {
   } as never);
 }
 
-function mockMemberLinksQuery(rows: Array<{ member_id: string; relationship_label: string; is_self: boolean }>) {
+function mockMemberLinksQuery(
+  rows: Array<{ member_id: string; relationship_label: string; is_self: boolean }>,
+) {
   vi.mocked(supabase.from).mockReturnValue({
     select: () => ({
       eq: () => Promise.resolve({ data: rows, error: null }),
@@ -57,7 +59,9 @@ describe('AuthProvider', () => {
 
   it('selects the is_self link when one exists among multiple', async () => {
     const fakeSession = { user: { id: 'user-1' } };
-    vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: fakeSession } } as never);
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
     mockNoSubscription();
     mockMemberLinksQuery([
       { member_id: 'member-family', relationship_label: 'Son', is_self: false },
@@ -77,7 +81,9 @@ describe('AuthProvider', () => {
 
   it('falls back to the first link when none is is_self', async () => {
     const fakeSession = { user: { id: 'user-1' } };
-    vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: fakeSession } } as never);
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
     mockNoSubscription();
     mockMemberLinksQuery([{ member_id: 'member-only', relationship_label: 'Son', is_self: false }]);
 

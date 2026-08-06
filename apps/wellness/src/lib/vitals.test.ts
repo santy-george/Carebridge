@@ -11,13 +11,25 @@ import {
 
 describe('classifyBloodPressure', () => {
   it('is Normal below 120', () => {
-    expect(classifyBloodPressure(119)).toEqual({ label: 'Normal', chipClass: 'chip2--ok', percent: 66 });
+    expect(classifyBloodPressure(119)).toEqual({
+      label: 'Normal',
+      chipClass: 'chip2--ok',
+      percent: 66,
+    });
   });
   it('is Elevated from 120 to 139', () => {
-    expect(classifyBloodPressure(130)).toEqual({ label: 'Elevated', chipClass: 'chip2--warn', percent: 72 });
+    expect(classifyBloodPressure(130)).toEqual({
+      label: 'Elevated',
+      chipClass: 'chip2--warn',
+      percent: 72,
+    });
   });
   it('is High at 140 and above', () => {
-    expect(classifyBloodPressure(140)).toEqual({ label: 'High', chipClass: 'chip2--alert', percent: 78 });
+    expect(classifyBloodPressure(140)).toEqual({
+      label: 'High',
+      chipClass: 'chip2--alert',
+      percent: 78,
+    });
   });
   it('clamps the gauge fill above the 180 ceiling', () => {
     expect(classifyBloodPressure(220).percent).toBe(100);
@@ -93,7 +105,12 @@ describe('hasLowStockAlert', () => {
     expect(hasLowStockAlert([{ qty: 24, doses_per_day: 2 }])).toBe(false);
   });
   it('is true when any item has 7 or fewer days left', () => {
-    expect(hasLowStockAlert([{ qty: 24, doses_per_day: 2 }, { qty: 5, doses_per_day: 1 }])).toBe(true);
+    expect(
+      hasLowStockAlert([
+        { qty: 24, doses_per_day: 2 },
+        { qty: 5, doses_per_day: 1 },
+      ]),
+    ).toBe(true);
   });
   it('treats a 0 doses_per_day as 1 to avoid a divide-by-zero', () => {
     expect(hasLowStockAlert([{ qty: 5, doses_per_day: 0 }])).toBe(true);

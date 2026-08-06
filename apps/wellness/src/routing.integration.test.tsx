@@ -104,7 +104,8 @@ describe('auth routing integration (finding 1 regression)', () => {
         order: () => builder,
         limit: () => builder,
         maybeSingle: () => builder,
-        then: (resolve: (v: { data: unknown; error: unknown }) => void) => resolve({ data: null, error: null }),
+        then: (resolve: (v: { data: unknown; error: unknown }) => void) =>
+          resolve({ data: null, error: null }),
       };
       return builder as never;
     });

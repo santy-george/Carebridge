@@ -31,3 +31,7 @@ Planning Docs
 .github
 .impeccable
 .superpowers
+supabase
+
+# Generated, not hand-authored
+packages/db-types/src/database.types.ts

@@ -1,3 +1,1 @@
-export const SCHEMA_VERSION = 'unpopulated';
-
-export type Database = Record<string, unknown>;
+export type { Database } from './database.types';

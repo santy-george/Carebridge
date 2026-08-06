@@ -1,25 +1,23 @@
 # @carebridge/db-types
 
-Structural placeholder. `src/index.ts` exports `SCHEMA_VERSION = 'unpopulated'`
-and a `Database` type alias until Supabase Auth work resumes.
+Real Supabase-generated types, populated 2026-08-06 against the hosted
+`Care Bridge App` project (ref `bbthbboakoicoyiuclll`, ap-south-1).
+`src/database.types.ts` is generated output — don't hand-edit it.
+`src/index.ts` re-exports its `Database` type.
 
-## Generating real types
+## Regenerating
 
-Once the local stack is running (`supabase start` from `supabase/`) or the
-hosted `carebridge-dev` project is linked:
+After any schema migration lands (locally and pushed via `supabase db push`
+from `supabase/`), regenerate:
 
 ```bash
-# Against local Supabase:
+# Against local Supabase (supabase start first):
 supabase gen types typescript --local > src/database.types.ts
 
-# Against the hosted project, once linked:
-supabase gen types typescript --project-id <project-ref> > src/database.types.ts
+# Against the hosted project:
+supabase gen types typescript --project-id bbthbboakoicoyiuclll > src/database.types.ts
 ```
 
-Then replace the `Database` placeholder in `src/index.ts` with:
-
-```ts
-export type { Database } from './database.types';
-```
-
-and remove the `SCHEMA_VERSION` placeholder and its test.
+`src/index.test.ts` type-checks that the core tables (`members`, `profiles`,
+`checkins`) still exist in the generated schema — a stale or wrong-project
+regeneration fails the build.

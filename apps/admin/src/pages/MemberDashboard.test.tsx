@@ -1,9 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemberDashboard } from './MemberDashboard';
+import { useAuth } from '../auth/useAuth';
+
+vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
 const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
+const insertCalls: { table: string; payload: unknown }[] = [];
+const deleteCalls: { table: string; id: string }[] = [];
+const singleResponses: Record<string, { data: unknown; error: unknown }> = {};
+let deleteError: { message: string } | null = null;
 
 function mockTable(table: string) {
   const builder = {
@@ -14,6 +21,17 @@ function mockTable(table: string) {
     limit: () => builder,
     gte: () => builder,
     maybeSingle: () => builder,
+    single: () => Promise.resolve(singleResponses[table] ?? { data: null, error: null }),
+    insert: (payload: unknown) => {
+      insertCalls.push({ table, payload });
+      return builder;
+    },
+    delete: () => ({
+      eq: (_col: string, id: string) => {
+        deleteCalls.push({ table, id });
+        return Promise.resolve({ error: deleteError });
+      },
+    }),
     then: (resolve: (v: { data: unknown; error: unknown }) => void) =>
       resolve(tableResponses[table] ?? { data: null, error: null }),
   };
@@ -39,7 +57,12 @@ function renderDashboard() {
 
 describe('MemberDashboard', () => {
   beforeEach(() => {
+    vi.mocked(useAuth).mockReturnValue({ session: { user: { id: 'coord-1' } } } as never);
     for (const key of Object.keys(tableResponses)) delete tableResponses[key];
+    for (const key of Object.keys(singleResponses)) delete singleResponses[key];
+    insertCalls.length = 0;
+    deleteCalls.length = 0;
+    deleteError = null;
     tableResponses.members = {
       data: {
         id: 'm1',
@@ -70,6 +93,7 @@ describe('MemberDashboard', () => {
     tableResponses.vitals_readings = { data: [], error: null };
     tableResponses.glucose_readings = { data: [], error: null };
     tableResponses.sos_alerts = { data: [], error: null };
+    tableResponses.care_team = { data: [], error: null };
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -161,5 +185,87 @@ describe('MemberDashboard', () => {
 
     await user.click(await screen.findByRole('link', { name: 'Members' }));
     expect(await screen.findByText('Members list')).toBeInTheDocument();
+  });
+
+  it('lists existing care team members', async () => {
+    tableResponses.care_team = {
+      data: [
+        {
+          id: 'ct1',
+          role_label: 'Primary nurse',
+          name: 'Rita Alvarez',
+          phone: '555-0101',
+          email: null,
+          address: null,
+          notes: null,
+        },
+      ],
+      error: null,
+    };
+    renderDashboard();
+    expect(await screen.findByText('Rita Alvarez')).toBeInTheDocument();
+    expect(screen.getByText('Primary nurse')).toBeInTheDocument();
+    expect(screen.getByText('555-0101')).toBeInTheDocument();
+  });
+
+  it('adds a care team member through the drawer', async () => {
+    singleResponses.care_team = {
+      data: {
+        id: 'ct2',
+        role_label: 'Family physician',
+        name: 'Dr. Rajeev Menon',
+        phone: null,
+        email: null,
+        address: null,
+        notes: null,
+      },
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: /\+ add/i }));
+    await user.type(screen.getByLabelText(/^name$/i), 'Dr. Rajeev Menon');
+    await user.type(screen.getByLabelText(/description \/ role/i), 'Family physician');
+    await user.click(screen.getByRole('button', { name: /save care member/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'care_team',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          name: 'Dr. Rajeev Menon',
+          role_label: 'Family physician',
+          created_by: 'coord-1',
+        }),
+      }),
+    );
+    expect(await screen.findByText('Dr. Rajeev Menon')).toBeInTheDocument();
+  });
+
+  it('removes a care team member', async () => {
+    tableResponses.care_team = {
+      data: [
+        {
+          id: 'ct1',
+          role_label: 'Primary nurse',
+          name: 'Rita Alvarez',
+          phone: null,
+          email: null,
+          address: null,
+          notes: null,
+        },
+      ],
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: /remove/i }));
+
+    await waitFor(() => expect(deleteCalls).toContainEqual({ table: 'care_team', id: 'ct1' }));
+    expect(screen.queryByText('Rita Alvarez')).not.toBeInTheDocument();
   });
 });

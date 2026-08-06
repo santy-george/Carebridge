@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../auth/useAuth';
 import {
   CARE_MODEL_LABELS,
   PLAN_LEVEL_LABELS,
@@ -77,12 +78,23 @@ interface SosAlert {
   notes: string | null;
 }
 
+interface CareTeamMember {
+  id: string;
+  role_label: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  notes: string | null;
+}
+
 function latestByType(rows: VitalRow[], type: string): VitalRow | null {
   return rows.find((r) => r.vital_type === type) ?? null;
 }
 
 export function MemberDashboard() {
   const { id } = useParams<{ id: string }>();
+  const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
@@ -93,6 +105,17 @@ export function MemberDashboard() {
   const [vitals, setVitals] = useState<VitalRow[]>([]);
   const [glucose, setGlucose] = useState<GlucoseRow | null>(null);
   const [sosAlerts, setSosAlerts] = useState<SosAlert[]>([]);
+  const [careTeam, setCareTeam] = useState<CareTeamMember[]>([]);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [careName, setCareName] = useState('');
+  const [careRole, setCareRole] = useState('');
+  const [carePhone, setCarePhone] = useState('');
+  const [careEmail, setCareEmail] = useState('');
+  const [careAddress, setCareAddress] = useState('');
+  const [careNotes, setCareNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -102,54 +125,68 @@ export function MemberDashboard() {
     async function load() {
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
 
-      const [memberRes, profileRes, checkinsRes, medsRes, logsRes, vitalsRes, glucoseRes, sosRes] =
-        await Promise.all([
-          supabase
-            .from('members')
-            .select(
-              'id, full_name, date_of_birth, gender, phone, location, care_model, plan_level, emergency_contact_name, emergency_contact_phone',
-            )
-            .eq('id', memberId)
-            .maybeSingle(),
-          supabase
-            .from('medical_profile')
-            .select('conditions, conditions_other, allergies, notes')
-            .eq('member_id', memberId)
-            .maybeSingle(),
-          supabase
-            .from('checkins')
-            .select('checkin_date, mood, energy, sleep, aches, wellness_score')
-            .eq('member_id', memberId)
-            .order('checkin_date', { ascending: false })
-            .limit(10),
-          supabase
-            .from('medications')
-            .select('id, name, dosage, high_risk')
-            .eq('member_id', memberId)
-            .eq('active', true),
-          supabase
-            .from('medication_logs')
-            .select('taken')
-            .eq('member_id', memberId)
-            .gte('scheduled_date', sevenDaysAgo),
-          supabase
-            .from('vitals_readings')
-            .select('vital_type, value, recorded_at')
-            .eq('member_id', memberId)
-            .in('vital_type', ['blood_pressure', 'spo2_pct', 'weight_kg', 'height_cm'])
-            .order('recorded_at', { ascending: false }),
-          supabase
-            .from('glucose_readings')
-            .select('value_mg_dl, context, reading_date')
-            .eq('member_id', memberId)
-            .order('reading_date', { ascending: false })
-            .limit(1),
-          supabase
-            .from('sos_alerts')
-            .select('id, alert_type, status, triggered_at, notes')
-            .eq('member_id', memberId)
-            .order('triggered_at', { ascending: false }),
-        ]);
+      const [
+        memberRes,
+        profileRes,
+        checkinsRes,
+        medsRes,
+        logsRes,
+        vitalsRes,
+        glucoseRes,
+        sosRes,
+        careTeamRes,
+      ] = await Promise.all([
+        supabase
+          .from('members')
+          .select(
+            'id, full_name, date_of_birth, gender, phone, location, care_model, plan_level, emergency_contact_name, emergency_contact_phone',
+          )
+          .eq('id', memberId)
+          .maybeSingle(),
+        supabase
+          .from('medical_profile')
+          .select('conditions, conditions_other, allergies, notes')
+          .eq('member_id', memberId)
+          .maybeSingle(),
+        supabase
+          .from('checkins')
+          .select('checkin_date, mood, energy, sleep, aches, wellness_score')
+          .eq('member_id', memberId)
+          .order('checkin_date', { ascending: false })
+          .limit(10),
+        supabase
+          .from('medications')
+          .select('id, name, dosage, high_risk')
+          .eq('member_id', memberId)
+          .eq('active', true),
+        supabase
+          .from('medication_logs')
+          .select('taken')
+          .eq('member_id', memberId)
+          .gte('scheduled_date', sevenDaysAgo),
+        supabase
+          .from('vitals_readings')
+          .select('vital_type, value, recorded_at')
+          .eq('member_id', memberId)
+          .in('vital_type', ['blood_pressure', 'spo2_pct', 'weight_kg', 'height_cm'])
+          .order('recorded_at', { ascending: false }),
+        supabase
+          .from('glucose_readings')
+          .select('value_mg_dl, context, reading_date')
+          .eq('member_id', memberId)
+          .order('reading_date', { ascending: false })
+          .limit(1),
+        supabase
+          .from('sos_alerts')
+          .select('id, alert_type, status, triggered_at, notes')
+          .eq('member_id', memberId)
+          .order('triggered_at', { ascending: false }),
+        supabase
+          .from('care_team')
+          .select('id, role_label, name, phone, email, address, notes')
+          .eq('member_id', memberId)
+          .order('display_order', { ascending: true }),
+      ]);
 
       if (ignore) return;
       setLoading(false);
@@ -161,7 +198,8 @@ export function MemberDashboard() {
         logsRes.error ||
         vitalsRes.error ||
         glucoseRes.error ||
-        sosRes.error;
+        sosRes.error ||
+        careTeamRes.error;
       setFetchError(!!anyError);
       setMember((memberRes.data as Member | null) ?? null);
       setMedicalProfile((profileRes.data as MedicalProfile | null) ?? null);
@@ -172,6 +210,7 @@ export function MemberDashboard() {
       const glucoseRows = (glucoseRes.data as GlucoseRow[] | null) ?? [];
       setGlucose(glucoseRows[0] ?? null);
       setSosAlerts((sosRes.data as SosAlert[] | null) ?? []);
+      setCareTeam((careTeamRes.data as CareTeamMember[] | null) ?? []);
     }
 
     load();
@@ -179,6 +218,49 @@ export function MemberDashboard() {
       ignore = true;
     };
   }, [id]);
+
+  const addCareTeamMember = async () => {
+    if (!id || !session || !careName.trim()) return;
+    setSaving(true);
+    setSaveError(false);
+    const { data, error } = await supabase
+      .from('care_team')
+      .insert({
+        member_id: id,
+        name: careName.trim(),
+        role_label: careRole.trim() || 'Care team member',
+        phone: carePhone.trim() || null,
+        email: careEmail.trim() || null,
+        address: careAddress.trim() || null,
+        notes: careNotes.trim() || null,
+        display_order: careTeam.length,
+        created_by: session.user.id,
+      })
+      .select('id, role_label, name, phone, email, address, notes')
+      .single();
+    setSaving(false);
+    if (error || !data) {
+      setSaveError(true);
+      return;
+    }
+    setCareTeam((prev) => [...prev, data as CareTeamMember]);
+    setCareName('');
+    setCareRole('');
+    setCarePhone('');
+    setCareEmail('');
+    setCareAddress('');
+    setCareNotes('');
+    setDrawerOpen(false);
+  };
+
+  const removeCareTeamMember = async (careTeamId: string) => {
+    const { error } = await supabase.from('care_team').delete().eq('id', careTeamId);
+    if (error) {
+      setSaveError(true);
+      return;
+    }
+    setCareTeam((prev) => prev.filter((m) => m.id !== careTeamId));
+  };
 
   if (loading) {
     return <div className="card">Loading…</div>;
@@ -260,6 +342,51 @@ export function MemberDashboard() {
                 <span className="kv__v">{medicalProfile?.notes || '—'}</span>
               </div>
             </div>
+          </div>
+
+          <div className="section-card">
+            <div className="section-card__head">
+              <span className="section-card__title">Care team</span>
+              <button
+                type="button"
+                className="btn btn--primary btn--sm"
+                onClick={() => setDrawerOpen(true)}
+              >
+                + Add
+              </button>
+            </div>
+            {saveError && (
+              <p className="form-error" role="alert">
+                Something went wrong saving the care team — try again.
+              </p>
+            )}
+            {careTeam.length === 0 ? (
+              <p className="t-body-m">No care team members added yet.</p>
+            ) : (
+              <div className="kv">
+                {careTeam.map((ct) => (
+                  <div className="kv__row" key={ct.id}>
+                    <span className="kv__k">
+                      {ct.name}
+                      <div className="sub">{ct.role_label}</div>
+                    </span>
+                    <span
+                      className="kv__v"
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+                    >
+                      {[ct.phone, ct.email].filter(Boolean).join(' · ') || '—'}
+                      <button
+                        type="button"
+                        className="btn btn--outline btn--sm"
+                        onClick={() => removeCareTeamMember(ct.id)}
+                      >
+                        Remove
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="section-card">
@@ -455,6 +582,128 @@ export function MemberDashboard() {
           </div>
         </aside>
       </div>
+
+      <div
+        className={`overlay${drawerOpen ? ' is-open' : ''}`}
+        onClick={() => setDrawerOpen(false)}
+      />
+      <aside className={`drawer${drawerOpen ? ' is-open' : ''}`} aria-label="Add care team member">
+        <div className="drawer__head">
+          <span className="drawer__title">Add care team member</span>
+          <button
+            type="button"
+            className="x-btn"
+            aria-label="Close"
+            onClick={() => setDrawerOpen(false)}
+          >
+            <span className="icon icon--sm">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+              </svg>
+            </span>
+          </button>
+        </div>
+        <form
+          className="drawer__body"
+          onSubmit={(e) => {
+            e.preventDefault();
+            addCareTeamMember();
+          }}
+        >
+          <div className="field field--full">
+            <label htmlFor="care-name">Name</label>
+            <div className="control">
+              <input
+                id="care-name"
+                type="text"
+                placeholder="e.g. Dr. Priya Menon"
+                value={careName}
+                onChange={(e) => setCareName(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="field field--full">
+            <label htmlFor="care-role">Description / role</label>
+            <div className="control">
+              <input
+                id="care-role"
+                type="text"
+                placeholder="e.g. Primary physician"
+                value={careRole}
+                onChange={(e) => setCareRole(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="field-grid">
+            <div className="field">
+              <label htmlFor="care-phone">Phone</label>
+              <div className="control">
+                <input
+                  id="care-phone"
+                  type="tel"
+                  value={carePhone}
+                  onChange={(e) => setCarePhone(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="care-email">Email</label>
+              <div className="control">
+                <input
+                  id="care-email"
+                  type="email"
+                  value={careEmail}
+                  onChange={(e) => setCareEmail(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="field field--full">
+            <label htmlFor="care-address">Address</label>
+            <div className="control">
+              <input
+                id="care-address"
+                type="text"
+                value={careAddress}
+                onChange={(e) => setCareAddress(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="field field--full">
+            <label htmlFor="care-notes">Notes</label>
+            <textarea
+              id="care-notes"
+              placeholder="Anything the family should know"
+              value={careNotes}
+              onChange={(e) => setCareNotes(e.target.value)}
+            />
+          </div>
+        </form>
+        <div className="drawer__foot">
+          <button
+            type="button"
+            className="btn btn--outline btn--sm"
+            onClick={() => setDrawerOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn--primary btn--sm"
+            disabled={saving || !careName.trim()}
+            onClick={addCareTeamMember}
+          >
+            {saving ? 'Saving…' : 'Save care member'}
+          </button>
+        </div>
+      </aside>
     </>
   );
 }

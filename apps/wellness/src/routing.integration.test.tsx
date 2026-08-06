@@ -81,23 +81,32 @@ describe('auth routing integration (finding 1 regression)', () => {
     const fakeSession = { user: { id: 'user-1' } };
     let resolveLinksFetch: (value: { data: unknown; error: null }) => void = () => {};
     vi.mocked(supabase.from).mockImplementation((table: string) => {
-      if (table === 'med_stock') {
+      if (table === 'member_links') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({ data: [], error: null }),
+            eq: () => ({
+              order: () =>
+                new Promise((resolve) => {
+                  resolveLinksFetch = resolve;
+                }),
+            }),
           }),
         } as never;
       }
-      return {
-        select: () => ({
-          eq: () => ({
-            order: () =>
-              new Promise((resolve) => {
-                resolveLinksFetch = resolve;
-              }),
-          }),
-        }),
-      } as never;
+      // AppShell's med_stock query and Home's own data fetches (members,
+      // medical_profile, checkins, vitals_readings, glucose_readings): a
+      // generic chainable + thenable builder so they resolve immediately
+      // with empty/null data regardless of which methods get chained.
+      const builder = {
+        select: () => builder,
+        eq: () => builder,
+        in: () => builder,
+        order: () => builder,
+        limit: () => builder,
+        maybeSingle: () => builder,
+        then: (resolve: (v: { data: unknown; error: unknown }) => void) => resolve({ data: null, error: null }),
+      };
+      return builder as never;
     });
 
     vi.mocked(supabase.auth.signInWithPassword).mockImplementation(async () => {

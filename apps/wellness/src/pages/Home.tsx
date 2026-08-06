@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import { GaugeRing } from '../components/GaugeRing';
-import { classifyBloodPressure, classifyGlucose, classifySpo2 } from '../lib/vitals';
+import {
+  calculateBmi,
+  categorizeBmi,
+  classifyBloodPressure,
+  classifyGlucose,
+  classifySpo2,
+  glucoseContextLabel,
+  type GlucoseContext,
+} from '../lib/vitals';
 
 interface MedicalProfile {
   conditions: string[];
@@ -58,6 +66,12 @@ export function Home() {
   const [checkin, setCheckin] = useState<LatestCheckin | null>(null);
   const [vitals, setVitals] = useState<VitalRow[]>([]);
   const [glucose, setGlucose] = useState<LatestGlucose | null>(null);
+  const [glucoseInput, setGlucoseInput] = useState('');
+  const [glucoseContext, setGlucoseContext] = useState<GlucoseContext>('post_meal');
+  const [glucoseError, setGlucoseError] = useState(false);
+  const [weightInput, setWeightInput] = useState('');
+  const [heightInput, setHeightInput] = useState('');
+  const [bmiError, setBmiError] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -65,7 +79,11 @@ export function Home() {
 
     Promise.all([
       supabase.from('members').select('full_name').eq('id', selectedMemberId).maybeSingle(),
-      supabase.from('medical_profile').select('conditions, conditions_other, allergies').eq('member_id', selectedMemberId).maybeSingle(),
+      supabase
+        .from('medical_profile')
+        .select('conditions, conditions_other, allergies')
+        .eq('member_id', selectedMemberId)
+        .maybeSingle(),
       supabase
         .from('checkins')
         .select('wellness_score, checkin_date')
@@ -89,7 +107,11 @@ export function Home() {
       if (!isMounted) return;
       setLoading(false);
       const anyError =
-        membersRes.error || profileRes.error || checkinsRes.error || vitalsRes.error || glucoseRes.error;
+        membersRes.error ||
+        profileRes.error ||
+        checkinsRes.error ||
+        vitalsRes.error ||
+        glucoseRes.error;
       setFetchError(!!anyError);
       const memberRow = membersRes.data as { full_name: string } | null;
       setFirstName(memberRow ? memberRow.full_name.split(' ')[0] : '');
@@ -99,6 +121,14 @@ export function Home() {
       setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
       const glucoseRows = (glucoseRes.data as LatestGlucose[] | null) ?? [];
       setGlucose(glucoseRows[0] ?? null);
+      const weightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
+        (r) => r.vital_type === 'weight_kg',
+      );
+      const heightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
+        (r) => r.vital_type === 'height_cm',
+      );
+      if (weightRow) setWeightInput(String(weightRow.value));
+      if (heightRow) setHeightInput(String(heightRow.value));
     });
 
     return () => {
@@ -106,16 +136,79 @@ export function Home() {
     };
   }, [selectedMemberId]);
 
+  const logGlucose = async () => {
+    const value = parseFloat(glucoseInput);
+    if (!value || !selectedMemberId) return;
+    setGlucoseError(false);
+    const now = new Date();
+    const { error } = await supabase.from('glucose_readings').insert({
+      member_id: selectedMemberId,
+      reading_date: now.toISOString().slice(0, 10),
+      reading_time: now.toTimeString().slice(0, 5),
+      value_mg_dl: value,
+      context: glucoseContext,
+    });
+    if (error) {
+      setGlucoseError(true);
+      return;
+    }
+    setGlucoseInput('');
+    setGlucose({
+      value_mg_dl: value,
+      context: glucoseContext,
+      reading_date: now.toISOString().slice(0, 10),
+      reading_time: now.toTimeString().slice(0, 5),
+    });
+  };
+
+  const logBodyReading = async () => {
+    const weight = parseFloat(weightInput);
+    const height = parseFloat(heightInput);
+    if (!weight || !height || !selectedMemberId) return;
+    setBmiError(false);
+    const now = new Date().toISOString();
+    const results = await Promise.all([
+      supabase.from('vitals_readings').insert({
+        member_id: selectedMemberId,
+        vital_type: 'weight_kg',
+        value: weight,
+        source: 'manual',
+        recorded_at: now,
+      }),
+      supabase.from('vitals_readings').insert({
+        member_id: selectedMemberId,
+        vital_type: 'height_cm',
+        value: height,
+        source: 'manual',
+        recorded_at: now,
+      }),
+    ]);
+    if (results.some((r) => r.error)) {
+      setBmiError(true);
+      return;
+    }
+    setVitals((prev) => [
+      { vital_type: 'weight_kg', value: weight, recorded_at: now },
+      { vital_type: 'height_cm', value: height, recorded_at: now },
+      ...prev.filter((r) => r.vital_type !== 'weight_kg' && r.vital_type !== 'height_cm'),
+    ]);
+  };
+
   if (loading) {
     return <div className="card">Loading…</div>;
   }
 
   const hasMedicalProfile = !!(
     medicalProfile &&
-    (medicalProfile.conditions.length > 0 || medicalProfile.conditions_other || medicalProfile.allergies.length > 0)
+    (medicalProfile.conditions.length > 0 ||
+      medicalProfile.conditions_other ||
+      medicalProfile.allergies.length > 0)
   );
   const conditionsList = medicalProfile
-    ? [...medicalProfile.conditions, ...(medicalProfile.conditions_other ? [medicalProfile.conditions_other] : [])]
+    ? [
+        ...medicalProfile.conditions,
+        ...(medicalProfile.conditions_other ? [medicalProfile.conditions_other] : []),
+      ]
     : [];
 
   const bp = latestByType(vitals, 'blood_pressure');
@@ -123,6 +216,10 @@ export function Home() {
   const bpStatus = bp ? classifyBloodPressure(bp.value) : null;
   const spo2Status = spo2 ? classifySpo2(spo2.value) : null;
   const glucoseStatus = glucose ? classifyGlucose(glucose.value_mg_dl, glucose.context) : null;
+  const weightRow = latestByType(vitals, 'weight_kg');
+  const heightRow = latestByType(vitals, 'height_cm');
+  const bmi = weightRow && heightRow ? calculateBmi(weightRow.value, heightRow.value) : null;
+  const bmiCategory = bmi !== null ? categorizeBmi(bmi) : null;
 
   return (
     <>
@@ -137,7 +234,13 @@ export function Home() {
 
       <div className="tbar">
         <div className="tbar__title">
-          <div className="eyebrow">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+          <div className="eyebrow">
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </div>
           <h1>
             {greeting()}
             {firstName ? `, ${firstName}` : ''}
@@ -150,12 +253,16 @@ export function Home() {
           <div className="kv">
             <div className="kv__row">
               <span className="kv__k">Conditions</span>
-              <span className="kv__v">{conditionsList.length ? conditionsList.join(', ') : 'None on file'}</span>
+              <span className="kv__v">
+                {conditionsList.length ? conditionsList.join(', ') : 'None on file'}
+              </span>
             </div>
             <div className="kv__row">
               <span className="kv__k">Allergies</span>
               <span className="kv__v">
-                {medicalProfile && medicalProfile.allergies.length ? medicalProfile.allergies.join(', ') : 'None on file'}
+                {medicalProfile && medicalProfile.allergies.length
+                  ? medicalProfile.allergies.join(', ')
+                  : 'None on file'}
               </span>
             </div>
           </div>
@@ -168,7 +275,11 @@ export function Home() {
 
       <div className="hero-card" style={{ textAlign: 'center' }}>
         {checkin ? (
-          <GaugeRing percent={checkin.wellness_score ?? 0} colorVar="var(--cyan-500)" label={String(checkin.wellness_score ?? '—')} />
+          <GaugeRing
+            percent={checkin.wellness_score ?? 0}
+            colorVar="var(--cyan-500)"
+            label={String(checkin.wellness_score ?? '—')}
+          />
         ) : (
           <>
             <GaugeRing percent={0} colorVar="var(--neutral-300)" label="—" />
@@ -178,23 +289,44 @@ export function Home() {
       </div>
 
       <div className="sec">My vitals</div>
-      <div className="card" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+      <div
+        className="card"
+        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}
+      >
         <div>
-          <GaugeRing percent={bpStatus?.percent ?? 0} colorVar={ringColorFor(bpStatus)} label={bp ? String(bp.value) : '—'} size="sm" />
+          <GaugeRing
+            percent={bpStatus?.percent ?? 0}
+            colorVar={ringColorFor(bpStatus)}
+            label={bp ? String(bp.value) : '—'}
+            size="sm"
+          />
           <div>Blood pressure</div>
         </div>
         <div>
-          <GaugeRing percent={glucoseStatus?.percent ?? 0} colorVar={ringColorFor(glucoseStatus)} label={glucose ? String(glucose.value_mg_dl) : '—'} size="sm" />
+          <GaugeRing
+            percent={glucoseStatus?.percent ?? 0}
+            colorVar={ringColorFor(glucoseStatus)}
+            label={glucose ? String(glucose.value_mg_dl) : '—'}
+            size="sm"
+          />
           <div>Glucose</div>
         </div>
         <div>
-          <GaugeRing percent={spo2Status?.percent ?? 0} colorVar={ringColorFor(spo2Status)} label={spo2 ? String(spo2.value) : '—'} size="sm" />
+          <GaugeRing
+            percent={spo2Status?.percent ?? 0}
+            colorVar={ringColorFor(spo2Status)}
+            label={spo2 ? String(spo2.value) : '—'}
+            size="sm"
+          />
           <div>SpO2</div>
         </div>
       </div>
 
       <div className="sec">My activity</div>
-      <div className="card" style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+      <div
+        className="card"
+        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}
+      >
         <div>
           <div>Heart rate</div>
           <div>Connect a wearable to see this</div>
@@ -207,6 +339,119 @@ export function Home() {
           <div>Sleep</div>
           <div>Connect a wearable to see this</div>
         </div>
+      </div>
+
+      <div className="sec">BLOOD GLUCOSE</div>
+      <div className="card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div>{glucose ? `${glucose.value_mg_dl} mg/dL` : '—'}</div>
+            <div>
+              {glucose
+                ? `${glucoseContextLabel(glucose.context)} · logged ${glucose.reading_date}`
+                : 'No readings yet'}
+            </div>
+          </div>
+          {glucoseStatus && (
+            <span className={`chip2 ${glucoseStatus.chipClass}`}>{glucoseStatus.label}</span>
+          )}
+        </div>
+        <div className="seg">
+          {(['fasting', 'pre_meal', 'post_meal', 'bedtime'] as const).map((ctx) => (
+            <button
+              key={ctx}
+              type="button"
+              className={glucoseContext === ctx ? 'is-active' : ''}
+              onClick={() => setGlucoseContext(ctx)}
+            >
+              {glucoseContextLabel(ctx)}
+            </button>
+          ))}
+        </div>
+        <div className="vin">
+          <label htmlFor="glucose-input">Blood glucose</label>
+          <div className="r">
+            <input
+              id="glucose-input"
+              type="number"
+              step="1"
+              value={glucoseInput}
+              onChange={(e) => setGlucoseInput(e.target.value)}
+            />
+            <span className="u">mg/dL</span>
+          </div>
+        </div>
+        <button
+          className="mbtn mbtn--fill mbtn--block mbtn--sm"
+          type="button"
+          aria-label="Log glucose reading"
+          onClick={logGlucose}
+        >
+          Log reading
+        </button>
+        {glucoseError && (
+          <p className="form-error" role="alert">
+            Couldn&apos;t save that reading — try again.
+          </p>
+        )}
+      </div>
+
+      <div className="sec">MY BODY</div>
+      <div className="card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div>{bmi !== null ? bmi : '—'}</div>
+            <div>
+              {weightRow && heightRow
+                ? `${weightRow.value} kg · ${heightRow.value} cm`
+                : 'No readings yet'}
+            </div>
+          </div>
+          {bmiCategory && (
+            <span className={`chip2 ${bmiCategory.chipClass}`}>{bmiCategory.label}</span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="vin" style={{ flex: 1 }}>
+            <label htmlFor="weight-input">Weight</label>
+            <div className="r">
+              <input
+                id="weight-input"
+                type="number"
+                step="0.1"
+                value={weightInput}
+                onChange={(e) => setWeightInput(e.target.value)}
+              />
+              <span className="u">kg</span>
+            </div>
+          </div>
+          <div className="vin" style={{ flex: 1 }}>
+            <label htmlFor="height-input">Height</label>
+            <div className="r">
+              <input
+                id="height-input"
+                type="number"
+                step="1"
+                value={heightInput}
+                onChange={(e) => setHeightInput(e.target.value)}
+              />
+              <span className="u">cm</span>
+            </div>
+          </div>
+        </div>
+        <button
+          className="mbtn mbtn--fill mbtn--block mbtn--sm"
+          type="button"
+          aria-label="Log body reading"
+          onClick={logBodyReading}
+        >
+          Log reading
+        </button>
+        {bmiError && (
+          <p className="form-error" role="alert">
+            Couldn&apos;t save that reading — try again.
+          </p>
+        )}
       </div>
     </>
   );

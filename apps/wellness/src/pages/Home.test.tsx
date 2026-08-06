@@ -75,7 +75,10 @@ describe('Home', () => {
   });
 
   it('shows the wellness score when a checkin exists', async () => {
-    tableResponses.checkins = { data: [{ wellness_score: 72, checkin_date: '2026-08-01' }], error: null };
+    tableResponses.checkins = {
+      data: [{ wellness_score: 72, checkin_date: '2026-08-01' }],
+      error: null,
+    };
     render(<Home />);
     expect(await screen.findByText('72')).toBeInTheDocument();
   });
@@ -99,5 +102,94 @@ describe('Home', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/something went wrong/i);
     await user.click(screen.getByRole('button', { name: /dismiss/i }));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('shows the BMI card with weight/height and computed category', async () => {
+    tableResponses.vitals_readings = {
+      data: [
+        { vital_type: 'weight_kg', value: 70.4, recorded_at: '2026-08-01T00:00:00Z' },
+        { vital_type: 'height_cm', value: 162, recorded_at: '2026-08-01T00:00:00Z' },
+      ],
+      error: null,
+    };
+    render(<Home />);
+    expect(await screen.findByText('26.8')).toBeInTheDocument();
+    expect(await screen.findByText('Overweight')).toBeInTheDocument();
+  });
+
+  it('submits a glucose reading with the correct payload', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.type(await screen.findByLabelText(/blood glucose/i), '118');
+    await user.click(screen.getByRole('button', { name: /log glucose reading/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'glucose_readings',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          value_mg_dl: 118,
+          context: 'post_meal',
+        }),
+      }),
+    );
+  });
+
+  it('submits weight and height as two vitals_readings inserts', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.type(await screen.findByLabelText(/^weight$/i), '70.4');
+    await user.type(screen.getByLabelText(/^height$/i), '162');
+    await user.click(screen.getByRole('button', { name: /log body reading/i }));
+
+    await waitFor(() => {
+      expect(insertCalls).toContainEqual({
+        table: 'vitals_readings',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          vital_type: 'weight_kg',
+          value: 70.4,
+          source: 'manual',
+        }),
+      });
+      expect(insertCalls).toContainEqual({
+        table: 'vitals_readings',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          vital_type: 'height_cm',
+          value: 162,
+          source: 'manual',
+        }),
+      });
+    });
+  });
+
+  it('shows an inline error when the glucose submit fails', async () => {
+    insertResponses.glucose_readings = { error: { message: 'insert failed' } };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.type(await screen.findByLabelText(/blood glucose/i), '118');
+    await user.click(screen.getByRole('button', { name: /log glucose reading/i }));
+
+    expect(await screen.findByText(/couldn.t save that reading/i)).toBeInTheDocument();
+  });
+
+  it('shows an inline error when the BMI submit fails', async () => {
+    insertResponses.vitals_readings = { error: { message: 'insert failed' } };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.type(await screen.findByLabelText(/^weight$/i), '70.4');
+    await user.type(screen.getByLabelText(/^height$/i), '162');
+    await user.click(screen.getByRole('button', { name: /log body reading/i }));
+
+    expect(await screen.findByText(/couldn.t save that reading/i)).toBeInTheDocument();
   });
 });

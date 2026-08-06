@@ -14,7 +14,10 @@
     "@capacitor/android": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@carebridge/db-types": "workspace:*",
     "@carebridge/design-system": "workspace:*",
+    "@supabase/supabase-js": "^2.112.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

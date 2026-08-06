@@ -1,7 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Home } from './Home';
 import { useAuth } from '../auth/useAuth';
+
+function renderHome() {
+  return render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>,
+  );
+}
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
@@ -48,13 +57,13 @@ describe('Home', () => {
   });
 
   it('shows a loading skeleton before the initial fetch resolves', () => {
-    render(<Home />);
+    renderHome();
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it('shows the add-profile CTA when no medical profile exists', async () => {
     tableResponses.medical_profile = { data: null, error: null };
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText(/add your health profile/i)).toBeInTheDocument();
   });
 
@@ -63,14 +72,14 @@ describe('Home', () => {
       data: { conditions: ['Diabetes'], conditions_other: null, allergies: ['Peanuts'] },
       error: null,
     };
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText('Diabetes')).toBeInTheDocument();
     expect(await screen.findByText('Peanuts')).toBeInTheDocument();
   });
 
   it('shows "No check-in yet" when there is no checkin row', async () => {
     tableResponses.checkins = { data: [], error: null };
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText(/no check-in yet/i)).toBeInTheDocument();
   });
 
@@ -79,18 +88,18 @@ describe('Home', () => {
       data: [{ wellness_score: 72, checkin_date: '2026-08-01' }],
       error: null,
     };
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText('72')).toBeInTheDocument();
   });
 
   it('shows a placeholder for the activity row with no query', async () => {
-    render(<Home />);
+    renderHome();
     await waitFor(() => expect(screen.getByText(/jane/i)).toBeInTheDocument());
     expect(screen.getAllByText(/connect a wearable/i).length).toBeGreaterThan(0);
   });
 
   it('renders the greeting with the member first name', async () => {
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText(/good (morning|afternoon|evening), jane/i)).toBeInTheDocument();
   });
 
@@ -98,7 +107,7 @@ describe('Home', () => {
     tableResponses.medical_profile = { data: null, error: { message: 'network error' } };
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     expect(await screen.findByRole('alert')).toHaveTextContent(/something went wrong/i);
     await user.click(screen.getByRole('button', { name: /dismiss/i }));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -112,7 +121,7 @@ describe('Home', () => {
       ],
       error: null,
     };
-    render(<Home />);
+    renderHome();
     expect(await screen.findByText('26.8')).toBeInTheDocument();
     expect(await screen.findByText('Overweight')).toBeInTheDocument();
   });
@@ -120,7 +129,7 @@ describe('Home', () => {
   it('submits a glucose reading with the correct payload', async () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
 
     await user.type(await screen.findByLabelText(/blood glucose/i), '118');
     await user.click(screen.getByRole('button', { name: /log glucose reading/i }));
@@ -140,7 +149,7 @@ describe('Home', () => {
   it('submits weight and height as two vitals_readings inserts', async () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
 
     await user.type(await screen.findByLabelText(/^weight$/i), '70.4');
     await user.type(screen.getByLabelText(/^height$/i), '162');
@@ -172,7 +181,7 @@ describe('Home', () => {
     insertResponses.glucose_readings = { error: { message: 'insert failed' } };
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
 
     await user.type(await screen.findByLabelText(/blood glucose/i), '118');
     await user.click(screen.getByRole('button', { name: /log glucose reading/i }));
@@ -184,7 +193,7 @@ describe('Home', () => {
     insertResponses.vitals_readings = { error: { message: 'insert failed' } };
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
 
     await user.type(await screen.findByLabelText(/^weight$/i), '70.4');
     await user.type(screen.getByLabelText(/^height$/i), '162');

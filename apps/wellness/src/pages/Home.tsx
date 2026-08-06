@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import { GaugeRing } from '../components/GaugeRing';
@@ -273,7 +274,7 @@ export function Home() {
         </div>
       )}
 
-      <div className="hero-card" style={{ textAlign: 'center' }}>
+      <Link to="/check-in" className="hero-card" style={{ textAlign: 'center', display: 'block' }}>
         {checkin ? (
           <GaugeRing
             percent={checkin.wellness_score ?? 0}
@@ -286,7 +287,7 @@ export function Home() {
             <div>No check-in yet</div>
           </>
         )}
-      </div>
+      </Link>
 
       <div className="sec">My vitals</div>
       <div

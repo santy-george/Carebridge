@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export function AdminShell() {
@@ -15,6 +15,10 @@ export function AdminShell() {
         <header className="topbar">
           <div className="topbar__left">
             <strong>Care Bridge Home — Admin</strong>
+            <nav style={{ display: 'flex', gap: '12px', marginLeft: '16px' }}>
+              <Link to="/">SOS Alerts</Link>
+              <Link to="/members">Members</Link>
+            </nav>
           </div>
           <div className="topbar__actions">
             <button type="button" className="btn btn--secondary btn--sm" onClick={handleSignOut}>

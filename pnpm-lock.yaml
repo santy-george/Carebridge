@@ -57,6 +57,49 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.0(@types/node@24.13.3))
 
+  apps/admin:
+    dependencies:
+      '@capacitor/android':
+        specifier: ^8.5.0
+        version: 8.5.0(@capacitor/core@8.5.0)
+      '@capacitor/core':
+        specifier: ^8.5.0
+        version: 8.5.0
+      '@capacitor/ios':
+        specifier: ^8.5.0
+        version: 8.5.0(@capacitor/core@8.5.0)
+      '@carebridge/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.8
+        version: 19.2.8(react@19.2.8)
+    devDependencies:
+      '@capacitor/cli':
+        specifier: ^8.5.0
+        version: 8.5.0
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.4(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.4
+        version: 6.0.5(vite@8.2.0(@types/node@24.13.3))
+      typescript:
+        specifier: ~6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.2.0
+        version: 8.2.0(@types/node@24.13.3)
+
   apps/wellness:
     dependencies:
       '@capacitor/android':

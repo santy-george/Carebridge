@@ -12,6 +12,7 @@ import { Signup } from './pages/Signup';
 import { LinkMember } from './pages/LinkMember';
 import { Home } from './pages/Home';
 import { CheckIn } from './pages/CheckIn';
+import { Medications } from './pages/Medications';
 import { More } from './pages/More';
 import { AppShell } from './shell/AppShell';
 import { ComingSoon } from './shell/ComingSoon';
@@ -33,7 +34,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/" element={<Home />} />
               <Route path="/check-in" element={<CheckIn />} />
               <Route path="/health" element={<ComingSoon title="My Health" />} />
-              <Route path="/medications" element={<ComingSoon title="My Schedule" />} />
+              <Route path="/medications" element={<Medications />} />
               <Route path="/care" element={<ComingSoon title="My Care" />} />
               <Route path="/more" element={<More />} />
               <Route path="/sos" element={<ComingSoon title="Emergency SOS" />} />

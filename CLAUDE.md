@@ -25,16 +25,17 @@ The whole product revolves around the **Care Model** (see §4).
 
 ## 2. Current status
 
-**Done**
-- Design tokens (colour, type, spacing, radius, shadow) — `css/tokens.css`.
-- Per-app accent theming (Admin/Field/Family) via `data-app` — see §3.
-- Reusable components — `css/components.css`.
-- App shell (sidebar + topbar + grid) — `css/app.css`.
-- Shared icon sprite — `js/icons.js`. Shared sidebar — `js/sidebar.js`.
-- Screens: **`admin-app/admin-dashboard.html`**, **`admin-app/care-models.html`**.
+**IMPORTANT — the mockup phase (Admin screens, per-screen priority list) is effectively done. The project has moved into a production rollout, planned in Notion: [Care Bridge Home — Production Rollout (Wellness App first)](https://app.notion.com/p/3a5898a1406b8191bc80c8b2760ac9a1). Treat that page as canonical for what's next — the rest of this section is a snapshot, not a task list.**
 
-**Next (priority order — the operational lifecycle)**
-Members list → Member profile → Assessments → Scheduler → Visits & Duties → Visit Reports → Billing & Invoices → Staff Payments → Reports/Health Analytics → Emergency Centre. Then the Field and Family apps (set `data-app="field"` / `"family"`).
+**Done (static HTML/CSS/JS mockup)**
+- Design tokens, per-app theming, shared components, app shell — `css/`, `js/`.
+- Admin Portal: nearly full screen set in `admin-app/` — dashboard, leads, members, member profile, assessments, care models, service catalogue, scheduler, visits, visit reports, area allocation, HR, attendance, billing, staff payments, reports & health analytics, emergency centre, users & roles, settings, login.
+- Field Staff App: single-file prototype only — `field-app/nurse-app.html` (not broken into per-screen files like Admin).
+- Client & Family App: legacy prototype — `family-app/family-app.html` (superseded by wellness-app below).
+- Wellness App (current Self Care / Family surface): full screen flow in `wellness-app/*.dc.html` (Login, Home, Check-in, Health, Medications, Care, Assessment, Risk Screening, Preventive Plan, Emergency, Education, Reports, Profile, More) — see `wellness-app/CLAUDE.md`.
+
+**Next — per the Notion rollout plan, not this file**
+Locked direction: rebuild the Wellness App in **React + Vite + TypeScript + Capacitor** (current `.dc.html` screens are design-tool exports, not production code — the CSS design system ports directly, no visual redesign) on a **Supabase** backend (Postgres, Auth, Storage, Realtime, Edge Functions — no Zoho). Wellness App ships first; Field Staff app stays deferred; Admin gets minimal wiring only (coordinator login, member dashboard, SOS alert inbox, care-team assignment). Critical path: Phase 0 foundations (legal/DPDP, Supabase project, monorepo scaffold, design-system port, CI/CD, Sentry) → backend schema + RLS + auth → Wellness core loop (auth, Home, Check-in, Meds, Care, Records, SOS) → Admin SOS inbox + care-team assignment → push/SMS → security gate → beta → store submission. Wearable pipeline runs in parallel but must be hardware-tested before any patient relies on it for fall detection. No in-app payments in V1.
 
 ---
 

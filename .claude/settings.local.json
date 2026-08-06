@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(node -e ' *)",
       "Skill(run)",
@@ -19,7 +20,9 @@
       "Bash(find / -maxdepth 4 -iname \"*playwright*\")",
       "Bash(node *)",
       "Bash(sips -c 250 500 --out crop-bottom.png v2-tools.png)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Notion__notion-search"
     ]
   }
 }

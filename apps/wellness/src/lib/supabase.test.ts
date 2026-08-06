@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { capacitorPreferencesStorage } from './storage-adapter';
 
 describe('supabase client', () => {
   afterEach(() => {
@@ -14,5 +15,8 @@ describe('supabase client', () => {
 
     expect(supabase).toBeDefined();
     expect(typeof supabase.auth.signInWithPassword).toBe('function');
+    expect((supabase.auth as unknown as { storage: unknown }).storage).toBe(
+      capacitorPreferencesStorage,
+    );
   });
 });

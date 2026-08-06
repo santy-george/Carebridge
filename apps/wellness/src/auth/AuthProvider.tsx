@@ -87,7 +87,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLinksLoaded(false);
       const links = await fetchMemberLinks(newSession.user.id);
       if (!isMounted) return;
-      const storedMemberId = await capacitorPreferencesStorage.getItem(SELECTED_MEMBER_STORAGE_KEY);
+
+      let storedMemberId: string | null = null;
+      try {
+        storedMemberId = await capacitorPreferencesStorage.getItem(SELECTED_MEMBER_STORAGE_KEY);
+      } catch (error) {
+        console.error('Failed to read selected member from Capacitor Preferences:', error);
+      }
+
       if (!isMounted) return;
       setMemberLinks(links);
       setSelectedMemberId(resolveSelection(links, storedMemberId));

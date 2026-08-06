@@ -60,7 +60,7 @@ export function Login() {
           />
         </div>
         {error && (
-          <p className="t-body-m" style={{ color: 'var(--danger-text)' }} role="alert">
+          <p className="form-error" role="alert">
             {error}
           </p>
         )}

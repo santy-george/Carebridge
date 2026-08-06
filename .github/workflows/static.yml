@@ -2,11 +2,9 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+  # Manual trigger only — this workflow predates the monorepo restructure
+  # (apps/*, packages/*) and its "upload entire repository" step is stale;
+  # disabled from auto-deploying on push until/unless it's revisited.
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages

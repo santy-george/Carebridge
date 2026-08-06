@@ -5,7 +5,7 @@
 // Per-task unit tests mocked either AuthProvider's internals or
 // RequireAuth's `useAuth()` in isolation and couldn't catch this -- this
 // test mounts the real route tree (the same AuthProvider / RequireAuth /
-// RequireSession / RedirectIfAuthenticated / Login / LinkMember / App
+// RequireSession / RedirectIfAuthenticated / Login / LinkMember / AppShell
 // components main.tsx wires together) against a mocked Supabase client and
 // drives an actual login.
 import { render, screen, waitFor } from '@testing-library/react';
@@ -17,7 +17,8 @@ import { RedirectIfAuthenticated, RequireAuth, RequireSession } from './auth/Req
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { LinkMember } from './pages/LinkMember';
-import App from './App';
+import { Home } from './pages/Home';
+import { AppShell } from './shell/AppShell';
 import { supabase } from './lib/supabase';
 
 vi.mock('./lib/supabase', () => ({
@@ -56,7 +57,9 @@ function renderRouteTree(initialPath: string) {
             <Route path="/link-member" element={<LinkMember />} />
           </Route>
           <Route element={<RequireAuth />}>
-            <Route path="/" element={<App />} />
+            <Route element={<AppShell />}>
+              <Route path="/" element={<Home />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -77,16 +80,25 @@ describe('auth routing integration (finding 1 regression)', () => {
 
     const fakeSession = { user: { id: 'user-1' } };
     let resolveLinksFetch: (value: { data: unknown; error: null }) => void = () => {};
-    vi.mocked(supabase.from).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          order: () =>
-            new Promise((resolve) => {
-              resolveLinksFetch = resolve;
-            }),
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'med_stock') {
+        return {
+          select: () => ({
+            eq: () => Promise.resolve({ data: [], error: null }),
+          }),
+        } as never;
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            order: () =>
+              new Promise((resolve) => {
+                resolveLinksFetch = resolve;
+              }),
+          }),
         }),
-      }),
-    } as never);
+      } as never;
+    });
 
     vi.mocked(supabase.auth.signInWithPassword).mockImplementation(async () => {
       // Mirrors real supabase-js: a successful sign-in fires
@@ -120,10 +132,10 @@ describe('auth routing integration (finding 1 regression)', () => {
       error: null,
     });
 
-    // They land on Home ("/"), not stranded on /link-member.
-    expect(
-      await screen.findByRole('heading', { name: /care bridge wellness/i }),
-    ).toBeInTheDocument();
+    // They land on Home ("/"), not stranded on /link-member -- assert via
+    // the app shell's bottom nav rather than Home's own content, since
+    // Home.tsx is a placeholder this task's own tests own.
+    expect(await screen.findByRole('link', { name: /summary/i })).toBeInTheDocument();
     expect(screen.queryByText(/link your account/i)).not.toBeInTheDocument();
   });
 

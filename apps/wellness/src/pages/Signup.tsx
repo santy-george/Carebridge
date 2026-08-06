@@ -19,10 +19,28 @@ export function Signup() {
     setSubmitting(false);
 
     if (signUpError) {
+      // With this project's actual V1 setting ("Confirm email" OFF), a
+      // duplicate signup returns a real error -- HTTP 422 with
+      // error_code "user_already_exists" (surfaced by supabase-js as
+      // `.code`), message "User already registered". Check that first;
+      // fall back to matching the message text in case of an SDK version
+      // where `.code` isn't populated.
+      const isDuplicateEmail =
+        signUpError.code === 'user_already_exists' ||
+        /already registered/i.test(signUpError.message);
+
+      if (isDuplicateEmail) {
+        setError('An account already exists for this email — sign in instead.');
+        return;
+      }
+
       setError('Something went wrong creating your account. Please try again.');
       return;
     }
 
+    // Secondary fallback: with "Confirm email" enabled (not this project's
+    // current setting), a duplicate signup instead succeeds with an empty
+    // `identities` array rather than an error. Harmless to keep checking.
     if (data.user && data.user.identities && data.user.identities.length === 0) {
       setError('An account already exists for this email — sign in instead.');
       return;

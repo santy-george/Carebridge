@@ -17,16 +17,16 @@ export function RequireSession() {
 }
 
 export function RequireAuth() {
-  const { session, loading, memberLinks } = useAuth();
-  if (loading) return <LoadingScreen />;
+  const { session, loading, linksLoaded, memberLinks } = useAuth();
+  if (loading || (session && !linksLoaded)) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" replace />;
   if (memberLinks.length === 0) return <Navigate to="/link-member" replace />;
   return <Outlet />;
 }
 
 export function RedirectIfAuthenticated() {
-  const { session, loading, memberLinks } = useAuth();
-  if (loading) return <LoadingScreen />;
+  const { session, loading, linksLoaded, memberLinks } = useAuth();
+  if (loading || (session && !linksLoaded)) return <LoadingScreen />;
   if (session) {
     return <Navigate to={memberLinks.length === 0 ? '/link-member' : '/'} replace />;
   }

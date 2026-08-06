@@ -11,6 +11,13 @@ function App() {
     injectIconSprite();
   }, []);
 
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
+
   return (
     <main className="content">
       <div className="card">
@@ -44,13 +51,7 @@ function App() {
           Link another member
         </Link>
 
-        <button
-          className="btn btn--secondary"
-          type="button"
-          onClick={() => {
-            supabase.auth.signOut();
-          }}
-        >
+        <button className="btn btn--secondary" type="button" onClick={handleSignOut}>
           Sign out
         </button>
       </div>

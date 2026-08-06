@@ -50,7 +50,33 @@ describe('Signup', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/link-member');
   });
 
-  it('shows a duplicate-email message when identities is empty and does not navigate', async () => {
+  it('shows a duplicate-email message for the real 422 user_already_exists response (this project has "Confirm email" OFF)', async () => {
+    vi.mocked(supabase.auth.signUp).mockResolvedValue({
+      data: { user: null, session: null },
+      error: {
+        name: 'AuthApiError',
+        status: 422,
+        code: 'user_already_exists',
+        message: 'User already registered',
+      },
+    } as never);
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <Signup />
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText(/email/i), 'existing@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByRole('button', { name: /sign up/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/account already exists/i);
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('shows a duplicate-email message when identities is empty (fallback path for a project with "Confirm email" ON)', async () => {
     vi.mocked(supabase.auth.signUp).mockResolvedValue({
       data: { user: { id: 'user-1', identities: [] } },
       error: null,

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import '@carebridge/design-system/tokens.css';
 import '@carebridge/design-system/components.css';
 import '@carebridge/design-system/app.css';
@@ -27,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<RequireAuth />}>
             <Route path="/" element={<App />} />
           </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

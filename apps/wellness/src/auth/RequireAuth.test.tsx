@@ -23,13 +23,23 @@ function renderGuard(guard: React.ReactElement, initialPath: string) {
 
 describe('RequireAuth', () => {
   it('redirects to /login with no session', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: null, loading: false, memberLinks: [] } as never);
+    vi.mocked(useAuth).mockReturnValue({
+      session: null,
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('login page')).toBeInTheDocument();
   });
 
-  it('redirects to /link-member with a session but no member links', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: {}, loading: false, memberLinks: [] } as never);
+  it('redirects to /link-member with a session, links loaded, but no member links', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('link member page')).toBeInTheDocument();
   });
@@ -38,22 +48,57 @@ describe('RequireAuth', () => {
     vi.mocked(useAuth).mockReturnValue({
       session: {},
       loading: false,
+      linksLoaded: true,
       memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
     } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
   });
+
+  it('shows the loading screen while a session exists but its member_links fetch has not resolved yet (finding 1)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: false,
+      memberLinks: [],
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.queryByText('link member page')).not.toBeInTheDocument();
+    expect(screen.queryByText('protected content')).not.toBeInTheDocument();
+    expect(screen.getByText('Loading…')).toBeInTheDocument();
+  });
 });
 
 describe('RequireSession', () => {
   it('redirects to /login with no session', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: null, loading: false, memberLinks: [] } as never);
+    vi.mocked(useAuth).mockReturnValue({
+      session: null,
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
     renderGuard(<RequireSession />, '/protected');
     expect(screen.getByText('login page')).toBeInTheDocument();
   });
 
   it('renders protected content with a session, regardless of link count', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: {}, loading: false, memberLinks: [] } as never);
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
+    renderGuard(<RequireSession />, '/protected');
+    expect(screen.getByText('protected content')).toBeInTheDocument();
+  });
+
+  it('renders protected content with a session even while linksLoaded is false -- RequireSession only cares about session existence', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: false,
+      memberLinks: [],
+    } as never);
     renderGuard(<RequireSession />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
   });
@@ -61,13 +106,23 @@ describe('RequireSession', () => {
 
 describe('RedirectIfAuthenticated', () => {
   it('renders the public page (e.g. login form) with no session', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: null, loading: false, memberLinks: [] } as never);
+    vi.mocked(useAuth).mockReturnValue({
+      session: null,
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
   });
 
   it('redirects to /link-member when already authenticated with no links', () => {
-    vi.mocked(useAuth).mockReturnValue({ session: {}, loading: false, memberLinks: [] } as never);
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [],
+    } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('link member page')).toBeInTheDocument();
   });
@@ -76,9 +131,23 @@ describe('RedirectIfAuthenticated', () => {
     vi.mocked(useAuth).mockReturnValue({
       session: {},
       loading: false,
+      linksLoaded: true,
       memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('home page')).toBeInTheDocument();
+  });
+
+  it('shows the loading screen instead of redirecting to /link-member while a session exists but links have not loaded yet (finding 1)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: false,
+      memberLinks: [],
+    } as never);
+    renderGuard(<RedirectIfAuthenticated />, '/protected');
+    expect(screen.queryByText('link member page')).not.toBeInTheDocument();
+    expect(screen.queryByText('home page')).not.toBeInTheDocument();
+    expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 });

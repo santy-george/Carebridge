@@ -18,6 +18,7 @@ export function AdminShell() {
             <nav style={{ display: 'flex', gap: '12px', marginLeft: '16px' }}>
               <Link to="/">SOS Alerts</Link>
               <Link to="/members">Members</Link>
+              <Link to="/leads">Leads</Link>
             </nav>
           </div>
           <div className="topbar__actions">

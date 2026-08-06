@@ -122,8 +122,16 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-0000-0000-00000000000c')::text, true);
 
+-- Scoped to just the two fixtures (not a blanket select) so this isn't
+-- fragile against other members becoming visible via unrelated broad
+-- coordinator policies (e.g. any-coordinator access to a member with an
+-- open sos_alerts/upgrade_leads row) or other seed data in the database --
+-- this assertion is specifically about assignment-scoping between A and B.
 select is(
-  (select array_agg(id order by id) from public.members),
+  (
+    select array_agg(id order by id) from public.members
+    where id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')
+  ),
   array['aa000000-0000-0000-0000-00000000aaaa'::uuid],
   'Assigned coordinator sees exactly Member A when querying members, not Member B'
 );

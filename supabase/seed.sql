@@ -87,3 +87,14 @@ values (
   76.2999
 )
 on conflict do nothing;
+
+insert into public.upgrade_leads (id, member_id, requested_care_model, requested_plan_level, status, notes)
+values (
+  '30000000-0000-0000-0000-000000000001',
+  '10000000-0000-0000-0000-000000000001',
+  'virtual_care',
+  'standard',
+  'new',
+  'Seed fixture -- daughter asked about remote monitoring during her visit.'
+)
+on conflict do nothing;

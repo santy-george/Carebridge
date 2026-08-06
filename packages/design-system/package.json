@@ -9,7 +9,9 @@
     "./components.css": "./src/components.css",
     "./app.css": "./src/app.css",
     "./mobile.css": "./src/mobile.css",
-    "./admin.css": "./src/admin.css"
+    "./admin.css": "./src/admin.css",
+    "./fonts/Urbanist-VariableFont_wght.ttf": "./fonts/Urbanist-VariableFont_wght.ttf",
+    "./fonts/Urbanist-Italic-VariableFont_wght.ttf": "./fonts/Urbanist-Italic-VariableFont_wght.ttf"
   },
   "scripts": {
     "lint": "eslint .",

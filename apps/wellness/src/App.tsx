@@ -1,9 +1,5 @@
 import { useEffect } from 'react';
 import { injectIconSprite } from '@carebridge/design-system';
-import '@carebridge/design-system/tokens.css';
-import '@carebridge/design-system/components.css';
-import '@carebridge/design-system/app.css';
-import '@carebridge/design-system/mobile.css';
 
 function App() {
   useEffect(() => {

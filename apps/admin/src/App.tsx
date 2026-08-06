@@ -1,8 +1,3 @@
-import '@carebridge/design-system/tokens.css';
-import '@carebridge/design-system/components.css';
-import '@carebridge/design-system/app.css';
-import '@carebridge/design-system/admin.css';
-
 function App() {
   return (
     <main className="content">

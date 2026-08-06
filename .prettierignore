@@ -4,3 +4,29 @@ ios
 android
 node_modules
 pnpm-lock.yaml
+
+# Legacy static HTML/CSS/JS mockups (pre-monorepo, no build step — see CLAUDE.md).
+# Prettier here only governs the apps/ + packages/ monorepo and shared root tooling config.
+admin-app
+archive
+assets
+css
+family-app
+field-app
+js
+wellness-app
+index.html
+
+# Product/planning docs, not code
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+PRODUCT.md
+HANDOFF.md
+V1_SCOPE.md
+device-inventory.md
+wellness-feedback-plan.md
+docs
+Planning Docs
+.github
+.impeccable

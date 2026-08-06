@@ -19,7 +19,8 @@
     "@carebridge/design-system": "workspace:*",
     "@supabase/supabase-js": "^2.112.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.0",

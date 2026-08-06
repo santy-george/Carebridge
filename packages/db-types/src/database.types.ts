@@ -903,6 +903,17 @@ export type Database = {
       }
       is_coordinator: { Args: never; Returns: boolean }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
+      member_update_preserves_clinical_fields: {
+        Args: {
+          p_care_model: Database["public"]["Enums"]["care_model"]
+          p_date_of_birth: string
+          p_full_name: string
+          p_id: string
+          p_location: string
+          p_plan_level: Database["public"]["Enums"]["plan_level"]
+        }
+        Returns: boolean
+      }
       redeem_invite_code: { Args: { p_code: string }; Returns: string }
     }
     Enums: {

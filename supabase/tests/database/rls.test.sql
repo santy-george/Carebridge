@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(12);
+select plan(20);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -85,6 +85,38 @@ select is(
   'Member A gets zero rows querying Member B member_links (RLS filters silently)'
 );
 
+select is(
+  (select count(*)::int from public.member_invites),
+  0,
+  'A non-coordinator authenticated user (Member A) sees zero rows on member_invites -- no policy grants direct read access'
+);
+
+-- Column-scoped UPDATE restriction (finding 3): a linked, non-coordinator
+-- account may update contact fields but not clinical/assessment fields.
+select lives_ok(
+  $$ update public.members set phone = '9999999999' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  'Member A (linked, non-coordinator) can update their own contact field (phone)'
+);
+
+select is(
+  (select phone from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  '9999999999',
+  'The phone update by Member A actually applied'
+);
+
+select throws_ok(
+  $$ update public.members set care_model = 'virtual_care' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  '42501',
+  null,
+  'Member A (linked, non-coordinator) cannot change care_model -- RLS WITH CHECK rejects the row'
+);
+
+select is(
+  (select care_model::text from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  'self_care',
+  'care_model on Member A remains unchanged (self_care) after the rejected update attempt'
+);
+
 -- === Simulate the assigned coordinator's session ===
 reset role;
 set local role authenticated;
@@ -105,6 +137,23 @@ select is(
   (select count(*)::int from public.member_links where member_id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')),
   2,
   'Coordinator reads all member_links rows'
+);
+
+select is(
+  (select count(*)::int from public.member_invites),
+  0,
+  'A coordinator session also sees zero rows on member_invites -- no policy grants coordinators direct read access either'
+);
+
+select lives_ok(
+  $$ update public.members set care_model = 'direct_care' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  'The assigned coordinator can still update care_model on Member A -- their own policy is unaffected by the stricter linked-account WITH CHECK'
+);
+
+select is(
+  (select care_model::text from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  'direct_care',
+  'The coordinator''s care_model update actually applied'
 );
 
 -- === Simulate the family "Son" user redeeming invite codes ===

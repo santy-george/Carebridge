@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { injectIconSprite } from '@carebridge/design-system';
+import { Link } from 'react-router-dom';
+import { useAuth } from './auth/useAuth';
+import { supabase } from './lib/supabase';
 
 function App() {
+  const { memberLinks, selectedMemberId, selectMember } = useAuth();
+
   useEffect(() => {
     injectIconSprite();
   }, []);
@@ -16,6 +21,37 @@ function App() {
             <use href="#i-dashboard" />
           </svg>
           Looks themed
+        </button>
+
+        {memberLinks.length > 1 && (
+          <div className="field">
+            <label htmlFor="member-switcher">Viewing</label>
+            <select
+              id="member-switcher"
+              value={selectedMemberId ?? ''}
+              onChange={(event) => selectMember(event.target.value)}
+            >
+              {memberLinks.map((link) => (
+                <option key={link.memberId} value={link.memberId}>
+                  {link.relationshipLabel}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <Link className="btn btn--secondary" to="/link-member">
+          Link another member
+        </Link>
+
+        <button
+          className="btn btn--secondary"
+          type="button"
+          onClick={() => {
+            supabase.auth.signOut();
+          }}
+        >
+          Sign out
         </button>
       </div>
     </main>

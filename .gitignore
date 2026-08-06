@@ -1,2 +1,12 @@
 .DS_Store
 .firecrawl/
+node_modules/
+dist/
+.turbo/
+
+# Capacitor native build artifacts (platform source itself stays committed)
+apps/*/android/app/build/
+apps/*/android/.gradle/
+apps/*/ios/App/Pods/
+apps/*/ios/App/output/
+apps/*/ios/App/DerivedData/

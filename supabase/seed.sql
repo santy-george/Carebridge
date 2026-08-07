@@ -98,3 +98,10 @@ values (
   'Seed fixture -- daughter asked about remote monitoring during her visit.'
 )
 on conflict do nothing;
+
+insert into public.preventive_plan_goals (member_id, title, icon, due_date, completed_at, completed_note, display_order, created_by)
+values
+  ('10000000-0000-0000-0000-000000000001', 'Annual flu vaccination', 'bandage', '2026-07-31', '2026-07-02T00:00:00Z', 'Completed 2 Jul at Riverside Clinic', 1, '00000000-0000-0000-0000-000000000001'),
+  ('10000000-0000-0000-0000-000000000001', 'Annual eye exam', 'eye', '2026-07-31', null, null, 2, '00000000-0000-0000-0000-000000000001'),
+  ('10000000-0000-0000-0000-000000000001', 'Bone density scan', 'lab', '2026-08-15', null, null, 3, '00000000-0000-0000-0000-000000000001')
+on conflict do nothing;

@@ -47,7 +47,7 @@ describe('More', () => {
     expect(screen.getByRole('option', { name: 'Mother' })).toBeInTheDocument();
   });
 
-  it('links to profile, reports, and education', () => {
+  it('links to profile, preventive plan, reports, and education', () => {
     vi.mocked(useAuth).mockReturnValue({
       memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
       selectedMemberId: 'm1',
@@ -63,6 +63,10 @@ describe('More', () => {
     expect(screen.getByRole('link', { name: /profile & settings/i })).toHaveAttribute(
       'href',
       '/profile',
+    );
+    expect(screen.getByRole('link', { name: /preventive health plan/i })).toHaveAttribute(
+      'href',
+      '/preventive-plan',
     );
     expect(screen.getByRole('link', { name: /wellness reports/i })).toHaveAttribute(
       'href',

@@ -39,6 +39,24 @@ export function More() {
             </svg>
           </span>
         </Link>
+        <Link className="row tap" to="/preventive-plan">
+          <div className="ic">
+            <span className="icon">
+              <svg>
+                <use href="#i-target" />
+              </svg>
+            </span>
+          </div>
+          <div className="m">
+            <div className="t">Preventive health plan</div>
+            <div className="s">Goals from your care team</div>
+          </div>
+          <span className="icon chev">
+            <svg>
+              <use href="#i-chevron" />
+            </svg>
+          </span>
+        </Link>
         <Link className="row tap" to="/reports">
           <div className="ic">
             <span className="icon">

@@ -19,6 +19,7 @@ import { Health } from './pages/Health';
 import { Profile } from './pages/Profile';
 import { Reports } from './pages/Reports';
 import { Education } from './pages/Education';
+import { PreventivePlan } from './pages/PreventivePlan';
 import { More } from './pages/More';
 import { AppShell } from './shell/AppShell';
 
@@ -46,6 +47,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/profile" element={<Profile />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/education" element={<Education />} />
+              <Route path="/preventive-plan" element={<PreventivePlan />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

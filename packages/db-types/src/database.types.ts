@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.15"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -651,6 +646,60 @@ export type Database = {
           },
         ]
       }
+      preventive_plan_goals: {
+        Row: {
+          completed_at: string | null
+          completed_note: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          due_date: string | null
+          icon: string
+          id: string
+          member_id: string
+          title: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          due_date?: string | null
+          icon?: string
+          id?: string
+          member_id: string
+          title: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_note?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          due_date?: string | null
+          icon?: string
+          id?: string
+          member_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preventive_plan_goals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preventive_plan_goals_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1100,3 +1149,4 @@ export const Constants = {
     },
   },
 } as const
+

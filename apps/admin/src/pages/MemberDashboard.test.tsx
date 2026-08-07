@@ -9,8 +9,10 @@ vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
 const insertCalls: { table: string; payload: unknown }[] = [];
 const deleteCalls: { table: string; id: string }[] = [];
+const updateCalls: { table: string; payload: unknown; id: string }[] = [];
 const singleResponses: Record<string, { data: unknown; error: unknown }> = {};
 let deleteError: { message: string } | null = null;
+let updateError: { message: string } | null = null;
 
 function mockTable(table: string) {
   const builder = {
@@ -26,6 +28,12 @@ function mockTable(table: string) {
       insertCalls.push({ table, payload });
       return builder;
     },
+    update: (payload: unknown) => ({
+      eq: (_col: string, id: string) => {
+        updateCalls.push({ table, payload, id });
+        return Promise.resolve({ error: updateError });
+      },
+    }),
     delete: () => ({
       eq: (_col: string, id: string) => {
         deleteCalls.push({ table, id });
@@ -62,7 +70,9 @@ describe('MemberDashboard', () => {
     for (const key of Object.keys(singleResponses)) delete singleResponses[key];
     insertCalls.length = 0;
     deleteCalls.length = 0;
+    updateCalls.length = 0;
     deleteError = null;
+    updateError = null;
     tableResponses.members = {
       data: {
         id: 'm1',
@@ -94,6 +104,7 @@ describe('MemberDashboard', () => {
     tableResponses.glucose_readings = { data: [], error: null };
     tableResponses.sos_alerts = { data: [], error: null };
     tableResponses.care_team = { data: [], error: null };
+    tableResponses.preventive_plan_goals = { data: [], error: null };
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -225,7 +236,7 @@ describe('MemberDashboard', () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    await user.click(await screen.findByRole('button', { name: /\+ add/i }));
+    await user.click(await screen.findByRole('button', { name: 'Add care team member' }));
     await user.type(screen.getByLabelText(/^name$/i), 'Dr. Rajeev Menon');
     await user.type(screen.getByLabelText(/description \/ role/i), 'Family physician');
     await user.click(screen.getByRole('button', { name: /save care member/i }));
@@ -267,5 +278,122 @@ describe('MemberDashboard', () => {
 
     await waitFor(() => expect(deleteCalls).toContainEqual({ table: 'care_team', id: 'ct1' }));
     expect(screen.queryByText('Rita Alvarez')).not.toBeInTheDocument();
+  });
+
+  it('lists preventive plan goals with a completed/total count', async () => {
+    tableResponses.preventive_plan_goals = {
+      data: [
+        {
+          id: 'g1',
+          title: 'Annual flu vaccination',
+          icon: 'bandage',
+          due_date: '2026-07-31',
+          completed_at: '2026-07-02T00:00:00Z',
+          completed_note: null,
+        },
+        {
+          id: 'g2',
+          title: 'Annual eye exam',
+          icon: 'eye',
+          due_date: '2026-07-31',
+          completed_at: null,
+          completed_note: null,
+        },
+      ],
+      error: null,
+    };
+    renderDashboard();
+
+    expect(await screen.findByText(/Preventive health plan \(1\/2\)/)).toBeInTheDocument();
+    expect(screen.getByText('Annual flu vaccination')).toBeInTheDocument();
+    expect(screen.getByText(/Completed/)).toBeInTheDocument();
+    expect(screen.getByText('Due 2026-07-31')).toBeInTheDocument();
+  });
+
+  it('adds a preventive plan goal through the drawer', async () => {
+    singleResponses.preventive_plan_goals = {
+      data: {
+        id: 'g3',
+        title: 'Bone density scan',
+        icon: 'lab',
+        due_date: null,
+        completed_at: null,
+        completed_note: null,
+      },
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: 'Add preventive plan goal' }));
+    await user.type(screen.getByLabelText(/^goal$/i), 'Bone density scan');
+    await user.click(screen.getByRole('button', { name: /save goal/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'preventive_plan_goals',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          title: 'Bone density scan',
+          created_by: 'coord-1',
+        }),
+      }),
+    );
+    expect(await screen.findByText('Bone density scan')).toBeInTheDocument();
+  });
+
+  it('toggles a goal as done', async () => {
+    tableResponses.preventive_plan_goals = {
+      data: [
+        {
+          id: 'g1',
+          title: 'Annual eye exam',
+          icon: 'eye',
+          due_date: '2026-07-31',
+          completed_at: null,
+          completed_note: null,
+        },
+      ],
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: /mark done/i }));
+
+    await waitFor(() =>
+      expect(updateCalls).toContainEqual(
+        expect.objectContaining({ table: 'preventive_plan_goals', id: 'g1' }),
+      ),
+    );
+    expect(await screen.findByRole('button', { name: /mark not done/i })).toBeInTheDocument();
+  });
+
+  it('removes a preventive plan goal', async () => {
+    tableResponses.preventive_plan_goals = {
+      data: [
+        {
+          id: 'g1',
+          title: 'Annual eye exam',
+          icon: 'eye',
+          due_date: null,
+          completed_at: null,
+          completed_note: null,
+        },
+      ],
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: /remove/i }));
+
+    await waitFor(() =>
+      expect(deleteCalls).toContainEqual({ table: 'preventive_plan_goals', id: 'g1' }),
+    );
+    expect(screen.queryByText('Annual eye exam')).not.toBeInTheDocument();
   });
 });

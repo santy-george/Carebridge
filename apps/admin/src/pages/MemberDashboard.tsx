@@ -88,6 +88,17 @@ interface CareTeamMember {
   notes: string | null;
 }
 
+interface PreventiveGoal {
+  id: string;
+  title: string;
+  icon: string;
+  due_date: string | null;
+  completed_at: string | null;
+  completed_note: string | null;
+}
+
+const GOAL_ICON_OPTIONS = ['target', 'bandage', 'walking', 'food', 'eye', 'lab'];
+
 function latestByType(rows: VitalRow[], type: string): VitalRow | null {
   return rows.find((r) => r.vital_type === type) ?? null;
 }
@@ -106,14 +117,18 @@ export function MemberDashboard() {
   const [glucose, setGlucose] = useState<GlucoseRow | null>(null);
   const [sosAlerts, setSosAlerts] = useState<SosAlert[]>([]);
   const [careTeam, setCareTeam] = useState<CareTeamMember[]>([]);
+  const [goals, setGoals] = useState<PreventiveGoal[]>([]);
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeDrawer, setActiveDrawer] = useState<null | 'care' | 'goal'>(null);
   const [careName, setCareName] = useState('');
   const [careRole, setCareRole] = useState('');
   const [carePhone, setCarePhone] = useState('');
   const [careEmail, setCareEmail] = useState('');
   const [careAddress, setCareAddress] = useState('');
   const [careNotes, setCareNotes] = useState('');
+  const [goalTitle, setGoalTitle] = useState('');
+  const [goalIcon, setGoalIcon] = useState(GOAL_ICON_OPTIONS[0]);
+  const [goalDueDate, setGoalDueDate] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
@@ -135,6 +150,7 @@ export function MemberDashboard() {
         glucoseRes,
         sosRes,
         careTeamRes,
+        goalsRes,
       ] = await Promise.all([
         supabase
           .from('members')
@@ -186,6 +202,11 @@ export function MemberDashboard() {
           .select('id, role_label, name, phone, email, address, notes')
           .eq('member_id', memberId)
           .order('display_order', { ascending: true }),
+        supabase
+          .from('preventive_plan_goals')
+          .select('id, title, icon, due_date, completed_at, completed_note')
+          .eq('member_id', memberId)
+          .order('display_order', { ascending: true }),
       ]);
 
       if (ignore) return;
@@ -199,7 +220,8 @@ export function MemberDashboard() {
         vitalsRes.error ||
         glucoseRes.error ||
         sosRes.error ||
-        careTeamRes.error;
+        careTeamRes.error ||
+        goalsRes.error;
       setFetchError(!!anyError);
       setMember((memberRes.data as Member | null) ?? null);
       setMedicalProfile((profileRes.data as MedicalProfile | null) ?? null);
@@ -211,6 +233,7 @@ export function MemberDashboard() {
       setGlucose(glucoseRows[0] ?? null);
       setSosAlerts((sosRes.data as SosAlert[] | null) ?? []);
       setCareTeam((careTeamRes.data as CareTeamMember[] | null) ?? []);
+      setGoals((goalsRes.data as PreventiveGoal[] | null) ?? []);
     }
 
     load();
@@ -250,7 +273,7 @@ export function MemberDashboard() {
     setCareEmail('');
     setCareAddress('');
     setCareNotes('');
-    setDrawerOpen(false);
+    setActiveDrawer(null);
   };
 
   const removeCareTeamMember = async (careTeamId: string) => {
@@ -260,6 +283,60 @@ export function MemberDashboard() {
       return;
     }
     setCareTeam((prev) => prev.filter((m) => m.id !== careTeamId));
+  };
+
+  const addGoal = async () => {
+    if (!id || !session || !goalTitle.trim()) return;
+    setSaving(true);
+    setSaveError(false);
+    const { data, error } = await supabase
+      .from('preventive_plan_goals')
+      .insert({
+        member_id: id,
+        title: goalTitle.trim(),
+        icon: goalIcon,
+        due_date: goalDueDate || null,
+        display_order: goals.length,
+        created_by: session.user.id,
+      })
+      .select('id, title, icon, due_date, completed_at, completed_note')
+      .single();
+    setSaving(false);
+    if (error || !data) {
+      setSaveError(true);
+      return;
+    }
+    setGoals((prev) => [...prev, data as PreventiveGoal]);
+    setGoalTitle('');
+    setGoalIcon(GOAL_ICON_OPTIONS[0]);
+    setGoalDueDate('');
+    setActiveDrawer(null);
+  };
+
+  const toggleGoalComplete = async (goal: PreventiveGoal) => {
+    const completing = !goal.completed_at;
+    const { error } = await supabase
+      .from('preventive_plan_goals')
+      .update({ completed_at: completing ? new Date().toISOString() : null })
+      .eq('id', goal.id);
+    if (error) {
+      setSaveError(true);
+      return;
+    }
+    setGoals((prev) =>
+      prev.map((g) =>
+        g.id === goal.id ? { ...g, completed_at: completing ? new Date().toISOString() : null } : g,
+      ),
+    );
+  };
+
+  const removeGoal = async (goalId: string) => {
+    const { error } = await supabase.from('preventive_plan_goals').delete().eq('id', goalId);
+    if (error) {
+      setSaveError(true);
+      return;
+    }
+    setGoals((prev) => prev.filter((g) => g.id !== goalId));
   };
 
   if (loading) {
@@ -350,7 +427,8 @@ export function MemberDashboard() {
               <button
                 type="button"
                 className="btn btn--primary btn--sm"
-                onClick={() => setDrawerOpen(true)}
+                aria-label="Add care team member"
+                onClick={() => setActiveDrawer('care')}
               >
                 + Add
               </button>
@@ -379,6 +457,63 @@ export function MemberDashboard() {
                         type="button"
                         className="btn btn--outline btn--sm"
                         onClick={() => removeCareTeamMember(ct.id)}
+                      >
+                        Remove
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="section-card">
+            <div className="section-card__head">
+              <span className="section-card__title">
+                Preventive health plan
+                {goals.length > 0 &&
+                  ` (${goals.filter((g) => g.completed_at).length}/${goals.length})`}
+              </span>
+              <button
+                type="button"
+                className="btn btn--primary btn--sm"
+                aria-label="Add preventive plan goal"
+                onClick={() => setActiveDrawer('goal')}
+              >
+                + Add
+              </button>
+            </div>
+            {goals.length === 0 ? (
+              <p className="t-body-m">No preventive plan goals added yet.</p>
+            ) : (
+              <div className="kv">
+                {goals.map((goal) => (
+                  <div className="kv__row" key={goal.id}>
+                    <span className="kv__k">
+                      {goal.title}
+                      <div className="sub">
+                        {goal.completed_at
+                          ? `Completed ${new Date(goal.completed_at).toLocaleDateString()}`
+                          : goal.due_date
+                            ? `Due ${goal.due_date}`
+                            : 'No due date'}
+                      </div>
+                    </span>
+                    <span
+                      className="kv__v"
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+                    >
+                      <button
+                        type="button"
+                        className="btn btn--outline btn--sm"
+                        onClick={() => toggleGoalComplete(goal)}
+                      >
+                        {goal.completed_at ? 'Mark not done' : 'Mark done'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--outline btn--sm"
+                        onClick={() => removeGoal(goal.id)}
                       >
                         Remove
                       </button>
@@ -584,17 +719,20 @@ export function MemberDashboard() {
       </div>
 
       <div
-        className={`overlay${drawerOpen ? ' is-open' : ''}`}
-        onClick={() => setDrawerOpen(false)}
+        className={`overlay${activeDrawer ? ' is-open' : ''}`}
+        onClick={() => setActiveDrawer(null)}
       />
-      <aside className={`drawer${drawerOpen ? ' is-open' : ''}`} aria-label="Add care team member">
+      <aside
+        className={`drawer${activeDrawer === 'care' ? ' is-open' : ''}`}
+        aria-label="Add care team member"
+      >
         <div className="drawer__head">
           <span className="drawer__title">Add care team member</span>
           <button
             type="button"
             className="x-btn"
             aria-label="Close"
-            onClick={() => setDrawerOpen(false)}
+            onClick={() => setActiveDrawer(null)}
           >
             <span className="icon icon--sm">
               <svg
@@ -690,7 +828,7 @@ export function MemberDashboard() {
           <button
             type="button"
             className="btn btn--outline btn--sm"
-            onClick={() => setDrawerOpen(false)}
+            onClick={() => setActiveDrawer(null)}
           >
             Cancel
           </button>
@@ -701,6 +839,94 @@ export function MemberDashboard() {
             onClick={addCareTeamMember}
           >
             {saving ? 'Saving…' : 'Save care member'}
+          </button>
+        </div>
+      </aside>
+
+      <aside
+        className={`drawer${activeDrawer === 'goal' ? ' is-open' : ''}`}
+        aria-label="Add preventive plan goal"
+      >
+        <div className="drawer__head">
+          <span className="drawer__title">Add preventive plan goal</span>
+          <button
+            type="button"
+            className="x-btn"
+            aria-label="Close"
+            onClick={() => setActiveDrawer(null)}
+          >
+            <span className="icon icon--sm">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+              </svg>
+            </span>
+          </button>
+        </div>
+        <form
+          className="drawer__body"
+          onSubmit={(e) => {
+            e.preventDefault();
+            addGoal();
+          }}
+        >
+          <div className="field field--full">
+            <label htmlFor="goal-title">Goal</label>
+            <div className="control">
+              <input
+                id="goal-title"
+                type="text"
+                placeholder="e.g. Annual eye exam"
+                value={goalTitle}
+                onChange={(e) => setGoalTitle(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="field-grid">
+            <div className="field">
+              <label htmlFor="goal-icon">Icon</label>
+              <select id="goal-icon" value={goalIcon} onChange={(e) => setGoalIcon(e.target.value)}>
+                {GOAL_ICON_OPTIONS.map((icon) => (
+                  <option key={icon} value={icon}>
+                    {icon}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="goal-due">Due date</label>
+              <div className="control">
+                <input
+                  id="goal-due"
+                  type="date"
+                  value={goalDueDate}
+                  onChange={(e) => setGoalDueDate(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </form>
+        <div className="drawer__foot">
+          <button
+            type="button"
+            className="btn btn--outline btn--sm"
+            onClick={() => setActiveDrawer(null)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn--primary btn--sm"
+            disabled={saving || !goalTitle.trim()}
+            onClick={addGoal}
+          >
+            {saving ? 'Saving…' : 'Save goal'}
           </button>
         </div>
       </aside>

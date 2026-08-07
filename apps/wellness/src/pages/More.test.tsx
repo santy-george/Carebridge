@@ -46,4 +46,31 @@ describe('More', () => {
     expect(screen.getByLabelText(/viewing/i)).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Mother' })).toBeInTheDocument();
   });
+
+  it('links to profile, reports, and education', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      selectedMemberId: 'm1',
+      selectMember: vi.fn(),
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <More />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('link', { name: /profile & settings/i })).toHaveAttribute(
+      'href',
+      '/profile',
+    );
+    expect(screen.getByRole('link', { name: /wellness reports/i })).toHaveAttribute(
+      'href',
+      '/reports',
+    );
+    expect(screen.getByRole('link', { name: /health education/i })).toHaveAttribute(
+      'href',
+      '/education',
+    );
+  });
 });

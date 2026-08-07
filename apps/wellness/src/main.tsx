@@ -17,6 +17,8 @@ import { Care } from './pages/Care';
 import { Sos } from './pages/Sos';
 import { Health } from './pages/Health';
 import { Profile } from './pages/Profile';
+import { Reports } from './pages/Reports';
+import { Education } from './pages/Education';
 import { More } from './pages/More';
 import { AppShell } from './shell/AppShell';
 
@@ -42,6 +44,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/more" element={<More />} />
               <Route path="/sos" element={<Sos />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/education" element={<Education />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

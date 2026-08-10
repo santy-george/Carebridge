@@ -28,6 +28,7 @@ describe('RequireAuth', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('login page')).toBeInTheDocument();
@@ -39,6 +40,7 @@ describe('RequireAuth', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('link member page')).toBeInTheDocument();
@@ -50,6 +52,7 @@ describe('RequireAuth', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
@@ -61,11 +64,25 @@ describe('RequireAuth', () => {
       loading: false,
       linksLoaded: false,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.queryByText('link member page')).not.toBeInTheDocument();
     expect(screen.queryByText('protected content')).not.toBeInTheDocument();
     expect(screen.getByText('Loading…')).toBeInTheDocument();
+  });
+
+  it('shows the consent-pending screen instead of the app when consentStatus is withdrawal_pending', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: 'withdrawal_pending',
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.queryByText('protected content')).not.toBeInTheDocument();
+    expect(screen.getByText(/withdrawal request received/i)).toBeInTheDocument();
   });
 });
 
@@ -76,6 +93,7 @@ describe('RequireSession', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireSession />, '/protected');
     expect(screen.getByText('login page')).toBeInTheDocument();
@@ -87,6 +105,7 @@ describe('RequireSession', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireSession />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
@@ -98,6 +117,7 @@ describe('RequireSession', () => {
       loading: false,
       linksLoaded: false,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RequireSession />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
@@ -111,6 +131,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
@@ -122,6 +143,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('link member page')).toBeInTheDocument();
@@ -133,6 +155,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       linksLoaded: true,
       memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('home page')).toBeInTheDocument();
@@ -144,6 +167,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       linksLoaded: false,
       memberLinks: [],
+      consentStatus: 'active',
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.queryByText('link member page')).not.toBeInTheDocument();

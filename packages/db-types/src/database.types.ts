@@ -205,6 +205,44 @@ export type Database = {
           },
         ]
       }
+      consents: {
+        Row: {
+          created_at: string
+          event: Database["public"]["Enums"]["consent_event"]
+          id: string
+          member_id: string | null
+          policy_version: string
+          scope: Database["public"]["Enums"]["consent_scope"] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: Database["public"]["Enums"]["consent_event"]
+          id?: string
+          member_id?: string | null
+          policy_version?: string
+          scope?: Database["public"]["Enums"]["consent_scope"] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: Database["public"]["Enums"]["consent_event"]
+          id?: string
+          member_id?: string | null
+          policy_version?: string
+          scope?: Database["public"]["Enums"]["consent_scope"] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category: Database["public"]["Enums"]["document_category"]
@@ -702,6 +740,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          consent_status: string
           created_at: string
           email: string | null
           full_name: string | null
@@ -711,6 +750,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          consent_status?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -720,6 +760,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          consent_status?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -963,10 +1004,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      profile_update_preserves_consent_status: {
+        Args: { p_consent_status: string; p_id: string }
+        Returns: boolean
+      }
+      reactivate_consent: {
+        Args: { p_member_id: string; p_user_id: string }
+        Returns: undefined
+      }
       redeem_invite_code: { Args: { p_code: string }; Returns: string }
+      request_consent_withdrawal: {
+        Args: {
+          p_member_id: string
+          p_scope: Database["public"]["Enums"]["consent_scope"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       care_model: "self_care" | "virtual_care" | "direct_care"
+      consent_event: "given" | "withdrawal_requested" | "withdrawal_verified"
+      consent_scope: "self" | "all"
       document_category:
         | "lab_report"
         | "prescription"
@@ -1121,6 +1179,8 @@ export const Constants = {
   public: {
     Enums: {
       care_model: ["self_care", "virtual_care", "direct_care"],
+      consent_event: ["given", "withdrawal_requested", "withdrawal_verified"],
+      consent_scope: ["self", "all"],
       document_category: [
         "lab_report",
         "prescription",

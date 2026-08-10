@@ -20,8 +20,12 @@ interface PendingRow {
 interface HistoryRow {
   id: string;
   resolved_at: string;
-  requester_name: string;
+  // The consents row's own denormalized snapshots -- both FKs (user_id,
+  // member_id) are `on delete set null`, so after an erasure these text
+  // columns are the ONLY surviving identity on the row.
+  subject_email: string;
   member_name: string;
+  actor_email: string;
   outcome: 'reactivated' | 'erased';
 }
 
@@ -40,7 +44,20 @@ interface ResolvedConsentRow {
   event: string;
   scope: string | null;
   created_at: string;
+  subject_email: string | null;
+  member_name_snapshot: string | null;
+  actor_email: string | null;
   members: { full_name: string } | null;
+}
+
+const RESOLVED_HISTORY_COLUMNS =
+  'id, user_id, member_id, event, scope, created_at, subject_email, member_name_snapshot, actor_email, members(full_name)';
+
+interface EraseResponse {
+  ok?: boolean;
+  scope?: string;
+  erased_accounts?: number;
+  failed_accounts?: Array<{ user_id: string; error: string }>;
 }
 
 const REFRESH_INTERVAL_MS = 20000;
@@ -54,6 +71,7 @@ export function ConsentRequests() {
   const [eraseTargetUserId, setEraseTargetUserId] = useState<string | null>(null);
   const [eraseConfirmText, setEraseConfirmText] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [partialFailureCount, setPartialFailureCount] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -84,13 +102,13 @@ export function ConsentRequests() {
           : Promise.resolve({ data: [] as RequestedConsentRow[] | null }),
         supabase
           .from('consents')
-          .select('id, user_id, member_id, event, scope, created_at, members(full_name)')
+          .select(RESOLVED_HISTORY_COLUMNS)
           .eq('event', 'withdrawal_verified')
           .order('created_at', { ascending: false })
           .limit(100),
         supabase
           .from('consents')
-          .select('id, user_id, member_id, event, scope, created_at, members(full_name)')
+          .select(RESOLVED_HISTORY_COLUMNS)
           .eq('event', 'given')
           .not('member_id', 'is', null)
           .order('created_at', { ascending: false })
@@ -134,8 +152,13 @@ export function ConsentRequests() {
       const historyRows: HistoryRow[] = resolved.map((row) => ({
         id: row.id,
         resolved_at: row.created_at,
-        requester_name: 'requester',
-        member_name: row.members?.full_name ?? 'Unknown member',
+        subject_email: row.subject_email ?? 'Unknown',
+        // The live join wins when the member still exists (a reactivated
+        // record has both, and the live name reflects any later rename);
+        // the snapshot is what's left after a scope:'all' erasure nulls
+        // member_id.
+        member_name: row.members?.full_name ?? row.member_name_snapshot ?? 'Unknown member',
+        actor_email: row.actor_email ?? '—',
         outcome: row.event === 'withdrawal_verified' ? 'erased' : 'reactivated',
       }));
 
@@ -169,7 +192,7 @@ export function ConsentRequests() {
     const row = pending.find((p) => p.user_id === eraseTargetUserId);
     if (!row) return;
     setBusyUserId(row.user_id);
-    const { error } = await supabase.functions.invoke('erase-consent-withdrawal', {
+    const { data, error } = await supabase.functions.invoke('erase-consent-withdrawal', {
       body: { member_id: row.member_id, requester_user_id: row.user_id, scope: row.scope },
     });
     setBusyUserId(null);
@@ -178,6 +201,16 @@ export function ConsentRequests() {
     if (error) {
       setFetchError(true);
       return;
+    }
+    // A scope:'all' erasure can partially fail: the member record and all its
+    // clinical data are gone, but one or more linked auth accounts survived.
+    // The function reports that as HTTP 207 with a non-empty failed_accounts,
+    // which supabase-js does NOT surface as `error` (any 2xx has error null) --
+    // so it has to be read out of the body, or a partial erasure looks
+    // identical to a clean one.
+    const failedAccounts = (data as EraseResponse | null)?.failed_accounts ?? [];
+    if (failedAccounts.length > 0) {
+      setPartialFailureCount(failedAccounts.length);
     }
     setRefreshKey((k) => k + 1);
   };
@@ -192,6 +225,20 @@ export function ConsentRequests() {
         <div className="card" role="alert">
           <span>Something went wrong loading consent requests.</span>
           <button type="button" onClick={() => setFetchError(false)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {partialFailureCount > 0 && (
+        <div className="card" role="alert">
+          <span>
+            Erasure partially completed — {partialFailureCount} linked{' '}
+            {partialFailureCount === 1 ? 'account' : 'accounts'} could not be removed. The member
+            record and its data were erased; contact support to finish removing the remaining{' '}
+            {partialFailureCount === 1 ? 'login' : 'logins'}.
+          </span>
+          <button type="button" onClick={() => setPartialFailureCount(0)}>
             Dismiss
           </button>
         </div>
@@ -303,7 +350,9 @@ export function ConsentRequests() {
             <thead>
               <tr>
                 <th>Member</th>
+                <th>Subject</th>
                 <th>Outcome</th>
+                <th>Verified by</th>
                 <th>Resolved</th>
               </tr>
             </thead>
@@ -311,7 +360,9 @@ export function ConsentRequests() {
               {history.map((row) => (
                 <tr key={row.id}>
                   <td>{row.member_name}</td>
+                  <td>{row.subject_email}</td>
                   <td>{row.outcome === 'erased' ? 'Erased' : 'Reactivated'}</td>
+                  <td>{row.actor_email}</td>
                   <td>{new Date(row.resolved_at).toLocaleString()}</td>
                 </tr>
               ))}

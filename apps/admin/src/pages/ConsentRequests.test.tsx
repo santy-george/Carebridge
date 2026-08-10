@@ -14,11 +14,14 @@ vi.mock('../lib/supabase', () => ({
 
 interface HistoryConsentRow {
   id: string;
-  user_id: string;
+  user_id: string | null;
   member_id: string | null;
   event: string;
   scope: string | null;
   created_at: string;
+  subject_email: string | null;
+  member_name_snapshot: string | null;
+  actor_email: string | null;
   members: { full_name: string } | null;
 }
 
@@ -178,6 +181,9 @@ describe('ConsentRequests', () => {
           event: 'withdrawal_verified',
           scope: 'all',
           created_at: '2026-08-09T09:00:00Z',
+          subject_email: 'erased@example.com',
+          member_name_snapshot: 'Erased Member',
+          actor_email: 'coordinator@example.com',
           members: { full_name: 'Erased Member' },
         },
       ],
@@ -189,6 +195,9 @@ describe('ConsentRequests', () => {
           event: 'given',
           scope: 'all',
           created_at: '2026-08-10T09:00:00Z',
+          subject_email: 'reactivated@example.com',
+          member_name_snapshot: 'Reactivated Member',
+          actor_email: 'coordinator@example.com',
           members: { full_name: 'Reactivated Member' },
         },
       ],
@@ -209,5 +218,150 @@ describe('ConsentRequests', () => {
     expect(rows.indexOf(reactivatedRow as HTMLTableRowElement)).toBeLessThan(
       rows.indexOf(erasedRow as HTMLTableRowElement),
     );
+  });
+
+  it('shows the surviving snapshot identity for a fully-erased member (both FKs nulled, live join gone)', async () => {
+    mockQueries({
+      verifiedConsents: [
+        {
+          id: 'consent-erased',
+          // Exactly what a scope:'all' erasure leaves behind: user_id and
+          // member_id both nulled by ON DELETE SET NULL, so the members join
+          // resolves to null and the text snapshots are the only identity.
+          user_id: null,
+          member_id: null,
+          event: 'withdrawal_verified',
+          scope: 'all',
+          created_at: '2026-08-09T09:00:00Z',
+          subject_email: 'erased.subject@example.com',
+          member_name_snapshot: 'Gone Member',
+          actor_email: 'coordinator@example.com',
+          members: null,
+        },
+      ],
+    });
+
+    render(<ConsentRequests />);
+
+    expect(await screen.findByText('Gone Member')).toBeInTheDocument();
+    expect(screen.getByText('erased.subject@example.com')).toBeInTheDocument();
+    expect(screen.getByText('coordinator@example.com')).toBeInTheDocument();
+  });
+
+  it('prefers the live members join over the snapshot when the member still exists', async () => {
+    mockQueries({
+      reactivatedConsents: [
+        {
+          id: 'consent-reactivated',
+          user_id: 'user-3',
+          member_id: 'member-3',
+          event: 'given',
+          scope: null,
+          created_at: '2026-08-10T09:00:00Z',
+          subject_email: 'subject@example.com',
+          member_name_snapshot: 'Old Name At Request Time',
+          actor_email: 'coordinator@example.com',
+          members: { full_name: 'Current Name' },
+        },
+      ],
+    });
+
+    render(<ConsentRequests />);
+
+    expect(await screen.findByText('Current Name')).toBeInTheDocument();
+    expect(screen.queryByText('Old Name At Request Time')).not.toBeInTheDocument();
+  });
+
+  it('keeps "Confirm erasure" disabled until WITHDRAW is typed exactly', async () => {
+    mockQueries({
+      pendingProfiles: [{ id: 'user-1', full_name: 'Jane Doe', email: 'jane@example.com' }],
+      requestedConsents: [
+        {
+          user_id: 'user-1',
+          member_id: 'member-1',
+          scope: 'all',
+          created_at: '2026-08-10T10:00:00Z',
+          members: { full_name: 'John Doe' },
+        },
+      ],
+    });
+    const user = userEvent.setup();
+
+    render(<ConsentRequests />);
+    await screen.findByText('Jane Doe');
+    await user.click(screen.getByRole('button', { name: /verified.*erase permanently/i }));
+
+    // Empty confirm box: the last friction gate before permanent deletion.
+    expect(screen.getByRole('button', { name: /confirm erasure/i })).toBeDisabled();
+
+    await user.type(screen.getByLabelText(/type withdraw to confirm/i), 'WITHDRA');
+    expect(screen.getByRole('button', { name: /confirm erasure/i })).toBeDisabled();
+  });
+
+  it('warns instead of reporting clean success when the erasure partially failed (207 / failed_accounts)', async () => {
+    mockQueries({
+      pendingProfiles: [{ id: 'user-1', full_name: 'Jane Doe', email: 'jane@example.com' }],
+      requestedConsents: [
+        {
+          user_id: 'user-1',
+          member_id: 'member-1',
+          scope: 'all',
+          created_at: '2026-08-10T10:00:00Z',
+          members: { full_name: 'John Doe' },
+        },
+      ],
+    });
+    // supabase-js reports `error: null` for any 2xx, including the 207 the
+    // function returns for a partial erasure -- so the UI has to read the body.
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: {
+        ok: false,
+        scope: 'all',
+        erased_accounts: 1,
+        failed_accounts: [{ user_id: 'user-9', error: 'boom' }],
+      },
+      error: null,
+    } as never);
+    const user = userEvent.setup();
+
+    render(<ConsentRequests />);
+    await screen.findByText('Jane Doe');
+
+    await user.click(screen.getByRole('button', { name: /verified.*erase permanently/i }));
+    await user.type(screen.getByLabelText(/type withdraw to confirm/i), 'WITHDRAW');
+    await user.click(screen.getByRole('button', { name: /confirm erasure/i }));
+
+    expect(await screen.findByText(/erasure partially completed/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 linked account could not be removed/i)).toBeInTheDocument();
+  });
+
+  it('shows no partial-failure warning when every linked account was erased', async () => {
+    mockQueries({
+      pendingProfiles: [{ id: 'user-1', full_name: 'Jane Doe', email: 'jane@example.com' }],
+      requestedConsents: [
+        {
+          user_id: 'user-1',
+          member_id: 'member-1',
+          scope: 'all',
+          created_at: '2026-08-10T10:00:00Z',
+          members: { full_name: 'John Doe' },
+        },
+      ],
+    });
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: { ok: true, scope: 'all', erased_accounts: 2, failed_accounts: [] },
+      error: null,
+    } as never);
+    const user = userEvent.setup();
+
+    render(<ConsentRequests />);
+    await screen.findByText('Jane Doe');
+
+    await user.click(screen.getByRole('button', { name: /verified.*erase permanently/i }));
+    await user.type(screen.getByLabelText(/type withdraw to confirm/i), 'WITHDRAW');
+    await user.click(screen.getByRole('button', { name: /confirm erasure/i }));
+
+    await waitFor(() => expect(supabase.functions.invoke).toHaveBeenCalled());
+    expect(screen.queryByText(/erasure partially completed/i)).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as Sentry from '@sentry/react';
 import { AuthProvider } from './AuthProvider';
 import { useAuth } from './useAuth';
 import { supabase } from '../lib/supabase';
@@ -14,6 +15,10 @@ vi.mock('../lib/supabase', () => ({
     },
     from: vi.fn(),
   },
+}));
+
+vi.mock('@sentry/react', () => ({
+  captureException: vi.fn(),
 }));
 
 vi.mock('../lib/storage-adapter', () => ({
@@ -457,5 +462,62 @@ describe('AuthProvider', () => {
     await waitFor(() =>
       expect(screen.getByTestId('consent-status')).toHaveTextContent('withdrawal_pending'),
     );
+  });
+
+  it("reports 'unknown' (not null) when the consent_status query errors, so guards can fail closed", async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fakeSession = { user: { id: 'user-1' } };
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
+    mockAuthStateChange();
+    vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'member_links') {
+        return {
+          select: () => ({
+            eq: () => ({ order: () => Promise.resolve({ data: [], error: null }) }),
+          }),
+        } as never;
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({ data: null, error: { message: 'network failure' } }),
+          }),
+        }),
+      } as never;
+    });
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('consent-status')).toHaveTextContent('unknown'));
+    expect(consoleError).toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it('reports null (not unknown) when the profile row is simply missing -- no error, no report', async () => {
+    const fakeSession = { user: { id: 'user-1' } };
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
+    mockAuthStateChange();
+    vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
+    mockSupabaseQueries([], null);
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('consent-status')).toHaveTextContent('none'));
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

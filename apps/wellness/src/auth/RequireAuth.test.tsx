@@ -89,6 +89,32 @@ describe('RequireAuth', () => {
     expect(screen.queryByText('protected content')).not.toBeInTheDocument();
     expect(screen.getByText(/withdrawal request received/i)).toBeInTheDocument();
   });
+
+  it('fails CLOSED when the consent_status fetch errored: blocks the app instead of granting access', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: 'unknown',
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.queryByText('protected content')).not.toBeInTheDocument();
+    expect(screen.getByText(/couldn.t confirm your account status/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it('still renders the app when no profile row exists (consentStatus null) -- null is not the fetch-failed sentinel', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: null,
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.getByText('protected content')).toBeInTheDocument();
+  });
 });
 
 describe('RequireSession', () => {

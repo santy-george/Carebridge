@@ -52,9 +52,14 @@ export function Signup() {
     // fails, don't strand a successfully created account -- report to
     // Sentry and let signup proceed regardless.
     if (data.user) {
+      // subject_email is a denormalized snapshot of who this consent event
+      // was about -- consents.user_id is `on delete set null`, so without it
+      // the audit row loses all identity the moment the account is erased.
+      // No member_id: nothing is linked yet at signup (and the insert policy
+      // now requires member_id to be null for direct client inserts).
       const { error: consentError } = await supabase
         .from('consents')
-        .insert({ user_id: data.user.id, event: 'given' });
+        .insert({ user_id: data.user.id, event: 'given', subject_email: email });
       if (consentError) {
         Sentry.captureException(consentError);
       }

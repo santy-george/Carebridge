@@ -168,7 +168,13 @@ describe('Signup', () => {
 
     await waitFor(() => {
       expect(supabase.from).toHaveBeenCalledWith('consents');
-      expect(insertMock).toHaveBeenCalledWith({ user_id: 'user-1', event: 'given' });
+      // subject_email is the denormalized snapshot that keeps this audit row
+      // identifiable after consents.user_id is nulled by an account erasure.
+      expect(insertMock).toHaveBeenCalledWith({
+        user_id: 'user-1',
+        event: 'given',
+        subject_email: 'new-user@example.com',
+      });
     });
     expect(mockNavigate).toHaveBeenCalledWith('/link-member');
   });

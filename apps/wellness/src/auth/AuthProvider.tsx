@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
 import { capacitorPreferencesStorage } from '../lib/storage-adapter';
 
@@ -9,6 +10,13 @@ export interface MemberLink {
   isSelf: boolean;
 }
 
+// 'unknown' is a distinct sentinel for "the consent_status fetch itself
+// failed", kept separate from null ("no profile row exists"). Route guards
+// must fail CLOSED on 'unknown': collapsing a transient fetch error into
+// null previously granted full app access to a user whose withdrawal may
+// actually be pending.
+export type ConsentStatus = 'active' | 'withdrawal_pending' | 'unknown' | null;
+
 export interface AuthContextValue {
   session: Session | null;
   loading: boolean;
@@ -17,7 +25,7 @@ export interface AuthContextValue {
   selectedMemberId: string | null;
   selectMember: (memberId: string) => void;
   refreshMemberLinks: () => Promise<void>;
-  consentStatus: 'active' | 'withdrawal_pending' | null;
+  consentStatus: ConsentStatus;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -42,13 +50,20 @@ async function fetchMemberLinks(userId: string): Promise<MemberLink[]> {
   }));
 }
 
-async function fetchConsentStatus(userId: string): Promise<'active' | 'withdrawal_pending' | null> {
+async function fetchConsentStatus(userId: string): Promise<ConsentStatus> {
   const { data, error } = await supabase
     .from('profiles')
     .select('consent_status')
     .eq('id', userId)
     .maybeSingle();
-  if (error || !data) return null;
+  // A failed query and a genuinely missing profile row are NOT the same
+  // thing. 'unknown' is what makes RequireAuth fail closed instead of open.
+  if (error) {
+    console.error('Failed to fetch consent_status:', error);
+    Sentry.captureException(error);
+    return 'unknown';
+  }
+  if (!data) return null;
   return data.consent_status as 'active' | 'withdrawal_pending';
 }
 
@@ -80,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [linksLoaded, setLinksLoaded] = useState(false);
   const [memberLinks, setMemberLinks] = useState<MemberLink[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-  const [consentStatus, setConsentStatus] = useState<'active' | 'withdrawal_pending' | null>(null);
+  const [consentStatus, setConsentStatus] = useState<ConsentStatus>(null);
 
   useEffect(() => {
     let isMounted = true;

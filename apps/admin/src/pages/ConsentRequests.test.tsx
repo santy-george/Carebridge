@@ -12,6 +12,16 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
+interface HistoryConsentRow {
+  id: string;
+  user_id: string;
+  member_id: string | null;
+  event: string;
+  scope: string | null;
+  created_at: string;
+  members: { full_name: string } | null;
+}
+
 function mockQueries({
   pendingProfiles = [] as Array<{ id: string; full_name: string | null; email: string | null }>,
   requestedConsents = [] as Array<{
@@ -21,15 +31,8 @@ function mockQueries({
     created_at: string;
     members: { full_name: string } | null;
   }>,
-  historyConsents = [] as Array<{
-    id: string;
-    user_id: string;
-    member_id: string | null;
-    event: string;
-    scope: string | null;
-    created_at: string;
-    members: { full_name: string } | null;
-  }>,
+  verifiedConsents = [] as HistoryConsentRow[],
+  reactivatedConsents = [] as HistoryConsentRow[],
 } = {}) {
   vi.mocked(supabase.from).mockImplementation((table: string) => {
     if (table === 'profiles') {
@@ -42,23 +45,32 @@ function mockQueries({
     if (table === 'consents') {
       return {
         select: () => ({
-          eq: (col: string) => {
-            if (col === 'event') {
+          eq: (col: string, value: string) => {
+            if (col === 'event' && value === 'withdrawal_requested') {
               return {
                 in: () => ({
                   order: () => Promise.resolve({ data: requestedConsents, error: null }),
                 }),
-                order: () => Promise.resolve({ data: historyConsents, error: null }),
               };
             }
-            return { order: () => Promise.resolve({ data: [], error: null }) };
+            if (col === 'event' && value === 'withdrawal_verified') {
+              return {
+                order: () => ({
+                  limit: () => Promise.resolve({ data: verifiedConsents, error: null }),
+                }),
+              };
+            }
+            if (col === 'event' && value === 'given') {
+              return {
+                not: () => ({
+                  order: () => ({
+                    limit: () => Promise.resolve({ data: reactivatedConsents, error: null }),
+                  }),
+                }),
+              };
+            }
+            throw new Error(`unexpected eq in test: ${col}=${value}`);
           },
-          in: () => ({
-            order: () => Promise.resolve({ data: requestedConsents, error: null }),
-          }),
-          order: () => ({
-            limit: () => Promise.resolve({ data: historyConsents, error: null }),
-          }),
         }),
       } as never;
     }
@@ -154,5 +166,48 @@ describe('ConsentRequests', () => {
         body: { member_id: 'member-1', requester_user_id: 'user-1', scope: 'all' },
       });
     });
+  });
+
+  it('merges verified-erasure and reactivated-given history from separate queries, most recent first', async () => {
+    mockQueries({
+      verifiedConsents: [
+        {
+          id: 'consent-erased',
+          user_id: 'user-2',
+          member_id: 'member-2',
+          event: 'withdrawal_verified',
+          scope: 'all',
+          created_at: '2026-08-09T09:00:00Z',
+          members: { full_name: 'Erased Member' },
+        },
+      ],
+      reactivatedConsents: [
+        {
+          id: 'consent-reactivated',
+          user_id: 'user-3',
+          member_id: 'member-3',
+          event: 'given',
+          scope: 'all',
+          created_at: '2026-08-10T09:00:00Z',
+          members: { full_name: 'Reactivated Member' },
+        },
+      ],
+    });
+
+    render(<ConsentRequests />);
+
+    const reactivatedCell = await screen.findByText('Reactivated Member');
+    const erasedCell = await screen.findByText('Erased Member');
+
+    expect(screen.getByText('Reactivated')).toBeInTheDocument();
+    expect(screen.getByText('Erased')).toBeInTheDocument();
+
+    // Most recent first: the 'given' row (2026-08-10) comes before the 'withdrawal_verified' row (2026-08-09).
+    const reactivatedRow = reactivatedCell.closest('tr');
+    const erasedRow = erasedCell.closest('tr');
+    const rows = Array.from(document.querySelectorAll('tbody tr'));
+    expect(rows.indexOf(reactivatedRow as HTMLTableRowElement)).toBeLessThan(
+      rows.indexOf(erasedRow as HTMLTableRowElement),
+    );
   });
 });

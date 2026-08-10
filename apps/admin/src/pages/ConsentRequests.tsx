@@ -68,7 +68,7 @@ export function ConsentRequests() {
       }
 
       const pendingIds = pendingProfiles.map((p) => p.id);
-      const [requestedResult, resolvedResult] = await Promise.all([
+      const [requestedResult, verifiedResult, reactivatedResult] = await Promise.all([
         pendingIds.length > 0
           ? supabase
               .from('consents')
@@ -80,6 +80,14 @@ export function ConsentRequests() {
         supabase
           .from('consents')
           .select('id, user_id, member_id, event, scope, created_at, members(full_name)')
+          .eq('event', 'withdrawal_verified')
+          .order('created_at', { ascending: false })
+          .limit(100),
+        supabase
+          .from('consents')
+          .select('id, user_id, member_id, event, scope, created_at, members(full_name)')
+          .eq('event', 'given')
+          .not('member_id', 'is', null)
           .order('created_at', { ascending: false })
           .limit(100),
       ]);
@@ -88,7 +96,10 @@ export function ConsentRequests() {
       setLoading(false);
 
       const requested = (requestedResult.data ?? []) as RequestedConsentRow[];
-      const resolved = (resolvedResult.data ?? []) as ResolvedConsentRow[];
+      const resolved = [
+        ...((verifiedResult.data ?? []) as ResolvedConsentRow[]),
+        ...((reactivatedResult.data ?? []) as ResolvedConsentRow[]),
+      ];
 
       const nameByProfileId = new Map(pendingProfiles.map((p) => [p.id, p]));
       const latestRequestByUser = new Map<string, RequestedConsentRow>();
@@ -115,15 +126,13 @@ export function ConsentRequests() {
         ];
       });
 
-      const historyRows: HistoryRow[] = resolved
-        .filter((row) => row.event === 'withdrawal_verified' || (row.event === 'given' && row.member_id))
-        .map((row) => ({
-          id: row.id,
-          resolved_at: row.created_at,
-          requester_name: 'requester',
-          member_name: row.members?.full_name ?? 'Unknown member',
-          outcome: row.event === 'withdrawal_verified' ? 'erased' : 'reactivated',
-        }));
+      const historyRows: HistoryRow[] = resolved.map((row) => ({
+        id: row.id,
+        resolved_at: row.created_at,
+        requester_name: 'requester',
+        member_name: row.members?.full_name ?? 'Unknown member',
+        outcome: row.event === 'withdrawal_verified' ? 'erased' : 'reactivated',
+      }));
 
       setPending(sortPending(pendingRows));
       setHistory(sortHistoryRows(historyRows));

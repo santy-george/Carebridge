@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as Sentry from '@sentry/react';
 import { Signup } from './Signup';
 import { supabase } from '../lib/supabase';
 
@@ -10,7 +11,12 @@ vi.mock('../lib/supabase', () => ({
     auth: {
       signUp: vi.fn(),
     },
+    from: vi.fn(),
   },
+}));
+
+vi.mock('@sentry/react', () => ({
+  captureException: vi.fn(),
 }));
 
 const mockNavigate = vi.fn();
@@ -29,6 +35,8 @@ describe('Signup', () => {
       data: { user: { id: 'user-1', identities: [{ id: 'identity-1' }] } },
       error: null,
     } as never);
+    const insertMock = vi.fn().mockResolvedValue({ error: null });
+    vi.mocked(supabase.from).mockReturnValue({ insert: insertMock } as never);
     const user = userEvent.setup();
 
     render(
@@ -39,6 +47,7 @@ describe('Signup', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'new-user@example.com');
     await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
     await user.click(screen.getByRole('button', { name: /sign up/i }));
 
     await waitFor(() => {
@@ -70,6 +79,7 @@ describe('Signup', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'existing@example.com');
     await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
     await user.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/account already exists/i);
@@ -91,6 +101,7 @@ describe('Signup', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'existing@example.com');
     await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
     await user.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/account already exists/i);
@@ -112,9 +123,81 @@ describe('Signup', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'new-user@example.com');
     await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
     await user.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/something went wrong/i);
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('disables the submit button until the consent checkbox is checked', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Signup />
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText(/email/i), 'new-user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'secret123');
+    expect(screen.getByRole('button', { name: /sign up/i })).toBeDisabled();
+
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
+    expect(screen.getByRole('button', { name: /sign up/i })).not.toBeDisabled();
+  });
+
+  it('logs a consent-given event after a successful signup', async () => {
+    vi.mocked(supabase.auth.signUp).mockResolvedValue({
+      data: { user: { id: 'user-1', identities: [{ id: 'identity-1' }] } },
+      error: null,
+    } as never);
+    const insertMock = vi.fn().mockResolvedValue({ error: null });
+    vi.mocked(supabase.from).mockReturnValue({ insert: insertMock } as never);
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <Signup />
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText(/email/i), 'new-user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
+    await user.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith('consents');
+      expect(insertMock).toHaveBeenCalledWith({ user_id: 'user-1', event: 'given' });
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('/link-member');
+  });
+
+  it('still navigates to /link-member and reports to Sentry if the consent-log insert fails', async () => {
+    vi.mocked(supabase.auth.signUp).mockResolvedValue({
+      data: { user: { id: 'user-1', identities: [{ id: 'identity-1' }] } },
+      error: null,
+    } as never);
+    const consentError = { message: 'insert failed' };
+    vi.mocked(supabase.from).mockReturnValue({
+      insert: vi.fn().mockResolvedValue({ error: consentError }),
+    } as never);
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <Signup />
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText(/email/i), 'new-user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'secret123');
+    await user.click(screen.getByLabelText(/i agree to care bridge home/i));
+    await user.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/link-member');
+    });
+    expect(Sentry.captureException).toHaveBeenCalledWith(consentError);
   });
 });

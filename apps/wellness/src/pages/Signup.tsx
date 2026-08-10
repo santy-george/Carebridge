@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
 
 export function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [consentChecked, setConsentChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -46,6 +48,18 @@ export function Signup() {
       return;
     }
 
+    // Log the consent event given at this exact moment. If this write
+    // fails, don't strand a successfully created account -- report to
+    // Sentry and let signup proceed regardless.
+    if (data.user) {
+      const { error: consentError } = await supabase
+        .from('consents')
+        .insert({ user_id: data.user.id, event: 'given' });
+      if (consentError) {
+        Sentry.captureException(consentError);
+      }
+    }
+
     navigate('/link-member');
   };
 
@@ -83,12 +97,35 @@ export function Signup() {
             minLength={6}
           />
         </div>
+        <div className="field field--full">
+          <p style={{ fontSize: '13px', marginBottom: '8px' }}>
+            Care Bridge Home will collect and use your name, contact details, medical
+            information, vitals, medications, and location during SOS alerts to coordinate your
+            home care. This is visible to your linked family members and assigned care
+            coordinator.
+          </p>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={consentChecked}
+              onChange={(event) => setConsentChecked(event.target.checked)}
+            />
+            <span>
+              I agree to Care Bridge Home collecting and using this health and care-coordination
+              data as described above.
+            </span>
+          </label>
+        </div>
         {error && (
           <p className="form-error" role="alert">
             {error}
           </p>
         )}
-        <button className="mbtn mbtn--fill mbtn--block" type="submit" disabled={submitting}>
+        <button
+          className="mbtn mbtn--fill mbtn--block"
+          type="submit"
+          disabled={submitting || !consentChecked}
+        >
           {submitting ? 'Creating account…' : 'Sign up'}
         </button>
       </form>

@@ -18,8 +18,8 @@ function ConsentPendingScreen() {
     >
       <h2>Withdrawal request received</h2>
       <p style={{ maxWidth: '280px', margin: '0 auto' }}>
-        Your coordinator will contact you to confirm this wasn&apos;t accidental before anything
-        is removed.
+        Your coordinator will contact you to confirm this wasn&apos;t accidental before anything is
+        removed.
       </p>
       <button
         type="button"

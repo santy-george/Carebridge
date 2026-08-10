@@ -49,8 +49,8 @@ export function WithdrawConsent() {
 
       <div className="vbody has-cta">
         <p>
-          Withdrawing consent stops Care Bridge Home and your care team from receiving your
-          health updates.
+          Withdrawing consent stops Care Bridge Home and your care team from receiving your health
+          updates.
           {isSelf &&
             ' Because this is your own record, it also pauses monitoring for anyone linked to your account.'}{' '}
           This can&apos;t be undone in the app — you&apos;d need to contact your coordinator to

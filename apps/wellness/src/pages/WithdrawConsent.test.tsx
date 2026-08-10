@@ -90,7 +90,9 @@ describe('WithdrawConsent', () => {
         <WithdrawConsent />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/pauses monitoring for anyone linked to your account/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/pauses monitoring for anyone linked to your account/i),
+    ).toBeInTheDocument();
   });
 
   it('does not show the family-monitoring warning for a non-self linked account', () => {

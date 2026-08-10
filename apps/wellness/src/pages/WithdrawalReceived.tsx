@@ -8,8 +8,8 @@ export function WithdrawalReceived() {
     >
       <h2>Request received</h2>
       <p style={{ maxWidth: '280px', margin: '0 auto' }}>
-        You&apos;ve been signed out. Your coordinator will contact you to confirm this
-        wasn&apos;t accidental before anything is removed.
+        You&apos;ve been signed out. Your coordinator will contact you to confirm this wasn&apos;t
+        accidental before anything is removed.
       </p>
       <Link to="/login">
         <button

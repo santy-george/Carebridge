@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { scopeLabel, sortHistoryRows, sortPending, type ConsentScope } from '../lib/consentRequests';
+import {
+  scopeLabel,
+  sortHistoryRows,
+  sortPending,
+  type ConsentScope,
+} from '../lib/consentRequests';
 
 interface PendingRow {
   user_id: string;
@@ -230,9 +235,7 @@ export function ConsentRequests() {
 
                 {eraseTargetUserId === row.user_id ? (
                   <div className="field field--full" style={{ marginTop: '8px' }}>
-                    <label htmlFor={`erase-confirm-${row.user_id}`}>
-                      Type WITHDRAW to confirm
-                    </label>
+                    <label htmlFor={`erase-confirm-${row.user_id}`}>Type WITHDRAW to confirm</label>
                     <input
                       id={`erase-confirm-${row.user_id}`}
                       type="text"

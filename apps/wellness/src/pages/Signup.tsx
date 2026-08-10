@@ -99,10 +99,9 @@ export function Signup() {
         </div>
         <div className="field field--full">
           <p style={{ fontSize: '13px', marginBottom: '8px' }}>
-            Care Bridge Home will collect and use your name, contact details, medical
-            information, vitals, medications, and location during SOS alerts to coordinate your
-            home care. This is visible to your linked family members and assigned care
-            coordinator.
+            Care Bridge Home will collect and use your name, contact details, medical information,
+            vitals, medications, and location during SOS alerts to coordinate your home care. This
+            is visible to your linked family members and assigned care coordinator.
           </p>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
             <input

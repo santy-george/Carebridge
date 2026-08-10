@@ -34,7 +34,9 @@ describe('sanitizeEvent', () => {
 
   it('strips Authorization and Cookie request headers', () => {
     const event = {
-      request: { headers: { Authorization: 'Bearer x', Cookie: 'session=y', 'User-Agent': 'test' } },
+      request: {
+        headers: { Authorization: 'Bearer x', Cookie: 'session=y', 'User-Agent': 'test' },
+      },
     };
     expect(sanitizeEvent(event).request?.headers).toEqual({ 'User-Agent': 'test' });
   });

@@ -207,30 +207,42 @@ export type Database = {
       }
       consents: {
         Row: {
+          actor_email: string | null
+          actor_user_id: string | null
           created_at: string
           event: Database["public"]["Enums"]["consent_event"]
           id: string
           member_id: string | null
+          member_name_snapshot: string | null
           policy_version: string
           scope: Database["public"]["Enums"]["consent_scope"] | null
+          subject_email: string | null
           user_id: string | null
         }
         Insert: {
+          actor_email?: string | null
+          actor_user_id?: string | null
           created_at?: string
           event: Database["public"]["Enums"]["consent_event"]
           id?: string
           member_id?: string | null
+          member_name_snapshot?: string | null
           policy_version?: string
           scope?: Database["public"]["Enums"]["consent_scope"] | null
+          subject_email?: string | null
           user_id?: string | null
         }
         Update: {
+          actor_email?: string | null
+          actor_user_id?: string | null
           created_at?: string
           event?: Database["public"]["Enums"]["consent_event"]
           id?: string
           member_id?: string | null
+          member_name_snapshot?: string | null
           policy_version?: string
           scope?: Database["public"]["Enums"]["consent_scope"] | null
+          subject_email?: string | null
           user_id?: string | null
         }
         Relationships: [

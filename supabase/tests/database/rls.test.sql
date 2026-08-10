@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(43);
+select plan(59);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -218,9 +218,28 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
 
-select lives_ok(
+-- === Final-review finding 5: direct client inserts must have member_id null ===
+-- Previously this insert was ALLOWED (the policy permitted 'given' + a
+-- member_id the caller owns). No legitimate direct-client caller ever does
+-- that -- Signup.tsx inserts member_id-less rows, and reactivate_consent() is
+-- SECURITY DEFINER and bypasses this policy -- while it let any linked user
+-- forge a row indistinguishable from a genuine coordinator reactivation.
+select throws_ok(
   $$ insert into public.consents (user_id, member_id, event) values ('a0000000-0000-0000-0000-00000000000a', 'aa000000-0000-0000-0000-00000000aaaa', 'given') $$,
-  'Member A can insert their own consent-given event'
+  '42501',
+  null,
+  'Member A cannot insert a ''given'' consents row WITH a member_id even for a member they own -- direct client inserts are now unconditionally restricted to member_id is null'
+);
+
+select lives_ok(
+  $$ insert into public.consents (user_id, event, subject_email) values ('a0000000-0000-0000-0000-00000000000a', 'given', 'rls-test-member-a@carebridgehome.test') $$,
+  'Member A can still insert the signup-shaped consent-given event (member_id null) with a subject_email snapshot'
+);
+
+select is(
+  (select subject_email from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'given' and member_id is null),
+  'rls-test-member-a@carebridgehome.test',
+  'The signup-shaped ''given'' row carries the subject_email snapshot that survives the account''s own deletion'
 );
 
 select throws_ok(
@@ -275,6 +294,20 @@ select is(
   (select count(*)::int from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested' and scope = 'self'),
   1,
   'request_consent_withdrawal logged a withdrawal_requested/self row for Member A'
+);
+
+-- === Final-review finding 2: the audit row must carry identity of its own,
+-- not just FKs that get nulled out by the erasure it records ===
+select is(
+  (select subject_email from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested'),
+  'rls-test-member-a@carebridgehome.test',
+  'request_consent_withdrawal snapshots the requester''s email onto the audit row'
+);
+
+select is(
+  (select member_name_snapshot from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested'),
+  'RLS Test Member A',
+  'request_consent_withdrawal snapshots the member''s name onto the audit row'
 );
 
 select lives_ok(
@@ -336,6 +369,34 @@ select is(
   'reactivate_consent moved Member A''s profile back to active'
 );
 
+-- reactivate_consent is SECURITY DEFINER, so the tightened member_id-must-be-
+-- null insert policy above does not apply to it: it still writes the
+-- 'given' + member_id row that Admin's History reads, and now stamps the
+-- acting coordinator onto it.
+select is(
+  (select count(*)::int from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'given' and member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'reactivate_consent (SECURITY DEFINER) still writes a ''given'' row WITH a member_id, unaffected by the tightened direct-insert policy'
+);
+
+select is(
+  (select actor_user_id from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'given' and member_id is not null),
+  'c0000000-0000-0000-0000-00000000000c'::uuid,
+  'reactivate_consent records which coordinator performed the reactivation (actor_user_id)'
+);
+
+select is(
+  (select actor_email from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'given' and member_id is not null),
+  'rls-test-coordinator@carebridgehome.test',
+  'reactivate_consent records the acting coordinator''s email, which survives even that coordinator''s account being deleted'
+);
+
+select is(
+  (select member_name_snapshot from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'given' and member_id is not null),
+  'RLS Test Member A',
+  'reactivate_consent snapshots the member name onto the reactivation row too'
+);
+
 -- === Simulate a non-coordinator trying to reactivate someone else's consent ===
 reset role;
 set local role authenticated;
@@ -377,6 +438,99 @@ select is(
   (select user_id from public.consents where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and event = 'withdrawal_verified'),
   null::uuid,
   'consents.user_id is set to null (not cascade-deleted) after the referenced auth.users row is deleted -- ON DELETE SET NULL, mirroring member_id'
+);
+
+-- === Final-review finding 2 (Critical): a full scope:'all' erasure must not
+-- leave an anonymous audit row ===
+--
+-- Both consents FKs are `on delete set null`, which is what keeps the row
+-- alive -- but it also means that after a scope:'all' erasure (members row
+-- deleted AND every linked auth.users row deleted) the surviving
+-- withdrawal_verified row would have NO identifying information at all: only
+-- id, event, scope, policy_version, created_at. DPDP needs provable "we
+-- erased X's data, verified by coordinator Y, at time T". The four snapshot
+-- columns added in 20260810150000_consent_audit_snapshot_columns.sql are
+-- plain text with no FK, so nothing ever nulls them. This block reproduces
+-- the exact erasure the Edge Function performs and proves that.
+reset role;
+
+insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
+values ('f0000000-0000-0000-0000-00000000000f', 'rls-test-erase-all-subject@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+
+insert into public.members (id, full_name, care_model)
+values ('ff000000-0000-0000-0000-00000000ffff', 'RLS Test Erased Member', 'self_care');
+
+insert into public.member_links (member_id, user_id, relationship_label, is_self)
+values ('ff000000-0000-0000-0000-00000000ffff', 'f0000000-0000-0000-0000-00000000000f', 'Self', true);
+
+-- Exactly the insert the Edge Function performs, with the snapshots captured
+-- BEFORE any deletion.
+insert into public.consents (user_id, member_id, event, scope, subject_email, member_name_snapshot, actor_user_id, actor_email)
+values (
+  'f0000000-0000-0000-0000-00000000000f',
+  'ff000000-0000-0000-0000-00000000ffff',
+  'withdrawal_verified',
+  'all',
+  'rls-test-erase-all-subject@carebridgehome.test',
+  'RLS Test Erased Member',
+  'c0000000-0000-0000-0000-00000000000c',
+  'rls-test-coordinator@carebridgehome.test'
+);
+
+-- The erasure itself: member row (cascading every clinical/operational table)
+-- then every linked auth.users login.
+delete from public.members where id = 'ff000000-0000-0000-0000-00000000ffff';
+delete from auth.users where id = 'f0000000-0000-0000-0000-00000000000f';
+
+select is(
+  (select count(*)::int from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  1,
+  'The withdrawal_verified row survives a full scope:''all'' erasure (both the members row and the linked auth.users row deleted)'
+);
+
+select is(
+  (select user_id from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  null::uuid,
+  'Its user_id FK is nulled by the erasure, as designed'
+);
+
+select is(
+  (select member_id from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  null::uuid,
+  'Its member_id FK is nulled by the erasure, as designed'
+);
+
+select is(
+  (select member_name_snapshot from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  'RLS Test Erased Member',
+  'member_name_snapshot is still readable after the members row is gone -- plain text, no FK to null out'
+);
+
+select is(
+  (select actor_email from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  'rls-test-coordinator@carebridgehome.test',
+  'actor_email records which coordinator verified the erasure, and is still readable afterwards'
+);
+
+select is(
+  (select actor_user_id from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  'c0000000-0000-0000-0000-00000000000c'::uuid,
+  'actor_user_id still points at the coordinator while that account exists'
+);
+
+-- ...and the actor identity outlives the coordinator's own account too.
+delete from auth.users where id = 'c0000000-0000-0000-0000-00000000000c';
+
+select is(
+  (select actor_user_id from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  null::uuid,
+  'actor_user_id is nulled if the coordinator''s account is later deleted (on delete set null, not cascade -- the row is not destroyed)'
+);
+
+select is(
+  (select actor_email from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
+  'rls-test-coordinator@carebridgehome.test',
+  'actor_email still identifies who verified the erasure even after that coordinator''s account is deleted -- the whole point of the denormalized snapshot'
 );
 
 -- === Simulate no session at all (anon) ===

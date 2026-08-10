@@ -22,6 +22,8 @@ import { Reports } from './pages/Reports';
 import { Education } from './pages/Education';
 import { PreventivePlan } from './pages/PreventivePlan';
 import { More } from './pages/More';
+import { WithdrawConsent } from './pages/WithdrawConsent';
+import { WithdrawalReceived } from './pages/WithdrawalReceived';
 import { AppShell } from './shell/AppShell';
 
 createRoot(document.getElementById('root')!).render(
@@ -29,6 +31,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/consent-withdrawn" element={<WithdrawalReceived />} />
           <Route element={<RedirectIfAuthenticated />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -49,6 +52,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/reports" element={<Reports />} />
               <Route path="/education" element={<Education />} />
               <Route path="/preventive-plan" element={<PreventivePlan />} />
+              <Route path="/withdraw-consent" element={<WithdrawConsent />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

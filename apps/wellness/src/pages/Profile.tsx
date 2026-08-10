@@ -194,6 +194,12 @@ export function Profile() {
         </button>
       </Link>
 
+      <div className="card" style={{ marginTop: '24px' }}>
+        <Link to="/withdraw-consent" style={{ color: 'var(--danger)', fontSize: '13px' }}>
+          Withdraw consent
+        </Link>
+      </div>
+
       <div className={`scrim${sheetOpen ? ' show' : ''}`} onClick={() => setSheetOpen(false)} />
       <div className={`sheet${sheetOpen ? ' show' : ''}`}>
         <div className="sheet__grip" />

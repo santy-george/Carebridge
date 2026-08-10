@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(34);
+select plan(41);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -189,6 +189,30 @@ select throws_ok(
   'redeem_invite_code rejects an already-used code'
 );
 
+-- === Finding 1 (task-1 review): ownership check on withdrawal requests ===
+-- The family "Son" user (d) is now linked to Member A (via the invite code
+-- just redeemed above) but has no member_links row for Member B at all --
+-- exactly the "no relationship to this member" case the fix must reject.
+select throws_ok(
+  $$ select public.request_consent_withdrawal('bb000000-0000-0000-0000-00000000bbbb', 'self') $$,
+  'P0001',
+  'not_linked_to_member',
+  'A user with no member_links to Member B cannot call request_consent_withdrawal for Member B'
+);
+
+select throws_ok(
+  $$ insert into public.consents (user_id, member_id, event) values ('d0000000-0000-0000-0000-00000000000d', 'bb000000-0000-0000-0000-00000000bbbb', 'given') $$,
+  '42501',
+  null,
+  'A user with no member_links to Member B cannot insert a forged ''given'' consents row for Member B either'
+);
+
+select is(
+  (select count(*)::int from public.consents where member_id = 'bb000000-0000-0000-0000-00000000bbbb'),
+  0,
+  'Neither the rejected request_consent_withdrawal call nor the rejected insert left any row on Member B''s consent history'
+);
+
 -- === Simulate consent tracking: Member A gives consent, then requests withdrawal ===
 reset role;
 set local role authenticated;
@@ -204,6 +228,36 @@ select throws_ok(
   '42501',
   null,
   'Member A cannot insert a withdrawal_requested event directly -- only event=''given'' is allowed via direct client insert'
+);
+
+-- === Finding 2 (task-1 review): profiles.consent_status locked down ===
+-- consent_status must only move via request_consent_withdrawal() /
+-- reactivate_consent() (both SECURITY DEFINER, bypass RLS), never a
+-- direct client UPDATE -- even though the caller is updating their own
+-- row, which the broad "profile owner updates own profile" policy would
+-- otherwise allow in full.
+select throws_ok(
+  $$ update public.profiles set consent_status = 'withdrawal_pending' where id = 'a0000000-0000-0000-0000-00000000000a' $$,
+  '42501',
+  null,
+  'Member A cannot directly UPDATE their own consent_status column -- RLS WITH CHECK rejects the row'
+);
+
+select is(
+  (select consent_status from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'active',
+  'consent_status on Member A remains unchanged (active) after the rejected direct-UPDATE attempt'
+);
+
+select lives_ok(
+  $$ update public.profiles set full_name = 'Test A Renamed' where id = 'a0000000-0000-0000-0000-00000000000a' $$,
+  'Member A can still directly update other profile fields (full_name) -- the column lockdown is scoped to consent_status only'
+);
+
+select is(
+  (select full_name from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'Test A Renamed',
+  'The full_name update by Member A actually applied'
 );
 
 select lives_ok(

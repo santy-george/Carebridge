@@ -19,6 +19,7 @@ export function AdminShell() {
               <Link to="/">SOS Alerts</Link>
               <Link to="/members">Members</Link>
               <Link to="/leads">Leads</Link>
+              <Link to="/consent-requests">Consent Requests</Link>
             </nav>
           </div>
           <div className="topbar__actions">

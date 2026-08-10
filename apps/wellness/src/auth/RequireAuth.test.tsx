@@ -5,6 +5,11 @@ import { useAuth } from './useAuth';
 import { RedirectIfAuthenticated, RequireAuth, RequireSession } from './RequireAuth';
 
 vi.mock('./useAuth', () => ({ useAuth: vi.fn() }));
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: { signOut: vi.fn() },
+  },
+}));
 
 function renderGuard(guard: React.ReactElement, initialPath: string) {
   return render(

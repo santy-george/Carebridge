@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(20);
+select plan(34);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -187,6 +187,111 @@ select throws_ok(
   'P0001',
   'invalid_or_expired_code',
   'redeem_invite_code rejects an already-used code'
+);
+
+-- === Simulate consent tracking: Member A gives consent, then requests withdrawal ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
+
+select lives_ok(
+  $$ insert into public.consents (user_id, member_id, event) values ('a0000000-0000-0000-0000-00000000000a', 'aa000000-0000-0000-0000-00000000aaaa', 'given') $$,
+  'Member A can insert their own consent-given event'
+);
+
+select throws_ok(
+  $$ insert into public.consents (user_id, member_id, event, scope) values ('a0000000-0000-0000-0000-00000000000a', 'aa000000-0000-0000-0000-00000000aaaa', 'withdrawal_requested', 'self') $$,
+  '42501',
+  null,
+  'Member A cannot insert a withdrawal_requested event directly -- only event=''given'' is allowed via direct client insert'
+);
+
+select lives_ok(
+  $$ select public.request_consent_withdrawal('aa000000-0000-0000-0000-00000000aaaa', 'self') $$,
+  'Member A can call request_consent_withdrawal for their own member record'
+);
+
+select is(
+  (select consent_status from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'withdrawal_pending',
+  'request_consent_withdrawal moved Member A''s profile to withdrawal_pending'
+);
+
+select is(
+  (select count(*)::int from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested' and scope = 'self'),
+  1,
+  'request_consent_withdrawal logged a withdrawal_requested/self row for Member A'
+);
+
+select lives_ok(
+  $$ update public.consents set scope = 'all' where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested' $$,
+  'An UPDATE statement against consents does not itself error (no policy just means it matches zero rows)'
+);
+
+select is(
+  (select scope::text from public.consents where user_id = 'a0000000-0000-0000-0000-00000000000a' and event = 'withdrawal_requested'),
+  'self',
+  'The consents row is unchanged after the UPDATE attempt -- no update policy exists, so RLS silently filters it to zero affected rows (immutable audit log)'
+);
+
+select is(
+  (select count(*)::int from public.consents where user_id = 'b0000000-0000-0000-0000-00000000000b'),
+  0,
+  'Member A gets zero rows querying Member B''s consent history (RLS filters silently)'
+);
+
+-- Member B requests withdrawal too, so the coordinator visibility check
+-- below has a real member-without-assignment case to prove against.
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'b0000000-0000-0000-0000-00000000000b')::text, true);
+
+select lives_ok(
+  $$ select public.request_consent_withdrawal('bb000000-0000-0000-0000-00000000bbbb', 'all') $$,
+  'Member B (self-linked to Member B) can also request withdrawal for their own record'
+);
+
+-- === Simulate the assigned coordinator's session again, after both withdrawal requests ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-0000-0000-00000000000c')::text, true);
+
+select is(
+  (select count(*)::int from public.consents where user_id in ('a0000000-0000-0000-0000-00000000000a', 'b0000000-0000-0000-0000-00000000000b')),
+  3,
+  'Coordinator reads all consent history regardless of assignment -- Member A''s given + withdrawal_requested rows, plus Member B''s withdrawal_requested row'
+);
+
+select is(
+  (
+    select array_agg(id order by id) from public.members
+    where id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')
+  ),
+  array['aa000000-0000-0000-0000-00000000aaaa'::uuid, 'bb000000-0000-0000-0000-00000000bbbb'::uuid],
+  'The assigned coordinator now also sees Member B (not their assignment) because Member B has a withdrawal_requested consents row -- the narrow coordinator-reads-member-with-withdrawal-request policy'
+);
+
+select lives_ok(
+  $$ select public.reactivate_consent('a0000000-0000-0000-0000-00000000000a', 'aa000000-0000-0000-0000-00000000aaaa') $$,
+  'The coordinator can reactivate Member A''s consent (false-alarm path)'
+);
+
+select is(
+  (select consent_status from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'active',
+  'reactivate_consent moved Member A''s profile back to active'
+);
+
+-- === Simulate a non-coordinator trying to reactivate someone else's consent ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'd0000000-0000-0000-0000-00000000000d')::text, true);
+
+select throws_ok(
+  $$ select public.reactivate_consent('b0000000-0000-0000-0000-00000000000b', 'bb000000-0000-0000-0000-00000000bbbb') $$,
+  '42501',
+  'only coordinators can reactivate consent',
+  'A non-coordinator (the family "Son" user) cannot reactivate someone else''s consent'
 );
 
 -- === Simulate no session at all (anon) ===

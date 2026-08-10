@@ -17,6 +17,7 @@ export interface AuthContextValue {
   selectedMemberId: string | null;
   selectMember: (memberId: string) => void;
   refreshMemberLinks: () => Promise<void>;
+  consentStatus: 'active' | 'withdrawal_pending' | null;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -39,6 +40,16 @@ async function fetchMemberLinks(userId: string): Promise<MemberLink[]> {
     relationshipLabel: row.relationship_label,
     isSelf: row.is_self,
   }));
+}
+
+async function fetchConsentStatus(userId: string): Promise<'active' | 'withdrawal_pending' | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('consent_status')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data.consent_status as 'active' | 'withdrawal_pending';
 }
 
 function preferredMemberId(links: MemberLink[]): string | null {
@@ -69,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [linksLoaded, setLinksLoaded] = useState(false);
   const [memberLinks, setMemberLinks] = useState<MemberLink[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [consentStatus, setConsentStatus] = useState<'active' | 'withdrawal_pending' | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,13 +92,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!newSession) {
         setMemberLinks([]);
         setSelectedMemberId(null);
+        setConsentStatus(null);
         setLinksLoaded(true);
         return;
       }
 
       setLinksLoaded(false);
-      const links = await fetchMemberLinks(newSession.user.id);
+      const [links, status] = await Promise.all([
+        fetchMemberLinks(newSession.user.id),
+        fetchConsentStatus(newSession.user.id),
+      ]);
       if (!isMounted) return;
+      setConsentStatus(status);
 
       let storedMemberId: string | null = null;
       try {
@@ -150,6 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         selectedMemberId,
         selectMember,
         refreshMemberLinks,
+        consentStatus,
       }}
     >
       {children}

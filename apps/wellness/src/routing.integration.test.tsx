@@ -159,13 +159,31 @@ describe('auth routing integration (finding 1 regression)', () => {
     });
 
     const fakeSession = { user: { id: 'user-2' } };
-    vi.mocked(supabase.from).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          order: () => Promise.resolve({ data: [], error: null }),
-        }),
-      }),
-    } as never);
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'member_links') {
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => Promise.resolve({ data: [], error: null }),
+            }),
+          }),
+        } as never;
+      }
+      // AppShell/Home's other data fetches and the profiles consent_status
+      // fetch: a generic chainable + thenable builder resolving immediately
+      // with empty/null data regardless of which methods get chained.
+      const builder = {
+        select: () => builder,
+        eq: () => builder,
+        in: () => builder,
+        order: () => builder,
+        limit: () => builder,
+        maybeSingle: () => builder,
+        then: (resolve: (v: { data: unknown; error: unknown }) => void) =>
+          resolve({ data: null, error: null }),
+      };
+      return builder as never;
+    });
 
     vi.mocked(supabase.auth.signInWithPassword).mockImplementation(async () => {
       authChangeCallback('SIGNED_IN', fakeSession);

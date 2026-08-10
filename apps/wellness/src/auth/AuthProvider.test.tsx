@@ -37,20 +37,39 @@ function mockAuthStateChange() {
   };
 }
 
-function mockMemberLinksQuery(
-  rows: Array<{ member_id: string; relationship_label: string; is_self: boolean }>,
+function mockSupabaseQueries(
+  memberLinkRows: Array<{ member_id: string; relationship_label: string; is_self: boolean }>,
+  consentStatus: string | null,
 ) {
-  vi.mocked(supabase.from).mockReturnValue({
-    select: () => ({
-      eq: () => ({
-        order: () => Promise.resolve({ data: rows, error: null }),
-      }),
-    }),
-  } as never);
+  vi.mocked(supabase.from).mockImplementation((table: string) => {
+    if (table === 'member_links') {
+      return {
+        select: () => ({
+          eq: () => ({
+            order: () => Promise.resolve({ data: memberLinkRows, error: null }),
+          }),
+        }),
+      } as never;
+    }
+    if (table === 'profiles') {
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: consentStatus ? { consent_status: consentStatus } : null,
+                error: null,
+              }),
+          }),
+        }),
+      } as never;
+    }
+    throw new Error(`unexpected table in test: ${table}`);
+  });
 }
 
 function Probe() {
-  const { loading, linksLoaded, session, memberLinks, selectedMemberId } = useAuth();
+  const { loading, linksLoaded, session, memberLinks, selectedMemberId, consentStatus } = useAuth();
   if (loading) return <p>loading</p>;
   return (
     <div>
@@ -58,6 +77,7 @@ function Probe() {
       <p data-testid="links-loaded">{linksLoaded ? 'true' : 'false'}</p>
       <p data-testid="link-count">{memberLinks.length}</p>
       <p data-testid="selected">{selectedMemberId ?? 'none'}</p>
+      <p data-testid="consent-status">{consentStatus ?? 'none'}</p>
     </div>
   );
 }
@@ -88,10 +108,13 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([
-      { member_id: 'member-family', relationship_label: 'Son', is_self: false },
-      { member_id: 'member-self', relationship_label: 'Self', is_self: true },
-    ]);
+    mockSupabaseQueries(
+      [
+        { member_id: 'member-family', relationship_label: 'Son', is_self: false },
+        { member_id: 'member-self', relationship_label: 'Self', is_self: true },
+      ],
+      'active',
+    );
 
     render(
       <AuthProvider>
@@ -111,7 +134,10 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([{ member_id: 'member-only', relationship_label: 'Son', is_self: false }]);
+    mockSupabaseQueries(
+      [{ member_id: 'member-only', relationship_label: 'Son', is_self: false }],
+      'active',
+    );
 
     render(
       <AuthProvider>
@@ -133,7 +159,16 @@ describe('AuthProvider', () => {
 
     const orderSpy = vi.fn().mockResolvedValue({ data: [], error: null });
     const eqSpy = vi.fn(() => ({ order: orderSpy }));
-    vi.mocked(supabase.from).mockReturnValue({ select: () => ({ eq: eqSpy }) } as never);
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'member_links') {
+        return { select: () => ({ eq: eqSpy }) } as never;
+      }
+      return {
+        select: () => ({
+          eq: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }),
+        }),
+      } as never;
+    });
 
     render(
       <AuthProvider>
@@ -152,7 +187,10 @@ describe('AuthProvider', () => {
     } as never);
     const { trigger } = mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([{ member_id: 'member-only', relationship_label: 'Self', is_self: true }]);
+    mockSupabaseQueries(
+      [{ member_id: 'member-only', relationship_label: 'Self', is_self: true }],
+      'active',
+    );
 
     render(
       <AuthProvider>
@@ -161,13 +199,14 @@ describe('AuthProvider', () => {
     );
 
     expect(await screen.findByTestId('session')).toHaveTextContent('has-session');
-    expect(supabase.from).toHaveBeenCalledTimes(1);
+    // One call per table (member_links, profiles) for the single applySession run.
+    expect(supabase.from).toHaveBeenCalledTimes(2);
 
     // supabase-js fires INITIAL_SESSION on subscribe with the same session
     // getSession() already resolved -- this must not trigger a second fetch.
     trigger('INITIAL_SESSION', fakeSession);
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledTimes(1);
+      expect(supabase.from).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -186,16 +225,27 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('links-loaded')).toHaveTextContent('true');
 
     let resolveLinks: (value: { data: unknown; error: null }) => void = () => {};
-    vi.mocked(supabase.from).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          order: () =>
-            new Promise((resolve) => {
-              resolveLinks = resolve;
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'member_links') {
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () =>
+                new Promise((resolve) => {
+                  resolveLinks = resolve;
+                }),
             }),
+          }),
+        } as never;
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () => Promise.resolve({ data: { consent_status: 'active' }, error: null }),
+          }),
         }),
-      }),
-    } as never);
+      } as never;
+    });
 
     // Simulate Login.tsx's signInWithPassword() succeeding: a new session
     // arrives via onAuthStateChange well after the initial mount.
@@ -228,10 +278,13 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([
-      { member_id: 'member-a', relationship_label: 'Self', is_self: true },
-      { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
-    ]);
+    mockSupabaseQueries(
+      [
+        { member_id: 'member-a', relationship_label: 'Self', is_self: true },
+        { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
+      ],
+      'active',
+    );
 
     function SelectProbe() {
       const { selectedMemberId, selectMember } = useAuth();
@@ -268,10 +321,13 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue('member-b');
-    mockMemberLinksQuery([
-      { member_id: 'member-a', relationship_label: 'Self', is_self: true },
-      { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
-    ]);
+    mockSupabaseQueries(
+      [
+        { member_id: 'member-a', relationship_label: 'Self', is_self: true },
+        { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
+      ],
+      'active',
+    );
 
     render(
       <AuthProvider>
@@ -289,10 +345,13 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([
-      { member_id: 'member-a', relationship_label: 'Self', is_self: true },
-      { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
-    ]);
+    mockSupabaseQueries(
+      [
+        { member_id: 'member-a', relationship_label: 'Self', is_self: true },
+        { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
+      ],
+      'active',
+    );
 
     function RefreshProbe() {
       const { selectedMemberId, selectMember, refreshMemberLinks } = useAuth();
@@ -333,10 +392,13 @@ describe('AuthProvider', () => {
     } as never);
     mockAuthStateChange();
     vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
-    mockMemberLinksQuery([
-      { member_id: 'member-a', relationship_label: 'Self', is_self: true },
-      { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
-    ]);
+    mockSupabaseQueries(
+      [
+        { member_id: 'member-a', relationship_label: 'Self', is_self: true },
+        { member_id: 'member-b', relationship_label: 'Mother', is_self: false },
+      ],
+      'active',
+    );
 
     function RefreshProbe() {
       const { selectedMemberId, selectMember, refreshMemberLinks } = useAuth();
@@ -362,11 +424,38 @@ describe('AuthProvider', () => {
 
     // member-b was unlinked elsewhere -- the refreshed set no longer
     // includes it, so selection must fall back to the is_self default.
-    mockMemberLinksQuery([{ member_id: 'member-a', relationship_label: 'Self', is_self: true }]);
+    mockSupabaseQueries(
+      [{ member_id: 'member-a', relationship_label: 'Self', is_self: true }],
+      'active',
+    );
     await user.click(screen.getByRole('button', { name: 'refresh' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('selected')).toHaveTextContent('member-a');
     });
+  });
+
+  it('exposes the fetched consent_status alongside member links', async () => {
+    mockSupabaseQueries(
+      [{ member_id: 'm1', relationship_label: 'Self', is_self: true }],
+      'withdrawal_pending',
+    );
+    const { trigger } = mockAuthStateChange();
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+    } as never);
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('session')).toHaveTextContent('no-session'));
+    trigger('SIGNED_IN', { user: { id: 'user-1' } });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('consent-status')).toHaveTextContent('withdrawal_pending'),
+    );
   });
 });

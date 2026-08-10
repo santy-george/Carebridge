@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(41);
+select plan(43);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -346,6 +346,37 @@ select throws_ok(
   '42501',
   'only coordinators can reactivate consent',
   'A non-coordinator (the family "Son" user) cannot reactivate someone else''s consent'
+);
+
+-- === Critical fix (task-9 review): consents.user_id must survive deletion
+-- of the auth.users row it references. erase-consent-withdrawal inserts a
+-- withdrawal_verified consents row for a user and then deletes that same
+-- auth.users row in the same request -- if the FK were ON DELETE CASCADE
+-- (as it originally was), that insert-then-delete ordering wouldn't matter:
+-- Postgres evaluates the cascade against whatever rows exist at the moment
+-- of deletion, so the audit row just written would be wiped out along with
+-- it. Runs as the unrestricted test-runner role (bypasses RLS), same as the
+-- fixture setup at the top of this file.
+reset role;
+
+insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
+values ('e0000000-0000-0000-0000-00000000000e', 'rls-test-erasure-subject@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+
+insert into public.consents (user_id, member_id, event, scope)
+values ('e0000000-0000-0000-0000-00000000000e', 'aa000000-0000-0000-0000-00000000aaaa', 'withdrawal_verified', 'self');
+
+delete from auth.users where id = 'e0000000-0000-0000-0000-00000000000e';
+
+select is(
+  (select count(*)::int from public.consents where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and event = 'withdrawal_verified'),
+  1,
+  'The withdrawal_verified consents row survives deletion of the auth.users row it references, instead of being cascade-deleted'
+);
+
+select is(
+  (select user_id from public.consents where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and event = 'withdrawal_verified'),
+  null::uuid,
+  'consents.user_id is set to null (not cascade-deleted) after the referenced auth.users row is deleted -- ON DELETE SET NULL, mirroring member_id'
 );
 
 -- === Simulate no session at all (anon) ===

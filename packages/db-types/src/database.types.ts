@@ -213,7 +213,7 @@ export type Database = {
           member_id: string | null
           policy_version: string
           scope: Database["public"]["Enums"]["consent_scope"] | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -222,7 +222,7 @@ export type Database = {
           member_id?: string | null
           policy_version?: string
           scope?: Database["public"]["Enums"]["consent_scope"] | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -231,7 +231,7 @@ export type Database = {
           member_id?: string | null
           policy_version?: string
           scope?: Database["public"]["Enums"]["consent_scope"] | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

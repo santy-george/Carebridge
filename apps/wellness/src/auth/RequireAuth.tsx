@@ -51,6 +51,14 @@ function ConsentUnavailableScreen() {
       >
         Retry
       </button>
+      <button
+        type="button"
+        className="mbtn mbtn--ghost"
+        style={{ marginTop: '8px' }}
+        onClick={() => supabase.auth.signOut()}
+      >
+        Sign out
+      </button>
     </main>
   );
 }

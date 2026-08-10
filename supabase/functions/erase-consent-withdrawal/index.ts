@@ -84,6 +84,29 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Being a coordinator is necessary but not sufficient -- without this,
+    // any coordinator could erase any member's data, not just the ones they
+    // are actually assigned to. is_assigned_coordinator() is SECURITY
+    // DEFINER and keys off auth.uid() internally, so it's safe to call
+    // through the RLS-respecting callerClient (it can't be tricked into
+    // checking someone else's assignment).
+    const { data: isAssigned, error: assignmentError } = await callerClient.rpc(
+      'is_assigned_coordinator',
+      { p_member_id: memberId },
+    );
+    if (assignmentError) {
+      return new Response(JSON.stringify({ error: 'failed to verify coordinator assignment' }), {
+        status: 500,
+        headers: corsHeaders,
+      });
+    }
+    if (!isAssigned) {
+      return new Response(
+        JSON.stringify({ error: 'not assigned to this member' }),
+        { status: 403, headers: corsHeaders },
+      );
+    }
+
     // Elevated client for the actual erasure -- bypasses RLS by design, since
     // this whole endpoint is a coordinator-authorized action already gated
     // above.
@@ -153,6 +176,41 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
     const memberNameSnapshot: string | null = memberRow?.full_name ?? null;
 
+    // For scope 'all', run the Storage sweep's own precondition checks BEFORE
+    // the audit insert below, not after. The audit row means "this withdrawal
+    // was verified and acted on" -- if a check that can still abort the whole
+    // request (missing/unreadable documents, a failed Storage removal) runs
+    // AFTER the insert, an aborted attempt leaves a row falsely claiming
+    // completion.
+    if (scope === 'all') {
+      const { data: docs, error: docsError } = await adminClient
+        .from('documents')
+        .select('storage_path')
+        .eq('member_id', memberId);
+      if (docsError) {
+        return new Response(
+          JSON.stringify({
+            error: `failed to list documents for Storage sweep, aborting before deleting anything: ${docsError.message}`,
+          }),
+          { status: 500, headers: corsHeaders },
+        );
+      }
+      const storagePaths = (docs ?? []).map((doc: { storage_path: string }) => doc.storage_path);
+      if (storagePaths.length > 0) {
+        const { error: storageRemoveError } = await adminClient.storage
+          .from('documents')
+          .remove(storagePaths);
+        if (storageRemoveError) {
+          return new Response(
+            JSON.stringify({
+              error: `failed to remove documents from Storage, aborting before deleting anything: ${storageRemoveError.message}`,
+            }),
+            { status: 500, headers: corsHeaders },
+          );
+        }
+      }
+    }
+
     // Log the verification BEFORE deleting anything -- consents.user_id has
     // `on delete set null` (see 20260810140000_consents_user_id_set_null.sql;
     // it used to be `on delete cascade`, which silently destroyed this exact
@@ -208,40 +266,9 @@ Deno.serve(async (req: Request) => {
     // member_id and user_id FKs are `on delete set null`, not cascade,
     // specifically so this erasure doesn't destroy its own audit trail.
     // Two other things this DELETE does NOT reach: the actual Storage blobs
-    // behind any documents rows (no DB-level FK to storage.objects), and the
-    // linked accounts' auth.users logins.
-    const { data: docs, error: docsError } = await adminClient
-      .from('documents')
-      .select('storage_path')
-      .eq('member_id', memberId);
-    if (docsError) {
-      return new Response(
-        JSON.stringify({
-          error: `failed to list documents for Storage sweep, aborting before deleting anything: ${docsError.message}`,
-        }),
-        { status: 500, headers: corsHeaders },
-      );
-    }
-    const storagePaths = (docs ?? []).map((doc: { storage_path: string }) => doc.storage_path);
-    if (storagePaths.length > 0) {
-      // Must be checked, not fire-and-forget: the `documents` table rows are
-      // cascade-deleted seconds later by the members DELETE below, so a
-      // silently-failed Storage sweep leaves the actual blobs behind with no
-      // index left to find them -- unrecoverable orphaned PII, reported to
-      // the coordinator as a clean success. Abort before deleting anything.
-      const { error: storageRemoveError } = await adminClient.storage
-        .from('documents')
-        .remove(storagePaths);
-      if (storageRemoveError) {
-        return new Response(
-          JSON.stringify({
-            error: `failed to remove documents from Storage, aborting before deleting anything: ${storageRemoveError.message}`,
-          }),
-          { status: 500, headers: corsHeaders },
-        );
-      }
-    }
-
+    // behind any documents rows (no DB-level FK to storage.objects; already
+    // swept above, before the audit insert), and the linked accounts'
+    // auth.users logins.
     const { data: links, error: linksError } = await adminClient
       .from('member_links')
       .select('user_id')

@@ -5,10 +5,23 @@
 
 -- Fake auth.users rows, inserted directly (bypassing GoTrue) -- fine for
 -- local seed data, matches the same technique the RLS test suite uses.
-insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
+--
+-- instance_id and the token columns below aren't optional: GoTrue's
+-- password-grant handler scans them into non-nullable Go string fields, and
+-- a bare INSERT leaves them NULL (their column default), so login for any
+-- seeded user fails locally even though the row looks fine in Studio.
+-- instance_id must match every other row GoTrue itself creates
+-- ('00000000-0000-0000-0000-000000000000'); the *_token columns just need
+-- to be '' rather than NULL.
+insert into auth.users (
+  instance_id, id, email, encrypted_password, email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data, aud, role,
+  confirmation_token, recovery_token, email_change_token_new, email_change,
+  email_change_token_current, phone_change, phone_change_token, reauthentication_token
+)
 values
-  ('00000000-0000-0000-0000-000000000001', 'coordinator.seed@carebridgehome.test', crypt('seed-password', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000002', 'member.seed@carebridgehome.test', crypt('seed-password', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated')
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000001', 'coordinator.seed@carebridgehome.test', crypt('seed-password', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated', '', '', '', '', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000002', 'member.seed@carebridgehome.test', crypt('seed-password', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated', '', '', '', '', '', '', '', '')
 on conflict (id) do nothing;
 
 -- profiles rows are auto-created by the on_auth_user_created trigger above;

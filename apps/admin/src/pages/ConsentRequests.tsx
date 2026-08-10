@@ -209,9 +209,7 @@ export function ConsentRequests() {
     // so it has to be read out of the body, or a partial erasure looks
     // identical to a clean one.
     const failedAccounts = (data as EraseResponse | null)?.failed_accounts ?? [];
-    if (failedAccounts.length > 0) {
-      setPartialFailureCount(failedAccounts.length);
-    }
+    setPartialFailureCount(failedAccounts.length);
     setRefreshKey((k) => k + 1);
   };
 

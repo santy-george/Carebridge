@@ -3,11 +3,18 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  // Every response in this file spreads corsHeaders, so declaring the
+  // content type once here covers all of them. Without it supabase-js hands
+  // the caller a raw string instead of a parsed object, which is how
+  // `failed_accounts` was going unnoticed on the Admin side.
+  'Content-Type': 'application/json',
 };
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    // JSON body rather than the bare string 'ok', now that corsHeaders
+    // declares Content-Type: application/json for every response.
+    return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
   }
 
   // Everything below can throw in ways that aren't individually anticipated
@@ -82,6 +89,70 @@ Deno.serve(async (req: Request) => {
     // above.
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Server-side validation of the request body BEFORE anything is deleted.
+    // member_id / requester_user_id / scope arrive from the client, and the
+    // typed-"WITHDRAW" confirmation in the Admin UI is a friction gate, not a
+    // security control. This is the layer holding the service_role key and
+    // performing irreversible deletion, so it must independently confirm that
+    // a real, still-pending withdrawal request exists for this exact
+    // (user, member, scope) triple -- otherwise a coordinator (or anything
+    // holding a coordinator session) could erase an arbitrary member that
+    // nobody ever asked to withdraw.
+    const { data: pendingRequest, error: pendingError } = await adminClient
+      .from('consents')
+      .select('scope, member_id')
+      .eq('user_id', requesterUserId)
+      .eq('member_id', memberId)
+      .eq('event', 'withdrawal_requested')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    // consent_status is fetched from the same row that supplies subject_email
+    // below -- 'withdrawal_pending' is what makes the request *still* pending
+    // (a reactivated user is back to 'active', and must not be erasable off a
+    // stale withdrawal_requested row).
+    const { data: subjectProfile, error: profileError } = await adminClient
+      .from('profiles')
+      .select('consent_status, email')
+      .eq('id', requesterUserId)
+      .maybeSingle();
+    if (pendingError || profileError) {
+      return new Response(JSON.stringify({ error: 'failed to verify pending request' }), {
+        status: 500,
+        headers: corsHeaders,
+      });
+    }
+    if (
+      !pendingRequest ||
+      pendingRequest.scope !== scope ||
+      subjectProfile?.consent_status !== 'withdrawal_pending'
+    ) {
+      return new Response(
+        JSON.stringify({ error: 'no matching pending withdrawal request found' }),
+        { status: 409, headers: corsHeaders },
+      );
+    }
+
+    // Snapshot the subject's and member's identity BEFORE any deletion --
+    // consents.user_id and consents.member_id are both `on delete set null`,
+    // so after a scope: 'all' erasure the surviving audit row would otherwise
+    // carry no identifying information whatsoever. These are plain text
+    // columns with no FK, so nothing ever nulls them. See
+    // 20260810150000_consent_audit_snapshot_columns.sql.
+    let subjectEmail: string | null = subjectProfile?.email ?? null;
+    if (!subjectEmail) {
+      // profiles.email is populated by the on_auth_user_created trigger, but
+      // fall back to the auth record rather than logging a null subject.
+      const { data: subjectUser } = await adminClient.auth.admin.getUserById(requesterUserId);
+      subjectEmail = subjectUser?.user?.email ?? null;
+    }
+    const { data: memberRow } = await adminClient
+      .from('members')
+      .select('full_name')
+      .eq('id', memberId)
+      .maybeSingle();
+    const memberNameSnapshot: string | null = memberRow?.full_name ?? null;
+
     // Log the verification BEFORE deleting anything -- consents.user_id has
     // `on delete set null` (see 20260810140000_consents_user_id_set_null.sql;
     // it used to be `on delete cascade`, which silently destroyed this exact
@@ -94,6 +165,10 @@ Deno.serve(async (req: Request) => {
       member_id: memberId,
       event: 'withdrawal_verified',
       scope,
+      subject_email: subjectEmail,
+      member_name_snapshot: memberNameSnapshot,
+      actor_user_id: caller.id,
+      actor_email: caller.email ?? null,
     });
     if (consentInsertError) {
       return new Response(
@@ -149,7 +224,22 @@ Deno.serve(async (req: Request) => {
     }
     const storagePaths = (docs ?? []).map((doc: { storage_path: string }) => doc.storage_path);
     if (storagePaths.length > 0) {
-      await adminClient.storage.from('documents').remove(storagePaths);
+      // Must be checked, not fire-and-forget: the `documents` table rows are
+      // cascade-deleted seconds later by the members DELETE below, so a
+      // silently-failed Storage sweep leaves the actual blobs behind with no
+      // index left to find them -- unrecoverable orphaned PII, reported to
+      // the coordinator as a clean success. Abort before deleting anything.
+      const { error: storageRemoveError } = await adminClient.storage
+        .from('documents')
+        .remove(storagePaths);
+      if (storageRemoveError) {
+        return new Response(
+          JSON.stringify({
+            error: `failed to remove documents from Storage, aborting before deleting anything: ${storageRemoveError.message}`,
+          }),
+          { status: 500, headers: corsHeaders },
+        );
+      }
     }
 
     const { data: links, error: linksError } = await adminClient
@@ -190,14 +280,18 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // 207 Multi-Status when some linked accounts survived: HTTP 200 made
+    // `failed_accounts` invisible to supabase-js callers (whose `error` is
+    // null for any 2xx), so the Admin UI reported a partial erasure as
+    // cleanly resolved. `ok` reflects the same distinction in the body.
     return new Response(
       JSON.stringify({
-        ok: true,
+        ok: failedAccounts.length === 0,
         scope: 'all',
         erased_accounts: linkedUserIds.length - failedAccounts.length,
         failed_accounts: failedAccounts,
       }),
-      { status: 200, headers: corsHeaders },
+      { status: failedAccounts.length > 0 ? 207 : 200, headers: corsHeaders },
     );
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders });

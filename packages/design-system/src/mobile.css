@@ -3588,3 +3588,7 @@ body,
   font-size: 14px;
   color: var(--purple-700);
 }
+.brand-strip img {
+  height: 64px;
+  width: auto;
+}

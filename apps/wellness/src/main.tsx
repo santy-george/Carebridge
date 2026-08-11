@@ -25,6 +25,7 @@ import { More } from './pages/More';
 import { WithdrawConsent } from './pages/WithdrawConsent';
 import { WithdrawalReceived } from './pages/WithdrawalReceived';
 import { AppShell } from './shell/AppShell';
+import { SubScreenShell } from './shell/SubScreenShell';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -42,17 +43,22 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<RequireAuth />}>
             <Route element={<AppShell />}>
               <Route path="/" element={<Home />} />
-              <Route path="/check-in" element={<CheckIn />} />
               <Route path="/health" element={<Health />} />
               <Route path="/medications" element={<Medications />} />
               <Route path="/care" element={<Care />} />
               <Route path="/more" element={<More />} />
-              <Route path="/sos" element={<Sos />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/education" element={<Education />} />
               <Route path="/preventive-plan" element={<PreventivePlan />} />
               <Route path="/withdraw-consent" element={<WithdrawConsent />} />
+            </Route>
+            {/* Sub-screens the mockup shows with a back button instead of the
+                5-tab nav (Emergency.dc.html, CheckIn.dc.html both have zero
+                .bnav) -- SubScreenShell, not AppShell. */}
+            <Route element={<SubScreenShell />}>
+              <Route path="/check-in" element={<CheckIn />} />
+              <Route path="/sos" element={<Sos />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

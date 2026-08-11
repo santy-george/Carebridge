@@ -34,9 +34,12 @@ function attachListeners() {
   // Foreground delivery and tap-through listeners exist from app start so
   // there's somewhere for a real notification to land once Phase 3's send
   // side exists -- both are no-ops today since nothing produces one yet.
-  PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-    console.log('Push received in foreground:', notification);
-  });
+  PushNotifications.addListener(
+    'pushNotificationReceived',
+    (notification: PushNotificationSchema) => {
+      console.log('Push received in foreground:', notification);
+    },
+  );
 
   PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
     console.log('Push notification tapped:', action);

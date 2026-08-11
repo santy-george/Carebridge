@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
 import { capacitorPreferencesStorage } from '../lib/storage-adapter';
+import { registerPushToken } from '../lib/push';
 
 export interface MemberLink {
   memberId: string;
@@ -156,6 +157,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscriptionData.subscription.unsubscribe();
     };
   }, []);
+
+  // Push registration is best-effort and independent of the auth-loading
+  // critical path above -- a permission prompt or registration failure must
+  // never block the app from loading. Not tied to `linksLoaded`/`loading`
+  // on purpose.
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (!userId) return;
+    void registerPushToken(userId);
+  }, [session?.user.id]);
 
   const refreshMemberLinks = async () => {
     if (!session) return;

@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(59);
+select plan(67);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only.
@@ -531,6 +531,62 @@ select is(
   (select actor_email from public.consents where subject_email = 'rls-test-erase-all-subject@carebridgehome.test'),
   'rls-test-coordinator@carebridgehome.test',
   'actor_email still identifies who verified the erasure even after that coordinator''s account is deleted -- the whole point of the denormalized snapshot'
+);
+
+-- === device_push_tokens: owner-only, full lifecycle ===
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
+
+select lives_ok(
+  $$ insert into public.device_push_tokens (user_id, platform, token) values ('a0000000-0000-0000-0000-00000000000a', 'ios', 'token-a-iphone') $$,
+  'Member A can register their own push token'
+);
+
+select is(
+  (select count(*)::int from public.device_push_tokens where user_id = 'a0000000-0000-0000-0000-00000000000a'),
+  1,
+  'Member A sees their own push token'
+);
+
+select throws_ok(
+  $$ insert into public.device_push_tokens (user_id, platform, token) values ('b0000000-0000-0000-0000-00000000000b', 'ios', 'forged-token') $$,
+  '42501',
+  null,
+  'Member A cannot register a push token under Member B''s user_id'
+);
+
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'b0000000-0000-0000-0000-00000000000b')::text, true);
+
+select is(
+  (select count(*)::int from public.device_push_tokens where user_id = 'a0000000-0000-0000-0000-00000000000a'),
+  0,
+  'Member B gets zero rows querying Member A''s push tokens (RLS filters silently)'
+);
+
+select lives_ok(
+  $$ insert into public.device_push_tokens (user_id, platform, token) values ('b0000000-0000-0000-0000-00000000000b', 'android', 'token-b-pixel') $$,
+  'Member B can register their own push token'
+);
+
+select is(
+  (select count(*)::int from public.device_push_tokens where token = 'token-a-iphone') ,
+  0,
+  'Member B''s UPDATE/DELETE reach is scoped to their own rows -- Member A''s token is invisible, not just unwritable'
+);
+
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
+
+select lives_ok(
+  $$ delete from public.device_push_tokens where user_id = 'a0000000-0000-0000-0000-00000000000a' and token = 'token-a-iphone' $$,
+  'Member A can delete their own push token (e.g. on sign-out)'
+);
+
+select is(
+  (select count(*)::int from public.device_push_tokens where user_id = 'a0000000-0000-0000-0000-00000000000a'),
+  0,
+  'Member A''s push token is gone after deletion, Member B''s is untouched'
 );
 
 -- === Simulate no session at all (anon) ===

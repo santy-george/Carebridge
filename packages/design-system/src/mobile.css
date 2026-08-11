@@ -93,6 +93,13 @@ body,
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* The mockup's .sbar fakes a status bar as real layout space inside the
+     preview frame -- the real app has no such element (iOS draws the real
+     one, overlaying web content unless the page reserves room for it), so
+     without this the header renders under the status bar/notch/Dynamic
+     Island. padding, not margin: keeps .bnav/.cta-bar's position:absolute
+     bottom:0 anchored to the unpadded bottom edge of this same box. */
+  padding-top: env(safe-area-inset-top);
 }
 
 /* ---- View router ------------------------------------------------------- */

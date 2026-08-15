@@ -11,18 +11,21 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(67);
+select plan(75);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
--- coordinator assigned to Member A only.
+-- coordinator assigned to Member A only, one coordinator (g) assigned to
+-- neither -- used below to prove the assigned-coordinator-only policies
+-- actually reject an unassigned coordinator, not just accept everyone.
 insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
 values
   ('a0000000-0000-0000-0000-00000000000a', 'rls-test-member-a@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
   ('b0000000-0000-0000-0000-00000000000b', 'rls-test-member-b@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
   ('c0000000-0000-0000-0000-00000000000c', 'rls-test-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
-  ('d0000000-0000-0000-0000-00000000000d', 'rls-test-family-son@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+  ('d0000000-0000-0000-0000-00000000000d', 'rls-test-family-son@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
+  ('19000000-0000-0000-0000-000000000019', 'rls-test-unassigned-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
 
-update public.profiles set role = 'coordinator' where id = 'c0000000-0000-0000-0000-00000000000c';
+update public.profiles set role = 'coordinator' where id in ('c0000000-0000-0000-0000-00000000000c', '19000000-0000-0000-0000-000000000019');
 
 insert into public.members (id, full_name, care_model)
 values
@@ -587,6 +590,92 @@ select is(
   (select count(*)::int from public.device_push_tokens where user_id = 'a0000000-0000-0000-0000-00000000000a'),
   0,
   'Member A''s push token is gone after deletion, Member B''s is untouched'
+);
+
+-- === 2026-08-15 RLS audit fixes ===
+
+-- --- profiles.role self-escalation (CRITICAL) ---
+-- "profile owner updates own profile" preserved consent_status but never
+-- checked role -- any member could UPDATE their own row to role='coordinator'
+-- and gain every coordinator-gated policy in the schema. Fixed by
+-- 20260815160000_lock_down_profile_role_column.sql.
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
+
+select throws_ok(
+  $$ update public.profiles set role = 'coordinator' where id = 'a0000000-0000-0000-0000-00000000000a' $$,
+  '42501',
+  null,
+  'Member A cannot self-promote to coordinator via a direct UPDATE -- RLS WITH CHECK rejects the row'
+);
+
+select is(
+  (select role::text from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'member',
+  'role on Member A remains ''member'' after the rejected self-promotion attempt'
+);
+
+-- --- WITH CHECK assignment gaps: care_team, preventive_plan_goals, storage.objects ---
+-- These policies checked is_assigned_coordinator() in USING but not WITH
+-- CHECK, so INSERT (which only evaluates WITH CHECK) let ANY coordinator
+-- write rows for members they aren't assigned to. Fixed by
+-- 20260815161000_close_assigned_coordinator_with_check_gaps.sql. Coordinator
+-- g0000000... ('19000000-...019') is a coordinator with zero care_assignments
+-- rows -- deliberately unassigned to either Member A or B.
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '19000000-0000-0000-0000-000000000019')::text, true);
+
+select throws_ok(
+  $$ insert into public.care_team (member_id, role_label, name) values ('aa000000-0000-0000-0000-00000000aaaa', 'Physio', 'Unassigned Coordinator Injection') $$,
+  '42501',
+  null,
+  'An unassigned coordinator cannot INSERT a care_team row for Member A'
+);
+
+select throws_ok(
+  $$ insert into public.preventive_plan_goals (member_id, title) values ('aa000000-0000-0000-0000-00000000aaaa', 'Unassigned Coordinator Injection') $$,
+  '42501',
+  null,
+  'An unassigned coordinator cannot INSERT a preventive_plan_goals row for Member A'
+);
+
+select throws_ok(
+  $$ insert into storage.objects (bucket_id, name) values ('documents', 'aa000000-0000-0000-0000-00000000aaaa/unassigned-coordinator-injection.txt') $$,
+  '42501',
+  null,
+  'An unassigned coordinator cannot INSERT a storage object into Member A''s documents folder'
+);
+
+-- Coordinator c's auth.users row was deleted earlier in this file (the
+-- "actor identity outlives the coordinator's own account" block above), which
+-- cascade-deleted their profiles row and therefore their care_assignments row
+-- too -- so c is no longer a valid assigned coordinator for anything by this
+-- point in the suite. Use a fresh coordinator (still alive) to prove the
+-- legitimate path, rather than reusing c.
+reset role;
+
+insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
+values ('39000000-0000-0000-0000-000000000039', 'rls-test-second-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+update public.profiles set role = 'coordinator' where id = '39000000-0000-0000-0000-000000000039';
+insert into public.care_assignments (member_id, coordinator_id) values ('aa000000-0000-0000-0000-00000000aaaa', '39000000-0000-0000-0000-000000000039');
+
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '39000000-0000-0000-0000-000000000039')::text, true);
+
+select lives_ok(
+  $$ insert into public.care_team (member_id, role_label, name) values ('aa000000-0000-0000-0000-00000000aaaa', 'Physio', 'Legit Assigned Coordinator Entry') $$,
+  'The assigned coordinator can still INSERT a care_team row for Member A -- the fix does not break the legitimate path'
+);
+
+select lives_ok(
+  $$ insert into public.preventive_plan_goals (member_id, title) values ('aa000000-0000-0000-0000-00000000aaaa', 'Legit Assigned Coordinator Goal') $$,
+  'The assigned coordinator can still INSERT a preventive_plan_goals row for Member A'
+);
+
+select lives_ok(
+  $$ insert into storage.objects (bucket_id, name) values ('documents', 'aa000000-0000-0000-0000-00000000aaaa/assigned-coordinator-upload.txt') $$,
+  'The assigned coordinator can still INSERT a storage object into Member A''s documents folder'
 );
 
 -- === Simulate no session at all (anon) ===

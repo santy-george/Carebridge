@@ -54,7 +54,11 @@ describe('classifyHeartRate', () => {
     expect(classifyHeartRate(72)).toEqual({ label: 'Normal', chipClass: 'chip2--ok', percent: 40 });
   });
   it('is High above 100', () => {
-    expect(classifyHeartRate(110)).toEqual({ label: 'High', chipClass: 'chip2--warn', percent: 61 });
+    expect(classifyHeartRate(110)).toEqual({
+      label: 'High',
+      chipClass: 'chip2--warn',
+      percent: 61,
+    });
   });
   it('clamps the gauge fill above the 180 ceiling', () => {
     expect(classifyHeartRate(220).percent).toBe(100);

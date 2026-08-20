@@ -18,6 +18,7 @@
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		AB12CD34EF56AB78CD90EF02 /* HealthKitBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB78CD90EF01 /* HealthKitBridge.swift */; };
 		AB12CD34EF56AB78CD90EF04 /* HealthKitBridgePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB78CD90EF03 /* HealthKitBridgePlugin.swift */; };
+		AB12CD34EF56AB78CD90EF06 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB78CD90EF05 /* MainViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		AB12CD34EF56AB78CD90EF01 /* HealthKitBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitBridge.swift; sourceTree = "<group>"; };
 		AB12CD34EF56AB78CD90EF03 /* HealthKitBridgePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitBridgePlugin.swift; sourceTree = "<group>"; };
+		AB12CD34EF56AB78CD90EF05 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				AB12CD34EF56AB78CD90EF01 /* HealthKitBridge.swift */,
 				AB12CD34EF56AB78CD90EF03 /* HealthKitBridgePlugin.swift */,
+				AB12CD34EF56AB78CD90EF05 /* MainViewController.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
@@ -175,6 +178,7 @@
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				AB12CD34EF56AB78CD90EF02 /* HealthKitBridge.swift in Sources */,
 				AB12CD34EF56AB78CD90EF04 /* HealthKitBridgePlugin.swift in Sources */,
+				AB12CD34EF56AB78CD90EF06 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

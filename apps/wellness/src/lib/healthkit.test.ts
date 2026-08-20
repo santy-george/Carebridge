@@ -43,10 +43,10 @@ vi.mock('./supabase', () => ({
 
 vi.mock('@sentry/react', () => ({
   captureException: vi.fn(),
+  withScope: vi.fn((callback) => callback({ setUser: vi.fn(), setTag: vi.fn() })),
 }));
 
 import { registerHealthKit, __resetHealthKitStateForTests, FLUSH_BATCH_SIZE } from './healthkit';
-import { Capacitor } from '@capacitor/core';
 
 describe('registerHealthKit', () => {
   beforeEach(() => {

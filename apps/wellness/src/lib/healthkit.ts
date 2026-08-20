@@ -50,7 +50,13 @@ async function flush(): Promise<void> {
   });
   if (error || !data?.ok) {
     console.error('Failed to ingest wearable readings:', error ?? data);
-    Sentry.captureException(error ?? new Error('ingest-wearable returned not-ok'));
+    Sentry.withScope((scope) => {
+      if (activeUserId) {
+        scope.setUser({ id: activeUserId });
+      }
+      scope.setTag('member_id', activeMemberId);
+      Sentry.captureException(error ?? new Error('ingest-wearable returned not-ok'));
+    });
   }
 }
 

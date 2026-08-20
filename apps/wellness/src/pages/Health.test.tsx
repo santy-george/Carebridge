@@ -32,6 +32,7 @@ describe('Health', () => {
     for (const key of Object.keys(tableResponses)) delete tableResponses[key];
     tableResponses.vitals_readings = { data: [], error: null };
     tableResponses.glucose_readings = { data: [], error: null };
+    tableResponses.wearable_readings = { data: [], error: null };
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -116,6 +117,31 @@ describe('Health', () => {
     render(<Health />);
     expect(await screen.findByText('Blood glucose')).toBeInTheDocument();
     expect(screen.getByText(/118 mg\/dL \(post-meal\)/i)).toBeInTheDocument();
+  });
+
+  it('shows a heart rate row sourced from wearable_readings', async () => {
+    tableResponses.wearable_readings = {
+      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T08:00:00Z' }],
+      error: null,
+    };
+    render(<Health />);
+    expect(await screen.findByText('Heart rate')).toBeInTheDocument();
+    expect(screen.getByText('72 bpm')).toBeInTheDocument();
+  });
+
+  it('merges Watch-sourced SpO2 with manually logged SpO2 into one row', async () => {
+    tableResponses.vitals_readings = {
+      data: [{ vital_type: 'spo2_pct', value: 97, recorded_at: '2026-08-01T08:00:00Z' }],
+      error: null,
+    };
+    tableResponses.wearable_readings = {
+      data: [{ reading_type: 'spo2', value: 96, recorded_at: '2026-08-02T08:00:00Z' }],
+      error: null,
+    };
+    render(<Health />);
+    const spo2Rows = await screen.findAllByText('SpO2');
+    expect(spo2Rows).toHaveLength(1);
+    expect(screen.getByText('96%')).toBeInTheDocument(); // the later (Watch) reading is latest
   });
 
   it('shows a dismissible error banner when a fetch fails', async () => {

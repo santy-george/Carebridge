@@ -5,6 +5,7 @@ import {
   categorizeBmi,
   classifyBloodPressure,
   classifyGlucose,
+  classifyHeartRate,
   classifySpo2,
   glucoseContextLabel,
   type GlucoseContext,
@@ -29,6 +30,12 @@ interface GlucoseRow {
   reading_time: string;
 }
 
+interface WearableRow {
+  reading_type: string;
+  value: number;
+  recorded_at: string;
+}
+
 interface ObservationRow {
   id: string;
   category: string;
@@ -48,6 +55,8 @@ const RECENT_COUNT = 7;
 const NOTES = {
   bp: 'Sustained readings above 130 raise the risk of stroke, heart disease and kidney strain if not managed with your care team.',
   spo2: "Readings below 92% can indicate your body isn't getting enough oxygen and should be checked promptly, especially alongside breathlessness.",
+  heart_rate:
+    'Resting heart rate outside 60–100 bpm can be a normal variation (fitness, medication) but is worth tracking — share persistent patterns with your care team.',
   bmi: 'BMI is a screening measure calculated from your logged weight and height. Values outside the normal range are linked to higher risk of heart disease, diabetes and joint strain — your care team can help interpret it alongside your other vitals.',
   glucose:
     'Repeated highs over weeks raise the risk of diabetes-related complications, including nerve, eye and kidney damage. Fasting/pre-meal and post-meal readings use different normal ranges, since a normal post-meal value is naturally higher than a fasting one.',
@@ -56,6 +65,7 @@ const NOTES = {
 const SUGGESTIONS = {
   bp: 'Share this trend with your care team at your next check-in.',
   spo2: 'Flag this trend to your care team, especially if you notice breathlessness.',
+  heart_rate: 'Share this trend with your care team, especially if it persists at rest.',
   bmi: 'Share this trend with your care team and keep logging weight regularly.',
   glucose: 'Log meals alongside your next few readings and share this trend with your care team.',
 } as const;
@@ -66,6 +76,7 @@ export function Health() {
   const [fetchError, setFetchError] = useState(false);
   const [vitals, setVitals] = useState<VitalRow[]>([]);
   const [glucose, setGlucose] = useState<GlucoseRow[]>([]);
+  const [wearable, setWearable] = useState<WearableRow[]>([]);
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -87,12 +98,20 @@ export function Health() {
         .order('reading_date', { ascending: true })
         .order('reading_time', { ascending: true })
         .limit(200),
-    ]).then(([vitalsRes, glucoseRes]) => {
+      supabase
+        .from('wearable_readings')
+        .select('reading_type, value, recorded_at')
+        .eq('member_id', selectedMemberId)
+        .in('reading_type', ['heart_rate', 'spo2'])
+        .order('recorded_at', { ascending: true })
+        .limit(200),
+    ]).then(([vitalsRes, glucoseRes, wearableRes]) => {
       if (!isMounted) return;
       setLoading(false);
-      setFetchError(!!(vitalsRes.error || glucoseRes.error));
+      setFetchError(!!(vitalsRes.error || glucoseRes.error || wearableRes.error));
       setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
       setGlucose((glucoseRes.data as GlucoseRow[] | null) ?? []);
+      setWearable((wearableRes.data as WearableRow[] | null) ?? []);
     });
 
     return () => {
@@ -133,7 +152,12 @@ export function Health() {
     });
   }
 
-  const spo2Readings = vitals.filter((v) => v.vital_type === 'spo2_pct');
+  const spo2Readings = [
+    ...vitals.filter((v) => v.vital_type === 'spo2_pct'),
+    ...wearable
+      .filter((w) => w.reading_type === 'spo2')
+      .map((w) => ({ vital_type: 'spo2_pct', value: w.value, recorded_at: w.recorded_at })),
+  ].sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
   if (spo2Readings.length > 0) {
     const recent = spo2Readings.slice(-RECENT_COUNT);
     const latest = recent[recent.length - 1];
@@ -155,6 +179,33 @@ export function Health() {
         6,
       ),
       dayRows: recent.map((r) => ({ day: formatShortDate(r.recorded_at), val: String(r.value) })),
+    });
+  }
+
+  const heartRateReadings = wearable
+    .filter((w) => w.reading_type === 'heart_rate')
+    .sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+  if (heartRateReadings.length > 0) {
+    const recent = heartRateReadings.slice(-RECENT_COUNT);
+    const latest = recent[recent.length - 1];
+    const status = classifyHeartRate(latest.value);
+    rows.push({
+      id: 'heart_rate',
+      category: 'Cardiovascular',
+      name: 'Heart rate',
+      range: '60–100 bpm',
+      value: `${latest.value} bpm`,
+      chipClass: status.chipClass,
+      statusLabel: status.label,
+      note: NOTES.heart_rate,
+      suggestion: status.chipClass === 'chip2--ok' ? '' : SUGGESTIONS.heart_rate,
+      pts: buildSparklinePoints(
+        recent.map((r) => r.value),
+        280,
+        40,
+        6,
+      ),
+      dayRows: recent.map((r) => ({ day: formatShortDate(r.recorded_at), val: `${r.value} bpm` })),
     });
   }
 
@@ -235,8 +286,9 @@ export function Health() {
       </div>
 
       <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: 0 }}>
-        These observations are from readings collected via manual entries. Please reach out to your
-        care team or general physician for professional medical advice.
+        These observations are from readings collected via manual entries and your connected Apple
+        Watch, where available. Please reach out to your care team or general physician for
+        professional medical advice.
       </p>
 
       <div className="sec">All readings</div>

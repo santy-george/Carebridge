@@ -103,7 +103,7 @@ export function Health() {
         .select('reading_type, value, recorded_at')
         .eq('member_id', selectedMemberId)
         .in('reading_type', ['heart_rate', 'spo2'])
-        .order('recorded_at', { ascending: true })
+        .order('recorded_at', { ascending: false })
         .limit(200),
     ]).then(([vitalsRes, glucoseRes, wearableRes]) => {
       if (!isMounted) return;
@@ -111,7 +111,11 @@ export function Health() {
       setFetchError(!!(vitalsRes.error || glucoseRes.error || wearableRes.error));
       setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
       setGlucose((glucoseRes.data as GlucoseRow[] | null) ?? []);
-      setWearable((wearableRes.data as WearableRow[] | null) ?? []);
+      // wearable_readings is near-continuous (HKObserverQuery background delivery), so it's
+      // fetched most-recent-first and capped at 200 rows to avoid missing recent samples once
+      // total readings exceed the cap; reverse here to restore ascending order for the
+      // chronological sort/merge logic below.
+      setWearable(((wearableRes.data as WearableRow[] | null) ?? []).slice().reverse());
     });
 
     return () => {

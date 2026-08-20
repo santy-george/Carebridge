@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
 import { capacitorPreferencesStorage } from '../lib/storage-adapter';
 import { registerPushToken } from '../lib/push';
+import { registerHealthKit } from '../lib/healthkit';
 
 export interface MemberLink {
   memberId: string;
@@ -167,6 +168,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) return;
     void registerPushToken(userId);
   }, [session?.user.id]);
+
+  // HealthKit registration mirrors the push-registration effect above: best-
+  // effort, independent of the auth-loading critical path, never blocks the
+  // app. Needs selectedMemberId (not just the session) since readings are
+  // ingested against a specific member.
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (!userId || !selectedMemberId) return;
+    void registerHealthKit(userId, selectedMemberId);
+  }, [session?.user.id, selectedMemberId]);
 
   const refreshMemberLinks = async () => {
     if (!session) return;

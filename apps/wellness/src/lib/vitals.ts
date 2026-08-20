@@ -19,6 +19,17 @@ export function classifySpo2(value: number): Status {
   return { label: 'Low', chipClass: 'chip2--alert', percent };
 }
 
+// Resting heart rate outside 60-100 bpm can be a normal variation
+// (fitness, medication, transient exertion caught by a continuous
+// wearable sample) rather than an acute problem the way a single high BP
+// reading can be -- warn, not alert, on both bounds.
+export function classifyHeartRate(value: number): Status {
+  const percent = Math.round((Math.min(value, 180) / 180) * 100);
+  if (value < 60) return { label: 'Low', chipClass: 'chip2--warn', percent };
+  if (value <= 100) return { label: 'Normal', chipClass: 'chip2--ok', percent };
+  return { label: 'High', chipClass: 'chip2--warn', percent };
+}
+
 export function classifyGlucose(value: number, context: GlucoseContext): Status {
   const percent = Math.round((Math.min(value, 200) / 200) * 100);
   if (context === 'post_meal') {

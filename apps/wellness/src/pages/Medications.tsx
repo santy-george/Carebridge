@@ -233,11 +233,15 @@ export function Medications() {
       </div>
 
       <div className="seg" style={{ marginBottom: '4px' }}>
-        <button type="button">Appointments</button>
+        <button type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+          Appointments
+        </button>
         <button type="button" className="is-active">
           Medications
         </button>
-        <button type="button">Activity</button>
+        <button type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+          Activity
+        </button>
       </div>
 
       <div className="banner banner--warn" style={{ marginBottom: '12px' }}>
@@ -322,9 +326,6 @@ export function Medications() {
                           High risk
                         </span>
                       )}
-                    </div>
-                    <div className="s">
-                      {dose.dosage && <span className="dose">{dose.dosage}</span>}
                     </div>
                   </div>
                   <div
@@ -456,18 +457,6 @@ export function Medications() {
             onClick={() => setSheet('refill')}
           >
             Refill stock
-          </button>
-          <button
-            type="button"
-            className="mbtn mbtn--line mbtn--block"
-            style={{ marginTop: '8px' }}
-          >
-            <span className="icon">
-              <svg>
-                <use href="#i-mail" />
-              </svg>
-            </span>
-            Send to pharmacist
           </button>
         </>
       )}

@@ -115,6 +115,35 @@ describe('RequireAuth', () => {
     renderGuard(<RequireAuth />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
   });
+
+  it('shows a retry screen instead of /link-member when the member_links fetch failed with zero links (finding 10)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      linksFetchError: true,
+      memberLinks: [],
+      consentStatus: 'active',
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.queryByText('link member page')).not.toBeInTheDocument();
+    expect(screen.queryByText('protected content')).not.toBeInTheDocument();
+    expect(screen.getByText(/couldn.t load your account/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it('renders protected content on a failed refetch when known-good links are still present (finding 10)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      linksFetchError: true,
+      memberLinks: [{ memberId: 'm1', relationshipLabel: 'Self', isSelf: true }],
+      consentStatus: 'active',
+    } as never);
+    renderGuard(<RequireAuth />, '/protected');
+    expect(screen.getByText('protected content')).toBeInTheDocument();
+  });
 });
 
 describe('RequireSession', () => {
@@ -204,5 +233,19 @@ describe('RedirectIfAuthenticated', () => {
     expect(screen.queryByText('link member page')).not.toBeInTheDocument();
     expect(screen.queryByText('home page')).not.toBeInTheDocument();
     expect(screen.getByText('Loading…')).toBeInTheDocument();
+  });
+
+  it('redirects to / instead of /link-member when the links fetch errored with zero links (finding 10)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      linksLoaded: true,
+      linksFetchError: true,
+      memberLinks: [],
+      consentStatus: 'active',
+    } as never);
+    renderGuard(<RedirectIfAuthenticated />, '/protected');
+    expect(screen.queryByText('link member page')).not.toBeInTheDocument();
+    expect(screen.getByText('home page')).toBeInTheDocument();
   });
 });

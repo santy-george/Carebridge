@@ -74,12 +74,21 @@ function mockSupabaseQueries(
 }
 
 function Probe() {
-  const { loading, linksLoaded, session, memberLinks, selectedMemberId, consentStatus } = useAuth();
+  const {
+    loading,
+    linksLoaded,
+    linksFetchError,
+    session,
+    memberLinks,
+    selectedMemberId,
+    consentStatus,
+  } = useAuth();
   if (loading) return <p>loading</p>;
   return (
     <div>
       <p data-testid="session">{session ? 'has-session' : 'no-session'}</p>
       <p data-testid="links-loaded">{linksLoaded ? 'true' : 'false'}</p>
+      <p data-testid="links-error">{linksFetchError ? 'true' : 'false'}</p>
       <p data-testid="link-count">{memberLinks.length}</p>
       <p data-testid="selected">{selectedMemberId ?? 'none'}</p>
       <p data-testid="consent-status">{consentStatus ?? 'none'}</p>
@@ -274,6 +283,60 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('links-loaded')).toHaveTextContent('true');
     });
     expect(screen.getByTestId('link-count')).toHaveTextContent('1');
+  });
+
+  it('does not wipe known-good member links when a later fetch fails, so a linked user is not bounced to link-member (finding 10)', async () => {
+    const fakeSession = { user: { id: 'user-1' } };
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
+    const { trigger } = mockAuthStateChange();
+    vi.mocked(capacitorPreferencesStorage.getItem).mockResolvedValue(null);
+    mockSupabaseQueries(
+      [{ member_id: 'member-x', relationship_label: 'Self', is_self: true }],
+      'active',
+    );
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    expect(await screen.findByTestId('link-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('links-error')).toHaveTextContent('false');
+    expect(screen.getByTestId('selected')).toHaveTextContent('member-x');
+
+    // Simulate a background token refresh whose member_links query fails
+    // transiently (network blip, rate limit, etc.) -- this must not clear
+    // the links or selection this session already had confirmed.
+    vi.mocked(supabase.from).mockImplementation((table: string) => {
+      if (table === 'member_links') {
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => Promise.resolve({ data: null, error: { message: 'network error' } }),
+            }),
+          }),
+        } as never;
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () => Promise.resolve({ data: { consent_status: 'active' }, error: null }),
+          }),
+        }),
+      } as never;
+    });
+    trigger('TOKEN_REFRESHED', fakeSession);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('links-error')).toHaveTextContent('true');
+    });
+    // The stale-but-correct link/selection state from before the failed
+    // refresh must still be there -- not reset to empty.
+    expect(screen.getByTestId('link-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('selected')).toHaveTextContent('member-x');
   });
 
   it('persists the selection to capacitor preferences storage on selectMember (finding 7)', async () => {

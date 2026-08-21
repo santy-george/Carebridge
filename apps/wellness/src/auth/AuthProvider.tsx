@@ -23,6 +23,7 @@ export interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   linksLoaded: boolean;
+  linksFetchError: boolean;
   memberLinks: MemberLink[];
   selectedMemberId: string | null;
   selectMember: (memberId: string) => void;
@@ -34,7 +35,13 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 
 const SELECTED_MEMBER_STORAGE_KEY = 'wellness.selectedMemberId';
 
-async function fetchMemberLinks(userId: string): Promise<MemberLink[]> {
+// Mirrors fetchConsentStatus's error/null distinction below: a failed query
+// and a genuinely-empty link list are NOT the same thing. Collapsing both
+// into [] previously bounced an already-linked user back to /link-member on
+// any transient fetch failure (e.g. a background token refresh hitting a
+// network blip) -- reported live, the linked user was mid-session on Home
+// and got redirected to re-enter an invite code they didn't need.
+async function fetchMemberLinks(userId: string): Promise<{ links: MemberLink[]; error: boolean }> {
   const { data, error } = await supabase
     .from('member_links')
     .select('member_id, relationship_label, is_self')
@@ -42,14 +49,19 @@ async function fetchMemberLinks(userId: string): Promise<MemberLink[]> {
     .order('created_at');
 
   if (error || !data) {
-    return [];
+    console.error('Failed to fetch member_links:', error);
+    Sentry.captureException(error ?? new Error('member_links fetch returned no data'));
+    return { links: [], error: true };
   }
 
-  return data.map((row) => ({
-    memberId: row.member_id,
-    relationshipLabel: row.relationship_label,
-    isSelf: row.is_self,
-  }));
+  return {
+    links: data.map((row) => ({
+      memberId: row.member_id,
+      relationshipLabel: row.relationship_label,
+      isSelf: row.is_self,
+    })),
+    error: false,
+  };
 }
 
 async function fetchConsentStatus(userId: string): Promise<ConsentStatus> {
@@ -95,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // too, or they redirect a returning user to /link-member before the
   // fetch resolves (see finding 1).
   const [linksLoaded, setLinksLoaded] = useState(false);
+  const [linksFetchError, setLinksFetchError] = useState(false);
   const [memberLinks, setMemberLinks] = useState<MemberLink[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [consentStatus, setConsentStatus] = useState<ConsentStatus>(null);
@@ -110,17 +123,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setMemberLinks([]);
         setSelectedMemberId(null);
         setConsentStatus(null);
+        setLinksFetchError(false);
         setLinksLoaded(true);
         return;
       }
 
       setLinksLoaded(false);
-      const [links, status] = await Promise.all([
+      const [linksResult, status] = await Promise.all([
         fetchMemberLinks(newSession.user.id),
         fetchConsentStatus(newSession.user.id),
       ]);
       if (!isMounted) return;
       setConsentStatus(status);
+      setLinksFetchError(linksResult.error);
 
       let storedMemberId: string | null = null;
       try {
@@ -130,8 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!isMounted) return;
-      setMemberLinks(links);
-      setSelectedMemberId(resolveSelection(links, storedMemberId));
+      // A failed fetch must not overwrite already-known-good links with an
+      // empty list -- keep the previous state and let the route guards
+      // treat linksFetchError as "unknown", not "confirmed zero links".
+      if (!linksResult.error) {
+        setMemberLinks(linksResult.links);
+        setSelectedMemberId(resolveSelection(linksResult.links, storedMemberId));
+      }
       setLinksLoaded(true);
     };
 
@@ -181,12 +201,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshMemberLinks = async () => {
     if (!session) return;
-    const links = await fetchMemberLinks(session.user.id);
-    setMemberLinks(links);
+    const linksResult = await fetchMemberLinks(session.user.id);
+    setLinksFetchError(linksResult.error);
+    if (linksResult.error) return;
+    setMemberLinks(linksResult.links);
     // Preserve the current selection if it's still among the refreshed
     // links (e.g. after linking an additional member) -- only fall back to
     // the is_self/first-link default if it's no longer present.
-    setSelectedMemberId((current) => resolveSelection(links, current));
+    setSelectedMemberId((current) => resolveSelection(linksResult.links, current));
   };
 
   const selectMember = (memberId: string) => {
@@ -200,6 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading,
         linksLoaded,
+        linksFetchError,
         memberLinks,
         selectedMemberId,
         selectMember,

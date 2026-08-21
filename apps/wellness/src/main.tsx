@@ -10,6 +10,8 @@ import { AuthProvider } from './auth/AuthProvider';
 import { RedirectIfAuthenticated, RequireAuth, RequireSession } from './auth/RequireAuth';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { LinkMember } from './pages/LinkMember';
 import { Home } from './pages/Home';
 import { CheckIn } from './pages/CheckIn';
@@ -36,9 +38,15 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<RedirectIfAuthenticated />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Route>
           <Route element={<RequireSession />}>
             <Route path="/link-member" element={<LinkMember />} />
+            {/* Not under RedirectIfAuthenticated: a password-recovery link
+                exchanges its code for a real session on load (see
+                AuthProvider), and that guard would bounce the user straight
+                to "/" before they ever see the set-new-password form. */}
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
           <Route element={<RequireAuth />}>
             <Route element={<AppShell />}>

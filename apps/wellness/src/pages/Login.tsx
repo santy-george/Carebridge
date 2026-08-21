@@ -59,6 +59,9 @@ export function Login() {
             required
           />
         </div>
+        <div style={{ textAlign: 'right' }}>
+          <Link to="/forgot-password">Forgot password?</Link>
+        </div>
         {error && (
           <p className="form-error" role="alert">
             {error}

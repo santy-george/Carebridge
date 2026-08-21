@@ -273,7 +273,7 @@ export function Profile() {
           </div>
           <button
             type="submit"
-            className="mbtn mbtn--fill mbtn--block"
+            className="mbtn mbtn--fill mbtn--block sheet__save"
             style={{ marginTop: '8px' }}
             disabled={saving}
           >

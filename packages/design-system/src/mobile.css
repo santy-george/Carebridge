@@ -1744,6 +1744,19 @@ body,
 .sheet.show {
   transform: none;
 }
+/* A sheet's own max-height/overflow-y can put its submit button below the
+   fold on shorter viewports with no visual cue that the sheet scrolls at
+   all -- reported live on a real device where the button was reachable but
+   invisible. Sticking it to the bottom of the sheet's own scroll box (not
+   the sheet's fixed padding-bottom, which sticky can't see past) keeps it
+   in view regardless of how much content is above it. */
+.sheet__save {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  padding-top: 8px;
+  z-index: 1;
+}
 .sheet__grip {
   width: 38px;
   height: 4px;

@@ -223,6 +223,7 @@ export function Home() {
   const bmiCategory = bmi !== null ? categorizeBmi(bmi) : null;
 
   const checkinScore = checkin?.wellness_score ?? 0;
+  const checkinScoreLabel = checkin ? (checkin.wellness_score ?? '—') : '—';
 
   return (
     <>
@@ -276,10 +277,7 @@ export function Home() {
           className="card"
           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}
         >
-          <span
-            className="icon"
-            style={{ width: 18, height: 18, color: 'var(--accent-text)' }}
-          >
+          <span className="icon" style={{ width: 18, height: 18, color: 'var(--accent-text)' }}>
             <svg>
               <use href="#i-clipboard" />
             </svg>
@@ -311,7 +309,7 @@ export function Home() {
           <GaugeRing
             percent={checkinScore}
             colorVar="var(--cyan-500)"
-            label={String(checkinScore)}
+            label={String(checkinScoreLabel)}
             size="hero"
             sublabel="Overall Score"
             trackColor="var(--neutral-100)"
@@ -329,9 +327,6 @@ export function Home() {
             <div>No check-in yet</div>
           </>
         )}
-        {checkin && checkin.wellness_score !== null && (
-          <div className="hero-card__desc">Well recovered — good day for activity</div>
-        )}
       </Link>
 
       <div className="sec" style={{ color: 'var(--purple-700)' }}>
@@ -339,7 +334,12 @@ export function Home() {
       </div>
       <div
         className="card"
-        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', padding: '16px 10px' }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          textAlign: 'center',
+          padding: '16px 10px',
+        }}
       >
         <div>
           <GaugeRing
@@ -370,9 +370,7 @@ export function Home() {
         </div>
       </div>
       <div className="vital-status">
-        <span style={{ width: 56 }}>
-          {bpStatus?.label ?? '—'}
-        </span>
+        <span style={{ width: 56 }}>{bpStatus?.label ?? '—'}</span>
         <span
           style={{
             width: 56,
@@ -382,9 +380,7 @@ export function Home() {
         >
           {glucoseStatus?.label ?? '—'}
         </span>
-        <span style={{ width: 56 }}>
-          {spo2Status?.label ?? '—'}
-        </span>
+        <span style={{ width: 56 }}>{spo2Status?.label ?? '—'}</span>
       </div>
 
       <div className="sec" style={{ color: 'var(--purple-700)' }}>
@@ -392,7 +388,12 @@ export function Home() {
       </div>
       <div
         className="card"
-        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', padding: '16px 10px' }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          textAlign: 'center',
+          padding: '16px 10px',
+        }}
       >
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Heart rate</div>
@@ -420,9 +421,7 @@ export function Home() {
       <div className="card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div className="metric-value">
-              {glucose ? `${glucose.value_mg_dl} mg/dL` : '—'}
-            </div>
+            <div className="metric-value">{glucose ? `${glucose.value_mg_dl} mg/dL` : '—'}</div>
             <div className="metric-sub">
               {glucose
                 ? `${glucoseContextLabel(glucose.context)} · logged ${glucose.reading_date}`

@@ -20,8 +20,7 @@ export function GaugeRing({
   textColor,
 }: GaugeRingProps) {
   const clamped = Math.max(0, Math.min(100, percent));
-  const className =
-    size === 'sm' ? 'ring ring--sm' : size === 'hero' ? 'ring ring--hero' : 'ring';
+  const className = size === 'sm' ? 'ring ring--sm' : size === 'hero' ? 'ring ring--hero' : 'ring';
   const style = {
     '--p': clamped,
     '--accent': colorVar,

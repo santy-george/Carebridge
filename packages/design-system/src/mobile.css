@@ -467,13 +467,6 @@ body,
   font-weight: 600;
 }
 
-/* hero card description text */
-.hero-card__desc {
-  font-size: 11px;
-  color: var(--text-body);
-  margin-top: 6px;
-}
-
 /* heading-style value for metric cards */
 .metric-value {
   font-family: var(--font-heading);
@@ -1593,7 +1586,10 @@ body,
   align-items: center;
   justify-content: center;
   position: relative;
-  background: conic-gradient(var(--accent) calc(var(--p, 80) * 1%), var(--ring-track, var(--surface-sunken)) 0);
+  background: conic-gradient(
+    var(--accent) calc(var(--p, 80) * 1%),
+    var(--ring-track, var(--surface-sunken)) 0
+  );
 }
 .ring::before {
   content: '';

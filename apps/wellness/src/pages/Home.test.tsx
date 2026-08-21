@@ -92,10 +92,21 @@ describe('Home', () => {
     expect(await screen.findByText('72')).toBeInTheDocument();
   });
 
-  it('shows a placeholder for the activity row with no query', async () => {
+  it('shows "Connect a wearable" for all activity metrics when no heart rate data exists', async () => {
     renderHome();
     await waitFor(() => expect(screen.getByText(/jane/i)).toBeInTheDocument());
-    expect(screen.getAllByText(/connect a wearable/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/connect a wearable/i).length).toBe(3);
+  });
+
+  it('shows heart rate value and "Not tracked yet" for steps/sleep when heart rate data exists', async () => {
+    tableResponses.wearable_readings = {
+      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      error: null,
+    };
+    renderHome();
+    expect(await screen.findByText('72 bpm')).toBeInTheDocument();
+    expect(screen.getAllByText(/not tracked yet/i).length).toBe(2);
+    expect(screen.queryByText(/connect a wearable/i)).not.toBeInTheDocument();
   });
 
   it('renders the greeting with the member first name', async () => {

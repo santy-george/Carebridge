@@ -8,6 +8,7 @@ import {
   categorizeBmi,
   classifyBloodPressure,
   classifyGlucose,
+  classifyHeartRate,
   classifySpo2,
   glucoseContextLabel,
   type GlucoseContext,
@@ -35,6 +36,11 @@ interface LatestGlucose {
   context: 'fasting' | 'pre_meal' | 'post_meal' | 'bedtime';
   reading_date: string;
   reading_time: string;
+}
+
+interface HeartRateRow {
+  value: number;
+  recorded_at: string;
 }
 
 function greeting(): string {
@@ -73,6 +79,7 @@ export function Home() {
   const [weightInput, setWeightInput] = useState('');
   const [heightInput, setHeightInput] = useState('');
   const [bmiError, setBmiError] = useState(false);
+  const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -104,7 +111,14 @@ export function Home() {
         .order('reading_date', { ascending: false })
         .order('reading_time', { ascending: false })
         .limit(1),
-    ]).then(([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes]) => {
+      supabase
+        .from('wearable_readings')
+        .select('reading_type, value, recorded_at')
+        .eq('member_id', selectedMemberId)
+        .eq('reading_type', 'heart_rate')
+        .order('recorded_at', { ascending: false })
+        .limit(1),
+    ]).then(([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes, hrRes]) => {
       if (!isMounted) return;
       setLoading(false);
       const anyError =
@@ -112,7 +126,8 @@ export function Home() {
         profileRes.error ||
         checkinsRes.error ||
         vitalsRes.error ||
-        glucoseRes.error;
+        glucoseRes.error ||
+        hrRes.error;
       setFetchError(!!anyError);
       const memberRow = membersRes.data as { full_name: string } | null;
       setFirstName(memberRow ? memberRow.full_name.split(' ')[0] : '');
@@ -122,6 +137,8 @@ export function Home() {
       setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
       const glucoseRows = (glucoseRes.data as LatestGlucose[] | null) ?? [];
       setGlucose(glucoseRows[0] ?? null);
+      const hrRows = (hrRes.data as { value: number; recorded_at: string }[] | null) ?? [];
+      setHeartRate(hrRows[0] ?? null);
       const weightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
         (r) => r.vital_type === 'weight_kg',
       );
@@ -397,20 +414,29 @@ export function Home() {
       >
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Heart rate</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
-            Connect a wearable
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              marginTop: 2,
+              color: heartRate
+                ? ringColorFor(classifyHeartRate(heartRate.value))
+                : 'var(--text-muted)',
+            }}
+          >
+            {heartRate ? `${heartRate.value} bpm` : 'Connect a wearable'}
           </div>
         </div>
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Steps</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
-            Connect a wearable
+            {heartRate ? 'Not tracked yet' : 'Connect a wearable'}
           </div>
         </div>
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Sleep</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
-            Connect a wearable
+            {heartRate ? 'Not tracked yet' : 'Connect a wearable'}
           </div>
         </div>
       </div>

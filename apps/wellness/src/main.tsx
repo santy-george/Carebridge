@@ -35,6 +35,14 @@ createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         <Routes>
           <Route path="/consent-withdrawn" element={<WithdrawalReceived />} />
+          {/* Not under RequireSession or RedirectIfAuthenticated: both guards
+              redirect before rendering based on session presence, which
+              would make ResetPassword's own loading/no-session/session
+              states unreachable. A recovery link may or may not have
+              exchanged its code for a session yet by the time this mounts
+              (see AuthProvider) -- the component handles all three states
+              itself instead of a route guard picking one in advance. */}
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route element={<RedirectIfAuthenticated />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -42,11 +50,6 @@ createRoot(document.getElementById('root')!).render(
           </Route>
           <Route element={<RequireSession />}>
             <Route path="/link-member" element={<LinkMember />} />
-            {/* Not under RedirectIfAuthenticated: a password-recovery link
-                exchanges its code for a real session on load (see
-                AuthProvider), and that guard would bounce the user straight
-                to "/" before they ever see the set-new-password form. */}
-            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
           <Route element={<RequireAuth />}>
             <Route element={<AppShell />}>

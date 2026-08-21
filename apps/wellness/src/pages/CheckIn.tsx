@@ -46,8 +46,17 @@ export function CheckIn() {
     navigate('/');
   };
 
+  /** Active-state modifier for a choice pill. Negative health indicators use
+   *  `on-warn` (yellow), severe conditions use `on-alert` (red), positive/neutral use `on`. */
+  const choiceClass = (isSelected: boolean, severity?: 'warn' | 'alert') =>
+    isSelected ? ` on${severity ? '-' + severity : ''}` : '';
+
   return (
     <>
+      <style>{`
+        .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+      `}</style>
+
       <div className="tbar">
         <Link className="backbtn" to="/" aria-label="Back to home">
           <span className="icon">
@@ -62,7 +71,7 @@ export function CheckIn() {
       </div>
 
       <div className="vbody has-cta">
-        <div className="checkin">
+        <div className="checkin reveal">
           <div className="checkin__head">
             <h3>How are you feeling today?</h3>
             <span className="day">
@@ -82,7 +91,7 @@ export function CheckIn() {
                   key={opt.value}
                   role="button"
                   tabIndex={0}
-                  className={`choice${mood === opt.value ? ' on' : ''}`}
+                  className={`choice${choiceClass(mood === opt.value, opt.value === 'low' ? 'warn' : undefined)}`}
                   onClick={() => setMood(opt.value)}
                 >
                   {opt.label}
@@ -99,7 +108,7 @@ export function CheckIn() {
                   key={opt.value}
                   role="button"
                   tabIndex={0}
-                  className={`choice${sleep === opt.value ? ' on' : ''}`}
+                  className={`choice${choiceClass(sleep === opt.value, opt.value === 'poor' ? 'warn' : undefined)}`}
                   onClick={() => setSleep(opt.value)}
                 >
                   {opt.label}
@@ -116,7 +125,7 @@ export function CheckIn() {
                   key={opt.value}
                   role="button"
                   tabIndex={0}
-                  className={`choice${energy === opt.value ? ' on' : ''}`}
+                  className={`choice${choiceClass(energy === opt.value, opt.value === 'low' ? 'warn' : undefined)}`}
                   onClick={() => setEnergy(opt.value)}
                 >
                   {opt.label}
@@ -133,9 +142,16 @@ export function CheckIn() {
                   key={opt.value}
                   role="button"
                   tabIndex={0}
-                  className={`choice${aches === opt.value ? ' on' : ''}${
-                    aches === opt.value && opt.value !== 'none' ? '-warn' : ''
-                  }`}
+                  className={`choice${choiceClass(
+                    aches === opt.value,
+                    aches === opt.value
+                      ? opt.value === 'severe'
+                        ? 'alert'
+                        : opt.value !== 'none'
+                          ? 'warn'
+                          : undefined
+                      : undefined,
+                  )}`}
                   onClick={() => setAches(opt.value)}
                 >
                   {opt.label}
@@ -145,7 +161,7 @@ export function CheckIn() {
           </div>
         </div>
 
-        <div className="field">
+        <div className="field reveal">
           <label htmlFor="checkin-notes">Add a note for your care team (optional)</label>
           <textarea
             id="checkin-notes"

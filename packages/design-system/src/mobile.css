@@ -1618,6 +1618,7 @@ body,
 .ring--hero {
   width: 75px;
   height: 75px;
+  flex-direction: column;
 }
 .ring--hero::before {
   inset: 6px;

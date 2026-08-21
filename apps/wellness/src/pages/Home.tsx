@@ -222,6 +222,9 @@ export function Home() {
   const bmi = weightRow && heightRow ? calculateBmi(weightRow.value, heightRow.value) : null;
   const bmiCategory = bmi !== null ? categorizeBmi(bmi) : null;
 
+  const checkinScore = checkin?.wellness_score ?? 0;
+  const checkinScoreLabel = checkin ? (checkin.wellness_score ?? '—') : '—';
+
   return (
     <>
       {fetchError && (
@@ -235,14 +238,14 @@ export function Home() {
 
       <div className="tbar">
         <div className="tbar__title">
-          <div className="eyebrow">
+          <div className="eyebrow" style={{ color: 'var(--purple-400)' }}>
             {new Date().toLocaleDateString(undefined, {
               weekday: 'long',
               month: 'long',
               day: 'numeric',
             })}
           </div>
-          <h1>
+          <h1 style={{ color: 'var(--purple-700)' }}>
             {greeting()}
             {firstName ? `, ${firstName}` : ''}
           </h1>
@@ -250,7 +253,7 @@ export function Home() {
       </div>
 
       {hasMedicalProfile ? (
-        <div className="card card--flush">
+        <div className="card card--flush" style={{ padding: '2px 14px' }}>
           <div className="kv">
             <div className="kv__row">
               <span className="kv__k">Conditions</span>
@@ -269,30 +272,74 @@ export function Home() {
           </div>
         </div>
       ) : (
-        <div className="card">
-          <span>Add your health profile</span>
-        </div>
+        <Link
+          to="/profile"
+          className="card"
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}
+        >
+          <span className="icon" style={{ width: 18, height: 18, color: 'var(--accent-text)' }}>
+            <svg>
+              <use href="#i-clipboard" />
+            </svg>
+          </span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-heading)' }}>
+            Add your health profile
+          </span>
+          <span className="icon chev" style={{ marginLeft: 'auto' }}>
+            <svg>
+              <use href="#i-chevron" />
+            </svg>
+          </span>
+        </Link>
       )}
 
-      <Link to="/check-in" className="hero-card" style={{ textAlign: 'center', display: 'block' }}>
+      <Link
+        to="/check-in"
+        className="hero-card hero-card--image"
+        style={{
+          textAlign: 'center',
+          padding: '11px 9px',
+          width: '100%',
+          margin: '0 auto',
+          background: 'url("/wellness-calm-companion.png") center / cover no-repeat',
+          display: 'block',
+        }}
+      >
         {checkin ? (
           <GaugeRing
-            percent={checkin.wellness_score ?? 0}
+            percent={checkinScore}
             colorVar="var(--cyan-500)"
-            label={String(checkin.wellness_score ?? '—')}
+            label={String(checkinScoreLabel)}
+            size="hero"
+            sublabel="Overall Score"
+            trackColor="var(--neutral-100)"
+            textColor="var(--cyan-700)"
           />
         ) : (
           <>
-            <GaugeRing percent={0} colorVar="var(--neutral-300)" label="—" />
+            <GaugeRing
+              percent={0}
+              colorVar="var(--neutral-300)"
+              label="—"
+              size="hero"
+              trackColor="var(--neutral-100)"
+            />
             <div>No check-in yet</div>
           </>
         )}
       </Link>
 
-      <div className="sec">My vitals</div>
+      <div className="sec" style={{ color: 'var(--purple-700)' }}>
+        My vitals
+      </div>
       <div
         className="card"
-        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          textAlign: 'center',
+          padding: '16px 10px',
+        }}
       >
         <div>
           <GaugeRing
@@ -301,7 +348,7 @@ export function Home() {
             label={bp ? String(bp.value) : '—'}
             size="sm"
           />
-          <div>Blood pressure</div>
+          <div className="vital-label">Blood pressure</div>
         </div>
         <div>
           <GaugeRing
@@ -310,7 +357,7 @@ export function Home() {
             label={glucose ? String(glucose.value_mg_dl) : '—'}
             size="sm"
           />
-          <div>Glucose</div>
+          <div className="vital-label">Glucose</div>
         </div>
         <div>
           <GaugeRing
@@ -319,35 +366,63 @@ export function Home() {
             label={spo2 ? String(spo2.value) : '—'}
             size="sm"
           />
-          <div>SpO2</div>
+          <div className="vital-label">SpO2</div>
         </div>
       </div>
+      <div className="vital-status">
+        <span style={{ width: 56 }}>{bpStatus?.label ?? '—'}</span>
+        <span
+          style={{
+            width: 56,
+            color: glucoseStatus?.chipClass === 'chip2--warn' ? 'var(--warning-text)' : undefined,
+            fontWeight: glucoseStatus?.chipClass === 'chip2--warn' ? 600 : undefined,
+          }}
+        >
+          {glucoseStatus?.label ?? '—'}
+        </span>
+        <span style={{ width: 56 }}>{spo2Status?.label ?? '—'}</span>
+      </div>
 
-      <div className="sec">My activity</div>
+      <div className="sec" style={{ color: 'var(--purple-700)' }}>
+        My activity
+      </div>
       <div
         className="card"
-        style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          textAlign: 'center',
+          padding: '16px 10px',
+        }}
       >
         <div>
-          <div>Heart rate</div>
-          <div>Connect a wearable to see this</div>
+          <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Heart rate</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
+            Connect a wearable
+          </div>
         </div>
         <div>
-          <div>Steps</div>
-          <div>Connect a wearable to see this</div>
+          <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Steps</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
+            Connect a wearable
+          </div>
         </div>
         <div>
-          <div>Sleep</div>
-          <div>Connect a wearable to see this</div>
+          <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Sleep</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
+            Connect a wearable
+          </div>
         </div>
       </div>
 
-      <div className="sec">BLOOD GLUCOSE</div>
+      <div className="sec" style={{ color: 'var(--purple-700)' }}>
+        BLOOD GLUCOSE
+      </div>
       <div className="card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div>{glucose ? `${glucose.value_mg_dl} mg/dL` : '—'}</div>
-            <div>
+            <div className="metric-value">{glucose ? `${glucose.value_mg_dl} mg/dL` : '—'}</div>
+            <div className="metric-sub">
               {glucose
                 ? `${glucoseContextLabel(glucose.context)} · logged ${glucose.reading_date}`
                 : 'No readings yet'}
@@ -357,7 +432,7 @@ export function Home() {
             <span className={`chip2 ${glucoseStatus.chipClass}`}>{glucoseStatus.label}</span>
           )}
         </div>
-        <div className="seg">
+        <div className="seg" style={{ marginTop: 10 }}>
           {(['fasting', 'pre_meal', 'post_meal', 'bedtime'] as const).map((ctx) => (
             <button
               key={ctx}
@@ -369,7 +444,7 @@ export function Home() {
             </button>
           ))}
         </div>
-        <div className="vin">
+        <div className="vin" style={{ marginTop: 8 }}>
           <label htmlFor="glucose-input">Blood glucose</label>
           <div className="r">
             <input
@@ -387,7 +462,13 @@ export function Home() {
           type="button"
           aria-label="Log glucose reading"
           onClick={logGlucose}
+          style={{ marginTop: 10 }}
         >
+          <span className="icon">
+            <svg>
+              <use href="#i-droplet" />
+            </svg>
+          </span>{' '}
           Log reading
         </button>
         {glucoseError && (
@@ -395,14 +476,19 @@ export function Home() {
             Couldn&apos;t save that reading — try again.
           </p>
         )}
+        <Link to="/health" className="view-history">
+          View full history on My Health
+        </Link>
       </div>
 
-      <div className="sec">MY BODY</div>
+      <div className="sec" style={{ color: 'var(--purple-700)' }}>
+        MY BODY
+      </div>
       <div className="card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div>{bmi !== null ? bmi : '—'}</div>
-            <div>
+            <div className="metric-value">{bmi !== null ? bmi : '—'}</div>
+            <div className="metric-sub">
               {weightRow && heightRow
                 ? `${weightRow.value} kg · ${heightRow.value} cm`
                 : 'No readings yet'}
@@ -412,7 +498,7 @@ export function Home() {
             <span className={`chip2 ${bmiCategory.chipClass}`}>{bmiCategory.label}</span>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           <div className="vin" style={{ flex: 1 }}>
             <label htmlFor="weight-input">Weight</label>
             <div className="r">
@@ -445,7 +531,13 @@ export function Home() {
           type="button"
           aria-label="Log body reading"
           onClick={logBodyReading}
+          style={{ marginTop: 10 }}
         >
+          <span className="icon">
+            <svg>
+              <use href="#i-plus" />
+            </svg>
+          </span>{' '}
           Log reading
         </button>
         {bmiError && (
@@ -453,6 +545,9 @@ export function Home() {
             Couldn&apos;t save that reading — try again.
           </p>
         )}
+        <Link to="/health" className="view-history">
+          View full history on My Health
+        </Link>
       </div>
     </>
   );

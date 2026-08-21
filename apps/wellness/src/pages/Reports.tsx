@@ -72,6 +72,8 @@ export function Reports() {
 
   return (
     <>
+      <style>{`.tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }`}</style>
+
       {fetchError && (
         <div className="card" role="alert">
           <span>Something went wrong loading your data.</span>
@@ -100,7 +102,7 @@ export function Reports() {
         </div>
       ) : (
         <>
-          <div className="mreport">
+          <div className="mreport reveal">
             <div className="mreport__head">
               <span className="mo">{current.monthLabel}</span>
               {classifyMonth(current.avgWellnessScore) && (
@@ -138,7 +140,7 @@ export function Reports() {
           {previous.length > 0 && (
             <>
               <div className="sec">Previous reports</div>
-              <div className="card card--flush">
+              <div className="card card--flush reveal">
                 {previous.map((report) => (
                   <div className="row" key={report.monthKey}>
                     <div className="ic">
@@ -157,6 +159,11 @@ export function Reports() {
                         {report.checkinsCompleted} check-ins
                       </div>
                     </div>
+                    <span className="icon chev">
+                      <svg>
+                        <use href="#i-chevron" />
+                      </svg>
+                    </span>
                   </div>
                 ))}
               </div>

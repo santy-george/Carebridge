@@ -438,6 +438,65 @@ body,
   width: 14px;
   height: 14px;
 }
+/* hero card with background image — suppress the decorative circle */
+.hero-card--image::before {
+  display: none;
+}
+
+/* vital metric label under a ring */
+.vital-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  text-align: center;
+}
+/* status labels row below vitals */
+.vital-status {
+  display: flex;
+  justify-content: space-around;
+  font-size: 10px;
+  color: var(--text-subtle);
+  margin-top: -8px;
+  text-align: center;
+}
+.vital-status span {
+  width: 56px;
+}
+.vital-status .warn {
+  color: var(--warning-text);
+  font-weight: 600;
+}
+
+/* hero card description text */
+.hero-card__desc {
+  font-size: 11px;
+  color: var(--text-body);
+  margin-top: 6px;
+}
+
+/* heading-style value for metric cards */
+.metric-value {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--text-heading);
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* view-history link at bottom of metric cards */
+.view-history {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--accent-text);
+}
 
 /* greeting block */
 .greet h1 {
@@ -1534,7 +1593,7 @@ body,
   align-items: center;
   justify-content: center;
   position: relative;
-  background: conic-gradient(var(--accent) calc(var(--p, 80) * 1%), var(--surface-sunken) 0);
+  background: conic-gradient(var(--accent) calc(var(--p, 80) * 1%), var(--ring-track, var(--surface-sunken)) 0);
 }
 .ring::before {
   content: '';
@@ -1548,7 +1607,7 @@ body,
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 24px;
-  color: var(--text-heading);
+  color: var(--ring-color, var(--text-heading));
 }
 .ring--sm {
   width: 56px;
@@ -1559,6 +1618,24 @@ body,
 }
 .ring--sm b {
   font-size: 13px;
+}
+.ring--hero {
+  width: 75px;
+  height: 75px;
+}
+.ring--hero::before {
+  inset: 6px;
+}
+.ring--hero b {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+.ring__sub {
+  position: relative;
+  font-size: 8px;
+  color: var(--text-muted);
+  margin-top: 1px;
 }
 .spark {
   width: 100%;

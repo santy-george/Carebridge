@@ -15,6 +15,13 @@ import {
 
 type Sheet = null | 'med' | 'refill';
 
+const BAND_BG: Record<TimeOfDayBand, string> = {
+  morning: 'var(--amber-50)',
+  noon: 'var(--blue-50)',
+  evening: 'var(--purple-50)',
+  night: 'var(--mint-50)',
+};
+
 function todayDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -189,6 +196,15 @@ export function Medications() {
 
   return (
     <>
+      <style>{`
+        .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+        .seg button.is-active { background: var(--purple-700); color: #fff; box-shadow: var(--shadow-xs) }
+        .card--flush .med-item { padding-left: 16px; padding-right: 16px }
+        .med-item__toggle { cursor: pointer }
+        .med-item--highrisk { background: var(--danger-soft) }
+        .med-item--highrisk .ic { background: var(--danger-soft); color: var(--danger) }
+      `}</style>
+
       {fetchError && (
         <div className="card" role="alert">
           <span>Something went wrong loading your data.</span>
@@ -214,6 +230,14 @@ export function Medications() {
             </svg>
           </span>
         </button>
+      </div>
+
+      <div className="seg" style={{ marginBottom: '4px' }}>
+        <button type="button">Appointments</button>
+        <button type="button" className="is-active">
+          Medications
+        </button>
+        <button type="button">Activity</button>
       </div>
 
       <div className="banner banner--warn" style={{ marginBottom: '12px' }}>
@@ -250,9 +274,23 @@ export function Medications() {
         <div key={band}>
           <div className="sec tap" onClick={() => togglePeriod(band)}>
             {BAND_LABELS[band]}
+            <span
+              className="icon"
+              style={{
+                width: 16,
+                height: 16,
+                color: 'var(--text-subtle)',
+                transform: periodOpen[band] ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.2s',
+              }}
+            >
+              <svg>
+                <use href="#i-chevron-down" />
+              </svg>
+            </span>
           </div>
           {periodOpen[band] && (
-            <div className="card card--flush">
+            <div className="card card--flush" style={{ background: BAND_BG[band] }}>
               {dosesByBand[band].length === 0 && (
                 <div className="med-item">No medications scheduled</div>
               )}
@@ -273,6 +311,7 @@ export function Medications() {
                   <div className="m">
                     <div className="t">
                       {dose.name}
+                      {dose.dosage ? ` ${dose.dosage}` : ''}
                       {dose.highRisk && (
                         <span className="chip2 chip2--alert">
                           <span className="icon">
@@ -285,7 +324,7 @@ export function Medications() {
                       )}
                     </div>
                     <div className="s">
-                      <span className="dose">{dose.dosage ?? '1 dose'}</span>
+                      {dose.dosage && <span className="dose">{dose.dosage}</span>}
                     </div>
                   </div>
                   <div
@@ -329,16 +368,24 @@ export function Medications() {
               borderRadius: '50%',
               background: 'var(--surface)',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <b>{todayPercent}%</b>
+            <b style={{ fontSize: '16px', color: 'var(--text-heading)' }}>{todayPercent}%</b>
           </div>
         </div>
         <div>
-          <div>Doses taken today</div>
-          <b>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Doses taken today</div>
+          <b
+            style={{
+              fontSize: '15px',
+              color: 'var(--text-heading)',
+              display: 'block',
+              marginTop: 2,
+            }}
+          >
             {takenCount} of {totalCount}
           </b>
         </div>
@@ -346,11 +393,25 @@ export function Medications() {
 
       <div className="sec tap" onClick={() => setStockOpen((v) => !v)}>
         Medicine stock level
+        <span
+          className="icon"
+          style={{
+            width: 16,
+            height: 16,
+            color: 'var(--text-subtle)',
+            transform: stockOpen ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.2s',
+          }}
+        >
+          <svg>
+            <use href="#i-chevron-down" />
+          </svg>
+        </span>
       </div>
       {stockOpen && (
         <>
           <div className="card card--pad0" style={{ overflow: 'hidden' }}>
-            <table className="table">
+            <table className="table" style={{ fontSize: '12.5px' }}>
               <thead>
                 <tr>
                   <th>Medicine</th>
@@ -360,7 +421,10 @@ export function Medications() {
               </thead>
               <tbody>
                 {stockWithDays.map((item) => (
-                  <tr key={item.id}>
+                  <tr
+                    key={item.id}
+                    style={item.high_risk ? { background: 'var(--danger-soft)' } : undefined}
+                  >
                     <td>
                       {item.name}
                       {item.high_risk && (
@@ -392,6 +456,18 @@ export function Medications() {
             onClick={() => setSheet('refill')}
           >
             Refill stock
+          </button>
+          <button
+            type="button"
+            className="mbtn mbtn--line mbtn--block"
+            style={{ marginTop: '8px' }}
+          >
+            <span className="icon">
+              <svg>
+                <use href="#i-mail" />
+              </svg>
+            </span>
+            Send to pharmacist
           </button>
         </>
       )}

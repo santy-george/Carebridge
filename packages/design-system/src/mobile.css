@@ -1714,7 +1714,18 @@ body,
 
 /* ---- Bottom sheet + overlay ------------------------------------------- */
 .scrim {
-  position: absolute;
+  /* fixed, not absolute: a sheet/scrim renders as a normal-flow descendant
+     of .vbody, which has overflow-y:auto for its own scrolling content.
+     overflow clips ALL descendants to that box regardless of their
+     positioning containing block -- an absolutely-positioned sheet was
+     getting clipped to .vbody's bounds (excluding the header/bottom nav),
+     cutting off its lower portion on any viewport where that clipped box
+     is shorter than the sheet's content. Reported live: the medical-
+     profile sheet's Save button was invisible on a real phone despite the
+     earlier .sheet__save sticky fix -- that fix was correct but powerless
+     against the sheet itself being clipped before it ever got that far.
+     position:fixed escapes ancestor overflow clipping entirely. */
+  position: fixed;
   inset: 0;
   z-index: 60;
   background: rgba(11, 12, 20, 0.45);
@@ -1727,7 +1738,7 @@ body,
   pointer-events: auto;
 }
 .sheet {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;

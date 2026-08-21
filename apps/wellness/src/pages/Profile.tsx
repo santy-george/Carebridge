@@ -116,6 +116,8 @@ export function Profile() {
 
   return (
     <>
+      <style>{`.tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }`}</style>
+
       {fetchError && (
         <div className="card" role="alert">
           <span>Something went wrong loading your data.</span>
@@ -140,7 +142,7 @@ export function Profile() {
 
       {member && (
         <>
-          <div className="idblock" style={{ padding: '4px 2px' }}>
+          <div className="idblock reveal" style={{ padding: '4px 2px' }}>
             <span className="av">{initialsFor(member.full_name)}</span>
             <div>
               <div className="nm">{member.full_name}</div>
@@ -150,7 +152,7 @@ export function Profile() {
               </div>
             </div>
           </div>
-          <span className={`tierbadge tierbadge--${member.care_model.replace('_care', '')}`}>
+          <span className={`tierbadge tierbadge--${member.care_model.replace('_care', '')} reveal`}>
             <span className="icon">
               <svg>
                 <use href="#i-shield" />
@@ -162,7 +164,7 @@ export function Profile() {
       )}
 
       <div className="sec">Account</div>
-      <div className="card card--flush">
+      <div className="card card--flush reveal">
         <div className="row tap" role="button" tabIndex={0} onClick={openSheet}>
           <div className="ic">
             <span className="icon">
@@ -194,11 +196,15 @@ export function Profile() {
         </button>
       </Link>
 
-      <div className="card" style={{ marginTop: '24px' }}>
-        <Link to="/withdraw-consent" style={{ color: 'var(--danger)', fontSize: '13px' }}>
+      <Link to="/withdraw-consent">
+        <button
+          type="button"
+          className="mbtn mbtn--ghost mbtn--block"
+          style={{ color: 'var(--danger)' }}
+        >
           Withdraw consent
-        </Link>
-      </div>
+        </button>
+      </Link>
 
       <div className={`scrim${sheetOpen ? ' show' : ''}`} onClick={() => setSheetOpen(false)} />
       <div className={`sheet${sheetOpen ? ' show' : ''}`}>

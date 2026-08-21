@@ -127,6 +127,8 @@ export function Sos() {
         </div>
       </div>
 
+      <style>{`.tbar__title h1 { color: var(--purple-700); }`}</style>
+
       <div
         className="vbody has-cta"
         style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}
@@ -157,7 +159,10 @@ export function Sos() {
         </p>
 
         {careTeam.length > 0 && (
-          <div className="card" style={{ width: '100%', textAlign: 'left', marginTop: '22px' }}>
+          <div
+            className="card reveal"
+            style={{ width: '100%', textAlign: 'left', marginTop: '22px' }}
+          >
             {careTeam.map((member, i) => {
               const colors = AVATAR_COLORS[i % AVATAR_COLORS.length];
               return (

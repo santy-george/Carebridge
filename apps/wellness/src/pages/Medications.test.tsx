@@ -89,7 +89,7 @@ describe('Medications', () => {
 
   it('groups doses under Morning and marks the logged one taken', async () => {
     render(<Medications />);
-    expect(await screen.findByText('Aspirin')).toBeInTheDocument();
+    expect(await screen.findByText(/Aspirin 75mg/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /mark metformin morning as not taken/i }),
     ).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe('Medications', () => {
         },
       }),
     );
-    expect(await screen.findByText('Vitamin D3')).toBeInTheDocument();
+    expect(await screen.findByText(/Vitamin D3 1 capsule/)).toBeInTheDocument();
   });
 
   it('refills stock through the sheet', async () => {

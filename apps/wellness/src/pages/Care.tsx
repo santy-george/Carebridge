@@ -61,6 +61,11 @@ export function Care() {
 
   return (
     <>
+      <style>{`
+        .tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }
+        .row-actions { display: flex; gap: 8px; }
+      `}</style>
+
       {fetchError && (
         <div className="card" role="alert">
           <span>Something went wrong loading your data.</span>
@@ -76,71 +81,66 @@ export function Care() {
         </div>
       </div>
 
-      <div className="sec">Your care team</div>
-      {careTeam.length === 0 ? (
-        <div className="card">
-          <span>Your care coordinator hasn&apos;t added anyone to your care team yet.</span>
-        </div>
-      ) : (
-        <div className="card card--flush">
-          {careTeam.map((member, i) => {
-            const colors = AVATAR_COLORS[i % AVATAR_COLORS.length];
-            return (
-              <div className="row" key={member.id}>
-                <span
-                  className="avatar avatar--sm"
-                  style={{
-                    background: colors.bg,
-                    color: colors.fg,
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                  }}
-                >
-                  {initialsFor(member)}
-                </span>
-                <div className="m">
-                  <div className="t">{member.name}</div>
-                  <div className="s">{member.role_label}</div>
+      <div className="vbody has-nav">
+        <div className="sec">Your care team</div>
+        {careTeam.length === 0 ? (
+          <div className="card">
+            <span>Your care coordinator hasn&apos;t added anyone to your care team yet.</span>
+          </div>
+        ) : (
+          <div className="card card--flush reveal">
+            {careTeam.map((member, i) => {
+              const colors = AVATAR_COLORS[i % AVATAR_COLORS.length];
+              return (
+                <div className="row" key={member.id}>
+                  <span
+                    className="avatar"
+                    style={{
+                      background: colors.bg,
+                      color: colors.fg,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {initialsFor(member)}
+                  </span>
+                  <div className="m">
+                    <div className="t">{member.name}</div>
+                    <div className="s">{member.role_label}</div>
+                  </div>
+                  <div className="row-actions">
+                    {member.email && (
+                      <a
+                        className="iconbtn"
+                        href={`mailto:${member.email}`}
+                        aria-label={`Message ${member.name}`}
+                      >
+                        <span className="icon">
+                          <svg>
+                            <use href="#i-chat" />
+                          </svg>
+                        </span>
+                      </a>
+                    )}
+                    {member.phone && (
+                      <a
+                        className="iconbtn"
+                        href={`tel:${member.phone}`}
+                        aria-label={`Call ${member.name}`}
+                      >
+                        <span className="icon">
+                          <svg>
+                            <use href="#i-phone" />
+                          </svg>
+                        </span>
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {member.phone && (
-                    <a
-                      className="iconbtn"
-                      href={`tel:${member.phone}`}
-                      aria-label={`Call ${member.name}`}
-                    >
-                      <span className="icon">
-                        <svg>
-                          <use href="#i-phone" />
-                        </svg>
-                      </span>
-                    </a>
-                  )}
-                  {member.email && (
-                    <a
-                      className="iconbtn"
-                      href={`mailto:${member.email}`}
-                      aria-label={`Email ${member.name}`}
-                    >
-                      <span className="icon">
-                        <svg>
-                          <use href="#i-mail" />
-                        </svg>
-                      </span>
-                    </a>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </>
   );
 }

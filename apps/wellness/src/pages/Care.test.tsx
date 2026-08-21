@@ -75,7 +75,7 @@ describe('Care', () => {
 
     expect(screen.getByText('Tom Bennett')).toBeInTheDocument();
     expect(screen.getByText('TB')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /email tom bennett/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /message tom bennett/i })).toHaveAttribute(
       'href',
       'mailto:tom@carebridge.example',
     );

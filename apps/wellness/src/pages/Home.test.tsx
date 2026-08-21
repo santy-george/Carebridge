@@ -28,6 +28,7 @@ function mockTable(table: string) {
     select: () => builder,
     eq: () => builder,
     in: () => builder,
+    not: () => builder,
     order: () => builder,
     limit: () => builder,
     maybeSingle: () => builder,

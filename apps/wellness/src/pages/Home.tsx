@@ -116,6 +116,7 @@ export function Home() {
         .select('reading_type, value, recorded_at')
         .eq('member_id', selectedMemberId)
         .eq('reading_type', 'heart_rate')
+        .not('value', 'is', null)
         .order('recorded_at', { ascending: false })
         .limit(1),
     ]).then(([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes, hrRes]) => {

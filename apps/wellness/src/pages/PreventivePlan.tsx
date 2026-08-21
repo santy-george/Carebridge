@@ -49,6 +49,8 @@ export function PreventivePlan() {
 
   return (
     <>
+      <style>{`.tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }`}</style>
+
       {fetchError && (
         <div className="card" role="alert">
           <span>Something went wrong loading your data.</span>
@@ -77,7 +79,10 @@ export function PreventivePlan() {
         </div>
       ) : (
         <>
-          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            className="card reveal"
+            style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
+          >
             <div
               className="ring"
               style={
@@ -102,8 +107,8 @@ export function PreventivePlan() {
             </div>
           </div>
 
-          <div className="sec">Goals</div>
-          <div className="card">
+          <div className="sec">This month&apos;s goals</div>
+          <div className="card reveal">
             <div className="wplan">
               {goals.map((goal) => (
                 <div className={`wplan__item${goal.completed_at ? ' done' : ''}`} key={goal.id}>

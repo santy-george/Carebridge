@@ -4,6 +4,8 @@ import { EDUCATION_ARTICLES, EDUCATION_TIPS } from '../lib/education';
 export function Education() {
   return (
     <>
+      <style>{`.tbar__title h1, .sec, .tt, h2, h3 { color: var(--purple-700); }`}</style>
+
       <div className="tbar">
         <Link className="backbtn" to="/more" aria-label="Back to more">
           <span className="icon">
@@ -22,7 +24,7 @@ export function Education() {
       </p>
 
       <div
-        className="lib-grid"
+        className="lib-grid reveal"
         style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}
       >
         {EDUCATION_ARTICLES.map((article) => (
@@ -50,8 +52,8 @@ export function Education() {
         ))}
       </div>
 
-      <div className="sec">Tips</div>
-      <div className="card">
+      <div className="sec">Recommended tips</div>
+      <div className="card reveal">
         {EDUCATION_TIPS.map((tip, i) => (
           <div className="lib-tip-item" key={i}>
             <span className="lib-tip-num">{i + 1}</span>

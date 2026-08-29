@@ -26,14 +26,16 @@ User decisions locked for this pass (2026-08-29 conversation):
 | `vo2_max` | streaming | infrequent samples |
 | `apple_walking_steadiness` | streaming | %, fall-*risk* signal, no entitlement needed |
 | `apple_sleeping_wrist_temperature` | streaming | Series 8+/Ultra only — availability-gated at authorization time |
-| `step_count` | **daily cumulative** | see below |
-| `active_energy_burned` | **daily cumulative** | kcal |
-| `distance_walked_running` | **daily cumulative** | km |
-| `apple_stand_time` | **daily cumulative** | hours |
+| `step_count` | **daily cumulative** — own table | see below |
+| `active_energy_burned` | **daily cumulative** — own table | kcal |
+| `distance_walked_running` | **daily cumulative** — own table | km |
+| `apple_stand_time` | **daily cumulative** — own table | hours |
 
 Streaming types reuse the existing `HKObserverQuery` + `HKAnchoredObjectQuery` + per-type anchor pattern from `HealthKitBridge.swift`, generalized to a per-type unit/scale table instead of the current heart_rate/spo2 if-else.
 
-Daily-cumulative types are a different query shape and a real correctness risk if built as a copy-paste of the streaming path: Watch and iPhone can both log steps for the same interval, and summing raw anchored samples double-counts. Use `HKStatisticsCollectionQuery` (day-bucketed by the iPhone's local calendar day/timezone — the phone the member actually carries, not UTC or server time, `.cumulativeSum`, HealthKit's own built-in dedup across overlapping sources) and **upsert one row per calendar day** rather than appending per-sample. `wearable_readings` needs a unique constraint on `(member_id, reading_type, recorded_at::date)` for these four types to make the upsert well-defined — add via migration, scoped to not affect the streaming types' behavior (they keep appending).
+Daily-cumulative types are a different query shape and a real correctness risk if built as a copy-paste of the streaming path: Watch and iPhone can both log steps for the same interval, and summing raw anchored samples double-counts. Use `HKStatisticsCollectionQuery` (day-bucketed by the iPhone's local calendar day/timezone — the phone the member actually carries, not UTC or server time, `.cumulativeSum`, HealthKit's own built-in dedup across overlapping sources), one row per calendar day, upserted as the day's total updates.
+
+**Own table, not `wearable_readings`:** upserting needs a real unique constraint for PostgREST's `on_conflict` to target, and Postgres/PostgREST can't use a *partial* unique index as an upsert arbiter (which is what scoping the constraint to just these 4 `reading_type` values inside `wearable_readings` would require). A dedicated `daily_activity_totals` table (`member_id`, `reading_type`, `day date`, `value`, unique on `(member_id, reading_type, day)`) sidesteps that cleanly — same reasoning already applied to sleep/ECG/rhythm: shape doesn't fit, give it its own table. The client is unaffected: these 4 types still travel in the same `readings` array as every other Group A type: the Edge Function routes each row to `wearable_readings` (insert) or `daily_activity_totals` (upsert) based on its `reading_type`.
 
 **Group B — non-numeric, own tables:**
 
@@ -60,7 +62,7 @@ Wellness iOS app (healthkit.ts — batches, routes by payload shape)
    ↓ authenticated POST, batched
 ingest-wearable Edge Function
    ↓
-wearable_readings (Group A) | sleep_sessions | ecg_readings | rhythm_events
+wearable_readings (Group A streaming) | daily_activity_totals (Group A cumulative) | sleep_sessions | ecg_readings | rhythm_events
 ```
 
 ## Native plugin changes (`HealthKitBridge.swift`)
@@ -81,13 +83,14 @@ wearable_readings (Group A) | sleep_sessions | ecg_readings | rhythm_events
 ## `ingest-wearable` Edge Function changes
 
 - Extend `ALLOWED_READING_TYPES` to the full Group A list.
-- Payload becomes `{ member_id, readings?: [...], sleep_sessions?: [...], ecg_readings?: [...], rhythm_events?: [...] }` — all optional, at least one non-empty array required. Same ownership check (member_id ↔ caller JWT via `member_links`) gates all four before any insert.
-- Each array validated and inserted independently; a malformed row in one array doesn't block the others (matches the existing "HTTP 207 partial failure" posture used in `erase-consent-withdrawal`, applied here for consistency rather than an all-or-nothing 400).
+- Payload becomes `{ member_id, readings?: [...], sleep_sessions?: [...], ecg_readings?: [...], rhythm_events?: [...] }` — all optional, at least one non-empty array required. Same ownership check (member_id ↔ caller JWT via `member_links`) gates all four before any insert. Client shape is unchanged for the daily-cumulative types — they still travel inside `readings`.
+- Within `readings`, split server-side by `reading_type`: the 4 daily-cumulative types upsert into `daily_activity_totals` (`on_conflict: 'member_id,reading_type,day'`, `day` derived from each row's `recorded_at`), everything else inserts into `wearable_readings` as today.
+- Each of the four payload arrays validated and inserted independently; a malformed row in one array doesn't block the others (matches the existing "HTTP 207 partial failure" posture used in `erase-consent-withdrawal`, applied here for consistency rather than an all-or-nothing 400).
 - `device_vendor` still hardcoded server-side, never client-supplied, unchanged from today.
 
 ## Home UI (Phase 1 — do first)
 
-`Home.tsx`'s Steps and Sleep cells get the exact display pattern the Heart rate cell already uses (`{value ? formatted : heartRate ? 'Not tracked yet' : 'Connect a wearable'}`): Steps from `step_count`'s latest daily row, Sleep from the most recent `sleep_sessions` row's total duration (stage breakdown not surfaced yet — total only, matching the cell's existing single-line format). No other Home changes.
+`Home.tsx`'s Steps and Sleep cells get the exact display pattern the Heart rate cell already uses (`{value ? formatted : heartRate ? 'Not tracked yet' : 'Connect a wearable'}`): Steps from `daily_activity_totals`' latest `step_count` row. Sleep from the most recent night's `sleep_sessions` rows (all non-`awake` rows from the last 24h, summed) shown as total duration — stage breakdown not surfaced yet. No other Home changes.
 
 ## Everything else — collect only
 
@@ -96,7 +99,7 @@ HRV, resting HR, respiratory rate, walking speed, VO2max, walking steadiness, wr
 ## Ollama Cloud delegation
 
 Reuse the standing pattern (GLM 5.1 implements, Kimi K3 verifies read-only via `--disallowedTools`, isolated worktree, human merge call) for:
-- The `wearable_readings` daily-upsert migration + new-table migrations (mechanical SQL).
+- The `daily_activity_totals`/`sleep_sessions`/`ecg_readings`/`rhythm_events` table migrations + RLS (mechanical SQL).
 - `ingest-wearable` payload/allowlist extension.
 - `healthkit.ts` type/interface extension and queue-routing.
 - `Home.tsx` Steps/Sleep wiring.

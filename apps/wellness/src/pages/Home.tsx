@@ -9,6 +9,7 @@ import {
   classifyBloodPressure,
   classifyGlucose,
   classifyHeartRate,
+  classifyRespiratoryRate,
   classifySpo2,
   glucoseContextLabel,
   type GlucoseContext,
@@ -39,6 +40,11 @@ interface LatestGlucose {
 }
 
 interface HeartRateRow {
+  value: number;
+  recorded_at: string;
+}
+
+interface RespiratoryRateRow {
   value: number;
   recorded_at: string;
 }
@@ -96,6 +102,7 @@ export function Home() {
   const [heightInput, setHeightInput] = useState('');
   const [bmiError, setBmiError] = useState(false);
   const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);
+  const [respiratoryRate, setRespiratoryRate] = useState<RespiratoryRateRow | null>(null);
   const [steps, setSteps] = useState<StepsRow | null>(null);
   const [sleepMinutes, setSleepMinutes] = useState<number | null>(null);
 
@@ -138,6 +145,14 @@ export function Home() {
         .order('recorded_at', { ascending: false })
         .limit(1),
       supabase
+        .from('wearable_readings')
+        .select('reading_type, value, recorded_at')
+        .eq('member_id', selectedMemberId)
+        .eq('reading_type', 'respiratory_rate')
+        .not('value', 'is', null)
+        .order('recorded_at', { ascending: false })
+        .limit(1),
+      supabase
         .from('daily_activity_totals')
         .select('value, day')
         .eq('member_id', selectedMemberId)
@@ -152,7 +167,17 @@ export function Home() {
         .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
         .order('started_at', { ascending: false }),
     ]).then(
-      ([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes, hrRes, stepsRes, sleepRes]) => {
+      ([
+        membersRes,
+        profileRes,
+        checkinsRes,
+        vitalsRes,
+        glucoseRes,
+        hrRes,
+        respRateRes,
+        stepsRes,
+        sleepRes,
+      ]) => {
         if (!isMounted) return;
         setLoading(false);
         const anyError =
@@ -162,6 +187,7 @@ export function Home() {
           vitalsRes.error ||
           glucoseRes.error ||
           hrRes.error ||
+          respRateRes.error ||
           stepsRes.error ||
           sleepRes.error;
         setFetchError(!!anyError);
@@ -175,6 +201,9 @@ export function Home() {
         setGlucose(glucoseRows[0] ?? null);
         const hrRows = (hrRes.data as { value: number; recorded_at: string }[] | null) ?? [];
         setHeartRate(hrRows[0] ?? null);
+        const respRateRows =
+          (respRateRes.data as { value: number; recorded_at: string }[] | null) ?? [];
+        setRespiratoryRate(respRateRows[0] ?? null);
         const stepsRows = (stepsRes.data as StepsRow[] | null) ?? [];
         setSteps(stepsRows[0] ?? null);
         const sleepRows = (sleepRes.data as SleepSegment[] | null) ?? [];
@@ -280,6 +309,9 @@ export function Home() {
   const bpStatus = bp ? classifyBloodPressure(bp.value) : null;
   const spo2Status = spo2 ? classifySpo2(spo2.value) : null;
   const glucoseStatus = glucose ? classifyGlucose(glucose.value_mg_dl, glucose.context) : null;
+  const respiratoryRateStatus = respiratoryRate
+    ? classifyRespiratoryRate(respiratoryRate.value)
+    : null;
   const weightRow = latestByType(vitals, 'weight_kg');
   const heightRow = latestByType(vitals, 'height_cm');
   const bmi = weightRow && heightRow ? calculateBmi(weightRow.value, heightRow.value) : null;
@@ -415,12 +447,12 @@ export function Home() {
         </div>
         <div>
           <GaugeRing
-            percent={glucoseStatus?.percent ?? 0}
-            colorVar={ringColorFor(glucoseStatus)}
-            label={glucose ? String(glucose.value_mg_dl) : '—'}
+            percent={respiratoryRateStatus?.percent ?? 0}
+            colorVar={ringColorFor(respiratoryRateStatus)}
+            label={respiratoryRate ? String(Math.round(respiratoryRate.value)) : '—'}
             size="sm"
           />
-          <div className="vital-label">Glucose</div>
+          <div className="vital-label">Respiratory rate</div>
         </div>
         <div>
           <GaugeRing
@@ -437,11 +469,14 @@ export function Home() {
         <span
           style={{
             width: 56,
-            color: glucoseStatus?.chipClass === 'chip2--warn' ? 'var(--warning-text)' : undefined,
-            fontWeight: glucoseStatus?.chipClass === 'chip2--warn' ? 600 : undefined,
+            color:
+              respiratoryRateStatus?.chipClass === 'chip2--warn'
+                ? 'var(--warning-text)'
+                : undefined,
+            fontWeight: respiratoryRateStatus?.chipClass === 'chip2--warn' ? 600 : undefined,
           }}
         >
-          {glucoseStatus?.label ?? '—'}
+          {respiratoryRateStatus?.label ?? '—'}
         </span>
         <span style={{ width: 56 }}>{spo2Status?.label ?? '—'}</span>
       </div>

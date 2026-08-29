@@ -24,9 +24,13 @@ const insertResponses: Record<string, { error: unknown }> = {};
 // what order — matching how the real supabase-js query builder behaves
 // (each intermediate call is itself awaitable).
 function mockTable(table: string) {
+  const filters: { column: string; value: unknown }[] = [];
   const builder = {
     select: () => builder,
-    eq: () => builder,
+    eq: (column: string, value: unknown) => {
+      filters.push({ column, value });
+      return builder;
+    },
     in: () => builder,
     not: () => builder,
     neq: () => builder,
@@ -38,8 +42,26 @@ function mockTable(table: string) {
       insertCalls.push({ table, payload });
       return Promise.resolve(insertResponses[table] ?? { error: null });
     },
-    then: (resolve: (v: { data: unknown; error: unknown }) => void) =>
-      resolve(tableResponses[table] ?? { data: null, error: null }),
+    then: (resolve: (v: { data: unknown; error: unknown }) => void) => {
+      const base = tableResponses[table] ?? { data: null, error: null };
+      // wearable_readings is queried once per reading_type (heart_rate,
+      // respiratory_rate) -- filter by the actual reading_type each query
+      // used, the same way real Postgrest would, so the two queries don't
+      // resolve to the same undifferentiated response.
+      if (table === 'wearable_readings' && Array.isArray(base.data)) {
+        const readingTypeFilter = filters.find((f) => f.column === 'reading_type');
+        if (readingTypeFilter) {
+          resolve({
+            data: (base.data as { reading_type: string }[]).filter(
+              (r) => r.reading_type === readingTypeFilter.value,
+            ),
+            error: base.error,
+          });
+          return;
+        }
+      }
+      resolve(base);
+    },
   };
   return builder;
 }
@@ -103,7 +125,7 @@ describe('Home', () => {
 
   it('shows heart rate value and "Not tracked yet" for steps/sleep when heart rate data exists', async () => {
     tableResponses.wearable_readings = {
-      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
       error: null,
     };
     renderHome();
@@ -112,9 +134,24 @@ describe('Home', () => {
     expect(screen.queryByText(/connect a wearable/i)).not.toBeInTheDocument();
   });
 
+  it('shows the respiratory rate gauge in My vitals when wearable data exists', async () => {
+    tableResponses.wearable_readings = {
+      data: [
+        { reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' },
+        { reading_type: 'respiratory_rate', value: 15, recorded_at: '2026-08-20T10:00:00Z' },
+      ],
+      error: null,
+    };
+    renderHome();
+    expect(await screen.findByText('Respiratory rate')).toBeInTheDocument();
+    expect(screen.getByText('15')).toBeInTheDocument();
+    expect(screen.getByText('Normal')).toBeInTheDocument();
+    expect(screen.queryByText('Glucose')).not.toBeInTheDocument();
+  });
+
   it('shows the real step count when daily_activity_totals has data', async () => {
     tableResponses.wearable_readings = {
-      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
       error: null,
     };
     tableResponses.daily_activity_totals = {
@@ -127,7 +164,7 @@ describe('Home', () => {
 
   it('shows a summed sleep duration when sleep_sessions has data', async () => {
     tableResponses.wearable_readings = {
-      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
       error: null,
     };
     tableResponses.sleep_sessions = {

@@ -470,7 +470,7 @@ export function Home() {
                 : 'var(--text-muted)',
             }}
           >
-            {heartRate ? `${heartRate.value} bpm` : 'Connect a wearable'}
+            {heartRate ? `${Math.round(heartRate.value)} bpm` : 'Connect a wearable'}
           </div>
         </div>
         <div>

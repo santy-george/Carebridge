@@ -43,6 +43,16 @@ interface HeartRateRow {
   recorded_at: string;
 }
 
+interface StepsRow {
+  value: number;
+  day: string;
+}
+
+interface SleepSegment {
+  started_at: string;
+  ended_at: string;
+}
+
 function greeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
@@ -52,6 +62,12 @@ function greeting(): string {
 
 function latestByType(rows: VitalRow[], vitalType: string): VitalRow | null {
   return rows.filter((r) => r.vital_type === vitalType)[0] ?? null;
+}
+
+function formatSleepDuration(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = Math.round(totalMinutes % 60);
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 }
 
 const RING_COLOR_BY_CHIP: Record<string, string> = {
@@ -80,6 +96,8 @@ export function Home() {
   const [heightInput, setHeightInput] = useState('');
   const [bmiError, setBmiError] = useState(false);
   const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);
+  const [steps, setSteps] = useState<StepsRow | null>(null);
+  const [sleepMinutes, setSleepMinutes] = useState<number | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -119,36 +137,63 @@ export function Home() {
         .not('value', 'is', null)
         .order('recorded_at', { ascending: false })
         .limit(1),
-    ]).then(([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes, hrRes]) => {
-      if (!isMounted) return;
-      setLoading(false);
-      const anyError =
-        membersRes.error ||
-        profileRes.error ||
-        checkinsRes.error ||
-        vitalsRes.error ||
-        glucoseRes.error ||
-        hrRes.error;
-      setFetchError(!!anyError);
-      const memberRow = membersRes.data as { full_name: string } | null;
-      setFirstName(memberRow ? memberRow.full_name.split(' ')[0] : '');
-      setMedicalProfile((profileRes.data as MedicalProfile | null) ?? null);
-      const checkinRows = (checkinsRes.data as LatestCheckin[] | null) ?? [];
-      setCheckin(checkinRows[0] ?? null);
-      setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
-      const glucoseRows = (glucoseRes.data as LatestGlucose[] | null) ?? [];
-      setGlucose(glucoseRows[0] ?? null);
-      const hrRows = (hrRes.data as { value: number; recorded_at: string }[] | null) ?? [];
-      setHeartRate(hrRows[0] ?? null);
-      const weightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
-        (r) => r.vital_type === 'weight_kg',
-      );
-      const heightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
-        (r) => r.vital_type === 'height_cm',
-      );
-      if (weightRow) setWeightInput(String(weightRow.value));
-      if (heightRow) setHeightInput(String(heightRow.value));
-    });
+      supabase
+        .from('daily_activity_totals')
+        .select('value, day')
+        .eq('member_id', selectedMemberId)
+        .eq('reading_type', 'step_count')
+        .order('day', { ascending: false })
+        .limit(1),
+      supabase
+        .from('sleep_sessions')
+        .select('started_at, ended_at')
+        .eq('member_id', selectedMemberId)
+        .neq('stage', 'awake')
+        .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .order('started_at', { ascending: false }),
+    ]).then(
+      ([membersRes, profileRes, checkinsRes, vitalsRes, glucoseRes, hrRes, stepsRes, sleepRes]) => {
+        if (!isMounted) return;
+        setLoading(false);
+        const anyError =
+          membersRes.error ||
+          profileRes.error ||
+          checkinsRes.error ||
+          vitalsRes.error ||
+          glucoseRes.error ||
+          hrRes.error ||
+          stepsRes.error ||
+          sleepRes.error;
+        setFetchError(!!anyError);
+        const memberRow = membersRes.data as { full_name: string } | null;
+        setFirstName(memberRow ? memberRow.full_name.split(' ')[0] : '');
+        setMedicalProfile((profileRes.data as MedicalProfile | null) ?? null);
+        const checkinRows = (checkinsRes.data as LatestCheckin[] | null) ?? [];
+        setCheckin(checkinRows[0] ?? null);
+        setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
+        const glucoseRows = (glucoseRes.data as LatestGlucose[] | null) ?? [];
+        setGlucose(glucoseRows[0] ?? null);
+        const hrRows = (hrRes.data as { value: number; recorded_at: string }[] | null) ?? [];
+        setHeartRate(hrRows[0] ?? null);
+        const stepsRows = (stepsRes.data as StepsRow[] | null) ?? [];
+        setSteps(stepsRows[0] ?? null);
+        const sleepRows = (sleepRes.data as SleepSegment[] | null) ?? [];
+        const totalSleepMinutes = sleepRows.reduce(
+          (sum, seg) =>
+            sum + (new Date(seg.ended_at).getTime() - new Date(seg.started_at).getTime()) / 60000,
+          0,
+        );
+        setSleepMinutes(sleepRows.length > 0 ? totalSleepMinutes : null);
+        const weightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
+          (r) => r.vital_type === 'weight_kg',
+        );
+        const heightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
+          (r) => r.vital_type === 'height_cm',
+        );
+        if (weightRow) setWeightInput(String(weightRow.value));
+        if (heightRow) setHeightInput(String(heightRow.value));
+      },
+    );
 
     return () => {
       isMounted = false;
@@ -430,14 +475,36 @@ export function Home() {
         </div>
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Steps</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
-            {heartRate ? 'Not tracked yet' : 'Connect a wearable'}
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              marginTop: 2,
+              color: steps ? undefined : 'var(--text-muted)',
+            }}
+          >
+            {steps
+              ? `${Math.round(steps.value).toLocaleString()} steps`
+              : heartRate
+                ? 'Not tracked yet'
+                : 'Connect a wearable'}
           </div>
         </div>
         <div>
           <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>Sleep</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginTop: 2 }}>
-            {heartRate ? 'Not tracked yet' : 'Connect a wearable'}
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              marginTop: 2,
+              color: sleepMinutes ? undefined : 'var(--text-muted)',
+            }}
+          >
+            {sleepMinutes
+              ? formatSleepDuration(sleepMinutes)
+              : heartRate
+                ? 'Not tracked yet'
+                : 'Connect a wearable'}
           </div>
         </div>
       </div>

@@ -29,6 +29,8 @@ function mockTable(table: string) {
     eq: () => builder,
     in: () => builder,
     not: () => builder,
+    neq: () => builder,
+    gte: () => builder,
     order: () => builder,
     limit: () => builder,
     maybeSingle: () => builder,
@@ -108,6 +110,35 @@ describe('Home', () => {
     expect(await screen.findByText('72 bpm')).toBeInTheDocument();
     expect(screen.getAllByText(/not tracked yet/i).length).toBe(2);
     expect(screen.queryByText(/connect a wearable/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the real step count when daily_activity_totals has data', async () => {
+    tableResponses.wearable_readings = {
+      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      error: null,
+    };
+    tableResponses.daily_activity_totals = {
+      data: [{ value: 8342, day: '2026-08-20' }],
+      error: null,
+    };
+    renderHome();
+    expect(await screen.findByText('8,342 steps')).toBeInTheDocument();
+  });
+
+  it('shows a summed sleep duration when sleep_sessions has data', async () => {
+    tableResponses.wearable_readings = {
+      data: [{ value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
+      error: null,
+    };
+    tableResponses.sleep_sessions = {
+      data: [
+        { started_at: '2026-08-20T22:00:00Z', ended_at: '2026-08-21T01:00:00Z' },
+        { started_at: '2026-08-21T01:30:00Z', ended_at: '2026-08-21T05:00:00Z' },
+      ],
+      error: null,
+    };
+    renderHome();
+    expect(await screen.findByText('6h 30m')).toBeInTheDocument();
   });
 
   it('renders the greeting with the member first name', async () => {

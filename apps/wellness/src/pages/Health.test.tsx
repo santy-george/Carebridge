@@ -8,14 +8,39 @@ vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
 
 function mockTable(table: string) {
+  const filters: { column: string; value: unknown }[] = [];
   const builder = {
     select: () => builder,
-    eq: () => builder,
+    eq: (column: string, value: unknown) => {
+      filters.push({ column, value });
+      return builder;
+    },
     in: () => builder,
+    not: () => builder,
     order: () => builder,
     limit: () => builder,
-    then: (resolve: (v: { data: unknown; error: unknown }) => void) =>
-      resolve(tableResponses[table] ?? { data: null, error: null }),
+    then: (resolve: (v: { data: unknown; error: unknown }) => void) => {
+      const base = tableResponses[table] ?? { data: null, error: null };
+      // wearable_readings is now queried once per reading_type (each with
+      // its own small limit, to stop a high-frequency type crowding a
+      // low-frequency one out of a shared cap) -- the mock must filter by
+      // the actual reading_type each query used, the same way real
+      // Postgrest would, or every query would resolve to the same
+      // undifferentiated array regardless of which type it asked for.
+      if (table === 'wearable_readings' && Array.isArray(base.data)) {
+        const readingTypeFilter = filters.find((f) => f.column === 'reading_type');
+        if (readingTypeFilter) {
+          resolve({
+            data: (base.data as { reading_type: string }[]).filter(
+              (r) => r.reading_type === readingTypeFilter.value,
+            ),
+            error: base.error,
+          });
+          return;
+        }
+      }
+      resolve(base);
+    },
   };
   return builder;
 }
@@ -33,6 +58,7 @@ describe('Health', () => {
     tableResponses.vitals_readings = { data: [], error: null };
     tableResponses.glucose_readings = { data: [], error: null };
     tableResponses.wearable_readings = { data: [], error: null };
+    tableResponses.daily_activity_totals = { data: [], error: null };
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -142,6 +168,67 @@ describe('Health', () => {
     const spo2Rows = await screen.findAllByText('SpO2');
     expect(spo2Rows).toHaveLength(1);
     expect(screen.getByText('96%')).toBeInTheDocument(); // the later (Watch) reading is latest
+  });
+
+  it('shows a resting heart rate row classified against the same 60-100 bpm range as heart rate', async () => {
+    tableResponses.wearable_readings = {
+      data: [
+        { reading_type: 'resting_heart_rate', value: 105, recorded_at: '2026-08-20T08:00:00Z' },
+      ],
+      error: null,
+    };
+    render(<Health />);
+    expect(await screen.findByText('Resting heart rate')).toBeInTheDocument();
+    expect(screen.getByText('105 bpm')).toBeInTheDocument();
+    expect(screen.getByText('High')).toBeInTheDocument();
+  });
+
+  it('shows HRV as a trend-only row with no chip pill and no normal-range line', async () => {
+    tableResponses.wearable_readings = {
+      data: [
+        {
+          reading_type: 'heart_rate_variability_sdnn',
+          value: 42.3,
+          recorded_at: '2026-08-20T08:00:00Z',
+        },
+      ],
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Health />);
+
+    const row = await screen.findByRole('button', { name: /heart rate variability/i });
+    expect(row).toHaveTextContent('42.3 ms');
+    // No chip label text (High/Low/Normal/OK/etc) should appear in this row.
+    expect(row).not.toHaveTextContent(/normal|low|high|elevated|active/i);
+
+    await user.click(row);
+    expect(screen.queryByText(/normal range:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/suggested next step/i)).not.toBeInTheDocument();
+  });
+
+  it('shows a daily activity total (active energy) as a chip-classified row', async () => {
+    tableResponses.daily_activity_totals = {
+      data: [{ reading_type: 'active_energy_burned', value: 45, day: '2026-08-20' }],
+      error: null,
+    };
+    render(<Health />);
+    expect(await screen.findByText('Active energy')).toBeInTheDocument();
+    expect(screen.getByText('45 kcal')).toBeInTheDocument();
+    expect(screen.getByText('Low')).toBeInTheDocument();
+  });
+
+  it('only shows rows for metrics that actually have data, ignoring the rest', async () => {
+    tableResponses.wearable_readings = {
+      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T08:00:00Z' }],
+      error: null,
+    };
+    render(<Health />);
+    await screen.findByText('Heart rate');
+    expect(screen.queryByText('Resting heart rate')).not.toBeInTheDocument();
+    expect(screen.queryByText('Walking speed')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cardio fitness (VO2 max)')).not.toBeInTheDocument();
   });
 
   it('shows a dismissible error banner when a fetch fails', async () => {

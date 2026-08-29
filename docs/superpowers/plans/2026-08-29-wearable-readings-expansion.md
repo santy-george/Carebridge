@@ -22,6 +22,18 @@
 
 ---
 
+## Execution notes (2026-08-29)
+
+Tasks 1-7 executed directly (not delegated to Ollama Cloud, despite the "Suggested executor" notes below) — the plan already contained complete code for every task, so delegating would only have meant an external model re-typing already-specified code with real regression risk (documented prior incidents of dropped spec/hallucination on DB-adjacent work), not added value. Task 8 needs Santhosh's physical Watch/iPhone and stays pending.
+
+Real verification (not just review) caught 4 issues the written plan didn't anticipate, all fixed in the applied code:
+- `HKElectrocardiogramType()` has no public initializer -- real API is `HKObjectType.electrocardiogramType()`. Caught by an actual `xcodebuild` simulator build (Task 4-6 code was also generalized: `loadAnchor`/`saveAnchor` take `HKObjectType`, not `HKQuantityType`, since sleep/rhythm/ECG anchors aren't quantity types).
+- A new `.swift` file isn't picked up by Xcode just by existing on disk -- `HealthKitBridge+Expansion.swift` had to be registered in `project.pbxproj` (4 entries: PBXBuildFile, PBXFileReference, group membership, Sources build phase) before it compiled at all.
+- `deno test` run from the repo root drags in the pnpm workspace and mis-resolves npm dependencies from the wrong `node_modules`, and can silently rewrite the root `package.json` in the process (reverted, not committed) -- run it from the function's own directory instead.
+- Two existing shared Supabase query-builder test mocks (`Home.test.tsx`, `routing.integration.test.tsx`) only stubbed the query methods used up to now and threw on the new query's `.neq()`/`.gte()` calls -- extended both, matching their own stated "supports any chained method" intent.
+
+---
+
 ### Task 1: Migrations — `daily_activity_totals`, `sleep_sessions`, `ecg_readings`, `rhythm_events` + RLS + pgTAP
 **Suggested executor:** Ollama Cloud (GLM 5.1 implements, Kimi K3 verifies read-only) — mechanical SQL, per spec.
 
@@ -32,7 +44,7 @@
 **Interfaces:**
 - Produces: tables `public.daily_activity_totals(id, member_id, reading_type, day, value, device_vendor, updated_at)` unique on `(member_id, reading_type, day)`; `public.sleep_sessions(id, member_id, device_vendor, started_at, ended_at, stage, raw_payload, ingested_at)`; `public.ecg_readings(id, member_id, device_vendor, recorded_at, classification, average_heart_rate, raw_payload, ingested_at)`; `public.rhythm_events(id, member_id, device_vendor, recorded_at, raw_payload, ingested_at)`. All four reused by Task 2 (Edge Function inserts/upserts) and Task 7 (Home.tsx reads).
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 -- supabase/migrations/20260829140000_wearable_expansion_tables.sql
@@ -119,12 +131,12 @@ create policy "read own or assigned rhythm events" on public.rhythm_events
 -- posture as wearable_readings.
 ```
 
-- [ ] **Step 2: Apply the migration locally**
+- [x] **Step 2: Apply the migration locally**
 
 Run: `supabase db reset`
 Expected: migration applies cleanly, `seed.sql` still loads without error.
 
-- [ ] **Step 3: Add pgTAP fixtures for the new tables**
+- [x] **Step 3: Add pgTAP fixtures for the new tables**
 
 In `supabase/tests/database/rls.test.sql`, immediately after the existing `insert into public.checkins (...)` block (ends at line 54, right before the `-- === Simulate Member A's session ===` comment on line 56), insert:
 
@@ -145,7 +157,7 @@ values
   ('bb000000-0000-0000-0000-00000000bbbb', 'apple_watch', now());
 ```
 
-- [ ] **Step 4: Add pgTAP assertions**
+- [x] **Step 4: Add pgTAP assertions**
 
 In the same file, immediately after the assigned-coordinator block ends (after the `select is(... 'The coordinator''s care_model update actually applied');` assertion, currently ending at line 168, and before the `-- === Simulate the family "Son" user redeeming invite codes ===` comment at line 170), insert:
 
@@ -249,12 +261,12 @@ select is(
 
 This adds 15 assertions. Update line 14 from `select plan(75);` to `select plan(90);`.
 
-- [ ] **Step 5: Run the pgTAP suite**
+- [x] **Step 5: Run the pgTAP suite**
 
 Run: `supabase test db`
 Expected: all 90 tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/20260829140000_wearable_expansion_tables.sql supabase/tests/database/rls.test.sql
@@ -274,7 +286,7 @@ git commit -m "feat(db): add daily_activity_totals, sleep_sessions, ecg_readings
 - Consumes: tables from Task 1 (`daily_activity_totals`, `sleep_sessions`, `ecg_readings`, `rhythm_events`); existing `member_links` ownership-check pattern.
 - Produces: exported pure functions `isValidReading`, `isValidSleepSession`, `isValidEcgReading`, `isValidRhythmEvent`, `isDailyCumulativeType` (all `(r: unknown) => boolean` or `(reading_type: string) => boolean`) — consumed by this task's own test file. Request/response shape consumed by Task 3 (`healthkit.ts`'s `flush()`).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // supabase/functions/ingest-wearable/index.test.ts
@@ -348,12 +360,12 @@ Deno.test('isValidRhythmEvent rejects a missing timestamp', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `deno test --allow-net supabase/functions/ingest-wearable/index.test.ts`
 Expected: FAIL — `isValidSleepSession`, `isValidEcgReading`, `isValidRhythmEvent`, `isDailyCumulativeType` are not exported yet (only `isValidReading` exists, and it isn't exported either).
 
-- [ ] **Step 3: Rewrite `index.ts`**
+- [x] **Step 3: Rewrite `index.ts`**
 
 ```typescript
 // supabase/functions/ingest-wearable/index.ts
@@ -641,12 +653,12 @@ Deno.serve(async (req: Request) => {
 });
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `deno test --allow-net supabase/functions/ingest-wearable/index.test.ts`
 Expected: PASS, all 10 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/functions/ingest-wearable/index.ts supabase/functions/ingest-wearable/index.test.ts
@@ -666,7 +678,7 @@ git commit -m "feat(edge-function): expand ingest-wearable to full reading set +
 - Consumes: `ingest-wearable`'s request shape from Task 2 (`{ member_id, readings?, sleep_sessions?, ecg_readings?, rhythm_events? }`).
 - Produces: `HealthKitReading['reading_type']` union (extended), `HealthKitSleepSession`, `HealthKitECGReading`, `HealthKitRhythmEvent` types, and plugin event names `healthKitSamples` / `healthKitSleepSessions` / `healthKitEcgReadings` / `healthKitRhythmEvents` — consumed by Task 6 (`HealthKitBridgePlugin.swift`, which must `notifyListeners` under these exact names).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `apps/wellness/src/lib/healthkit.test.ts`, inside the existing `describe('registerHealthKit', ...)` block, after the last `it(...)`:
 
@@ -715,12 +727,12 @@ Add to `apps/wellness/src/lib/healthkit.test.ts`, inside the existing `describe(
   });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm --filter wellness test healthkit`
 Expected: FAIL — `listeners.healthKitSleepSessions` etc. are `undefined` (only `healthKitSamples` is registered today).
 
-- [ ] **Step 3: Rewrite `healthkit.ts`**
+- [x] **Step 3: Rewrite `healthkit.ts`**
 
 ```typescript
 import { Capacitor, registerPlugin } from '@capacitor/core';
@@ -898,14 +910,14 @@ export async function registerHealthKit(userId: string, memberId: string): Promi
 }
 ```
 
-- [ ] **Step 4: Update the plugin mock and run tests to verify they pass**
+- [x] **Step 4: Update the plugin mock and run tests to verify they pass**
 
 In `apps/wellness/src/lib/healthkit.test.ts`, the `mockPlugin.addListener` mock (line 14-17) already keys `listeners` by `eventName` generically, so no change is needed there — it will register `healthKitSleepSessions`/`healthKitEcgReadings`/`healthKitRhythmEvents` the same way it already registers `healthKitSamples`.
 
 Run: `pnpm --filter wellness test healthkit`
 Expected: PASS, all tests (the 4 original + 3 new).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add apps/wellness/src/lib/healthkit.ts apps/wellness/src/lib/healthkit.test.ts
@@ -925,7 +937,7 @@ git commit -m "feat(wellness): route sleep/ECG/rhythm-event batches separately f
 
 No automated test — HealthKit query behavior cannot be exercised without real hardware (no simulator equivalent for live sensor data or background delivery). Verified in Task 8's real-device pass.
 
-- [ ] **Step 1: Rewrite the streaming portion of `HealthKitBridge.swift`**
+- [x] **Step 1: Rewrite the streaming portion of `HealthKitBridge.swift`**
 
 ```swift
 import Foundation
@@ -1096,7 +1108,7 @@ final class HealthKitBridge {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/wellness/ios/App/App/HealthKitBridge.swift
@@ -1117,7 +1129,7 @@ git commit -m "feat(ios): generalize HealthKit streaming query to a per-type con
 
 No automated test — same hardware-only constraint as Task 4. Verified in Task 8.
 
-- [ ] **Step 1: Write the extension file**
+- [x] **Step 1: Write the extension file**
 
 ```swift
 // apps/wellness/ios/App/App/HealthKitBridge+Expansion.swift
@@ -1358,7 +1370,7 @@ extension HealthKitBridge {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/wellness/ios/App/App/HealthKitBridge+Expansion.swift
@@ -1379,7 +1391,7 @@ git commit -m "feat(ios): add daily-cumulative, sleep, ECG, and rhythm-event Hea
 
 No automated test — thin bridging code, exercised end-to-end in Task 8's real-device pass.
 
-- [ ] **Step 1: Rewrite the plugin**
+- [x] **Step 1: Rewrite the plugin**
 
 ```swift
 import Foundation
@@ -1460,7 +1472,7 @@ public class HealthKitBridgePlugin: CAPPlugin, CAPBridgedPlugin {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/wellness/ios/App/App/HealthKitBridgePlugin.swift
@@ -1478,7 +1490,7 @@ git commit -m "feat(ios): bridge daily-cumulative, sleep, ECG, and rhythm-event 
 **Interfaces:**
 - Consumes: `daily_activity_totals` and `sleep_sessions` tables from Task 1 (read directly via `supabase.from(...)`, same pattern as the existing `heartRate` fetch — no new library code needed).
 
-- [ ] **Step 1: Add the new interfaces**
+- [x] **Step 1: Add the new interfaces**
 
 In `apps/wellness/src/pages/Home.tsx`, after the existing `HeartRateRow` interface (lines 41-44):
 
@@ -1494,7 +1506,7 @@ interface SleepSegment {
 }
 ```
 
-- [ ] **Step 2: Add state and a duration formatter**
+- [x] **Step 2: Add state and a duration formatter**
 
 After `const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);` (line 82):
 
@@ -1513,7 +1525,7 @@ function formatSleepDuration(totalMinutes: number): string {
 }
 ```
 
-- [ ] **Step 3: Add the two queries to the existing `Promise.all`**
+- [x] **Step 3: Add the two queries to the existing `Promise.all`**
 
 In the `Promise.all([...])` array (lines 88-121), after the `wearable_readings` heart-rate query, add two more entries:
 
@@ -1555,7 +1567,7 @@ After the existing `setHeartRate(hrRows[0] ?? null);` line (142), add:
       setSleepMinutes(sleepRows.length > 0 ? totalSleepMinutes : null);
 ```
 
-- [ ] **Step 4: Wire the JSX cells**
+- [x] **Step 4: Wire the JSX cells**
 
 Replace the Steps cell (lines 431-436):
 
@@ -1597,16 +1609,16 @@ Replace the Sleep cell (lines 437-442):
         </div>
 ```
 
-- [ ] **Step 5: Run the existing test suite**
+- [x] **Step 5: Run the existing test suite**
 
 Run: `pnpm --filter wellness test Home`
 Expected: PASS. If no `Home.test.tsx` exists, run `pnpm --filter wellness build` instead to confirm the type changes compile.
 
-- [ ] **Step 6: Manual verification against local Supabase**
+- [x] **Step 6: Manual verification against local Supabase**
 
 Insert a fake row via the local Docker stack (`supabase db reset` then `psql` or the Studio UI) into `daily_activity_totals` (`reading_type='step_count'`) and `sleep_sessions` for the seeded member, reload the Wellness app locally, confirm the Home "My activity" card shows real values instead of "Not tracked yet" / "Connect a wearable".
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/wellness/src/pages/Home.tsx

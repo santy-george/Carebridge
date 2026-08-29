@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(75);
+select plan(90);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -52,6 +52,21 @@ insert into public.checkins (member_id, checkin_date, mood)
 values
   ('aa000000-0000-0000-0000-00000000aaaa', current_date, 'good'),
   ('bb000000-0000-0000-0000-00000000bbbb', current_date, 'okay');
+
+insert into public.sleep_sessions (member_id, device_vendor, started_at, ended_at, stage)
+values
+  ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now() - interval '8 hours', now() - interval '4 hours', 'asleep_core'),
+  ('bb000000-0000-0000-0000-00000000bbbb', 'apple_watch', now() - interval '8 hours', now() - interval '4 hours', 'asleep_core');
+
+insert into public.ecg_readings (member_id, device_vendor, recorded_at, classification, average_heart_rate)
+values
+  ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now(), 'sinus_rhythm', 68),
+  ('bb000000-0000-0000-0000-00000000bbbb', 'apple_watch', now(), 'sinus_rhythm', 71);
+
+insert into public.rhythm_events (member_id, device_vendor, recorded_at)
+values
+  ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now()),
+  ('bb000000-0000-0000-0000-00000000bbbb', 'apple_watch', now());
 
 -- === Simulate Member A's session ===
 set local role authenticated;
@@ -165,6 +180,102 @@ select is(
   (select care_model::text from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
   'direct_care',
   'The coordinator''s care_model update actually applied'
+);
+
+-- === Wearable expansion tables: sleep_sessions, ecg_readings, rhythm_events ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'a0000000-0000-0000-0000-00000000000a')::text, true);
+
+select is(
+  (select count(*)::int from public.sleep_sessions where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Member A can SELECT their own sleep_sessions row'
+);
+select is(
+  (select count(*)::int from public.sleep_sessions where member_id = 'bb000000-0000-0000-0000-00000000bbbb'),
+  0,
+  'Member A gets zero rows querying Member B sleep_sessions'
+);
+select throws_ok(
+  $$ insert into public.sleep_sessions (member_id, device_vendor, started_at, ended_at, stage) values ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now(), now(), 'awake') $$,
+  '42501',
+  null,
+  'Member A cannot INSERT into sleep_sessions -- writes are service_role-only via ingest-wearable'
+);
+
+select is(
+  (select count(*)::int from public.ecg_readings where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Member A can SELECT their own ecg_readings row'
+);
+select is(
+  (select count(*)::int from public.ecg_readings where member_id = 'bb000000-0000-0000-0000-00000000bbbb'),
+  0,
+  'Member A gets zero rows querying Member B ecg_readings'
+);
+select throws_ok(
+  $$ insert into public.ecg_readings (member_id, device_vendor, recorded_at, classification) values ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now(), 'sinus_rhythm') $$,
+  '42501',
+  null,
+  'Member A cannot INSERT into ecg_readings -- writes are service_role-only via ingest-wearable'
+);
+
+select is(
+  (select count(*)::int from public.rhythm_events where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Member A can SELECT their own rhythm_events row'
+);
+select is(
+  (select count(*)::int from public.rhythm_events where member_id = 'bb000000-0000-0000-0000-00000000bbbb'),
+  0,
+  'Member A gets zero rows querying Member B rhythm_events'
+);
+select throws_ok(
+  $$ insert into public.rhythm_events (member_id, device_vendor, recorded_at) values ('aa000000-0000-0000-0000-00000000aaaa', 'apple_watch', now()) $$,
+  '42501',
+  null,
+  'Member A cannot INSERT into rhythm_events -- writes are service_role-only via ingest-wearable'
+);
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-0000-0000-00000000000c')::text, true);
+
+select is(
+  (select count(*)::int from public.sleep_sessions where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Assigned coordinator can SELECT Member A sleep_sessions'
+);
+select is(
+  (select count(*)::int from public.ecg_readings where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Assigned coordinator can SELECT Member A ecg_readings'
+);
+select is(
+  (select count(*)::int from public.rhythm_events where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  1,
+  'Assigned coordinator can SELECT Member A rhythm_events'
+);
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '19000000-0000-0000-0000-000000000019')::text, true);
+
+select is(
+  (select count(*)::int from public.sleep_sessions where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  0,
+  'Unassigned coordinator gets zero rows querying Member A sleep_sessions'
+);
+select is(
+  (select count(*)::int from public.ecg_readings where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  0,
+  'Unassigned coordinator gets zero rows querying Member A ecg_readings'
+);
+select is(
+  (select count(*)::int from public.rhythm_events where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  0,
+  'Unassigned coordinator gets zero rows querying Member A rhythm_events'
 );
 
 -- === Simulate the family "Son" user redeeming invite codes ===

@@ -23,6 +23,7 @@ import { Profile } from './pages/Profile';
 import { Reports } from './pages/Reports';
 import { Education } from './pages/Education';
 import { PreventivePlan } from './pages/PreventivePlan';
+import { Records } from './pages/Records';
 import { More } from './pages/More';
 import { WithdrawConsent } from './pages/WithdrawConsent';
 import { WithdrawalReceived } from './pages/WithdrawalReceived';
@@ -62,6 +63,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/reports" element={<Reports />} />
               <Route path="/education" element={<Education />} />
               <Route path="/preventive-plan" element={<PreventivePlan />} />
+              <Route path="/records" element={<Records />} />
               <Route path="/withdraw-consent" element={<WithdrawConsent />} />
             </Route>
             {/* Sub-screens the mockup shows with a back button instead of the

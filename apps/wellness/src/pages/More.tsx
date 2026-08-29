@@ -75,6 +75,24 @@ export function More() {
             </svg>
           </span>
         </Link>
+        <Link className="row tap" to="/records">
+          <div className="ic">
+            <span className="icon">
+              <svg>
+                <use href="#i-document" />
+              </svg>
+            </span>
+          </div>
+          <div className="m">
+            <div className="t">Records</div>
+            <div className="s">Lab reports, prescriptions, scans</div>
+          </div>
+          <span className="icon chev">
+            <svg>
+              <use href="#i-chevron" />
+            </svg>
+          </span>
+        </Link>
         <Link className="row tap" to="/education">
           <div className="ic">
             <span className="icon">

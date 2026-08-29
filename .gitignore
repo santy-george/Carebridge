@@ -5,6 +5,8 @@
 node_modules/
 dist/
 .turbo/
+.claude-scratch/
+.vscode/
 
 # Capacitor native build artifacts (platform source itself stays committed)
 apps/*/android/app/build/

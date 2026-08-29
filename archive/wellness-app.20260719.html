@@ -678,6 +678,20 @@
                 <p class="t-body-s" id="homeNoteText" style="color:var(--text-body)"></p>
             </div>
 
+            <!-- Upgrade promo — compact banner, reuses .banner component so it adds minimal footprint -->
+            <div class="banner reveal" style="padding:11px 13px;background:#800080">
+                <div class="ic" style="width:32px;height:32px;background:rgba(255,255,255,.18)"><span class="icon" style="width:16px;height:16px;color:#fff"><svg><use href="#i-phone"/></svg></span></div>
+                <div style="flex:1;min-width:0">
+                    <div class="bt" style="font-size:13px;color:#fff">Upgrade to Virtual Care or Direct Care</div>
+                    <div class="bs" style="font-size:11.5px;color:rgba(255,255,255,.82)">Now in Ernakulam &amp; Thiruvalla · Call for details</div>
+                    <div style="display:flex;gap:12px;margin-top:5px;flex-wrap:wrap">
+                        <a href="tel:+917736541119" style="font-size:11.5px;font-weight:700;color:#fff">Admin +91 77365 41119</a>
+                        <a href="tel:+917736501119" style="font-size:11.5px;font-weight:700;color:#fff">EKM +91 77365 01119</a>
+                        <a href="tel:+917736571119" style="font-size:11.5px;font-weight:700;color:#fff">TVLA +91 77365 71119</a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Today's schedule — lightweight deep-link into the Health tab's Appointments panel -->
             <div class="card reveal tap" onclick="CBH.goTab('healthView','health'); switchHealthTab('appts')">
                 <div class="card__head">
@@ -1865,6 +1879,19 @@
 
             <!-- ── MY CONTACTS — member-added personal care resources (was "Own Contacts") ── -->
             <div class="health-panel" id="hpanel-contacts">
+                <!-- Upgrade promo — compact banner, reuses .banner component so it adds minimal footprint -->
+                <div class="banner reveal" style="padding:11px 13px;margin-bottom:12px;background:#800080">
+                    <div class="ic" style="width:32px;height:32px;background:rgba(255,255,255,.18)"><span class="icon" style="width:16px;height:16px;color:#fff"><svg><use href="#i-phone"/></svg></span></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="bt" style="font-size:13px;color:#fff">Upgrade to Virtual Care or Direct Care</div>
+                        <div class="bs" style="font-size:11.5px;color:rgba(255,255,255,.82)">Now in Ernakulam &amp; Thiruvalla · Call for details</div>
+                        <div style="display:flex;gap:12px;margin-top:5px;flex-wrap:wrap">
+                            <a href="tel:+917736541119" style="font-size:11.5px;font-weight:700;color:#fff">Admin +91 77365 41119</a>
+                            <a href="tel:+917736501119" style="font-size:11.5px;font-weight:700;color:#fff">EKM +91 77365 01119</a>
+                            <a href="tel:+917736571119" style="font-size:11.5px;font-weight:700;color:#fff">TVLA +91 77365 71119</a>
+                        </div>
+                    </div>
+                </div>
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 2px 12px">
                     <p class="t-body-s" style="color:var(--text-muted);margin:0">Doctors, therapists or helpers you work with outside your Care Bridge team — kept here for quick reach.</p>
                     <button class="mbtn mbtn--line" id="ownEditBtn" style="flex-shrink:0;padding:6px 16px;font-size:12.5px" onclick="toggleOwnEditMode()">Edit</button>

@@ -255,6 +255,44 @@ export type Database = {
           },
         ]
       }
+      daily_activity_totals: {
+        Row: {
+          day: string
+          device_vendor: string
+          id: string
+          member_id: string
+          reading_type: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          day: string
+          device_vendor: string
+          id?: string
+          member_id: string
+          reading_type: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          day?: string
+          device_vendor?: string
+          id?: string
+          member_id?: string
+          reading_type?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_activity_totals_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_push_tokens: {
         Row: {
           created_at: string
@@ -332,6 +370,47 @@ export type Database = {
             columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecg_readings: {
+        Row: {
+          average_heart_rate: number | null
+          classification: string
+          device_vendor: string
+          id: string
+          ingested_at: string
+          member_id: string
+          raw_payload: Json | null
+          recorded_at: string
+        }
+        Insert: {
+          average_heart_rate?: number | null
+          classification: string
+          device_vendor: string
+          id?: string
+          ingested_at?: string
+          member_id: string
+          raw_payload?: Json | null
+          recorded_at: string
+        }
+        Update: {
+          average_heart_rate?: number | null
+          classification?: string
+          device_vendor?: string
+          id?: string
+          ingested_at?: string
+          member_id?: string
+          raw_payload?: Json | null
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecg_readings_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
             referencedColumns: ["id"]
           },
         ]
@@ -810,6 +889,82 @@ export type Database = {
         }
         Relationships: []
       }
+      rhythm_events: {
+        Row: {
+          device_vendor: string
+          id: string
+          ingested_at: string
+          member_id: string
+          raw_payload: Json | null
+          recorded_at: string
+        }
+        Insert: {
+          device_vendor: string
+          id?: string
+          ingested_at?: string
+          member_id: string
+          raw_payload?: Json | null
+          recorded_at: string
+        }
+        Update: {
+          device_vendor?: string
+          id?: string
+          ingested_at?: string
+          member_id?: string
+          raw_payload?: Json | null
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_events_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sleep_sessions: {
+        Row: {
+          device_vendor: string
+          ended_at: string
+          id: string
+          ingested_at: string
+          member_id: string
+          raw_payload: Json | null
+          stage: string
+          started_at: string
+        }
+        Insert: {
+          device_vendor: string
+          ended_at: string
+          id?: string
+          ingested_at?: string
+          member_id: string
+          raw_payload?: Json | null
+          stage: string
+          started_at: string
+        }
+        Update: {
+          device_vendor?: string
+          ended_at?: string
+          id?: string
+          ingested_at?: string
+          member_id?: string
+          raw_payload?: Json | null
+          stage?: string
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sleep_sessions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sos_alerts: {
         Row: {
           acknowledged_at: string | null
@@ -1045,6 +1200,10 @@ export type Database = {
       }
       profile_update_preserves_consent_status: {
         Args: { p_consent_status: string; p_id: string }
+        Returns: boolean
+      }
+      profile_update_preserves_role: {
+        Args: { p_id: string; p_role: Database["public"]["Enums"]["user_role"] }
         Returns: boolean
       }
       reactivate_consent: {

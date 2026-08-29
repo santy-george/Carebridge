@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(90);
+select plan(93);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -23,9 +23,10 @@ values
   ('b0000000-0000-0000-0000-00000000000b', 'rls-test-member-b@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
   ('c0000000-0000-0000-0000-00000000000c', 'rls-test-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
   ('d0000000-0000-0000-0000-00000000000d', 'rls-test-family-son@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
-  ('19000000-0000-0000-0000-000000000019', 'rls-test-unassigned-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+  ('19000000-0000-0000-0000-000000000019', 'rls-test-unassigned-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
+  ('29000000-0000-0000-0000-000000000029', 'rls-test-linked-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
 
-update public.profiles set role = 'coordinator' where id in ('c0000000-0000-0000-0000-00000000000c', '19000000-0000-0000-0000-000000000019');
+update public.profiles set role = 'coordinator' where id in ('c0000000-0000-0000-0000-00000000000c', '19000000-0000-0000-0000-000000000019', '29000000-0000-0000-0000-000000000029');
 
 insert into public.members (id, full_name, care_model)
 values
@@ -35,7 +36,17 @@ values
 insert into public.member_links (member_id, user_id, relationship_label, is_self)
 values
   ('aa000000-0000-0000-0000-00000000aaaa', 'a0000000-0000-0000-0000-00000000000a', 'Self', true),
-  ('bb000000-0000-0000-0000-00000000bbbb', 'b0000000-0000-0000-0000-00000000000b', 'Self', true);
+  ('bb000000-0000-0000-0000-00000000bbbb', 'b0000000-0000-0000-0000-00000000000b', 'Self', true),
+  -- Simulates a coordinator who redeemed a member invite code for a
+  -- patient they are NOT assigned to -- the ordinary path any
+  -- authenticated account (coordinator or not) can take via
+  -- redeem_invite_code(), which has no coordinator exclusion. Deliberately
+  -- a fresh fixture, not the shared unassigned-coordinator (19...019) one:
+  -- reusing that identity would give it member_owns(A) = true too, and
+  -- silently invalidate the existing "unassigned coordinator sees zero
+  -- rows on Member A" assertions elsewhere in this file, which rely on
+  -- that identity having NO relationship to Member A whatsoever.
+  ('aa000000-0000-0000-0000-00000000aaaa', '29000000-0000-0000-0000-000000000029', 'Family member', false);
 
 insert into public.member_invites (code, member_id, relationship_label, is_self, expires_at)
 values
@@ -161,8 +172,8 @@ select lives_ok(
 
 select is(
   (select count(*)::int from public.member_links where member_id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')),
-  2,
-  'Coordinator reads all member_links rows'
+  3,
+  'Coordinator reads all member_links rows (2 self-links + the 2026-08-29 audit-fixture linked-coordinator row)'
 );
 
 select is(
@@ -180,6 +191,32 @@ select is(
   (select care_model::text from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
   'direct_care',
   'The coordinator''s care_model update actually applied'
+);
+
+-- === 2026-08-29 RLS audit fix: an UNASSIGNED coordinator who is merely
+-- linked (member_owns true, e.g. via redeem_invite_code) must NOT be able
+-- to bypass member_update_preserves_clinical_fields via the global
+-- is_coordinator() check that used to live in this policy's WITH CHECK.
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '29000000-0000-0000-0000-000000000029')::text, true);
+
+select throws_ok(
+  $$ update public.members set care_model = 'virtual_care' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  '42501',
+  null,
+  'An unassigned coordinator who is only linked (not assigned) to Member A cannot change care_model -- closes the 2026-08-29 audit finding'
+);
+
+select is(
+  (select care_model::text from public.members where id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  'direct_care',
+  'Member A''s care_model is unchanged after the blocked unassigned-linked-coordinator attempt'
+);
+
+select lives_ok(
+  $$ update public.members set phone = '8888888888' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  'The same unassigned-linked coordinator can still update a non-clinical contact field, same as any other linked non-coordinator account -- the fix does not remove legitimate linked-account access'
 );
 
 -- === Wearable expansion tables: sleep_sessions, ecg_readings, rhythm_events ===

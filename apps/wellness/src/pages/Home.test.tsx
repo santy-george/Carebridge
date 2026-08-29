@@ -281,4 +281,51 @@ describe('Home', () => {
 
     expect(await screen.findByText(/couldn.t save that reading/i)).toBeInTheDocument();
   });
+
+  it('does not show the blood pressure entry form until the BP gauge is tapped', async () => {
+    renderHome();
+    await screen.findByText(/good (morning|afternoon|evening)/i);
+    expect(screen.queryByLabelText(/systolic/i)).not.toBeInTheDocument();
+  });
+
+  it('submits a blood pressure reading with systolic and diastolic', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderHome();
+
+    await user.click(await screen.findByRole('button', { name: /enter blood pressure/i }));
+    await user.type(screen.getByLabelText(/systolic/i), '128');
+    await user.type(screen.getByLabelText(/diastolic/i), '82');
+    await user.click(screen.getByRole('button', { name: /log blood pressure reading/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'vitals_readings',
+        payload: expect.objectContaining({
+          member_id: 'm1',
+          vital_type: 'blood_pressure',
+          value: 128,
+          value_secondary: 82,
+          source: 'manual',
+        }),
+      }),
+    );
+    // Form closes and the gauge reflects the new reading immediately.
+    expect(screen.queryByLabelText(/systolic/i)).not.toBeInTheDocument();
+    expect(screen.getByText('128')).toBeInTheDocument();
+  });
+
+  it('shows an inline error when the blood pressure submit fails', async () => {
+    insertResponses.vitals_readings = { error: { message: 'insert failed' } };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderHome();
+
+    await user.click(await screen.findByRole('button', { name: /enter blood pressure/i }));
+    await user.type(screen.getByLabelText(/systolic/i), '128');
+    await user.type(screen.getByLabelText(/diastolic/i), '82');
+    await user.click(screen.getByRole('button', { name: /log blood pressure reading/i }));
+
+    expect(await screen.findByText(/couldn.t save that reading/i)).toBeInTheDocument();
+  });
 });

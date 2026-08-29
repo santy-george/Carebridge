@@ -6,19 +6,24 @@ import { useAuth } from '../auth/useAuth';
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
-const insertCalls: { table: string; payload: unknown }[] = [];
+const upsertCalls: { table: string; payload: unknown; opts: unknown }[] = [];
 let insertError: { message: string } | null = null;
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
     from: vi.fn((table: string) => ({
-      insert: (payload: unknown) => {
-        insertCalls.push({ table, payload });
+      upsert: (payload: unknown, opts: unknown) => {
+        upsertCalls.push({ table, payload, opts });
         return Promise.resolve({ error: insertError });
       },
     })),
   },
 }));
+
+function todayLocalDate(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 
 function renderCheckIn() {
   return render(
@@ -34,11 +39,11 @@ function renderCheckIn() {
 describe('CheckIn', () => {
   beforeEach(() => {
     vi.mocked(useAuth).mockReturnValue({ selectedMemberId: 'm1' } as never);
-    insertCalls.length = 0;
+    upsertCalls.length = 0;
     insertError = null;
   });
 
-  it('saves the default selections and navigates home', async () => {
+  it('upserts the default selections (one row per day) and navigates home', async () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
     renderCheckIn();
@@ -46,10 +51,11 @@ describe('CheckIn', () => {
     await user.click(screen.getByRole('button', { name: /save check-in/i }));
 
     await waitFor(() =>
-      expect(insertCalls).toContainEqual({
+      expect(upsertCalls).toContainEqual({
         table: 'checkins',
         payload: {
           member_id: 'm1',
+          checkin_date: todayLocalDate(),
           mood: 'good',
           sleep: 'good',
           energy: 'medium',
@@ -57,6 +63,7 @@ describe('CheckIn', () => {
           notes: null,
           wellness_score: 90,
         },
+        opts: { onConflict: 'member_id,checkin_date' },
       }),
     );
     expect(await screen.findByText('Home content')).toBeInTheDocument();
@@ -73,12 +80,13 @@ describe('CheckIn', () => {
     await user.click(screen.getByRole('button', { name: /save check-in/i }));
 
     await waitFor(() =>
-      expect(insertCalls).toContainEqual({
+      expect(upsertCalls).toContainEqual({
         table: 'checkins',
         payload: expect.objectContaining({
           mood: 'low',
           notes: 'feeling tired',
         }),
+        opts: { onConflict: 'member_id,checkin_date' },
       }),
     );
   });

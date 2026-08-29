@@ -29,15 +29,24 @@ export function CheckIn() {
     if (!selectedMemberId) return;
     setSaving(true);
     setSaveError(false);
-    const { error } = await supabase.from('checkins').insert({
-      member_id: selectedMemberId,
-      mood,
-      sleep,
-      energy,
-      aches,
-      notes: notes.trim() || null,
-      wellness_score: calculateWellnessScore(mood, energy, sleep, aches),
-    });
+    const now = new Date();
+    // Local calendar date, not UTC -- new Date().toISOString().slice(0, 10)
+    // would file a late-evening check-in under tomorrow's UTC date for any
+    // positive-offset timezone (India included, this app's actual market).
+    const localCheckinDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const { error } = await supabase.from('checkins').upsert(
+      {
+        member_id: selectedMemberId,
+        checkin_date: localCheckinDate,
+        mood,
+        sleep,
+        energy,
+        aches,
+        notes: notes.trim() || null,
+        wellness_score: calculateWellnessScore(mood, energy, sleep, aches),
+      },
+      { onConflict: 'member_id,checkin_date' },
+    );
     setSaving(false);
     if (error) {
       setSaveError(true);

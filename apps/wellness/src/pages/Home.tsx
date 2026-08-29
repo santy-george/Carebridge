@@ -101,6 +101,10 @@ export function Home() {
   const [weightInput, setWeightInput] = useState('');
   const [heightInput, setHeightInput] = useState('');
   const [bmiError, setBmiError] = useState(false);
+  const [bpEditing, setBpEditing] = useState(false);
+  const [bpSystolicInput, setBpSystolicInput] = useState('');
+  const [bpDiastolicInput, setBpDiastolicInput] = useState('');
+  const [bpError, setBpError] = useState(false);
   const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);
   const [respiratoryRate, setRespiratoryRate] = useState<RespiratoryRateRow | null>(null);
   const [steps, setSteps] = useState<StepsRow | null>(null);
@@ -122,6 +126,7 @@ export function Home() {
         .select('wellness_score, checkin_date')
         .eq('member_id', selectedMemberId)
         .order('checkin_date', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(1),
       supabase
         .from('vitals_readings')
@@ -287,6 +292,33 @@ export function Home() {
     ]);
   };
 
+  const logBp = async () => {
+    const systolic = parseFloat(bpSystolicInput);
+    const diastolic = parseFloat(bpDiastolicInput);
+    if (!systolic || !diastolic || !selectedMemberId) return;
+    setBpError(false);
+    const now = new Date().toISOString();
+    const { error } = await supabase.from('vitals_readings').insert({
+      member_id: selectedMemberId,
+      vital_type: 'blood_pressure',
+      value: systolic,
+      value_secondary: diastolic,
+      source: 'manual',
+      recorded_at: now,
+    });
+    if (error) {
+      setBpError(true);
+      return;
+    }
+    setVitals((prev) => [
+      { vital_type: 'blood_pressure', value: systolic, recorded_at: now },
+      ...prev.filter((r) => r.vital_type !== 'blood_pressure'),
+    ]);
+    setBpSystolicInput('');
+    setBpDiastolicInput('');
+    setBpEditing(false);
+  };
+
   if (loading) {
     return <div className="card">Loading…</div>;
   }
@@ -397,7 +429,9 @@ export function Home() {
           width: '100%',
           margin: '0 auto',
           background: 'url("/wellness-calm-companion.png") center / cover no-repeat',
-          display: 'block',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         {checkin ? (
@@ -436,7 +470,13 @@ export function Home() {
           padding: '16px 10px',
         }}
       >
-        <div>
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="Enter blood pressure"
+          onClick={() => setBpEditing((prev) => !prev)}
+          style={{ cursor: 'pointer' }}
+        >
           <GaugeRing
             percent={bpStatus?.percent ?? 0}
             colorVar={ringColorFor(bpStatus)}
@@ -480,6 +520,53 @@ export function Home() {
         </span>
         <span style={{ width: 56 }}>{spo2Status?.label ?? '—'}</span>
       </div>
+
+      {bpEditing && (
+        <div className="card" style={{ marginTop: 8 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div className="vin" style={{ flex: 1 }}>
+              <label htmlFor="bp-systolic-input">Systolic</label>
+              <div className="r">
+                <input
+                  id="bp-systolic-input"
+                  type="number"
+                  step="1"
+                  value={bpSystolicInput}
+                  onChange={(e) => setBpSystolicInput(e.target.value)}
+                />
+                <span className="u">mmHg</span>
+              </div>
+            </div>
+            <div className="vin" style={{ flex: 1 }}>
+              <label htmlFor="bp-diastolic-input">Diastolic</label>
+              <div className="r">
+                <input
+                  id="bp-diastolic-input"
+                  type="number"
+                  step="1"
+                  value={bpDiastolicInput}
+                  onChange={(e) => setBpDiastolicInput(e.target.value)}
+                />
+                <span className="u">mmHg</span>
+              </div>
+            </div>
+          </div>
+          <button
+            className="mbtn mbtn--fill mbtn--block mbtn--sm"
+            type="button"
+            aria-label="Log blood pressure reading"
+            onClick={logBp}
+            style={{ marginTop: 10 }}
+          >
+            Log reading
+          </button>
+          {bpError && (
+            <p className="form-error" role="alert">
+              Couldn&apos;t save that reading — try again.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="sec" style={{ color: 'var(--purple-700)' }}>
         My activity

@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(101);
+select plan(105);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -96,6 +96,37 @@ select is(
   (select count(*)::int from public.checkins where member_id = 'bb000000-0000-0000-0000-00000000bbbb'),
   0,
   'Member A gets zero rows querying Member B checkins (RLS filters silently, no error)'
+);
+
+-- === 2026-08-29: one checkin per member per day. Root cause of a real
+-- bug -- resaving a check-in used to always INSERT, so Home's "latest
+-- checkin" query (ordered only by checkin_date, no tiebreaker) could show
+-- an arbitrary earlier same-day row instead of the member's actual latest
+-- edit.
+select throws_ok(
+  $$ insert into public.checkins (member_id, checkin_date, mood) values ('aa000000-0000-0000-0000-00000000aaaa', current_date, 'low') $$,
+  '23505',
+  null,
+  'A second checkins row for the same member+day violates the new unique constraint'
+);
+
+select lives_ok(
+  $$ insert into public.checkins (member_id, checkin_date, mood, wellness_score)
+     values ('aa000000-0000-0000-0000-00000000aaaa', current_date, 'low', 42)
+     on conflict (member_id, checkin_date) do update set mood = excluded.mood, wellness_score = excluded.wellness_score $$,
+  'Upserting on (member_id, checkin_date) -- what CheckIn.tsx now does -- replaces today''s row instead of erroring'
+);
+
+select is(
+  (select count(*)::int from public.checkins where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and checkin_date = current_date),
+  1,
+  'Still exactly one row for Member A today after the upsert -- no duplicate was created'
+);
+
+select is(
+  (select wellness_score::int from public.checkins where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and checkin_date = current_date),
+  42,
+  'The upsert actually replaced the row''s value, not just left the original insert in place'
 );
 
 select throws_ok(

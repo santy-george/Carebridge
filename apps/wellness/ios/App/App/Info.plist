@@ -26,6 +26,8 @@
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Care Bridge Home reads your heart rate and blood oxygen from Health to keep your care team informed.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Care Bridge Home uses your camera to photograph lab reports, prescriptions, and scans for your records.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

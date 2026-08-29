@@ -35,6 +35,42 @@ public class HealthKitBridgePlugin: CAPPlugin, CAPBridgedPlugin {
             }
             self.notifyListeners("healthKitSamples", data: ["readings": payload])
         }
+
+        healthKitBridge.startObservingSleep { [weak self] sessions in
+            guard let self else { return }
+            let payload = sessions.map { session -> [String: Any] in
+                [
+                    "started_at": self.isoFormatter.string(from: session.startedAt),
+                    "ended_at": self.isoFormatter.string(from: session.endedAt),
+                    "stage": session.stage,
+                ]
+            }
+            self.notifyListeners("healthKitSleepSessions", data: ["sessions": payload])
+        }
+
+        healthKitBridge.startObservingEcg { [weak self] readings in
+            guard let self else { return }
+            let payload = readings.map { reading -> [String: Any] in
+                var row: [String: Any] = [
+                    "recorded_at": self.isoFormatter.string(from: reading.recordedAt),
+                    "classification": reading.classification,
+                ]
+                if let avgHr = reading.averageHeartRate {
+                    row["average_heart_rate"] = avgHr
+                }
+                return row
+            }
+            self.notifyListeners("healthKitEcgReadings", data: ["readings": payload])
+        }
+
+        healthKitBridge.startObservingRhythmEvents { [weak self] events in
+            guard let self else { return }
+            let payload = events.map { event -> [String: Any] in
+                ["recorded_at": self.isoFormatter.string(from: event.recordedAt)]
+            }
+            self.notifyListeners("healthKitRhythmEvents", data: ["events": payload])
+        }
+
         call.resolve()
     }
 }

@@ -92,4 +92,47 @@ describe('registerHealthKit', () => {
       body: { member_id: 'member-1', readings },
     });
   });
+
+  it('flushes sleep_sessions separately from readings', async () => {
+    await registerHealthKit('user-1', 'member-1');
+    const sessions = Array.from({ length: FLUSH_BATCH_SIZE }, (_, i) => ({
+      started_at: `2026-08-2${i % 9}T22:00:00Z`,
+      ended_at: `2026-08-2${i % 9}T23:00:00Z`,
+      stage: 'asleep_core' as const,
+    }));
+    listeners.healthKitSleepSessions({ sessions });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(invokeMock).toHaveBeenCalledWith('ingest-wearable', {
+      body: { member_id: 'member-1', sleep_sessions: sessions },
+    });
+  });
+
+  it('flushes ecg_readings separately from readings', async () => {
+    await registerHealthKit('user-1', 'member-1');
+    const readings = Array.from({ length: FLUSH_BATCH_SIZE }, () => ({
+      recorded_at: '2026-08-29T04:00:00Z',
+      classification: 'sinus_rhythm' as const,
+      average_heart_rate: 68,
+    }));
+    listeners.healthKitEcgReadings({ readings });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(invokeMock).toHaveBeenCalledWith('ingest-wearable', {
+      body: { member_id: 'member-1', ecg_readings: readings },
+    });
+  });
+
+  it('flushes rhythm_events separately from readings', async () => {
+    await registerHealthKit('user-1', 'member-1');
+    const events = Array.from({ length: FLUSH_BATCH_SIZE }, () => ({
+      recorded_at: '2026-08-29T04:00:00Z',
+    }));
+    listeners.healthKitRhythmEvents({ events });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(invokeMock).toHaveBeenCalledWith('ingest-wearable', {
+      body: { member_id: 'member-1', rhythm_events: events },
+    });
+  });
 });

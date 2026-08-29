@@ -30,7 +30,23 @@ vi.mock('./lib/supabase', () => ({
       signOut: vi.fn(),
     },
     from: vi.fn(),
-    rpc: vi.fn(),
+    // Home mounts as part of the route tree in both tests below and fires a
+    // get_home_dashboard RPC on load -- give it a resolved default so that
+    // fetch doesn't reject; neither test asserts on Home's own content.
+    rpc: vi.fn().mockResolvedValue({
+      data: {
+        full_name: 'Test',
+        medical_profile: null,
+        checkin: null,
+        vitals: [],
+        glucose: null,
+        heart_rate: null,
+        respiratory_rate: null,
+        steps: null,
+        sleep_sessions: [],
+      },
+      error: null,
+    }),
   },
 }));
 

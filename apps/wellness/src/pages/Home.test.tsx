@@ -14,71 +14,54 @@ function renderHome() {
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
-const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
 const insertCalls: { table: string; payload: unknown }[] = [];
 const insertResponses: Record<string, { error: unknown }> = {};
 
-// A generic chainable + thenable query-builder mock: every filter/modifier
-// method (select/eq/in/order/limit/maybeSingle) returns the same object, so
-// it works regardless of which methods a given real query chains and in
-// what order — matching how the real supabase-js query builder behaves
-// (each intermediate call is itself awaitable).
+// mockTable only ever needs to handle .insert() now — the read side of
+// Home's fetch is a single get_home_dashboard RPC call (see rpcMock below),
+// not per-table selects.
 function mockTable(table: string) {
-  const filters: { column: string; value: unknown }[] = [];
-  const builder = {
-    select: () => builder,
-    eq: (column: string, value: unknown) => {
-      filters.push({ column, value });
-      return builder;
-    },
-    in: () => builder,
-    not: () => builder,
-    neq: () => builder,
-    gte: () => builder,
-    order: () => builder,
-    limit: () => builder,
-    maybeSingle: () => builder,
+  return {
     insert: (payload: unknown) => {
       insertCalls.push({ table, payload });
       return Promise.resolve(insertResponses[table] ?? { error: null });
     },
-    then: (resolve: (v: { data: unknown; error: unknown }) => void) => {
-      const base = tableResponses[table] ?? { data: null, error: null };
-      // wearable_readings is queried once per reading_type (heart_rate,
-      // respiratory_rate) -- filter by the actual reading_type each query
-      // used, the same way real Postgrest would, so the two queries don't
-      // resolve to the same undifferentiated response.
-      if (table === 'wearable_readings' && Array.isArray(base.data)) {
-        const readingTypeFilter = filters.find((f) => f.column === 'reading_type');
-        if (readingTypeFilter) {
-          resolve({
-            data: (base.data as { reading_type: string }[]).filter(
-              (r) => r.reading_type === readingTypeFilter.value,
-            ),
-            error: base.error,
-          });
-          return;
-        }
-      }
-      resolve(base);
-    },
   };
-  return builder;
 }
+
+let dashboardData: Record<string, unknown>;
+let dashboardError: unknown;
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
     from: vi.fn((table: string) => mockTable(table)),
+    rpc: vi.fn(() =>
+      Promise.resolve(
+        dashboardError
+          ? { data: null, error: dashboardError }
+          : { data: dashboardData, error: null },
+      ),
+    ),
   },
 }));
 
 describe('Home', () => {
   beforeEach(() => {
     vi.mocked(useAuth).mockReturnValue({ selectedMemberId: 'm1' } as never);
-    for (const key of Object.keys(tableResponses)) delete tableResponses[key];
-    for (const key of Object.keys(insertResponses)) delete insertResponses[key];
     insertCalls.length = 0;
-    tableResponses.members = { data: { full_name: 'Jane Doe' }, error: null };
+    for (const key of Object.keys(insertResponses)) delete insertResponses[key];
+    dashboardError = null;
+    dashboardData = {
+      full_name: 'Jane Doe',
+      medical_profile: null,
+      checkin: null,
+      vitals: [],
+      glucose: null,
+      heart_rate: null,
+      respiratory_rate: null,
+      steps: null,
+      sleep_sessions: [],
+    };
   });
 
   it('shows a loading skeleton before the initial fetch resolves', () => {
@@ -87,15 +70,15 @@ describe('Home', () => {
   });
 
   it('shows the add-profile CTA when no medical profile exists', async () => {
-    tableResponses.medical_profile = { data: null, error: null };
     renderHome();
     expect(await screen.findByText(/add your health profile/i)).toBeInTheDocument();
   });
 
   it('shows conditions and allergies when a medical profile exists', async () => {
-    tableResponses.medical_profile = {
-      data: { conditions: ['Diabetes'], conditions_other: null, allergies: ['Peanuts'] },
-      error: null,
+    dashboardData.medical_profile = {
+      conditions: ['Diabetes'],
+      conditions_other: null,
+      allergies: ['Peanuts'],
     };
     renderHome();
     expect(await screen.findByText('Diabetes')).toBeInTheDocument();
@@ -103,16 +86,12 @@ describe('Home', () => {
   });
 
   it('shows "No check-in yet" when there is no checkin row', async () => {
-    tableResponses.checkins = { data: [], error: null };
     renderHome();
     expect(await screen.findByText(/no check-in yet/i)).toBeInTheDocument();
   });
 
   it('shows the wellness score when a checkin exists', async () => {
-    tableResponses.checkins = {
-      data: [{ wellness_score: 72, checkin_date: '2026-08-01' }],
-      error: null,
-    };
+    dashboardData.checkin = { wellness_score: 72, checkin_date: '2026-08-01' };
     renderHome();
     expect(await screen.findByText('72')).toBeInTheDocument();
   });
@@ -124,10 +103,7 @@ describe('Home', () => {
   });
 
   it('shows heart rate value and "Not tracked yet" for steps/sleep when heart rate data exists', async () => {
-    tableResponses.wearable_readings = {
-      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
-      error: null,
-    };
+    dashboardData.heart_rate = { value: 72, recorded_at: '2026-08-20T10:00:00Z' };
     renderHome();
     expect(await screen.findByText('72 bpm')).toBeInTheDocument();
     expect(screen.getAllByText(/not tracked yet/i).length).toBe(2);
@@ -135,13 +111,8 @@ describe('Home', () => {
   });
 
   it('shows the respiratory rate gauge in My vitals when wearable data exists', async () => {
-    tableResponses.wearable_readings = {
-      data: [
-        { reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' },
-        { reading_type: 'respiratory_rate', value: 15, recorded_at: '2026-08-20T10:00:00Z' },
-      ],
-      error: null,
-    };
+    dashboardData.heart_rate = { value: 72, recorded_at: '2026-08-20T10:00:00Z' };
+    dashboardData.respiratory_rate = { value: 15, recorded_at: '2026-08-20T10:00:00Z' };
     renderHome();
     expect(await screen.findByText('Respiratory rate')).toBeInTheDocument();
     expect(screen.getByText('15')).toBeInTheDocument();
@@ -150,30 +121,18 @@ describe('Home', () => {
   });
 
   it('shows the real step count when daily_activity_totals has data', async () => {
-    tableResponses.wearable_readings = {
-      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
-      error: null,
-    };
-    tableResponses.daily_activity_totals = {
-      data: [{ value: 8342, day: '2026-08-20' }],
-      error: null,
-    };
+    dashboardData.heart_rate = { value: 72, recorded_at: '2026-08-20T10:00:00Z' };
+    dashboardData.steps = { value: 8342, day: '2026-08-20' };
     renderHome();
     expect(await screen.findByText('8,342 steps')).toBeInTheDocument();
   });
 
   it('shows a summed sleep duration when sleep_sessions has data', async () => {
-    tableResponses.wearable_readings = {
-      data: [{ reading_type: 'heart_rate', value: 72, recorded_at: '2026-08-20T10:00:00Z' }],
-      error: null,
-    };
-    tableResponses.sleep_sessions = {
-      data: [
-        { started_at: '2026-08-20T22:00:00Z', ended_at: '2026-08-21T01:00:00Z' },
-        { started_at: '2026-08-21T01:30:00Z', ended_at: '2026-08-21T05:00:00Z' },
-      ],
-      error: null,
-    };
+    dashboardData.heart_rate = { value: 72, recorded_at: '2026-08-20T10:00:00Z' };
+    dashboardData.sleep_sessions = [
+      { started_at: '2026-08-20T22:00:00Z', ended_at: '2026-08-21T01:00:00Z' },
+      { started_at: '2026-08-21T01:30:00Z', ended_at: '2026-08-21T05:00:00Z' },
+    ];
     renderHome();
     expect(await screen.findByText('6h 30m')).toBeInTheDocument();
   });
@@ -184,7 +143,7 @@ describe('Home', () => {
   });
 
   it('shows a dismissible error banner when a fetch fails', async () => {
-    tableResponses.medical_profile = { data: null, error: { message: 'network error' } };
+    dashboardError = { message: 'network error' };
     const { default: userEvent } = await import('@testing-library/user-event');
     const user = userEvent.setup();
     renderHome();
@@ -194,13 +153,10 @@ describe('Home', () => {
   });
 
   it('shows the BMI card with weight/height and computed category', async () => {
-    tableResponses.vitals_readings = {
-      data: [
-        { vital_type: 'weight_kg', value: 70.4, recorded_at: '2026-08-01T00:00:00Z' },
-        { vital_type: 'height_cm', value: 162, recorded_at: '2026-08-01T00:00:00Z' },
-      ],
-      error: null,
-    };
+    dashboardData.vitals = [
+      { vital_type: 'weight_kg', value: 70.4, recorded_at: '2026-08-01T00:00:00Z' },
+      { vital_type: 'height_cm', value: 162, recorded_at: '2026-08-01T00:00:00Z' },
+    ];
     renderHome();
     expect(await screen.findByText('26.8')).toBeInTheDocument();
     expect(await screen.findByText('Overweight')).toBeInTheDocument();

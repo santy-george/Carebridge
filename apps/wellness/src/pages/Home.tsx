@@ -114,120 +114,46 @@ export function Home() {
     let isMounted = true;
     if (!selectedMemberId) return;
 
-    Promise.all([
-      supabase.from('members').select('full_name').eq('id', selectedMemberId).maybeSingle(),
-      supabase
-        .from('medical_profile')
-        .select('conditions, conditions_other, allergies')
-        .eq('member_id', selectedMemberId)
-        .maybeSingle(),
-      supabase
-        .from('checkins')
-        .select('wellness_score, checkin_date')
-        .eq('member_id', selectedMemberId)
-        .order('checkin_date', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(1),
-      supabase
-        .from('vitals_readings')
-        .select('vital_type, value, recorded_at')
-        .eq('member_id', selectedMemberId)
-        .in('vital_type', ['blood_pressure', 'spo2_pct', 'weight_kg', 'height_cm'])
-        .order('recorded_at', { ascending: false }),
-      supabase
-        .from('glucose_readings')
-        .select('value_mg_dl, context, reading_date, reading_time')
-        .eq('member_id', selectedMemberId)
-        .order('reading_date', { ascending: false })
-        .order('reading_time', { ascending: false })
-        .limit(1),
-      supabase
-        .from('wearable_readings')
-        .select('reading_type, value, recorded_at')
-        .eq('member_id', selectedMemberId)
-        .eq('reading_type', 'heart_rate')
-        .not('value', 'is', null)
-        .order('recorded_at', { ascending: false })
-        .limit(1),
-      supabase
-        .from('wearable_readings')
-        .select('reading_type, value, recorded_at')
-        .eq('member_id', selectedMemberId)
-        .eq('reading_type', 'respiratory_rate')
-        .not('value', 'is', null)
-        .order('recorded_at', { ascending: false })
-        .limit(1),
-      supabase
-        .from('daily_activity_totals')
-        .select('value, day')
-        .eq('member_id', selectedMemberId)
-        .eq('reading_type', 'step_count')
-        .order('day', { ascending: false })
-        .limit(1),
-      supabase
-        .from('sleep_sessions')
-        .select('started_at, ended_at')
-        .eq('member_id', selectedMemberId)
-        .neq('stage', 'awake')
-        .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('started_at', { ascending: false }),
-    ]).then(
-      ([
-        membersRes,
-        profileRes,
-        checkinsRes,
-        vitalsRes,
-        glucoseRes,
-        hrRes,
-        respRateRes,
-        stepsRes,
-        sleepRes,
-      ]) => {
+    supabase
+      .rpc('get_home_dashboard', { p_member_id: selectedMemberId })
+      .then(({ data, error }) => {
         if (!isMounted) return;
         setLoading(false);
-        const anyError =
-          membersRes.error ||
-          profileRes.error ||
-          checkinsRes.error ||
-          vitalsRes.error ||
-          glucoseRes.error ||
-          hrRes.error ||
-          respRateRes.error ||
-          stepsRes.error ||
-          sleepRes.error;
-        setFetchError(!!anyError);
-        const memberRow = membersRes.data as { full_name: string } | null;
-        setFirstName(memberRow ? memberRow.full_name.split(' ')[0] : '');
-        setMedicalProfile((profileRes.data as MedicalProfile | null) ?? null);
-        const checkinRows = (checkinsRes.data as LatestCheckin[] | null) ?? [];
-        setCheckin(checkinRows[0] ?? null);
-        setVitals((vitalsRes.data as VitalRow[] | null) ?? []);
-        const glucoseRows = (glucoseRes.data as LatestGlucose[] | null) ?? [];
-        setGlucose(glucoseRows[0] ?? null);
-        const hrRows = (hrRes.data as { value: number; recorded_at: string }[] | null) ?? [];
-        setHeartRate(hrRows[0] ?? null);
-        const respRateRows =
-          (respRateRes.data as { value: number; recorded_at: string }[] | null) ?? [];
-        setRespiratoryRate(respRateRows[0] ?? null);
-        const stepsRows = (stepsRes.data as StepsRow[] | null) ?? [];
-        setSteps(stepsRows[0] ?? null);
-        const sleepRows = (sleepRes.data as SleepSegment[] | null) ?? [];
+        setFetchError(!!error);
+        if (!data) return;
+
+        const dashboard = data as unknown as {
+          full_name: string | null;
+          medical_profile: MedicalProfile | null;
+          checkin: LatestCheckin | null;
+          vitals: VitalRow[];
+          glucose: LatestGlucose | null;
+          heart_rate: HeartRateRow | null;
+          respiratory_rate: RespiratoryRateRow | null;
+          steps: StepsRow | null;
+          sleep_sessions: SleepSegment[];
+        };
+
+        setFirstName(dashboard.full_name ? dashboard.full_name.split(' ')[0] : '');
+        setMedicalProfile(dashboard.medical_profile);
+        setCheckin(dashboard.checkin);
+        setVitals(dashboard.vitals);
+        setGlucose(dashboard.glucose);
+        setHeartRate(dashboard.heart_rate);
+        setRespiratoryRate(dashboard.respiratory_rate);
+        setSteps(dashboard.steps);
+        const sleepRows = dashboard.sleep_sessions;
         const totalSleepMinutes = sleepRows.reduce(
           (sum, seg) =>
             sum + (new Date(seg.ended_at).getTime() - new Date(seg.started_at).getTime()) / 60000,
           0,
         );
         setSleepMinutes(sleepRows.length > 0 ? totalSleepMinutes : null);
-        const weightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
-          (r) => r.vital_type === 'weight_kg',
-        );
-        const heightRow = ((vitalsRes.data as VitalRow[] | null) ?? []).find(
-          (r) => r.vital_type === 'height_cm',
-        );
+        const weightRow = dashboard.vitals.find((r) => r.vital_type === 'weight_kg');
+        const heightRow = dashboard.vitals.find((r) => r.vital_type === 'height_cm');
         if (weightRow) setWeightInput(String(weightRow.value));
         if (heightRow) setHeightInput(String(heightRow.value));
-      },
-    );
+      });
 
     return () => {
       isMounted = false;

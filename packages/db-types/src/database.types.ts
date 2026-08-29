@@ -1181,6 +1181,7 @@ export type Database = {
     }
     Functions: {
       can_access_member: { Args: { p_member_id: string }; Returns: boolean }
+      get_home_dashboard: { Args: { p_member_id: string }; Returns: Json }
       is_assigned_coordinator: {
         Args: { p_member_id: string }
         Returns: boolean

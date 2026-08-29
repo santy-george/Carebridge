@@ -8,6 +8,7 @@ vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
 const upsertCalls: { table: string; payload: unknown; opts: unknown }[] = [];
 let insertError: { message: string } | null = null;
+let todaysCheckin: unknown = null;
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
@@ -16,6 +17,13 @@ vi.mock('../lib/supabase', () => ({
         upsertCalls.push({ table, payload, opts });
         return Promise.resolve({ error: insertError });
       },
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            maybeSingle: () => Promise.resolve({ data: todaysCheckin, error: null }),
+          }),
+        }),
+      }),
     })),
   },
 }));
@@ -41,6 +49,7 @@ describe('CheckIn', () => {
     vi.mocked(useAuth).mockReturnValue({ selectedMemberId: 'm1' } as never);
     upsertCalls.length = 0;
     insertError = null;
+    todaysCheckin = null;
   });
 
   it('upserts the default selections (one row per day) and navigates home', async () => {
@@ -89,6 +98,25 @@ describe('CheckIn', () => {
         opts: { onConflict: 'member_id,checkin_date' },
       }),
     );
+  });
+
+  it("pre-fills today's already-saved check-in instead of resetting to defaults", async () => {
+    todaysCheckin = {
+      mood: 'low',
+      sleep: 'poor',
+      energy: 'high',
+      aches: 'mild',
+      notes: 'rough morning',
+    };
+    renderCheckIn();
+
+    const notesField = (await screen.findByLabelText(/add a note/i)) as HTMLTextAreaElement;
+    expect(notesField.value).toBe('rough morning');
+    // "Low" appears in both Mood and Energy choice rows; Mood renders first
+    // and should show as selected (the saved value), Energy's "High" should
+    // be selected instead of its own "Low" option.
+    expect(screen.getAllByText('Low')[0].className).toContain('on');
+    expect(screen.getByText('High').className).toContain('on');
   });
 
   it('shows an inline error when the insert fails', async () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
@@ -14,6 +14,21 @@ import {
   type Sleep,
 } from '../lib/checkin';
 
+// Local calendar date, not UTC -- new Date().toISOString().slice(0, 10)
+// would file a late-evening check-in under tomorrow's UTC date for any
+// positive-offset timezone (India included, this app's actual market).
+function localDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+interface TodaysCheckin {
+  mood: Mood;
+  sleep: Sleep;
+  energy: Energy;
+  aches: Aches;
+  notes: string | null;
+}
+
 export function CheckIn() {
   const { selectedMemberId } = useAuth();
   const navigate = useNavigate();
@@ -25,15 +40,36 @@ export function CheckIn() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
+  useEffect(() => {
+    let isMounted = true;
+    if (!selectedMemberId) return;
+
+    supabase
+      .from('checkins')
+      .select('mood, sleep, energy, aches, notes')
+      .eq('member_id', selectedMemberId)
+      .eq('checkin_date', localDateString(new Date()))
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!isMounted || !data) return;
+        const todays = data as TodaysCheckin;
+        setMood(todays.mood);
+        setSleep(todays.sleep);
+        setEnergy(todays.energy);
+        setAches(todays.aches);
+        setNotes(todays.notes ?? '');
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedMemberId]);
+
   const save = async () => {
     if (!selectedMemberId) return;
     setSaving(true);
     setSaveError(false);
-    const now = new Date();
-    // Local calendar date, not UTC -- new Date().toISOString().slice(0, 10)
-    // would file a late-evening check-in under tomorrow's UTC date for any
-    // positive-offset timezone (India included, this app's actual market).
-    const localCheckinDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const localCheckinDate = localDateString(new Date());
     const { error } = await supabase.from('checkins').upsert(
       {
         member_id: selectedMemberId,

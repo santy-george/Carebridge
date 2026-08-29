@@ -1185,6 +1185,10 @@ export type Database = {
         Args: { p_member_id: string }
         Returns: boolean
       }
+      is_assigned_coordinator_for_linked_profile: {
+        Args: { p_profile_id: string }
+        Returns: boolean
+      }
       is_coordinator: { Args: never; Returns: boolean }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
       member_update_preserves_clinical_fields: {

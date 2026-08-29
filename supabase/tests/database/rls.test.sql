@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(93);
+select plan(101);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -58,6 +58,9 @@ values ('USEDCODE', 'aa000000-0000-0000-0000-00000000aaaa', 'Daughter', now(), '
 
 insert into public.care_assignments (member_id, coordinator_id)
 values ('aa000000-0000-0000-0000-00000000aaaa', 'c0000000-0000-0000-0000-00000000000c');
+
+insert into public.upgrade_leads (member_id, requested_care_model, status)
+values ('aa000000-0000-0000-0000-00000000aaaa', 'virtual_care', 'new');
 
 insert into public.checkins (member_id, checkin_date, mood)
 values
@@ -172,8 +175,8 @@ select lives_ok(
 
 select is(
   (select count(*)::int from public.member_links where member_id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')),
-  3,
-  'Coordinator reads all member_links rows (2 self-links + the 2026-08-29 audit-fixture linked-coordinator row)'
+  2,
+  'Coordinator reads member_links only for members they are assigned to (2026-08-29: scoped down from all-member_links) -- sees Member A''s self-link + the audit-fixture linked-coordinator row, not Member B''s'
 );
 
 select is(
@@ -217,6 +220,79 @@ select is(
 select lives_ok(
   $$ update public.members set phone = '8888888888' where id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
   'The same unassigned-linked coordinator can still update a non-clinical contact field, same as any other linked non-coordinator account -- the fix does not remove legitimate linked-account access'
+);
+
+-- === 2026-08-29: "any coordinator can see anything" scoped down to
+-- assignment-only (SOS alerts excepted). New restrictions this migration
+-- introduces, not covered by any earlier test.
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-0000-0000-00000000000c')::text, true);
+
+select throws_ok(
+  $$ insert into public.care_assignments (member_id, coordinator_id) values ('bb000000-0000-0000-0000-00000000bbbb', 'c0000000-0000-0000-0000-00000000000c') $$,
+  '42501',
+  null,
+  'A coordinator can no longer self-assign to a new patient -- care_assignments has no client-writable policy left'
+);
+
+update public.care_assignments set is_active = false
+  where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and coordinator_id = 'c0000000-0000-0000-0000-00000000000c';
+
+select is(
+  (select is_active from public.care_assignments where member_id = 'aa000000-0000-0000-0000-00000000aaaa' and coordinator_id = 'c0000000-0000-0000-0000-00000000000c'),
+  true,
+  'A coordinator can no longer deactivate even their own existing assignment -- with no UPDATE policy at all, RLS silently matches zero rows (no error, same as any other read-side RLS filter) rather than throwing, so the row is simply left unchanged'
+);
+
+select is(
+  (select count(*)::int from public.care_assignments where coordinator_id = 'c0000000-0000-0000-0000-00000000000c'),
+  1,
+  'The assigned coordinator can still read their own care_assignments row (needed for e.g. Admin''s MemberList "Assigned to" column)'
+);
+
+select lives_ok(
+  $$ update public.upgrade_leads set status = 'contacted' where member_id = 'aa000000-0000-0000-0000-00000000aaaa' $$,
+  'The assigned coordinator can still manage an upgrade lead for their own assigned member'
+);
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '19000000-0000-0000-0000-000000000019')::text, true);
+
+select is(
+  (select count(*)::int from public.upgrade_leads where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  0,
+  'An unassigned coordinator no longer sees Member A''s upgrade lead at all -- leads are not treated like SOS'
+);
+
+update public.upgrade_leads set status = 'declined' where member_id = 'aa000000-0000-0000-0000-00000000aaaa';
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-0000-0000-00000000000c')::text, true);
+
+select is(
+  (select status::text from public.upgrade_leads where member_id = 'aa000000-0000-0000-0000-00000000aaaa'),
+  'contacted',
+  'An unassigned coordinator''s update was silently a no-op (RLS matched zero rows, no UPDATE policy applies) -- the lead status is still whatever the assigned coordinator set it to earlier, not "declined"'
+);
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '19000000-0000-0000-0000-000000000019')::text, true);
+
+select is(
+  (select count(*)::int from public.profiles where id = 'a0000000-0000-0000-0000-00000000000a'),
+  0,
+  'An unassigned coordinator can no longer read Member A''s linked-account profile (2026-08-29: profiles scoped to assigned coordinators)'
+);
+
+select throws_ok(
+  $$ select public.reactivate_consent('a0000000-0000-0000-0000-00000000000a', 'aa000000-0000-0000-0000-00000000aaaa') $$,
+  '42501',
+  'only the assigned coordinator can reactivate consent',
+  'An unassigned coordinator cannot reactivate Member A''s consent -- reactivate_consent now requires is_assigned_coordinator, not just is_coordinator'
 );
 
 -- === Wearable expansion tables: sleep_sessions, ecg_readings, rhythm_events ===
@@ -496,8 +572,8 @@ select set_config('request.jwt.claims', json_build_object('sub', 'c0000000-0000-
 
 select is(
   (select count(*)::int from public.consents where user_id in ('a0000000-0000-0000-0000-00000000000a', 'b0000000-0000-0000-0000-00000000000b')),
-  3,
-  'Coordinator reads all consent history regardless of assignment -- Member A''s given + withdrawal_requested rows, plus Member B''s withdrawal_requested row'
+  1,
+  '2026-08-29: coordinator consent visibility scoped to assignment -- sees only Member A''s withdrawal_requested row (member_id set); Member A''s signup "given" row has member_id NULL (is_assigned_coordinator(NULL) is false, so it stays invisible even to their own assigned coordinator) and Member B''s withdrawal_requested row is invisible since the coordinator isn''t assigned to Member B'
 );
 
 select is(
@@ -505,8 +581,8 @@ select is(
     select array_agg(id order by id) from public.members
     where id in ('aa000000-0000-0000-0000-00000000aaaa', 'bb000000-0000-0000-0000-00000000bbbb')
   ),
-  array['aa000000-0000-0000-0000-00000000aaaa'::uuid, 'bb000000-0000-0000-0000-00000000bbbb'::uuid],
-  'The assigned coordinator now also sees Member B (not their assignment) because Member B has a withdrawal_requested consents row -- the narrow coordinator-reads-member-with-withdrawal-request policy'
+  array['aa000000-0000-0000-0000-00000000aaaa'::uuid],
+  '2026-08-29: the "any coordinator reads member with withdrawal request" exception was removed -- the assigned coordinator sees only Member A (their actual assignment), not Member B'
 );
 
 select lives_ok(
@@ -556,7 +632,7 @@ select set_config('request.jwt.claims', json_build_object('sub', 'd0000000-0000-
 select throws_ok(
   $$ select public.reactivate_consent('b0000000-0000-0000-0000-00000000000b', 'bb000000-0000-0000-0000-00000000bbbb') $$,
   '42501',
-  'only coordinators can reactivate consent',
+  'only the assigned coordinator can reactivate consent',
   'A non-coordinator (the family "Son" user) cannot reactivate someone else''s consent'
 );
 

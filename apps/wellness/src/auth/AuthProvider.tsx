@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
+import { toSentryError } from '../lib/toSentryError';
 import { capacitorPreferencesStorage } from '../lib/storage-adapter';
 import { registerPushToken } from '../lib/push';
 import { registerHealthKit } from '../lib/healthkit';
@@ -50,7 +51,7 @@ async function fetchMemberLinks(userId: string): Promise<{ links: MemberLink[]; 
 
   if (error || !data) {
     console.error('Failed to fetch member_links:', error);
-    Sentry.captureException(error ?? new Error('member_links fetch returned no data'));
+    Sentry.captureException(toSentryError(error, 'member_links fetch returned no data'));
     return { links: [], error: true };
   }
 
@@ -74,7 +75,7 @@ async function fetchConsentStatus(userId: string): Promise<ConsentStatus> {
   // thing. 'unknown' is what makes RequireAuth fail closed instead of open.
   if (error) {
     console.error('Failed to fetch consent_status:', error);
-    Sentry.captureException(error);
+    Sentry.captureException(toSentryError(error, 'consent_status fetch failed'));
     return 'unknown';
   }
   if (!data) return null;

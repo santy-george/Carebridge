@@ -2,6 +2,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import * as Sentry from '@sentry/react';
 import { supabase } from './supabase';
+import { toSentryError } from './toSentryError';
 
 // Read-only HealthKit integration: streams new samples from the native
 // HealthKitBridge plugin (apps/wellness/ios/App/App/HealthKitBridge.swift)
@@ -113,7 +114,7 @@ async function flush(): Promise<void> {
         scope.setUser({ id: activeUserId });
       }
       scope.setTag('member_id', activeMemberId);
-      Sentry.captureException(error ?? new Error('ingest-wearable returned not-ok'));
+      Sentry.captureException(toSentryError(error, 'ingest-wearable returned not-ok'));
     });
   }
 }
@@ -168,6 +169,6 @@ export async function registerHealthKit(userId: string, memberId: string): Promi
     await HealthKitBridge.startObserving();
   } catch (error) {
     console.error('HealthKit registration failed:', error);
-    Sentry.captureException(error);
+    Sentry.captureException(toSentryError(error, 'HealthKit registration failed'));
   }
 }

@@ -7,6 +7,7 @@ import {
 } from '@capacitor/push-notifications';
 import * as Sentry from '@sentry/react';
 import { supabase } from './supabase';
+import { toSentryError } from './toSentryError';
 
 // Nothing sends a real push yet -- Phase 3's send side (an Edge Function
 // reacting to sos_alerts/medication_logs, or similar) doesn't exist. This
@@ -59,7 +60,7 @@ async function persistToken(token: string) {
     );
   if (error) {
     console.error('Failed to persist push token:', error);
-    Sentry.captureException(error);
+    Sentry.captureException(toSentryError(error, 'push token persist failed'));
   }
 }
 

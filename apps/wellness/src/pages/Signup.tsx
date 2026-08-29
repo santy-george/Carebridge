@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
+import { toSentryError } from '../lib/toSentryError';
 
 export function Signup() {
   const [email, setEmail] = useState('');
@@ -61,7 +62,7 @@ export function Signup() {
         .from('consents')
         .insert({ user_id: data.user.id, event: 'given', subject_email: email });
       if (consentError) {
-        Sentry.captureException(consentError);
+        Sentry.captureException(toSentryError(consentError, 'consent insert failed'));
       }
     }
 

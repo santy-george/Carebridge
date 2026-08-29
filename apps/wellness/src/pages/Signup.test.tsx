@@ -204,6 +204,11 @@ describe('Signup', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/link-member');
     });
-    expect(Sentry.captureException).toHaveBeenCalledWith(consentError);
+    // consentError is a plain {message} object, not an Error -- captureException
+    // is now called with a real Error wrapping it (see toSentryError), so Sentry
+    // can actually display the message instead of "Object captured as exception".
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'insert failed' }),
+    );
   });
 });

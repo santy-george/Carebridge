@@ -13,6 +13,32 @@ public class HealthKitBridgePlugin: CAPPlugin, CAPBridgedPlugin {
     private let healthKitBridge = HealthKitBridge()
     private let isoFormatter = ISO8601DateFormatter()
 
+    // Daily-cumulative reading_types (see ingest-wearable) are bucketed by
+    // calendar day, derived server-side from recorded_at via a plain
+    // string slice -- so they must be sent as an already-local
+    // "yyyy-MM-dd" date, never as a UTC-instant ISO8601 string. Any
+    // positive UTC offset (India included, this app's actual market) makes
+    // local midnight fall on the PREVIOUS UTC calendar day, so the naive
+    // "serialize as UTC, slice the date" approach silently files today's
+    // total under yesterday.
+    private static let dailyCumulativeReadingTypes: Set<String> = [
+        "step_count", "active_energy_burned", "distance_walked_running", "apple_stand_time",
+    ]
+    private let localDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = .current
+        formatter.timeZone = .current
+        return formatter
+    }()
+
+    private func recordedAtString(for reading: HealthKitReading) -> String {
+        if Self.dailyCumulativeReadingTypes.contains(reading.readingType) {
+            return localDateFormatter.string(from: reading.recordedAt)
+        }
+        return isoFormatter.string(from: reading.recordedAt)
+    }
+
     @objc func requestAuthorization(_ call: CAPPluginCall) {
         healthKitBridge.requestAuthorization { granted, error in
             if let error = error {
@@ -30,7 +56,7 @@ public class HealthKitBridgePlugin: CAPPlugin, CAPBridgedPlugin {
                 [
                     "reading_type": reading.readingType,
                     "value": reading.value,
-                    "recorded_at": self.isoFormatter.string(from: reading.recordedAt),
+                    "recorded_at": self.recordedAtString(for: reading),
                 ]
             }
             self.notifyListeners("healthKitSamples", data: ["readings": payload])

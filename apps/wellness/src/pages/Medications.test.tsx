@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Medications } from './Medications';
 import { useAuth } from '../auth/useAuth';
+import { loadDraft, saveDraft } from '../lib/draftForm';
 
 async function goToMedicationsTab() {
   const user = userEvent.setup();
@@ -64,6 +65,7 @@ describe('Medications', () => {
     insertCalls.length = 0;
     upsertCalls.length = 0;
     updateCalls.length = 0;
+    localStorage.clear();
     tableResponses.medical_profile = { data: { allergies: ['Peanuts'] }, error: null };
     tableResponses.medications = {
       data: [
@@ -415,5 +417,60 @@ describe('Medications', () => {
     expect(
       await screen.findByRole('button', { name: /mark 30 min walk as not done/i }),
     ).toBeInTheDocument();
+  });
+
+  it('restores an unsaved medication draft left over from before the app was backgrounded', async () => {
+    saveDraft('add-medication', {
+      medName: 'Vitamin D3',
+      medDosage: '1 capsule',
+      medBands: ['noon'],
+      medHighRisk: false,
+    });
+    render(<Medications />);
+    await goToMedicationsTab();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /add medication/i }));
+
+    expect(screen.getByLabelText(/medication name/i)).toHaveValue('Vitamin D3');
+    expect(screen.getAllByLabelText(/^dosage$/i)[0]).toHaveValue('1 capsule');
+    expect(screen.getByRole('button', { name: 'Noon' })).toHaveClass('on');
+  });
+
+  it('clears the refill draft once stock is saved', async () => {
+    singleResponses.med_stock = {
+      data: {
+        id: 'stock2',
+        name: 'Aspirin',
+        qty: 30,
+        unit: 'tablets',
+        doses_per_day: 1,
+        high_risk: false,
+        dosage: null,
+        taken_for: null,
+      },
+      error: null,
+    };
+    render(<Medications />);
+    const user = await goToMedicationsTab();
+
+    await user.click(await screen.findByRole('button', { name: /refill stock/i }));
+    await user.type(screen.getByLabelText(/medicine name/i), 'Aspirin');
+    await user.type(screen.getByLabelText(/quantity/i), '30');
+    await user.click(screen.getByRole('button', { name: /save to stock/i }));
+
+    await waitFor(() => expect(loadDraft('refill-stock')).toBeNull());
+  });
+
+  it('clears the appointment draft when the sheet is closed without saving', async () => {
+    render(<Medications />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /add appointment/i }));
+    await user.type(screen.getByLabelText(/provider \/ reason/i), 'Dr. Lee');
+    await waitFor(() => expect(loadDraft('add-appointment')).not.toBeNull());
+
+    await user.click(screen.getAllByRole('button', { name: /close/i })[3]);
+    expect(loadDraft('add-appointment')).toBeNull();
   });
 });

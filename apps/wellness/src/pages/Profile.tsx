@@ -13,6 +13,7 @@ import {
   type CareModel,
   type PlanLevel,
 } from '../lib/profile';
+import { clearDraft, useDraftForm } from '../lib/draftForm';
 
 interface Member {
   full_name: string;
@@ -72,6 +73,23 @@ export function Profile() {
     };
   }, [selectedMemberId]);
 
+  useDraftForm(
+    'medical-profile',
+    sheetOpen,
+    { conditions, conditionsOther, allergiesText, notes },
+    (v) => {
+      setConditions(v.conditions);
+      setConditionsOther(v.conditionsOther);
+      setAllergiesText(v.allergiesText);
+      setNotes(v.notes);
+    },
+  );
+
+  const closeSheet = () => {
+    clearDraft('medical-profile');
+    setSheetOpen(false);
+  };
+
   const openSheet = () => {
     setConditions(medicalProfile?.conditions ?? []);
     setConditionsOther(medicalProfile?.conditions_other ?? '');
@@ -107,6 +125,7 @@ export function Profile() {
       return;
     }
     setMedicalProfile(payload);
+    clearDraft('medical-profile');
     setSheetOpen(false);
   };
 
@@ -206,7 +225,7 @@ export function Profile() {
         </button>
       </Link>
 
-      <div className={`scrim${sheetOpen ? ' show' : ''}`} onClick={() => setSheetOpen(false)} />
+      <div className={`scrim${sheetOpen ? ' show' : ''}`} onClick={closeSheet} />
       <div className={`sheet${sheetOpen ? ' show' : ''}`}>
         <div className="sheet__grip" />
         <button
@@ -214,7 +233,7 @@ export function Profile() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheetOpen(false)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>

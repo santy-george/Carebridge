@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
+import { clearDraft, useDraftForm } from '../lib/draftForm';
 import {
   clampHydrationGoal,
   isGoalDoneToday,
@@ -92,6 +93,59 @@ export function Medications() {
   const [hydrationFilled, setHydrationFilled] = useState(0);
   const [selfGoals, setSelfGoals] = useState<SelfGoal[]>([]);
   const [newGoalText, setNewGoalText] = useState('');
+
+  useDraftForm(
+    'add-medication',
+    sheet === 'med',
+    { medName, medDosage, medBands, medHighRisk },
+    (v) => {
+      setMedName(v.medName);
+      setMedDosage(v.medDosage);
+      setMedBands(v.medBands);
+      setMedHighRisk(v.medHighRisk);
+    },
+  );
+
+  useDraftForm(
+    'refill-stock',
+    sheet === 'refill',
+    {
+      refillName,
+      refillQty,
+      refillUnit,
+      refillDosage,
+      refillTakenFor,
+      refillDosesPerDay,
+      refillHighRisk,
+      refillIsRx,
+      refillPrescriber,
+      refillExpiry,
+    },
+    (v) => {
+      setRefillName(v.refillName);
+      setRefillQty(v.refillQty);
+      setRefillUnit(v.refillUnit);
+      setRefillDosage(v.refillDosage);
+      setRefillTakenFor(v.refillTakenFor);
+      setRefillDosesPerDay(v.refillDosesPerDay);
+      setRefillHighRisk(v.refillHighRisk);
+      setRefillIsRx(v.refillIsRx);
+      setRefillPrescriber(v.refillPrescriber);
+      setRefillExpiry(v.refillExpiry);
+    },
+  );
+
+  useDraftForm(
+    'add-appointment',
+    sheet === 'appt',
+    { apptProvider, apptVisitType, apptDate, apptTime },
+    (v) => {
+      setApptProvider(v.apptProvider);
+      setApptVisitType(v.apptVisitType);
+      setApptDate(v.apptDate);
+      setApptTime(v.apptTime);
+    },
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -219,6 +273,7 @@ export function Medications() {
     setMedDosage('');
     setMedBands([]);
     setMedHighRisk(false);
+    clearDraft('add-medication');
     setSheet(null);
   };
 
@@ -258,6 +313,14 @@ export function Medications() {
     setRefillIsRx(true);
     setRefillPrescriber('');
     setRefillExpiry('');
+    clearDraft('refill-stock');
+    setSheet(null);
+  };
+
+  const closeSheet = () => {
+    if (sheet === 'med') clearDraft('add-medication');
+    if (sheet === 'refill') clearDraft('refill-stock');
+    if (sheet === 'appt') clearDraft('add-appointment');
     setSheet(null);
   };
 
@@ -310,6 +373,7 @@ export function Medications() {
     setApptVisitType('');
     setApptDate('');
     setApptTime('');
+    clearDraft('add-appointment');
     setSheet(null);
   };
 
@@ -907,7 +971,7 @@ export function Medications() {
         </>
       )}
 
-      <div className={`scrim${sheet ? ' show' : ''}`} onClick={() => setSheet(null)} />
+      <div className={`scrim${sheet ? ' show' : ''}`} onClick={closeSheet} />
 
       <div className={`sheet${sheet === 'med' ? ' show' : ''}`}>
         <div className="sheet__grip" />
@@ -916,7 +980,7 @@ export function Medications() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>
@@ -1010,7 +1074,7 @@ export function Medications() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>
@@ -1173,7 +1237,7 @@ export function Medications() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>
@@ -1248,7 +1312,7 @@ export function Medications() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>

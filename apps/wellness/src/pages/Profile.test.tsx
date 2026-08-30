@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Profile } from './Profile';
 import { useAuth } from '../auth/useAuth';
+import { loadDraft, saveDraft } from '../lib/draftForm';
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
@@ -48,6 +49,7 @@ describe('Profile', () => {
     for (const key of Object.keys(tableResponses)) delete tableResponses[key];
     upsertCalls.length = 0;
     upsertError = null;
+    localStorage.clear();
     tableResponses.members = {
       data: {
         full_name: 'Jane Doe',
@@ -142,5 +144,39 @@ describe('Profile', () => {
 
     await user.click(await screen.findByRole('button', { name: /manage account/i }));
     expect(await screen.findByText('More content')).toBeInTheDocument();
+  });
+
+  it('restores an unsaved medical profile draft left over from before the app was backgrounded', async () => {
+    saveDraft('medical-profile', {
+      conditions: ['Diabetes'],
+      conditionsOther: '',
+      allergiesText: 'Peanuts',
+      notes: '',
+    });
+    renderProfile();
+
+    await screen.findByText('Jane Doe');
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole('button', { name: 'Medical profile Add your health profile' }),
+    );
+
+    expect(screen.getByRole('button', { name: 'Diabetes' })).toHaveClass('on');
+    expect(screen.getByLabelText(/allergies/i)).toHaveValue('Peanuts');
+  });
+
+  it('clears the medical profile draft once it is saved', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderProfile();
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Medical profile Add your health profile' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Diabetes' }));
+    await user.click(screen.getByRole('button', { name: /save medical profile/i }));
+
+    await waitFor(() => expect(loadDraft('medical-profile')).toBeNull());
   });
 });

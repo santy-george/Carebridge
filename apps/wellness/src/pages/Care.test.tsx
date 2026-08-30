@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Care } from './Care';
 import { useAuth } from '../auth/useAuth';
+import { loadDraft, saveDraft } from '../lib/draftForm';
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
@@ -47,6 +48,7 @@ describe('Care', () => {
     rpcCalls.length = 0;
     rpcResponse = { data: null, error: null };
     tableResponses.member_links = { data: [], error: null };
+    localStorage.clear();
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -188,5 +190,60 @@ describe('Care', () => {
     expect(window.location.href).toContain('mailto:');
     expect(window.location.href).toContain('ABCD1234');
     vi.unstubAllGlobals();
+  });
+
+  it('restores an unsaved care team draft left over from before the app was backgrounded', async () => {
+    tableResponses.care_team = { data: [], error: null };
+    saveDraft('care-team-member', {
+      careName: 'Dr. Priya Menon',
+      careDesc: 'Primary physician',
+      carePhone: '',
+      careEmail: '',
+      careAddress: '',
+      careNotes: '',
+    });
+    const user = userEvent.setup();
+    render(<Care />);
+
+    await user.click(await screen.findByText('+ Add'));
+
+    expect(await screen.findByLabelText(/^name$/i)).toHaveValue('Dr. Priya Menon');
+    expect(screen.getByLabelText(/description \/ role/i)).toHaveValue('Primary physician');
+  });
+
+  it('clears the care team draft once the form is saved', async () => {
+    tableResponses.care_team = { data: [], error: null };
+    singleResponses.care_team = {
+      data: {
+        id: 'c3',
+        name: 'Dr. Priya Menon',
+        role_label: 'Primary physician',
+        initials: null,
+        phone: null,
+        email: null,
+      },
+      error: null,
+    };
+    const user = userEvent.setup();
+    render(<Care />);
+
+    await user.click(await screen.findByText('+ Add'));
+    await user.type(screen.getByLabelText(/^name$/i), 'Dr. Priya Menon');
+    await user.click(screen.getByRole('button', { name: /save care member/i }));
+
+    await waitFor(() => expect(loadDraft('care-team-member')).toBeNull());
+  });
+
+  it('clears the care team draft when the sheet is closed without saving', async () => {
+    tableResponses.care_team = { data: [], error: null };
+    const user = userEvent.setup();
+    render(<Care />);
+
+    await user.click(await screen.findByText('+ Add'));
+    await user.type(screen.getByLabelText(/^name$/i), 'Dr. Priya Menon');
+    await waitFor(() => expect(loadDraft('care-team-member')).not.toBeNull());
+
+    await user.click(screen.getAllByRole('button', { name: /close/i })[0]);
+    expect(loadDraft('care-team-member')).toBeNull();
   });
 });

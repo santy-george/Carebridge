@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import { initialsFor, permissionLabel, type FamilyMember, type PermissionLevel } from '../lib/care';
+import { clearDraft, useDraftForm } from '../lib/draftForm';
 
 interface CareTeamMember {
   id: string;
@@ -43,6 +44,30 @@ export function Care() {
   const [invitePermission, setInvitePermission] = useState<PermissionLevel>('full');
   const [inviteError, setInviteError] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
+
+  useDraftForm(
+    'care-team-member',
+    sheet === 'care',
+    { careName, careDesc, carePhone, careEmail, careAddress, careNotes },
+    (v) => {
+      setCareName(v.careName);
+      setCareDesc(v.careDesc);
+      setCarePhone(v.carePhone);
+      setCareEmail(v.careEmail);
+      setCareAddress(v.careAddress);
+      setCareNotes(v.careNotes);
+    },
+  );
+
+  useDraftForm(
+    'invite-family',
+    sheet === 'invite' && !inviteCode,
+    { inviteRelationship, invitePermission },
+    (v) => {
+      setInviteRelationship(v.inviteRelationship);
+      setInvitePermission(v.invitePermission);
+    },
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -110,6 +135,7 @@ export function Care() {
     setCareEmail('');
     setCareAddress('');
     setCareNotes('');
+    clearDraft('care-team-member');
     setSheet(null);
   };
 
@@ -125,7 +151,14 @@ export function Care() {
       setInviteError(true);
       return;
     }
+    clearDraft('invite-family');
     setInviteCode(data as string);
+  };
+
+  const closeSheet = () => {
+    if (sheet === 'care') clearDraft('care-team-member');
+    if (sheet === 'invite') clearDraft('invite-family');
+    setSheet(null);
   };
 
   const shareInviteEmail = () => {
@@ -258,7 +291,7 @@ export function Care() {
         </button>
       </div>
 
-      <div className={`scrim${sheet ? ' show' : ''}`} onClick={() => setSheet(null)} />
+      <div className={`scrim${sheet ? ' show' : ''}`} onClick={closeSheet} />
 
       <div className={`sheet${sheet === 'care' ? ' show' : ''}`}>
         <div className="sheet__grip" />
@@ -267,7 +300,7 @@ export function Care() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>
@@ -365,7 +398,7 @@ export function Care() {
           className="iconbtn"
           style={{ position: 'absolute', top: '14px', right: '14px' }}
           aria-label="Close"
-          onClick={() => setSheet(null)}
+          onClick={closeSheet}
         >
           <span className="icon">
             <svg>

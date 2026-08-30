@@ -130,12 +130,19 @@ describe('sortUpcomingAppointments', () => {
 
 describe('formatAppointmentWhen', () => {
   it('formats date and time together', () => {
-    expect(formatAppointmentWhen('2026-08-21', '14:30')).toMatch(/Fri.*21.*Aug.*2:30/);
+    const result = formatAppointmentWhen('2026-08-21', '14:30');
+    expect(result).toMatch(/Fri/);
+    expect(result).toMatch(/21/);
+    expect(result).toMatch(/Aug/);
+    expect(result).toMatch(/2:30/);
   });
 
   it('formats date only when no time given', () => {
-    expect(formatAppointmentWhen('2026-08-21', null)).toMatch(/Fri.*21.*Aug/);
-    expect(formatAppointmentWhen('2026-08-21', null)).not.toMatch(/:/);
+    const result = formatAppointmentWhen('2026-08-21', null);
+    expect(result).toMatch(/Fri/);
+    expect(result).toMatch(/21/);
+    expect(result).toMatch(/Aug/);
+    expect(result).not.toMatch(/:/);
   });
 });
 

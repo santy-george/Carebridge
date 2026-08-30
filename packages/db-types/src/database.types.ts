@@ -707,6 +707,7 @@ export type Database = {
           id: string
           is_self: boolean
           member_id: string
+          permission_level: string
           relationship_label: string
           used_at: string | null
           used_by_user_id: string | null
@@ -719,6 +720,7 @@ export type Database = {
           id?: string
           is_self?: boolean
           member_id: string
+          permission_level?: string
           relationship_label?: string
           used_at?: string | null
           used_by_user_id?: string | null
@@ -731,6 +733,7 @@ export type Database = {
           id?: string
           is_self?: boolean
           member_id?: string
+          permission_level?: string
           relationship_label?: string
           used_at?: string | null
           used_by_user_id?: string | null
@@ -758,6 +761,7 @@ export type Database = {
           id: string
           is_self: boolean
           member_id: string
+          permission_level: string
           relationship_label: string
           user_id: string
         }
@@ -766,6 +770,7 @@ export type Database = {
           id?: string
           is_self?: boolean
           member_id: string
+          permission_level?: string
           relationship_label?: string
           user_id: string
         }
@@ -774,6 +779,7 @@ export type Database = {
           id?: string
           is_self?: boolean
           member_id?: string
+          permission_level?: string
           relationship_label?: string
           user_id?: string
         }
@@ -1225,6 +1231,14 @@ export type Database = {
     }
     Functions: {
       can_access_member: { Args: { p_member_id: string }; Returns: boolean }
+      create_family_invite: {
+        Args: {
+          p_member_id: string
+          p_permission_level?: string
+          p_relationship_label: string
+        }
+        Returns: string
+      }
       get_home_dashboard: { Args: { p_member_id: string }; Returns: Json }
       is_assigned_coordinator: {
         Args: { p_member_id: string }

@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(105);
+select plan(110);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -445,6 +445,41 @@ select throws_ok(
   'P0001',
   'invalid_or_expired_code',
   'redeem_invite_code rejects an already-used code'
+);
+
+-- === care_team member-write policy (2026-08-30 reversal of the V1
+-- read-only-to-family decision) and the create_family_invite RPC, still
+-- as the family "Son" user (d), now linked to Member A ===
+select lives_ok(
+  $$ insert into public.care_team (member_id, role_label, name) values ('aa000000-0000-0000-0000-00000000aaaa', 'Pharmacist', 'Family-added Pharmacist') $$,
+  'A user linked to Member A can insert a care_team row for Member A'
+);
+
+select throws_ok(
+  $$ insert into public.care_team (member_id, role_label, name) values ('bb000000-0000-0000-0000-00000000bbbb', 'Pharmacist', 'Should not insert') $$,
+  '42501',
+  null,
+  'A user linked only to Member A cannot insert a care_team row for Member B'
+);
+
+select matches(
+  public.create_family_invite('aa000000-0000-0000-0000-00000000aaaa', 'Granddaughter', 'view'),
+  '^[A-Z0-9]{8}$',
+  'create_family_invite returns an 8-char uppercase code for a member the caller is linked to'
+);
+
+select throws_ok(
+  $$ select public.create_family_invite('aa000000-0000-0000-0000-00000000aaaa', 'Nephew', 'read') $$,
+  'P0001',
+  'invalid_permission_level',
+  'create_family_invite rejects a permission_level outside full/view'
+);
+
+select throws_ok(
+  $$ select public.create_family_invite('bb000000-0000-0000-0000-00000000bbbb', 'Impersonator', 'full') $$,
+  'P0001',
+  'not_authorized',
+  'create_family_invite rejects a caller with no member_links relationship to the target member'
 );
 
 -- === Finding 1 (task-1 review): ownership check on withdrawal requests ===

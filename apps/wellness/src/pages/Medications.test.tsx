@@ -71,8 +71,14 @@ describe('Medications', () => {
           unit: 'tablets',
           doses_per_day: 2,
           high_risk: false,
+          dosage: null,
+          taken_for: null,
         },
       ],
+      error: null,
+    };
+    tableResponses.care_team = {
+      data: [{ role_label: 'Pharmacist — Springfield Pharmacy', email: 'orders@pharmacy.com' }],
       error: null,
     };
   });
@@ -145,7 +151,7 @@ describe('Medications', () => {
 
     await user.click(await screen.findByRole('button', { name: /add medication/i }));
     await user.type(screen.getByLabelText(/medication name/i), 'Vitamin D3');
-    await user.type(screen.getByLabelText(/^dosage$/i), '1 capsule');
+    await user.type(screen.getAllByLabelText(/^dosage$/i)[0], '1 capsule');
     await user.click(screen.getByRole('button', { name: 'Noon' }));
     await user.click(screen.getByRole('button', { name: /save medication/i }));
 
@@ -173,6 +179,8 @@ describe('Medications', () => {
         unit: 'tablets',
         doses_per_day: 1,
         high_risk: false,
+        dosage: null,
+        taken_for: null,
       },
       error: null,
     };
@@ -193,10 +201,66 @@ describe('Medications', () => {
           name: 'Aspirin',
           qty: 30,
           unit: 'tablets',
+          dosage: null,
+          taken_for: null,
           doses_per_day: 1,
           high_risk: false,
+          prescribed_by: null,
+          expiry_date: null,
         },
       }),
     );
+  });
+
+  it('refills stock with dosage, taken-for and prescriber details', async () => {
+    singleResponses.med_stock = {
+      data: {
+        id: 'stock2',
+        name: 'Aspirin',
+        qty: 30,
+        unit: 'tablets',
+        doses_per_day: 1,
+        high_risk: false,
+        dosage: '1 tablet daily',
+        taken_for: 'Blood pressure',
+      },
+      error: null,
+    };
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Medications />);
+
+    await user.click(await screen.findByRole('button', { name: /refill stock/i }));
+    await user.type(screen.getByLabelText(/medicine name/i), 'Aspirin');
+    await user.type(screen.getByLabelText(/quantity/i), '30');
+    await user.type(screen.getAllByLabelText(/^dosage$/i)[1], '1 tablet daily');
+    await user.type(screen.getByLabelText(/taken for/i), 'Blood pressure');
+    await user.type(screen.getByLabelText(/prescribed by/i), 'Dr. Sarah Chen');
+    await user.click(screen.getByRole('button', { name: /save to stock/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'med_stock',
+        payload: expect.objectContaining({
+          dosage: '1 tablet daily',
+          taken_for: 'Blood pressure',
+          prescribed_by: 'Dr. Sarah Chen',
+        }),
+      }),
+    );
+  });
+
+  it('sends a pharmacist order email with low-stock items pre-selected', async () => {
+    vi.stubGlobal('location', { href: '' });
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    render(<Medications />);
+
+    await user.click(await screen.findByRole('button', { name: /send to pharmacist/i }));
+    expect(screen.getByLabelText(/pharmacist email/i)).toHaveValue('orders@pharmacy.com');
+    await user.click(screen.getByRole('button', { name: /send email/i }));
+
+    expect(window.location.href).toContain('mailto:orders@pharmacy.com');
+    vi.unstubAllGlobals();
   });
 });

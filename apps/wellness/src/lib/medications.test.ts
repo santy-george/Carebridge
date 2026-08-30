@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildDosesByBand, computeStockDaysLeft, lowStockMessage } from './medications';
+import {
+  buildDosesByBand,
+  buildPharmacistOrderMailto,
+  computeStockDaysLeft,
+  findPharmacistEmail,
+  lowStockMessage,
+} from './medications';
 
 describe('computeStockDaysLeft', () => {
   it('computes days left from qty and doses per day, sorted ascending', () => {
@@ -51,6 +57,41 @@ describe('lowStockMessage', () => {
       { id: '2', name: 'B', qty: 3, unit: 'tablets', doses_per_day: 1, high_risk: false },
     ]);
     expect(lowStockMessage(items)).toBe('2 medicines are running low — refill soon');
+  });
+});
+
+describe('findPharmacistEmail', () => {
+  it('finds a care team member whose role mentions pharmacist, case-insensitively', () => {
+    const email = findPharmacistEmail([
+      { role_label: 'Primary nurse', email: 'nurse@example.com' },
+      { role_label: 'Pharmacist — Springfield Pharmacy', email: 'orders@pharmacy.com' },
+    ]);
+    expect(email).toBe('orders@pharmacy.com');
+  });
+
+  it('returns an empty string when no pharmacist is on the care team', () => {
+    expect(findPharmacistEmail([{ role_label: 'Primary nurse', email: 'nurse@example.com' }])).toBe(
+      '',
+    );
+  });
+
+  it('returns an empty string when the pharmacist has no email on file', () => {
+    expect(findPharmacistEmail([{ role_label: 'Pharmacist', email: null }])).toBe('');
+  });
+});
+
+describe('buildPharmacistOrderMailto', () => {
+  it('builds a mailto link listing each item to reorder', () => {
+    const href = buildPharmacistOrderMailto('orders@pharmacy.com', [
+      { name: 'Metformin 500mg', qty: 4, unit: 'tablets' },
+      { name: 'Aspirin 75mg', qty: 2, unit: 'tablets' },
+    ]);
+    expect(href).toBe(
+      'mailto:orders@pharmacy.com?subject=Medicine%20order&body=' +
+        encodeURIComponent(
+          'Metformin 500mg — reorder 4 tablets\nAspirin 75mg — reorder 2 tablets\n\nSent from Care Bridge Home.',
+        ),
+    );
   });
 });
 

@@ -5,7 +5,9 @@ import {
   BAND_LABELS,
   TIME_OF_DAY_BANDS,
   buildDosesByBand,
+  buildPharmacistOrderMailto,
   computeStockDaysLeft,
+  findPharmacistEmail,
   lowStockMessage,
   type MedicationForDoses,
   type MedicationLogForDoses,
@@ -13,7 +15,7 @@ import {
   type TimeOfDayBand,
 } from '../lib/medications';
 
-type Sheet = null | 'med' | 'refill';
+type Sheet = null | 'med' | 'refill' | 'pharm';
 
 const BAND_BG: Record<TimeOfDayBand, string> = {
   morning: 'var(--amber-50)',
@@ -52,9 +54,19 @@ export function Medications() {
   const [refillName, setRefillName] = useState('');
   const [refillQty, setRefillQty] = useState('');
   const [refillUnit, setRefillUnit] = useState('tablets');
+  const [refillDosage, setRefillDosage] = useState('');
+  const [refillTakenFor, setRefillTakenFor] = useState('');
   const [refillDosesPerDay, setRefillDosesPerDay] = useState('1');
   const [refillHighRisk, setRefillHighRisk] = useState(false);
+  const [refillIsRx, setRefillIsRx] = useState(true);
+  const [refillPrescriber, setRefillPrescriber] = useState('');
+  const [refillExpiry, setRefillExpiry] = useState('');
   const [refillError, setRefillError] = useState(false);
+
+  const [careTeam, setCareTeam] = useState<{ role_label: string; email: string | null }[]>([]);
+  const [pharmEmail, setPharmEmail] = useState('');
+  const [pharmChecked, setPharmChecked] = useState<Record<string, boolean>>({});
+  const [pharmError, setPharmError] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,18 +90,26 @@ export function Medications() {
         .eq('scheduled_date', todayDate()),
       supabase
         .from('med_stock')
-        .select('id, name, qty, unit, doses_per_day, high_risk')
+        .select('id, name, qty, unit, doses_per_day, high_risk, dosage, taken_for')
         .eq('member_id', selectedMemberId),
-    ]).then(([profileRes, medsRes, logsRes, stockRes]) => {
+      supabase
+        .from('care_team')
+        .select('role_label, email')
+        .eq('member_id', selectedMemberId),
+    ]).then(([profileRes, medsRes, logsRes, stockRes, careTeamRes]) => {
       if (!isMounted) return;
       setLoading(false);
-      const anyError = profileRes.error || medsRes.error || logsRes.error || stockRes.error;
+      const anyError =
+        profileRes.error || medsRes.error || logsRes.error || stockRes.error || careTeamRes.error;
       setFetchError(!!anyError);
       const allergies = (profileRes.data as { allergies: string[] } | null)?.allergies ?? [];
       setAllergiesText(allergies.length ? allergies.join(', ') : 'No known allergies on file');
       setMedications((medsRes.data as MedicationForDoses[] | null) ?? []);
       setLogs((logsRes.data as MedicationLogForDoses[] | null) ?? []);
       setStock((stockRes.data as StockItem[] | null) ?? []);
+      setCareTeam(
+        (careTeamRes.data as { role_label: string; email: string | null }[] | null) ?? [],
+      );
     });
 
     return () => {
@@ -163,10 +183,14 @@ export function Medications() {
         name: refillName.trim(),
         qty,
         unit: refillUnit.trim() || 'tablets',
+        dosage: refillDosage.trim() || null,
+        taken_for: refillTakenFor.trim() || null,
         doses_per_day: dosesPerDay,
         high_risk: refillHighRisk,
+        prescribed_by: refillIsRx ? refillPrescriber.trim() || null : null,
+        expiry_date: refillExpiry || null,
       })
-      .select('id, name, qty, unit, doses_per_day, high_risk')
+      .select('id, name, qty, unit, doses_per_day, high_risk, dosage, taken_for')
       .single();
     if (error || !data) {
       setRefillError(true);
@@ -176,8 +200,40 @@ export function Medications() {
     setRefillName('');
     setRefillQty('');
     setRefillUnit('tablets');
+    setRefillDosage('');
+    setRefillTakenFor('');
     setRefillDosesPerDay('1');
     setRefillHighRisk(false);
+    setRefillIsRx(true);
+    setRefillPrescriber('');
+    setRefillExpiry('');
+    setSheet(null);
+  };
+
+  const openPharmacistSheet = () => {
+    const withDays = computeStockDaysLeft(stock);
+    const email = findPharmacistEmail(careTeam);
+    const checked: Record<string, boolean> = {};
+    for (const item of withDays) {
+      checked[item.id] = item.daysLeft <= 14;
+    }
+    setPharmEmail(email);
+    setPharmChecked(checked);
+    setPharmError(false);
+    setSheet('pharm');
+  };
+
+  const togglePharmItem = (id: string) =>
+    setPharmChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const submitPharmacist = () => {
+    const items = computeStockDaysLeft(stock).filter((item) => pharmChecked[item.id]);
+    const email = pharmEmail.trim();
+    if (!items.length || !email) {
+      setPharmError(true);
+      return;
+    }
+    window.location.href = buildPharmacistOrderMailto(email, items);
     setSheet(null);
   };
 
@@ -458,6 +514,19 @@ export function Medications() {
           >
             Refill stock
           </button>
+          <button
+            type="button"
+            className="mbtn mbtn--line mbtn--block"
+            style={{ marginTop: '8px' }}
+            onClick={openPharmacistSheet}
+          >
+            <span className="icon">
+              <svg>
+                <use href="#i-mail" />
+              </svg>
+            </span>
+            Send to pharmacist
+          </button>
         </>
       )}
 
@@ -615,6 +684,26 @@ export function Medications() {
             </div>
           </div>
           <div className="field">
+            <label htmlFor="refill-dosage">Dosage</label>
+            <input
+              id="refill-dosage"
+              type="text"
+              placeholder="e.g. 1 tablet daily"
+              value={refillDosage}
+              onChange={(e) => setRefillDosage(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="refill-taken-for">Taken for</label>
+            <input
+              id="refill-taken-for"
+              type="text"
+              placeholder="e.g. Blood pressure"
+              value={refillTakenFor}
+              onChange={(e) => setRefillTakenFor(e.target.value)}
+            />
+          </div>
+          <div className="field">
             <label htmlFor="refill-doses">Doses per day</label>
             <input
               id="refill-doses"
@@ -645,6 +734,46 @@ export function Medications() {
               </button>
             </div>
           </div>
+          <div className="field">
+            <label>Prescription medicine?</label>
+            <div className="seg">
+              <button
+                type="button"
+                className={refillIsRx ? 'is-active' : ''}
+                onClick={() => setRefillIsRx(true)}
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                className={!refillIsRx ? 'is-active' : ''}
+                onClick={() => setRefillIsRx(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+          {refillIsRx && (
+            <div className="field">
+              <label htmlFor="refill-prescriber">Prescribed by</label>
+              <input
+                id="refill-prescriber"
+                type="text"
+                placeholder="e.g. Dr. Sarah Chen"
+                value={refillPrescriber}
+                onChange={(e) => setRefillPrescriber(e.target.value)}
+              />
+            </div>
+          )}
+          <div className="field">
+            <label htmlFor="refill-expiry">Expiry date</label>
+            <input
+              id="refill-expiry"
+              type="date"
+              value={refillExpiry}
+              onChange={(e) => setRefillExpiry(e.target.value)}
+            />
+          </div>
           <button
             type="submit"
             className="mbtn mbtn--fill mbtn--block sheet__save"
@@ -655,6 +784,81 @@ export function Medications() {
           {refillError && (
             <p className="form-error" role="alert">
               Couldn&apos;t save that item — try again.
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className={`sheet${sheet === 'pharm' ? ' show' : ''}`}>
+        <div className="sheet__grip" />
+        <button
+          type="button"
+          className="iconbtn"
+          style={{ position: 'absolute', top: '14px', right: '14px' }}
+          aria-label="Close"
+          onClick={() => setSheet(null)}
+        >
+          <span className="icon">
+            <svg>
+              <use href="#i-close" />
+            </svg>
+          </span>
+        </button>
+        <h2>Send to pharmacist</h2>
+        <p className="lead">Email your pharmacist the medicines you need to reorder.</p>
+        <form
+          style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitPharmacist();
+          }}
+        >
+          <div className="field">
+            <label htmlFor="pharm-email">Pharmacist email</label>
+            <input
+              id="pharm-email"
+              type="email"
+              placeholder="e.g. orders@springfieldpharmacy.com"
+              value={pharmEmail}
+              onChange={(e) => setPharmEmail(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label>Items to include</label>
+            <div className="card card--flush" style={{ border: '1px solid var(--border)' }}>
+              {stockWithDays.map((item) => (
+                <label className="row" key={item.id} style={{ cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!pharmChecked[item.id]}
+                    onChange={() => togglePharmItem(item.id)}
+                    style={{ width: '18px', height: '18px', marginRight: '4px' }}
+                  />
+                  <div className="m">
+                    <div className="t">{item.name}</div>
+                    <div className="s">
+                      {item.qty} {item.unit} · {item.daysLeft} days left
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block sheet__save"
+            style={{ marginTop: '8px' }}
+          >
+            <span className="icon">
+              <svg>
+                <use href="#i-mail" />
+              </svg>
+            </span>
+            Send email
+          </button>
+          {pharmError && (
+            <p className="form-error" role="alert">
+              Pick at least one item and a pharmacist email.
             </p>
           )}
         </form>

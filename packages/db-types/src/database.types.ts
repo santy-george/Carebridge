@@ -457,6 +457,7 @@ export type Database = {
         Row: {
           created_at: string
           date_stocked: string
+          dosage: string | null
           doses_per_day: number
           expiry_date: string | null
           high_risk: boolean
@@ -465,12 +466,14 @@ export type Database = {
           name: string
           prescribed_by: string | null
           qty: number
+          taken_for: string | null
           unit: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           date_stocked?: string
+          dosage?: string | null
           doses_per_day?: number
           expiry_date?: string | null
           high_risk?: boolean
@@ -479,12 +482,14 @@ export type Database = {
           name: string
           prescribed_by?: string | null
           qty?: number
+          taken_for?: string | null
           unit?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           date_stocked?: string
+          dosage?: string | null
           doses_per_day?: number
           expiry_date?: string | null
           high_risk?: boolean
@@ -493,6 +498,7 @@ export type Database = {
           name?: string
           prescribed_by?: string | null
           qty?: number
+          taken_for?: string | null
           unit?: string
           updated_at?: string
         }

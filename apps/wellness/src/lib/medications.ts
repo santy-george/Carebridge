@@ -16,6 +16,10 @@ export interface StockItem {
   unit: string;
   doses_per_day: number;
   high_risk: boolean;
+  dosage?: string | null;
+  taken_for?: string | null;
+  prescribed_by?: string | null;
+  expiry_date?: string | null;
 }
 
 export interface StockWithDaysLeft extends StockItem {
@@ -47,6 +51,22 @@ export function lowStockMessage(items: StockWithDaysLeft[]): string {
     return `${worst.name} runs out in ${dayText} — refill soon`;
   }
   return `${low.length} medicines are running low — refill soon`;
+}
+
+export function findPharmacistEmail(
+  careTeam: { role_label: string; email: string | null }[],
+): string {
+  const pharmacist = careTeam.find((m) => m.role_label.toLowerCase().includes('pharmac'));
+  return pharmacist?.email ?? '';
+}
+
+export function buildPharmacistOrderMailto(
+  email: string,
+  items: { name: string; qty: number; unit: string }[],
+): string {
+  const lines = items.map((i) => `${i.name} — reorder ${i.qty} ${i.unit}`);
+  const body = `${lines.join('\n')}\n\nSent from Care Bridge Home.`;
+  return `mailto:${email}?subject=${encodeURIComponent('Medicine order')}&body=${encodeURIComponent(body)}`;
 }
 
 export interface Dose {

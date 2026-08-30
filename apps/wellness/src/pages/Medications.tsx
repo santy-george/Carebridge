@@ -92,10 +92,7 @@ export function Medications() {
         .from('med_stock')
         .select('id, name, qty, unit, doses_per_day, high_risk, dosage, taken_for')
         .eq('member_id', selectedMemberId),
-      supabase
-        .from('care_team')
-        .select('role_label, email')
-        .eq('member_id', selectedMemberId),
+      supabase.from('care_team').select('role_label, email').eq('member_id', selectedMemberId),
     ]).then(([profileRes, medsRes, logsRes, stockRes, careTeamRes]) => {
       if (!isMounted) return;
       setLoading(false);
@@ -223,8 +220,7 @@ export function Medications() {
     setSheet('pharm');
   };
 
-  const togglePharmItem = (id: string) =>
-    setPharmChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+  const togglePharmItem = (id: string) => setPharmChecked((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const submitPharmacist = () => {
     const items = computeStockDaysLeft(stock).filter((item) => pharmChecked[item.id]);

@@ -278,15 +278,7 @@ export function Care() {
         <h2>Add care team member</h2>
         <p className="lead">Add a person who supports your care.</p>
         <form
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            marginTop: '16px',
-            maxHeight: '60vh',
-            overflowY: 'auto',
-            paddingRight: '2px',
-          }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
           onSubmit={(e) => {
             e.preventDefault();
             submitCareTeam();

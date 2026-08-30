@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(110);
+select plan(114);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -480,6 +480,32 @@ select throws_ok(
   'P0001',
   'not_authorized',
   'create_family_invite rejects a caller with no member_links relationship to the target member'
+);
+
+-- === hydration_logs / self_goals member-write policies (Activity tab,
+-- 2026-08-30), still as the family "Son" user (d), linked to Member A ===
+select lives_ok(
+  $$ insert into public.hydration_logs (member_id, log_date, goal, filled) values ('aa000000-0000-0000-0000-00000000aaaa', current_date, 8, 3) $$,
+  'A user linked to Member A can insert a hydration_logs row for Member A'
+);
+
+select throws_ok(
+  $$ insert into public.hydration_logs (member_id, log_date) values ('bb000000-0000-0000-0000-00000000bbbb', current_date) $$,
+  '42501',
+  null,
+  'A user linked only to Member A cannot insert a hydration_logs row for Member B'
+);
+
+select lives_ok(
+  $$ insert into public.self_goals (member_id, text) values ('aa000000-0000-0000-0000-00000000aaaa', '30 min walk') $$,
+  'A user linked to Member A can insert a self_goals row for Member A'
+);
+
+select throws_ok(
+  $$ insert into public.self_goals (member_id, text) values ('bb000000-0000-0000-0000-00000000bbbb', 'Should not insert') $$,
+  '42501',
+  null,
+  'A user linked only to Member A cannot insert a self_goals row for Member B'
 );
 
 -- === Finding 1 (task-1 review): ownership check on withdrawal requests ===

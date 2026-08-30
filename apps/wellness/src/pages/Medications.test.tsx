@@ -10,12 +10,20 @@ async function goToMedicationsTab() {
   return user;
 }
 
+async function goToActivityTab() {
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Activity' }));
+  return user;
+}
+
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
 const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
 const singleResponses: Record<string, { data: unknown; error: unknown }> = {};
 const insertCalls: { table: string; payload: unknown }[] = [];
 const upsertCalls: { table: string; payload: unknown; opts: unknown }[] = [];
+
+const updateCalls: { table: string; payload: unknown }[] = [];
 
 function mockTable(table: string) {
   const builder = {
@@ -26,6 +34,10 @@ function mockTable(table: string) {
     single: () => Promise.resolve(singleResponses[table] ?? { data: null, error: null }),
     insert: (payload: unknown) => {
       insertCalls.push({ table, payload });
+      return builder;
+    },
+    update: (payload: unknown) => {
+      updateCalls.push({ table, payload });
       return builder;
     },
     upsert: (payload: unknown, opts: unknown) => {
@@ -51,6 +63,7 @@ describe('Medications', () => {
     for (const key of Object.keys(singleResponses)) delete singleResponses[key];
     insertCalls.length = 0;
     upsertCalls.length = 0;
+    updateCalls.length = 0;
     tableResponses.medical_profile = { data: { allergies: ['Peanuts'] }, error: null };
     tableResponses.medications = {
       data: [
@@ -98,6 +111,11 @@ describe('Medications', () => {
           appt_time: '14:30',
         },
       ],
+      error: null,
+    };
+    tableResponses.hydration_logs = { data: { goal: 8, filled: 3 }, error: null };
+    tableResponses.self_goals = {
+      data: [{ id: 'g1', text: '30 min walk', done_at: null }],
       error: null,
     };
   });
@@ -321,5 +339,81 @@ describe('Medications', () => {
       }),
     );
     expect(await screen.findByText('Dr. Lee')).toBeInTheDocument();
+  });
+
+  it('shows today’s hydration progress and goals on the Activity tab', async () => {
+    render(<Medications />);
+    await goToActivityTab();
+
+    expect(await screen.findByText('3 of 8 glasses')).toBeInTheDocument();
+    expect(screen.getByText('30 min walk')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /glass 4, empty/i })).toBeInTheDocument();
+  });
+
+  it('fills cups up to the tapped one and saves the upsert', async () => {
+    render(<Medications />);
+    const user = await goToActivityTab();
+
+    await user.click(await screen.findByRole('button', { name: /glass 6, empty/i }));
+
+    await waitFor(() =>
+      expect(upsertCalls).toContainEqual({
+        table: 'hydration_logs',
+        payload: expect.objectContaining({ member_id: 'm1', goal: 8, filled: 6 }),
+        opts: { onConflict: 'member_id,log_date' },
+      }),
+    );
+  });
+
+  it('adjusts the daily hydration goal with the stepper', async () => {
+    render(<Medications />);
+    const user = await goToActivityTab();
+
+    await user.click(await screen.findByRole('button', { name: /increase daily goal/i }));
+
+    await waitFor(() =>
+      expect(upsertCalls).toContainEqual({
+        table: 'hydration_logs',
+        payload: expect.objectContaining({ member_id: 'm1', goal: 9, filled: 3 }),
+        opts: { onConflict: 'member_id,log_date' },
+      }),
+    );
+  });
+
+  it('adds a self-set goal', async () => {
+    singleResponses.self_goals = {
+      data: { id: 'g2', text: 'Read 20 pages', done_at: null },
+      error: null,
+    };
+    render(<Medications />);
+    const user = await goToActivityTab();
+
+    await user.type(await screen.findByLabelText(/add a goal/i), 'Read 20 pages');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'self_goals',
+        payload: { member_id: 'm1', text: 'Read 20 pages' },
+      }),
+    );
+    expect(await screen.findByText('Read 20 pages')).toBeInTheDocument();
+  });
+
+  it('toggles a goal done for today', async () => {
+    render(<Medications />);
+    const user = await goToActivityTab();
+
+    await user.click(await screen.findByRole('button', { name: /mark 30 min walk as done/i }));
+
+    await waitFor(() =>
+      expect(updateCalls).toContainEqual({
+        table: 'self_goals',
+        payload: expect.objectContaining({ done_at: expect.any(String) }),
+      }),
+    );
+    expect(
+      await screen.findByRole('button', { name: /mark 30 min walk as not done/i }),
+    ).toBeInTheDocument();
   });
 });

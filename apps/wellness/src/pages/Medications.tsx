@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import {
+  clampHydrationGoal,
+  isGoalDoneToday,
+  localDateString,
+  toggleCupFilled,
+  type SelfGoal,
+} from '../lib/activity';
+import {
   BAND_LABELS,
   TIME_OF_DAY_BANDS,
   buildDosesByBand,
@@ -20,7 +27,7 @@ import {
 } from '../lib/medications';
 
 type Sheet = null | 'med' | 'refill' | 'pharm' | 'appt';
-type Tab = 'appt' | 'med';
+type Tab = 'appt' | 'med' | 'act';
 
 const BAND_BG: Record<TimeOfDayBand, string> = {
   morning: 'var(--amber-50)',
@@ -81,6 +88,11 @@ export function Medications() {
   const [apptTime, setApptTime] = useState('');
   const [apptError, setApptError] = useState(false);
 
+  const [hydrationGoal, setHydrationGoal] = useState(8);
+  const [hydrationFilled, setHydrationFilled] = useState(0);
+  const [selfGoals, setSelfGoals] = useState<SelfGoal[]>([]);
+  const [newGoalText, setNewGoalText] = useState('');
+
   useEffect(() => {
     let isMounted = true;
     if (!selectedMemberId) return;
@@ -110,27 +122,46 @@ export function Medications() {
         .from('appointments')
         .select('id, provider, visit_type, appt_date, appt_time')
         .eq('member_id', selectedMemberId),
-    ]).then(([profileRes, medsRes, logsRes, stockRes, careTeamRes, apptRes]) => {
-      if (!isMounted) return;
-      setLoading(false);
-      const anyError =
-        profileRes.error ||
-        medsRes.error ||
-        logsRes.error ||
-        stockRes.error ||
-        careTeamRes.error ||
-        apptRes.error;
-      setFetchError(!!anyError);
-      const allergies = (profileRes.data as { allergies: string[] } | null)?.allergies ?? [];
-      setAllergiesText(allergies.length ? allergies.join(', ') : 'No known allergies on file');
-      setMedications((medsRes.data as MedicationForDoses[] | null) ?? []);
-      setLogs((logsRes.data as MedicationLogForDoses[] | null) ?? []);
-      setStock((stockRes.data as StockItem[] | null) ?? []);
-      setCareTeam(
-        (careTeamRes.data as { role_label: string; email: string | null }[] | null) ?? [],
-      );
-      setAppointments((apptRes.data as Appointment[] | null) ?? []);
-    });
+      supabase
+        .from('hydration_logs')
+        .select('goal, filled')
+        .eq('member_id', selectedMemberId)
+        .eq('log_date', localDateString(new Date()))
+        .maybeSingle(),
+      supabase
+        .from('self_goals')
+        .select('id, text, done_at')
+        .eq('member_id', selectedMemberId)
+        .order('created_at', { ascending: true }),
+    ]).then(
+      ([profileRes, medsRes, logsRes, stockRes, careTeamRes, apptRes, hydrationRes, goalsRes]) => {
+        if (!isMounted) return;
+        setLoading(false);
+        const anyError =
+          profileRes.error ||
+          medsRes.error ||
+          logsRes.error ||
+          stockRes.error ||
+          careTeamRes.error ||
+          apptRes.error ||
+          hydrationRes.error ||
+          goalsRes.error;
+        setFetchError(!!anyError);
+        const allergies = (profileRes.data as { allergies: string[] } | null)?.allergies ?? [];
+        setAllergiesText(allergies.length ? allergies.join(', ') : 'No known allergies on file');
+        setMedications((medsRes.data as MedicationForDoses[] | null) ?? []);
+        setLogs((logsRes.data as MedicationLogForDoses[] | null) ?? []);
+        setStock((stockRes.data as StockItem[] | null) ?? []);
+        setCareTeam(
+          (careTeamRes.data as { role_label: string; email: string | null }[] | null) ?? [],
+        );
+        setAppointments((apptRes.data as Appointment[] | null) ?? []);
+        const hydration = hydrationRes.data as { goal: number; filled: number } | null;
+        setHydrationGoal(hydration?.goal ?? 8);
+        setHydrationFilled(hydration?.filled ?? 0);
+        setSelfGoals((goalsRes.data as SelfGoal[] | null) ?? []);
+      },
+    );
 
     return () => {
       isMounted = false;
@@ -282,6 +313,54 @@ export function Medications() {
     setSheet(null);
   };
 
+  const saveHydration = async (goal: number, filled: number) => {
+    if (!selectedMemberId) return;
+    setHydrationGoal(goal);
+    setHydrationFilled(filled);
+    await supabase.from('hydration_logs').upsert(
+      {
+        member_id: selectedMemberId,
+        log_date: localDateString(new Date()),
+        goal,
+        filled,
+      },
+      { onConflict: 'member_id,log_date' },
+    );
+  };
+
+  const tapCup = (index: number) => {
+    const nextFilled = toggleCupFilled(hydrationFilled, index);
+    saveHydration(hydrationGoal, nextFilled);
+  };
+
+  const decHydrationGoal = () => {
+    const goal = clampHydrationGoal(hydrationGoal - 1);
+    saveHydration(goal, Math.min(hydrationFilled, goal));
+  };
+
+  const incHydrationGoal = () => {
+    const goal = clampHydrationGoal(hydrationGoal + 1);
+    saveHydration(goal, hydrationFilled);
+  };
+
+  const addSelfGoal = async () => {
+    if (!selectedMemberId || !newGoalText.trim()) return;
+    const { data, error } = await supabase
+      .from('self_goals')
+      .insert({ member_id: selectedMemberId, text: newGoalText.trim() })
+      .select('id, text, done_at')
+      .single();
+    if (error || !data) return;
+    setSelfGoals((prev) => [...prev, data as SelfGoal]);
+    setNewGoalText('');
+  };
+
+  const toggleSelfGoal = async (id: string, doneToday: boolean) => {
+    const doneAt = doneToday ? null : new Date().toISOString();
+    setSelfGoals((prev) => prev.map((g) => (g.id === id ? { ...g, done_at: doneAt } : g)));
+    await supabase.from('self_goals').update({ done_at: doneAt }).eq('id', id);
+  };
+
   if (loading) {
     return <div className="card">Loading…</div>;
   }
@@ -309,6 +388,11 @@ export function Medications() {
         .med-item__toggle { cursor: pointer }
         .med-item--highrisk { background: var(--danger-soft) }
         .med-item--highrisk .ic { background: var(--danger-soft); color: var(--danger) }
+        .cup-btn { border: none; background: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 36px; transition: transform .12s var(--ease) }
+        .cup-btn .icon { width: 22px; height: 22px }
+        .cup-btn:active { transform: scale(.9) }
+        .goal-step { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-heading) }
+        .goal-step:active { transform: scale(.94) }
       `}</style>
 
       {fetchError && (
@@ -353,7 +437,11 @@ export function Medications() {
         >
           Medications
         </button>
-        <button type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+        <button
+          type="button"
+          className={tab === 'act' ? 'is-active' : ''}
+          onClick={() => setTab('act')}
+        >
           Activity
         </button>
       </div>
@@ -670,6 +758,152 @@ export function Medications() {
               </button>
             </>
           )}
+        </>
+      )}
+
+      {tab === 'act' && (
+        <>
+          <div className="sec">Hydration</div>
+          <div className="card">
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-heading)' }}>
+                {hydrationFilled} of {hydrationGoal} glasses
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                1 drop = 1 x 250 ml cup
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
+              {Array.from({ length: hydrationGoal }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="cup-btn"
+                  style={{ flex: 1, minWidth: 0 }}
+                  title={`Glass ${i + 1}`}
+                  aria-label={`Glass ${i + 1}${i < hydrationFilled ? ', filled' : ', empty'}`}
+                  onClick={() => tapCup(i)}
+                >
+                  <span
+                    className="icon"
+                    style={{
+                      color: i < hydrationFilled ? 'var(--accent)' : 'var(--border-strong)',
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill={i < hydrationFilled ? 'currentColor' : 'none'}
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                    >
+                      <path d="M12 2.5C9.5 6.2 5.5 11.3 5.5 15.2a6.5 6.5 0 0 0 13 0c0-3.9-4-9-6.5-12.7z" />
+                    </svg>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '12px',
+                borderTop: '1px solid var(--border)',
+              }}
+            >
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Daily goal</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="goal-step"
+                  aria-label="Decrease daily goal"
+                  onClick={decHydrationGoal}
+                >
+                  –
+                </button>
+                <b
+                  style={{
+                    fontSize: '14px',
+                    color: 'var(--text-heading)',
+                    minWidth: '16px',
+                    textAlign: 'center',
+                  }}
+                >
+                  {hydrationGoal}
+                </b>
+                <button
+                  type="button"
+                  className="goal-step"
+                  aria-label="Increase daily goal"
+                  onClick={incHydrationGoal}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="sec">Goals</div>
+          {selfGoals.length === 0 ? (
+            <div className="card">
+              <span>No goals yet — add one below.</span>
+            </div>
+          ) : (
+            <div className="card card--flush">
+              {selfGoals.map((goal) => {
+                const doneToday = isGoalDoneToday(goal.done_at, new Date());
+                return (
+                  <div className={`med-item${doneToday ? ' med-item--taken' : ''}`} key={goal.id}>
+                    <div className="ic">
+                      <span className="icon">
+                        <svg>
+                          <use href="#i-activity" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="m">
+                      <div className="t">{goal.text}</div>
+                    </div>
+                    <div
+                      className="med-item__toggle"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Mark ${goal.text} as ${doneToday ? 'not done' : 'done'}`}
+                      onClick={() => toggleSelfGoal(goal.id, doneToday)}
+                    >
+                      <span className="icon">
+                        <svg>
+                          <use href="#i-check" />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="field" style={{ marginTop: '10px' }}>
+            <label htmlFor="new-goal-text">Add a goal</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                id="new-goal-text"
+                type="text"
+                placeholder="e.g. 30 min walk"
+                style={{ flex: 1 }}
+                value={newGoalText}
+                onChange={(e) => setNewGoalText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSelfGoal();
+                  }
+                }}
+              />
+              <button type="button" className="mbtn mbtn--fill" onClick={addSelfGoal}>
+                Add
+              </button>
+            </div>
+          </div>
         </>
       )}
 

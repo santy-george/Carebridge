@@ -491,6 +491,41 @@ export type Database = {
           },
         ]
       }
+      hydration_logs: {
+        Row: {
+          created_at: string
+          filled: number
+          goal: number
+          id: string
+          log_date: string
+          member_id: string
+        }
+        Insert: {
+          created_at?: string
+          filled?: number
+          goal?: number
+          id?: string
+          log_date: string
+          member_id: string
+        }
+        Update: {
+          created_at?: string
+          filled?: number
+          goal?: number
+          id?: string
+          log_date?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hydration_logs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       med_stock: {
         Row: {
           created_at: string
@@ -967,6 +1002,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rhythm_events_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      self_goals: {
+        Row: {
+          created_at: string
+          done_at: string | null
+          id: string
+          member_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          done_at?: string | null
+          id?: string
+          member_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          done_at?: string | null
+          id?: string
+          member_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "self_goals_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "members"

@@ -301,6 +301,17 @@ body,
   backdrop-filter: saturate(180%) blur(14px);
   border-top: 1px solid var(--border);
 }
+/* backdrop-filter promotes .bnav to its own GPU compositing layer -- on
+   real iOS devices (confirmed via a diagnostic ancestor-chain dump, not
+   guessed: .sheet had position:fixed;z-index:61, no ancestor between it
+   and <html> had a transform/filter/opacity/isolation establishing a
+   competing stacking context) that layer still painted above a sheet
+   with a higher z-index, hiding sheet content (e.g. a long form's Save
+   button) behind the nav. Sidestep the compositing-order bug entirely by
+   hiding the nav whenever any sheet is open, instead of chasing z-index. */
+.stack:has(.sheet.show) .bnav {
+  visibility: hidden;
+}
 .bnav__i {
   flex: 1;
   display: flex;
@@ -1751,6 +1762,7 @@ body,
   box-shadow: 0 -10px 40px rgba(11, 12, 20, 0.18);
   max-height: 86%;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .sheet.show {
   transform: none;
@@ -1760,11 +1772,19 @@ body,
    all -- reported live on a real device where the button was reachable but
    invisible. Sticking it to the bottom of the sheet's own scroll box (not
    the sheet's fixed padding-bottom, which sticky can't see past) keeps it
-   in view regardless of how much content is above it. */
+   in view regardless of how much content is above it.
+   No `background` here -- every real usage is `.mbtn--fill.sheet__save` on
+   the same element (never a plain link/sticky row), and `.mbtn--fill`'s own
+   opaque background already fully hides scrolled content underneath. This
+   rule used to also set `background: var(--surface)`, which sits later in
+   this file than `.mbtn--fill`'s rule -- same specificity, so it silently
+   overwrote the button's accent-colored fill with white, leaving
+   `--accent-on` (also white, for text-on-accent) with nothing to contrast
+   against: a white-on-white Save button on every sheet in the app,
+   confirmed live via computed-style dump on a real device. */
 .sheet__save {
   position: sticky;
   bottom: 0;
-  background: var(--surface);
   padding-top: 8px;
   z-index: 1;
 }

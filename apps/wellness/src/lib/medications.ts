@@ -69,6 +69,72 @@ export function buildPharmacistOrderMailto(
   return `mailto:${email}?subject=${encodeURIComponent('Medicine order')}&body=${encodeURIComponent(body)}`;
 }
 
+export interface Appointment {
+  id: string;
+  provider: string;
+  visit_type: string | null;
+  appt_date: string;
+  appt_time: string | null;
+}
+
+export interface WeekDay {
+  date: string;
+  label: string;
+  dayNumber: number;
+  isToday: boolean;
+  hasAppointment: boolean;
+}
+
+const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+export function buildWeekStrip(today: Date, appointments: Appointment[]): WeekDay[] {
+  const appointmentDates = new Set(appointments.map((a) => a.appt_date));
+  const todayKey = toDateKey(today);
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const dateKey = toDateKey(d);
+    return {
+      date: dateKey,
+      label: WEEKDAY_LABELS[i],
+      dayNumber: d.getDate(),
+      isToday: dateKey === todayKey,
+      hasAppointment: appointmentDates.has(dateKey),
+    };
+  });
+}
+
+function toDateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export function sortUpcomingAppointments(
+  appointments: Appointment[],
+  todayKey: string,
+): Appointment[] {
+  return appointments
+    .filter((a) => a.appt_date >= todayKey)
+    .sort((a, b) => {
+      if (a.appt_date !== b.appt_date) return a.appt_date < b.appt_date ? -1 : 1;
+      return (a.appt_time ?? '').localeCompare(b.appt_time ?? '');
+    });
+}
+
+export function formatAppointmentWhen(apptDate: string, apptTime: string | null): string {
+  const dateTime = apptTime ? `${apptDate}T${apptTime}` : `${apptDate}T00:00`;
+  const d = new Date(dateTime);
+  const datePart = d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+  if (!apptTime) return datePart;
+  const timePart = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  return `${datePart}, ${timePart}`;
+}
+
 export interface Dose {
   key: string;
   medicationId: string;

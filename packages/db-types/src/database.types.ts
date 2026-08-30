@@ -34,6 +34,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appt_date: string
+          appt_time: string | null
+          created_at: string
+          id: string
+          member_id: string
+          provider: string
+          visit_type: string | null
+        }
+        Insert: {
+          appt_date: string
+          appt_time?: string | null
+          created_at?: string
+          id?: string
+          member_id: string
+          provider: string
+          visit_type?: string | null
+        }
+        Update: {
+          appt_date?: string
+          appt_time?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string
+          provider?: string
+          visit_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       care_assignments: {
         Row: {
           assigned_at: string

@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   buildDosesByBand,
   buildPharmacistOrderMailto,
+  buildWeekStrip,
   computeStockDaysLeft,
   findPharmacistEmail,
+  formatAppointmentWhen,
   lowStockMessage,
+  sortUpcomingAppointments,
 } from './medications';
 
 describe('computeStockDaysLeft', () => {
@@ -92,6 +95,47 @@ describe('buildPharmacistOrderMailto', () => {
           'Metformin 500mg — reorder 4 tablets\nAspirin 75mg — reorder 2 tablets\n\nSent from Care Bridge Home.',
         ),
     );
+  });
+});
+
+describe('buildWeekStrip', () => {
+  it('builds Sun-Sat around the given date, marking today and appointment days', () => {
+    const today = new Date('2026-08-19T12:00:00'); // a Wednesday
+    const week = buildWeekStrip(today, [
+      { id: '1', provider: 'Dr. Chen', visit_type: null, appt_date: '2026-08-17', appt_time: null },
+    ]);
+    expect(week).toHaveLength(7);
+    expect(week.map((d) => d.label)).toEqual(['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']);
+    expect(week[0].date).toBe('2026-08-16');
+    expect(week[1].hasAppointment).toBe(true);
+    expect(week[3].isToday).toBe(true);
+    expect(week[3].dayNumber).toBe(19);
+    expect(week[0].hasAppointment).toBe(false);
+  });
+});
+
+describe('sortUpcomingAppointments', () => {
+  it('drops past appointments and sorts by date then time', () => {
+    const result = sortUpcomingAppointments(
+      [
+        { id: 'a', provider: 'A', visit_type: null, appt_date: '2026-08-20', appt_time: '09:00' },
+        { id: 'b', provider: 'B', visit_type: null, appt_date: '2026-08-19', appt_time: '14:00' },
+        { id: 'c', provider: 'C', visit_type: null, appt_date: '2026-08-18', appt_time: null },
+      ],
+      '2026-08-19',
+    );
+    expect(result.map((a) => a.id)).toEqual(['b', 'a']);
+  });
+});
+
+describe('formatAppointmentWhen', () => {
+  it('formats date and time together', () => {
+    expect(formatAppointmentWhen('2026-08-21', '14:30')).toMatch(/Fri.*21.*Aug.*2:30/);
+  });
+
+  it('formats date only when no time given', () => {
+    expect(formatAppointmentWhen('2026-08-21', null)).toMatch(/Fri.*21.*Aug/);
+    expect(formatAppointmentWhen('2026-08-21', null)).not.toMatch(/:/);
   });
 });
 

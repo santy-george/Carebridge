@@ -1,7 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Medications } from './Medications';
 import { useAuth } from '../auth/useAuth';
+
+async function goToMedicationsTab() {
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Medications' }));
+  return user;
+}
 
 vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
@@ -81,6 +88,18 @@ describe('Medications', () => {
       data: [{ role_label: 'Pharmacist — Springfield Pharmacy', email: 'orders@pharmacy.com' }],
       error: null,
     };
+    tableResponses.appointments = {
+      data: [
+        {
+          id: 'appt1',
+          provider: 'Dr. Sarah Chen',
+          visit_type: 'Follow-up visit',
+          appt_date: '2099-01-01',
+          appt_time: '14:30',
+        },
+      ],
+      error: null,
+    };
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -90,11 +109,13 @@ describe('Medications', () => {
 
   it('shows allergies from the medical profile', async () => {
     render(<Medications />);
+    await goToMedicationsTab();
     expect(await screen.findByText('Peanuts')).toBeInTheDocument();
   });
 
   it('groups doses under Morning and marks the logged one taken', async () => {
     render(<Medications />);
+    await goToMedicationsTab();
     expect(await screen.findByText(/Aspirin 75mg/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /mark metformin morning as not taken/i }),
@@ -106,14 +127,14 @@ describe('Medications', () => {
 
   it('shows the low-stock banner when a stock item is running low', async () => {
     render(<Medications />);
+    await goToMedicationsTab();
     expect(await screen.findByText(/running low on stock/i)).toBeInTheDocument();
     expect(screen.getByText(/metformin runs out in 2 days/i)).toBeInTheDocument();
   });
 
   it('toggles a dose and upserts the medication log', async () => {
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     render(<Medications />);
+    const user = await goToMedicationsTab();
 
     await user.click(await screen.findByRole('button', { name: /mark aspirin morning as taken/i }));
 
@@ -145,9 +166,8 @@ describe('Medications', () => {
       },
       error: null,
     };
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     render(<Medications />);
+    const user = await goToMedicationsTab();
 
     await user.click(await screen.findByRole('button', { name: /add medication/i }));
     await user.type(screen.getByLabelText(/medication name/i), 'Vitamin D3');
@@ -184,9 +204,8 @@ describe('Medications', () => {
       },
       error: null,
     };
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     render(<Medications />);
+    const user = await goToMedicationsTab();
 
     await user.click(await screen.findByRole('button', { name: /refill stock/i }));
     await user.type(screen.getByLabelText(/medicine name/i), 'Aspirin');
@@ -226,9 +245,8 @@ describe('Medications', () => {
       },
       error: null,
     };
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     render(<Medications />);
+    const user = await goToMedicationsTab();
 
     await user.click(await screen.findByRole('button', { name: /refill stock/i }));
     await user.type(screen.getByLabelText(/medicine name/i), 'Aspirin');
@@ -252,9 +270,8 @@ describe('Medications', () => {
 
   it('sends a pharmacist order email with low-stock items pre-selected', async () => {
     vi.stubGlobal('location', { href: '' });
-    const { default: userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
     render(<Medications />);
+    const user = await goToMedicationsTab();
 
     await user.click(await screen.findByRole('button', { name: /send to pharmacist/i }));
     expect(screen.getByLabelText(/pharmacist email/i)).toHaveValue('orders@pharmacy.com');
@@ -262,5 +279,47 @@ describe('Medications', () => {
 
     expect(window.location.href).toContain('mailto:orders@pharmacy.com');
     vi.unstubAllGlobals();
+  });
+
+  it('shows upcoming appointments on the default Appointments tab', async () => {
+    render(<Medications />);
+    expect(await screen.findByText('Dr. Sarah Chen')).toBeInTheDocument();
+    expect(screen.getByText('Follow-up visit')).toBeInTheDocument();
+  });
+
+  it('adds an appointment through the sheet', async () => {
+    singleResponses.appointments = {
+      data: {
+        id: 'appt2',
+        provider: 'Dr. Lee',
+        visit_type: 'Dermatology',
+        appt_date: '2099-02-02',
+        appt_time: '09:00',
+      },
+      error: null,
+    };
+    const user = userEvent.setup();
+    render(<Medications />);
+
+    await user.click(await screen.findByRole('button', { name: /add appointment/i }));
+    await user.type(screen.getByLabelText(/provider \/ reason/i), 'Dr. Lee');
+    await user.type(screen.getByLabelText(/visit type/i), 'Dermatology');
+    await user.type(screen.getByLabelText(/^date$/i), '2099-02-02');
+    await user.type(screen.getByLabelText(/^time$/i), '09:00');
+    await user.click(screen.getByRole('button', { name: /save appointment/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual({
+        table: 'appointments',
+        payload: {
+          member_id: 'm1',
+          provider: 'Dr. Lee',
+          visit_type: 'Dermatology',
+          appt_date: '2099-02-02',
+          appt_time: '09:00',
+        },
+      }),
+    );
+    expect(await screen.findByText('Dr. Lee')).toBeInTheDocument();
   });
 });

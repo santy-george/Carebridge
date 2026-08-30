@@ -6,16 +6,21 @@ import {
   TIME_OF_DAY_BANDS,
   buildDosesByBand,
   buildPharmacistOrderMailto,
+  buildWeekStrip,
   computeStockDaysLeft,
   findPharmacistEmail,
+  formatAppointmentWhen,
   lowStockMessage,
+  sortUpcomingAppointments,
+  type Appointment,
   type MedicationForDoses,
   type MedicationLogForDoses,
   type StockItem,
   type TimeOfDayBand,
 } from '../lib/medications';
 
-type Sheet = null | 'med' | 'refill' | 'pharm';
+type Sheet = null | 'med' | 'refill' | 'pharm' | 'appt';
+type Tab = 'appt' | 'med';
 
 const BAND_BG: Record<TimeOfDayBand, string> = {
   morning: 'var(--amber-50)',
@@ -68,6 +73,14 @@ export function Medications() {
   const [pharmChecked, setPharmChecked] = useState<Record<string, boolean>>({});
   const [pharmError, setPharmError] = useState(false);
 
+  const [tab, setTab] = useState<Tab>('appt');
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [apptProvider, setApptProvider] = useState('');
+  const [apptVisitType, setApptVisitType] = useState('');
+  const [apptDate, setApptDate] = useState('');
+  const [apptTime, setApptTime] = useState('');
+  const [apptError, setApptError] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     if (!selectedMemberId) return;
@@ -93,11 +106,20 @@ export function Medications() {
         .select('id, name, qty, unit, doses_per_day, high_risk, dosage, taken_for')
         .eq('member_id', selectedMemberId),
       supabase.from('care_team').select('role_label, email').eq('member_id', selectedMemberId),
-    ]).then(([profileRes, medsRes, logsRes, stockRes, careTeamRes]) => {
+      supabase
+        .from('appointments')
+        .select('id, provider, visit_type, appt_date, appt_time')
+        .eq('member_id', selectedMemberId),
+    ]).then(([profileRes, medsRes, logsRes, stockRes, careTeamRes, apptRes]) => {
       if (!isMounted) return;
       setLoading(false);
       const anyError =
-        profileRes.error || medsRes.error || logsRes.error || stockRes.error || careTeamRes.error;
+        profileRes.error ||
+        medsRes.error ||
+        logsRes.error ||
+        stockRes.error ||
+        careTeamRes.error ||
+        apptRes.error;
       setFetchError(!!anyError);
       const allergies = (profileRes.data as { allergies: string[] } | null)?.allergies ?? [];
       setAllergiesText(allergies.length ? allergies.join(', ') : 'No known allergies on file');
@@ -107,6 +129,7 @@ export function Medications() {
       setCareTeam(
         (careTeamRes.data as { role_label: string; email: string | null }[] | null) ?? [],
       );
+      setAppointments((apptRes.data as Appointment[] | null) ?? []);
     });
 
     return () => {
@@ -233,6 +256,32 @@ export function Medications() {
     setSheet(null);
   };
 
+  const submitAppointment = async () => {
+    if (!selectedMemberId || !apptProvider.trim() || !apptDate) return;
+    setApptError(false);
+    const { data, error } = await supabase
+      .from('appointments')
+      .insert({
+        member_id: selectedMemberId,
+        provider: apptProvider.trim(),
+        visit_type: apptVisitType.trim() || null,
+        appt_date: apptDate,
+        appt_time: apptTime || null,
+      })
+      .select('id, provider, visit_type, appt_date, appt_time')
+      .single();
+    if (error || !data) {
+      setApptError(true);
+      return;
+    }
+    setAppointments((prev) => [...prev, data as Appointment]);
+    setApptProvider('');
+    setApptVisitType('');
+    setApptDate('');
+    setApptTime('');
+    setSheet(null);
+  };
+
   if (loading) {
     return <div className="card">Loading…</div>;
   }
@@ -245,6 +294,11 @@ export function Medications() {
 
   const stockWithDays = computeStockDaysLeft(stock);
   const lowMessage = lowStockMessage(stockWithDays);
+
+  const now = new Date();
+  const weekStrip = buildWeekStrip(now, appointments);
+  const todayKey = weekStrip.find((d) => d.isToday)?.date ?? '';
+  const upcomingAppointments = sortUpcomingAppointments(appointments, todayKey);
 
   return (
     <>
@@ -285,10 +339,18 @@ export function Medications() {
       </div>
 
       <div className="seg" style={{ marginBottom: '4px' }}>
-        <button type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+        <button
+          type="button"
+          className={tab === 'appt' ? 'is-active' : ''}
+          onClick={() => setTab('appt')}
+        >
           Appointments
         </button>
-        <button type="button" className="is-active">
+        <button
+          type="button"
+          className={tab === 'med' ? 'is-active' : ''}
+          onClick={() => setTab('med')}
+        >
           Medications
         </button>
         <button type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
@@ -296,47 +358,246 @@ export function Medications() {
         </button>
       </div>
 
-      <div className="banner banner--warn" style={{ marginBottom: '12px' }}>
-        <div className="ic">
-          <span className="icon">
-            <svg>
-              <use href="#i-bandage" />
-            </svg>
-          </span>
-        </div>
-        <div>
-          <div className="bt">Allergies</div>
-          <div className="bs">{allergiesText}</div>
-        </div>
-      </div>
-
-      {lowMessage && (
-        <div className="banner banner--alert" style={{ marginBottom: '12px' }}>
-          <div className="ic">
-            <span className="icon">
-              <svg>
-                <use href="#i-alert" />
-              </svg>
-            </span>
+      {tab === 'appt' && (
+        <>
+          <div className="sec">Upcoming</div>
+          <div className="card" style={{ background: 'var(--purple-50)' }}>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '14px' }}>
+              {weekStrip.map((day) => (
+                <div
+                  key={day.date}
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    padding: '8px 0',
+                    borderRadius: 'var(--radius-base)',
+                    background: day.isToday ? 'var(--purple-700)' : 'var(--surface)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      fontWeight: 600,
+                      color: day.isToday ? 'rgba(255,255,255,.8)' : 'var(--text-muted)',
+                    }}
+                  >
+                    {day.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      marginTop: '2px',
+                      color: day.isToday ? '#fff' : 'var(--text-heading)',
+                    }}
+                  >
+                    {day.dayNumber}
+                  </div>
+                  <div
+                    style={{
+                      width: '4px',
+                      height: '4px',
+                      borderRadius: '50%',
+                      margin: '4px auto 0',
+                      background: day.hasAppointment ? 'var(--accent)' : 'transparent',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            {upcomingAppointments.length === 0 && (
+              <div className="med-item">No upcoming appointments</div>
+            )}
+            {upcomingAppointments.map((appt) => (
+              <div className="med-item" key={appt.id}>
+                <div className="ic">
+                  <span className="icon">
+                    <svg>
+                      <use href="#i-calendar" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="m">
+                  <div className="t">{appt.provider}</div>
+                  <div className="s">
+                    <span className="dose">{appt.visit_type || 'Appointment'}</span>
+                    <span>{formatAppointmentWhen(appt.appt_date, appt.appt_time)}</span>
+                  </div>
+                </div>
+                <span className="chip chip--scheduled">Upcoming</span>
+              </div>
+            ))}
           </div>
-          <div>
-            <div className="bt">Running low on stock</div>
-            <div className="bs">{lowMessage}</div>
-          </div>
-        </div>
+          <button
+            type="button"
+            className="mbtn mbtn--fill mbtn--block"
+            style={{ marginTop: '10px' }}
+            onClick={() => setSheet('appt')}
+          >
+            Add appointment
+          </button>
+        </>
       )}
 
-      {TIME_OF_DAY_BANDS.map((band) => (
-        <div key={band}>
-          <div className="sec tap" onClick={() => togglePeriod(band)}>
-            {BAND_LABELS[band]}
+      {tab === 'med' && (
+        <>
+          <div className="banner banner--warn" style={{ marginBottom: '12px' }}>
+            <div className="ic">
+              <span className="icon">
+                <svg>
+                  <use href="#i-bandage" />
+                </svg>
+              </span>
+            </div>
+            <div>
+              <div className="bt">Allergies</div>
+              <div className="bs">{allergiesText}</div>
+            </div>
+          </div>
+
+          {lowMessage && (
+            <div className="banner banner--alert" style={{ marginBottom: '12px' }}>
+              <div className="ic">
+                <span className="icon">
+                  <svg>
+                    <use href="#i-alert" />
+                  </svg>
+                </span>
+              </div>
+              <div>
+                <div className="bt">Running low on stock</div>
+                <div className="bs">{lowMessage}</div>
+              </div>
+            </div>
+          )}
+
+          {TIME_OF_DAY_BANDS.map((band) => (
+            <div key={band}>
+              <div className="sec tap" onClick={() => togglePeriod(band)}>
+                {BAND_LABELS[band]}
+                <span
+                  className="icon"
+                  style={{
+                    width: 16,
+                    height: 16,
+                    color: 'var(--text-subtle)',
+                    transform: periodOpen[band] ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  <svg>
+                    <use href="#i-chevron-down" />
+                  </svg>
+                </span>
+              </div>
+              {periodOpen[band] && (
+                <div className="card card--flush" style={{ background: BAND_BG[band] }}>
+                  {dosesByBand[band].length === 0 && (
+                    <div className="med-item">No medications scheduled</div>
+                  )}
+                  {dosesByBand[band].map((dose) => (
+                    <div
+                      key={dose.key}
+                      className={`med-item${dose.taken ? ' med-item--taken' : ''}${
+                        dose.highRisk ? ' med-item--highrisk' : ''
+                      }`}
+                    >
+                      <div className="ic">
+                        <span className="icon">
+                          <svg>
+                            <use href="#i-pill" />
+                          </svg>
+                        </span>
+                      </div>
+                      <div className="m">
+                        <div className="t">
+                          {dose.name}
+                          {dose.dosage ? ` ${dose.dosage}` : ''}
+                          {dose.highRisk && (
+                            <span className="chip2 chip2--alert">
+                              <span className="icon">
+                                <svg>
+                                  <use href="#i-alert" />
+                                </svg>
+                              </span>
+                              High risk
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className="med-item__toggle"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Mark ${dose.name} ${BAND_LABELS[band]} as ${dose.taken ? 'not taken' : 'taken'}`}
+                        onClick={() => toggleDose(dose.medicationId, band, dose.taken)}
+                      >
+                        <span className="icon">
+                          <svg>
+                            <use href="#i-check" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <div className="sec">Today's completion</div>
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+            <div
+              style={{
+                width: '88px',
+                height: '88px',
+                borderRadius: '50%',
+                flex: '0 0 auto',
+                background: `conic-gradient(var(--accent) 0 ${todayPercent}%, var(--border) ${todayPercent}% 100%)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  width: '66px',
+                  height: '66px',
+                  borderRadius: '50%',
+                  background: 'var(--surface)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <b style={{ fontSize: '16px', color: 'var(--text-heading)' }}>{todayPercent}%</b>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Doses taken today</div>
+              <b
+                style={{
+                  fontSize: '15px',
+                  color: 'var(--text-heading)',
+                  display: 'block',
+                  marginTop: 2,
+                }}
+              >
+                {takenCount} of {totalCount}
+              </b>
+            </div>
+          </div>
+
+          <div className="sec tap" onClick={() => setStockOpen((v) => !v)}>
+            Medicine stock level
             <span
               className="icon"
               style={{
                 width: 16,
                 height: 16,
                 color: 'var(--text-subtle)',
-                transform: periodOpen[band] ? 'rotate(180deg)' : 'none',
+                transform: stockOpen ? 'rotate(180deg)' : 'none',
                 transition: 'transform 0.2s',
               }}
             >
@@ -345,184 +606,70 @@ export function Medications() {
               </svg>
             </span>
           </div>
-          {periodOpen[band] && (
-            <div className="card card--flush" style={{ background: BAND_BG[band] }}>
-              {dosesByBand[band].length === 0 && (
-                <div className="med-item">No medications scheduled</div>
-              )}
-              {dosesByBand[band].map((dose) => (
-                <div
-                  key={dose.key}
-                  className={`med-item${dose.taken ? ' med-item--taken' : ''}${
-                    dose.highRisk ? ' med-item--highrisk' : ''
-                  }`}
-                >
-                  <div className="ic">
-                    <span className="icon">
-                      <svg>
-                        <use href="#i-pill" />
-                      </svg>
-                    </span>
-                  </div>
-                  <div className="m">
-                    <div className="t">
-                      {dose.name}
-                      {dose.dosage ? ` ${dose.dosage}` : ''}
-                      {dose.highRisk && (
-                        <span className="chip2 chip2--alert">
-                          <span className="icon">
-                            <svg>
-                              <use href="#i-alert" />
-                            </svg>
-                          </span>
-                          High risk
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div
-                    className="med-item__toggle"
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Mark ${dose.name} ${BAND_LABELS[band]} as ${dose.taken ? 'not taken' : 'taken'}`}
-                    onClick={() => toggleDose(dose.medicationId, band, dose.taken)}
-                  >
-                    <span className="icon">
-                      <svg>
-                        <use href="#i-check" />
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {stockOpen && (
+            <>
+              <div className="card card--pad0" style={{ overflow: 'hidden' }}>
+                <table className="table" style={{ fontSize: '12.5px' }}>
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th className="t-right">In stock</th>
+                      <th className="t-right">Days left</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stockWithDays.map((item) => (
+                      <tr
+                        key={item.id}
+                        style={item.high_risk ? { background: 'var(--danger-soft)' } : undefined}
+                      >
+                        <td>
+                          {item.name}
+                          {item.high_risk && (
+                            <span className="chip2 chip2--alert">
+                              <span className="icon">
+                                <svg>
+                                  <use href="#i-alert" />
+                                </svg>
+                              </span>
+                              High risk
+                            </span>
+                          )}
+                        </td>
+                        <td className="t-right">
+                          {item.qty} {item.unit}
+                        </td>
+                        <td className="t-right">
+                          <span className={`chip2 ${item.chipClass}`}>{item.daysLeft}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button
+                type="button"
+                className="mbtn mbtn--fill mbtn--block"
+                style={{ marginTop: '10px' }}
+                onClick={() => setSheet('refill')}
+              >
+                Refill stock
+              </button>
+              <button
+                type="button"
+                className="mbtn mbtn--line mbtn--block"
+                style={{ marginTop: '8px' }}
+                onClick={openPharmacistSheet}
+              >
+                <span className="icon">
+                  <svg>
+                    <use href="#i-mail" />
+                  </svg>
+                </span>
+                Send to pharmacist
+              </button>
+            </>
           )}
-        </div>
-      ))}
-
-      <div className="sec">Today's completion</div>
-      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-        <div
-          style={{
-            width: '88px',
-            height: '88px',
-            borderRadius: '50%',
-            flex: '0 0 auto',
-            background: `conic-gradient(var(--accent) 0 ${todayPercent}%, var(--border) ${todayPercent}% 100%)`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '66px',
-              height: '66px',
-              borderRadius: '50%',
-              background: 'var(--surface)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <b style={{ fontSize: '16px', color: 'var(--text-heading)' }}>{todayPercent}%</b>
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Doses taken today</div>
-          <b
-            style={{
-              fontSize: '15px',
-              color: 'var(--text-heading)',
-              display: 'block',
-              marginTop: 2,
-            }}
-          >
-            {takenCount} of {totalCount}
-          </b>
-        </div>
-      </div>
-
-      <div className="sec tap" onClick={() => setStockOpen((v) => !v)}>
-        Medicine stock level
-        <span
-          className="icon"
-          style={{
-            width: 16,
-            height: 16,
-            color: 'var(--text-subtle)',
-            transform: stockOpen ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.2s',
-          }}
-        >
-          <svg>
-            <use href="#i-chevron-down" />
-          </svg>
-        </span>
-      </div>
-      {stockOpen && (
-        <>
-          <div className="card card--pad0" style={{ overflow: 'hidden' }}>
-            <table className="table" style={{ fontSize: '12.5px' }}>
-              <thead>
-                <tr>
-                  <th>Medicine</th>
-                  <th className="t-right">In stock</th>
-                  <th className="t-right">Days left</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stockWithDays.map((item) => (
-                  <tr
-                    key={item.id}
-                    style={item.high_risk ? { background: 'var(--danger-soft)' } : undefined}
-                  >
-                    <td>
-                      {item.name}
-                      {item.high_risk && (
-                        <span className="chip2 chip2--alert">
-                          <span className="icon">
-                            <svg>
-                              <use href="#i-alert" />
-                            </svg>
-                          </span>
-                          High risk
-                        </span>
-                      )}
-                    </td>
-                    <td className="t-right">
-                      {item.qty} {item.unit}
-                    </td>
-                    <td className="t-right">
-                      <span className={`chip2 ${item.chipClass}`}>{item.daysLeft}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <button
-            type="button"
-            className="mbtn mbtn--fill mbtn--block"
-            style={{ marginTop: '10px' }}
-            onClick={() => setSheet('refill')}
-          >
-            Refill stock
-          </button>
-          <button
-            type="button"
-            className="mbtn mbtn--line mbtn--block"
-            style={{ marginTop: '8px' }}
-            onClick={openPharmacistSheet}
-          >
-            <span className="icon">
-              <svg>
-                <use href="#i-mail" />
-              </svg>
-            </span>
-            Send to pharmacist
-          </button>
         </>
       )}
 
@@ -855,6 +1002,85 @@ export function Medications() {
           {pharmError && (
             <p className="form-error" role="alert">
               Pick at least one item and a pharmacist email.
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className={`sheet${sheet === 'appt' ? ' show' : ''}`}>
+        <div className="sheet__grip" />
+        <button
+          type="button"
+          className="iconbtn"
+          style={{ position: 'absolute', top: '14px', right: '14px' }}
+          aria-label="Close"
+          onClick={() => setSheet(null)}
+        >
+          <span className="icon">
+            <svg>
+              <use href="#i-close" />
+            </svg>
+          </span>
+        </button>
+        <h2>New appointment</h2>
+        <p className="lead">Add a doctor visit or care provider appointment.</p>
+        <form
+          style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitAppointment();
+          }}
+        >
+          <div className="field">
+            <label htmlFor="appt-provider">Provider / reason</label>
+            <input
+              id="appt-provider"
+              type="text"
+              placeholder="e.g. Dr. Sarah Chen — Cardiology"
+              value={apptProvider}
+              onChange={(e) => setApptProvider(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="appt-visit-type">Visit type</label>
+            <input
+              id="appt-visit-type"
+              type="text"
+              placeholder="e.g. Follow-up visit"
+              value={apptVisitType}
+              onChange={(e) => setApptVisitType(e.target.value)}
+            />
+          </div>
+          <div className="vgrid">
+            <div className="field">
+              <label htmlFor="appt-date">Date</label>
+              <input
+                id="appt-date"
+                type="date"
+                value={apptDate}
+                onChange={(e) => setApptDate(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="appt-time">Time</label>
+              <input
+                id="appt-time"
+                type="time"
+                value={apptTime}
+                onChange={(e) => setApptTime(e.target.value)}
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block sheet__save"
+            style={{ marginTop: '8px' }}
+          >
+            Save appointment
+          </button>
+          {apptError && (
+            <p className="form-error" role="alert">
+              Couldn&apos;t save that appointment — try again.
             </p>
           )}
         </form>

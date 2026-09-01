@@ -17,6 +17,8 @@ import {
 } from '../lib/activity';
 import {
   BAND_LABELS,
+  FREQUENCY_LABELS,
+  FREQUENCY_OPTIONS,
   TIME_OF_DAY_BANDS,
   buildDosesByBand,
   buildPharmacistOrderMailto,
@@ -28,12 +30,13 @@ import {
   sortUpcomingAppointments,
   type Appointment,
   type MedicationForDoses,
+  type MedicationFrequency,
   type MedicationLogForDoses,
   type StockItem,
   type TimeOfDayBand,
 } from '../lib/medications';
 
-type Sheet = null | 'med' | 'refill' | 'pharm' | 'appt';
+type Sheet = null | 'med' | 'refill' | 'pharm' | 'appt' | 'goal';
 type Tab = 'appt' | 'med' | 'act';
 
 const BAND_BG: Record<TimeOfDayBand, string> = {
@@ -67,6 +70,7 @@ export function Medications() {
   const [medName, setMedName] = useState('');
   const [medDosage, setMedDosage] = useState('');
   const [medBands, setMedBands] = useState<TimeOfDayBand[]>([]);
+  const [medFrequency, setMedFrequency] = useState<MedicationFrequency>('daily');
   const [medHighRisk, setMedHighRisk] = useState(false);
   const [medError, setMedError] = useState(false);
 
@@ -99,18 +103,22 @@ export function Medications() {
   const [hydrationFilled, setHydrationFilled] = useState(0);
   const [selfGoals, setSelfGoals] = useState<SelfGoal[]>([]);
   const [newGoalText, setNewGoalText] = useState('');
+  const [goalError, setGoalError] = useState(false);
 
   useDraftForm(
     'add-medication',
     sheet === 'med',
-    { medName, medDosage, medBands, medHighRisk },
+    { medName, medDosage, medBands, medFrequency, medHighRisk },
     (v) => {
       setMedName(v.medName);
       setMedDosage(v.medDosage);
       setMedBands(v.medBands);
+      setMedFrequency(v.medFrequency);
       setMedHighRisk(v.medHighRisk);
     },
   );
+
+  useDraftForm('add-goal', sheet === 'goal', { newGoalText }, (v) => setNewGoalText(v.newGoalText));
 
   useDraftForm(
     'refill-stock',
@@ -153,7 +161,7 @@ export function Medications() {
     },
   );
 
-  usePersistedSheet('medications', sheet, setSheet, ['med', 'refill', 'appt']);
+  usePersistedSheet('medications', sheet, setSheet, ['med', 'refill', 'appt', 'goal']);
 
   useEffect(() => {
     saveDraft('ui-tab:medications', tab);
@@ -171,7 +179,7 @@ export function Medications() {
         .maybeSingle(),
       supabase
         .from('medications')
-        .select('id, name, dosage, high_risk, time_of_day')
+        .select('id, name, dosage, high_risk, time_of_day, frequency, created_at')
         .eq('member_id', selectedMemberId)
         .eq('active', true),
       supabase
@@ -272,9 +280,10 @@ export function Medications() {
         name: medName.trim(),
         dosage: medDosage.trim() || null,
         time_of_day: medBands,
+        frequency: medFrequency,
         high_risk: medHighRisk,
       })
-      .select('id, name, dosage, high_risk, time_of_day')
+      .select('id, name, dosage, high_risk, time_of_day, frequency, created_at')
       .single();
     if (error || !data) {
       setMedError(true);
@@ -284,6 +293,7 @@ export function Medications() {
     setMedName('');
     setMedDosage('');
     setMedBands([]);
+    setMedFrequency('daily');
     setMedHighRisk(false);
     clearDraft('add-medication');
     clearDraft('open-sheet:medications');
@@ -335,8 +345,15 @@ export function Medications() {
     if (sheet === 'med') clearDraft('add-medication');
     if (sheet === 'refill') clearDraft('refill-stock');
     if (sheet === 'appt') clearDraft('add-appointment');
+    if (sheet === 'goal') clearDraft('add-goal');
     clearDraft('open-sheet:medications');
     setSheet(null);
+  };
+
+  const openAddSheet = () => {
+    if (tab === 'appt') setSheet('appt');
+    else if (tab === 'act') setSheet('goal');
+    else setSheet('med');
   };
 
   const openPharmacistSheet = () => {
@@ -423,16 +440,23 @@ export function Medications() {
     saveHydration(goal, hydrationFilled);
   };
 
-  const addSelfGoal = async () => {
+  const submitGoal = async () => {
     if (!selectedMemberId || !newGoalText.trim()) return;
+    setGoalError(false);
     const { data, error } = await supabase
       .from('self_goals')
       .insert({ member_id: selectedMemberId, text: newGoalText.trim() })
       .select('id, text, done_at')
       .single();
-    if (error || !data) return;
+    if (error || !data) {
+      setGoalError(true);
+      return;
+    }
     setSelfGoals((prev) => [...prev, data as SelfGoal]);
     setNewGoalText('');
+    clearDraft('add-goal');
+    clearDraft('open-sheet:medications');
+    setSheet(null);
   };
 
   const toggleSelfGoal = async (id: string, doneToday: boolean) => {
@@ -445,7 +469,8 @@ export function Medications() {
     return <div className="card">Loading…</div>;
   }
 
-  const dosesByBand = buildDosesByBand(medications, logs);
+  const now = new Date();
+  const dosesByBand = buildDosesByBand(medications, logs, now);
   const allDoses = TIME_OF_DAY_BANDS.flatMap((band) => dosesByBand[band]);
   const takenCount = allDoses.filter((d) => d.taken).length;
   const totalCount = allDoses.length;
@@ -454,7 +479,6 @@ export function Medications() {
   const stockWithDays = computeStockDaysLeft(stock);
   const lowMessage = lowStockMessage(stockWithDays);
 
-  const now = new Date();
   const weekStrip = buildWeekStrip(now, appointments);
   const todayKey = weekStrip.find((d) => d.isToday)?.date ?? '';
   const upcomingAppointments = sortUpcomingAppointments(appointments, todayKey);
@@ -491,8 +515,10 @@ export function Medications() {
         <button
           type="button"
           className="iconbtn"
-          aria-label="Add medication"
-          onClick={() => setSheet('med')}
+          aria-label={
+            tab === 'appt' ? 'Add appointment' : tab === 'act' ? 'Add goal' : 'Add medication'
+          }
+          onClick={openAddSheet}
         >
           <span className="icon">
             <svg>
@@ -596,14 +622,6 @@ export function Medications() {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="mbtn mbtn--fill mbtn--block"
-            style={{ marginTop: '10px' }}
-            onClick={() => setSheet('appt')}
-          >
-            Add appointment
-          </button>
         </>
       )}
 
@@ -926,7 +944,7 @@ export function Medications() {
           <div className="sec">Goals</div>
           {selfGoals.length === 0 ? (
             <div className="card">
-              <span>No goals yet — add one below.</span>
+              <span>No goals yet — tap + above to add one.</span>
             </div>
           ) : (
             <div className="card card--flush">
@@ -962,28 +980,6 @@ export function Medications() {
               })}
             </div>
           )}
-          <div className="field" style={{ marginTop: '10px' }}>
-            <label htmlFor="new-goal-text">Add a goal</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                id="new-goal-text"
-                type="text"
-                placeholder="e.g. 30 min walk"
-                style={{ flex: 1 }}
-                value={newGoalText}
-                onChange={(e) => setNewGoalText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addSelfGoal();
-                  }
-                }}
-              />
-              <button type="button" className="mbtn mbtn--fill" onClick={addSelfGoal}>
-                Add
-              </button>
-            </div>
-          </div>
         </>
       )}
 
@@ -1045,6 +1041,22 @@ export function Medications() {
                   onClick={() => toggleMedBand(band)}
                 >
                   {BAND_LABELS[band]}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="field">
+            <label>How often?</label>
+            <div className="checkin__choices">
+              {FREQUENCY_OPTIONS.map((freq) => (
+                <span
+                  key={freq}
+                  role="button"
+                  tabIndex={0}
+                  className={`choice${medFrequency === freq ? ' on' : ''}`}
+                  onClick={() => setMedFrequency(freq)}
+                >
+                  {FREQUENCY_LABELS[freq]}
                 </span>
               ))}
             </div>
@@ -1395,6 +1407,55 @@ export function Medications() {
           {apptError && (
             <p className="form-error" role="alert">
               Couldn&apos;t save that appointment — try again.
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className={`sheet${sheet === 'goal' ? ' show' : ''}`}>
+        <div className="sheet__grip" />
+        <button
+          type="button"
+          className="iconbtn"
+          style={{ position: 'absolute', top: '14px', right: '14px' }}
+          aria-label="Close"
+          onClick={closeSheet}
+        >
+          <span className="icon">
+            <svg>
+              <use href="#i-close" />
+            </svg>
+          </span>
+        </button>
+        <h2>Add a goal</h2>
+        <p className="lead">Set a self-care goal to track, like a daily walk.</p>
+        <form
+          style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitGoal();
+          }}
+        >
+          <div className="field">
+            <label htmlFor="new-goal-text">Goal</label>
+            <input
+              id="new-goal-text"
+              type="text"
+              placeholder="e.g. 30 min walk"
+              value={newGoalText}
+              onChange={(e) => setNewGoalText(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="mbtn mbtn--fill mbtn--block sheet__save"
+            style={{ marginTop: '8px' }}
+          >
+            Save goal
+          </button>
+          {goalError && (
+            <p className="form-error" role="alert">
+              Couldn&apos;t save that goal — try again.
             </p>
           )}
         </form>

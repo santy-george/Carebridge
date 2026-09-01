@@ -75,8 +75,18 @@ describe('Medications', () => {
           dosage: '500mg',
           high_risk: false,
           time_of_day: ['morning'],
+          frequency: 'daily',
+          created_at: '2020-01-01T00:00:00Z',
         },
-        { id: 'med2', name: 'Aspirin', dosage: '75mg', high_risk: true, time_of_day: ['morning'] },
+        {
+          id: 'med2',
+          name: 'Aspirin',
+          dosage: '75mg',
+          high_risk: true,
+          time_of_day: ['morning'],
+          frequency: 'daily',
+          created_at: '2020-01-01T00:00:00Z',
+        },
       ],
       error: null,
     };
@@ -175,7 +185,7 @@ describe('Medications', () => {
     ).toBeInTheDocument();
   });
 
-  it('adds a medication through the sheet', async () => {
+  it('adds a medication through the sheet, defaulting to daily frequency', async () => {
     singleResponses.medications = {
       data: {
         id: 'med3',
@@ -183,6 +193,8 @@ describe('Medications', () => {
         dosage: '1 capsule',
         high_risk: false,
         time_of_day: ['noon'],
+        frequency: 'daily',
+        created_at: '2026-08-01T00:00:00Z',
       },
       error: null,
     };
@@ -193,6 +205,7 @@ describe('Medications', () => {
     await user.type(screen.getByLabelText(/medication name/i), 'Vitamin D3');
     await user.type(screen.getAllByLabelText(/^dosage$/i)[0], '1 capsule');
     await user.click(screen.getByRole('button', { name: 'Noon' }));
+    expect(screen.getByRole('button', { name: 'Daily' })).toHaveClass('on');
     await user.click(screen.getByRole('button', { name: /save medication/i }));
 
     await waitFor(() =>
@@ -203,11 +216,44 @@ describe('Medications', () => {
           name: 'Vitamin D3',
           dosage: '1 capsule',
           time_of_day: ['noon'],
+          frequency: 'daily',
           high_risk: false,
         },
       }),
     );
     expect(await screen.findByText(/Vitamin D3 1 capsule/)).toBeInTheDocument();
+  });
+
+  it('sets the medication frequency to alternate days when chosen', async () => {
+    singleResponses.medications = {
+      data: {
+        id: 'med3',
+        name: 'Vitamin D3',
+        dosage: null,
+        high_risk: false,
+        time_of_day: ['noon'],
+        frequency: 'alternate_days',
+        created_at: '2026-08-01T00:00:00Z',
+      },
+      error: null,
+    };
+    render(<Medications />);
+    const user = await goToMedicationsTab();
+
+    await user.click(await screen.findByRole('button', { name: /add medication/i }));
+    await user.type(screen.getByLabelText(/medication name/i), 'Vitamin D3');
+    await user.click(screen.getByRole('button', { name: 'Noon' }));
+    await user.click(screen.getByRole('button', { name: 'Alternate days' }));
+    await user.click(screen.getByRole('button', { name: /save medication/i }));
+
+    await waitFor(() =>
+      expect(insertCalls).toContainEqual(
+        expect.objectContaining({
+          table: 'medications',
+          payload: expect.objectContaining({ frequency: 'alternate_days' }),
+        }),
+      ),
+    );
   });
 
   it('refills stock through the sheet', async () => {
@@ -307,6 +353,18 @@ describe('Medications', () => {
     expect(screen.getByText('Follow-up visit')).toBeInTheDocument();
   });
 
+  it('the top-right + button targets the active tab', async () => {
+    render(<Medications />);
+
+    expect(await screen.findByRole('button', { name: 'Add appointment' })).toBeInTheDocument();
+
+    await goToMedicationsTab();
+    expect(screen.getByRole('button', { name: 'Add medication' })).toBeInTheDocument();
+
+    await goToActivityTab();
+    expect(screen.getByRole('button', { name: 'Add goal' })).toBeInTheDocument();
+  });
+
   it('adds an appointment through the sheet', async () => {
     singleResponses.appointments = {
       data: {
@@ -382,7 +440,7 @@ describe('Medications', () => {
     );
   });
 
-  it('adds a self-set goal', async () => {
+  it('adds a self-set goal through the sheet', async () => {
     singleResponses.self_goals = {
       data: { id: 'g2', text: 'Read 20 pages', done_at: null },
       error: null,
@@ -390,8 +448,9 @@ describe('Medications', () => {
     render(<Medications />);
     const user = await goToActivityTab();
 
-    await user.type(await screen.findByLabelText(/add a goal/i), 'Read 20 pages');
-    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await user.click(await screen.findByRole('button', { name: /add goal/i }));
+    await user.type(screen.getByLabelText(/^goal$/i), 'Read 20 pages');
+    await user.click(screen.getByRole('button', { name: /save goal/i }));
 
     await waitFor(() =>
       expect(insertCalls).toContainEqual({
@@ -424,6 +483,7 @@ describe('Medications', () => {
       medName: 'Vitamin D3',
       medDosage: '1 capsule',
       medBands: ['noon'],
+      medFrequency: 'weekly',
       medHighRisk: false,
     });
     render(<Medications />);
@@ -434,6 +494,7 @@ describe('Medications', () => {
 
     expect(screen.getByLabelText(/medication name/i)).toHaveValue('Vitamin D3');
     expect(screen.getAllByLabelText(/^dosage$/i)[0]).toHaveValue('1 capsule');
+    expect(screen.getByRole('button', { name: 'Weekly' })).toHaveClass('on');
     expect(screen.getByRole('button', { name: 'Noon' })).toHaveClass('on');
   });
 

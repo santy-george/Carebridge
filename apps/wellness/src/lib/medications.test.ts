@@ -6,6 +6,7 @@ import {
   computeStockDaysLeft,
   findPharmacistEmail,
   formatAppointmentWhen,
+  isMedicationDueOn,
   lowStockMessage,
   sortUpcomingAppointments,
 } from './medications';
@@ -155,6 +156,8 @@ describe('buildDosesByBand', () => {
         dosage: '500mg',
         high_risk: false,
         time_of_day: ['morning', 'evening'] as const,
+        frequency: 'daily' as const,
+        created_at: '2026-08-01T00:00:00Z',
       },
       {
         id: 'm2',
@@ -162,13 +165,17 @@ describe('buildDosesByBand', () => {
         dosage: '75mg',
         high_risk: true,
         time_of_day: ['morning'] as const,
+        frequency: 'daily' as const,
+        created_at: '2026-08-01T00:00:00Z',
       },
     ];
     const logs = [{ medication_id: 'm1', time_of_day: 'morning' as const, taken: true }];
+    const today = new Date('2026-08-19T12:00:00');
 
     const byBand = buildDosesByBand(
       meds.map((m) => ({ ...m, time_of_day: [...m.time_of_day] })),
       logs,
+      today,
     );
 
     expect(byBand.morning.map((d) => d.name)).toEqual(['Metformin', 'Aspirin']);
@@ -178,5 +185,62 @@ describe('buildDosesByBand', () => {
     expect(byBand.evening[0].taken).toBe(false);
     expect(byBand.noon).toEqual([]);
     expect(byBand.night).toEqual([]);
+  });
+
+  it('omits medications that are not due on the given day', () => {
+    const meds = [
+      {
+        id: 'm1',
+        name: 'Metformin',
+        dosage: '500mg',
+        high_risk: false,
+        time_of_day: ['morning'] as const,
+        frequency: 'weekly' as const,
+        created_at: '2026-08-19T00:00:00Z', // a Wednesday
+      },
+    ];
+    const notDueDay = new Date('2026-08-20T12:00:00'); // Thursday -- not due
+
+    const byBand = buildDosesByBand(
+      meds.map((m) => ({ ...m, time_of_day: [...m.time_of_day] })),
+      [],
+      notDueDay,
+    );
+
+    expect(byBand.morning).toEqual([]);
+  });
+});
+
+describe('isMedicationDueOn', () => {
+  it('daily is always due', () => {
+    expect(isMedicationDueOn('2026-08-01T00:00:00Z', 'daily', new Date('2026-08-19'))).toBe(true);
+  });
+
+  it('alternate days is due every other day from the start date', () => {
+    const start = '2026-08-01T00:00:00Z';
+    expect(isMedicationDueOn(start, 'alternate_days', new Date('2026-08-01'))).toBe(true);
+    expect(isMedicationDueOn(start, 'alternate_days', new Date('2026-08-02'))).toBe(false);
+    expect(isMedicationDueOn(start, 'alternate_days', new Date('2026-08-03'))).toBe(true);
+  });
+
+  it('weekly is due on the same weekday as the start date', () => {
+    const start = '2026-08-19T00:00:00Z'; // Wednesday
+    expect(isMedicationDueOn(start, 'weekly', new Date('2026-08-26'))).toBe(true);
+    expect(isMedicationDueOn(start, 'weekly', new Date('2026-08-20'))).toBe(false);
+  });
+
+  it('monthly is due on the same day-of-month as the start date', () => {
+    const start = '2026-08-05T00:00:00Z';
+    expect(isMedicationDueOn(start, 'monthly', new Date('2026-09-05'))).toBe(true);
+    expect(isMedicationDueOn(start, 'monthly', new Date('2026-09-06'))).toBe(false);
+  });
+
+  it('monthly falls back to the last day of a shorter month', () => {
+    const start = '2026-01-31T00:00:00Z';
+    expect(isMedicationDueOn(start, 'monthly', new Date('2026-02-28'))).toBe(true);
+  });
+
+  it('is never due before the start date', () => {
+    expect(isMedicationDueOn('2026-08-19T00:00:00Z', 'daily', new Date('2026-08-18'))).toBe(false);
   });
 });

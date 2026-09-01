@@ -674,7 +674,7 @@ export type Database = {
           created_at: string
           dosage: string | null
           form: string | null
-          frequency: string | null
+          frequency: Database["public"]["Enums"]["medication_frequency"]
           high_risk: boolean
           id: string
           member_id: string
@@ -692,7 +692,7 @@ export type Database = {
           created_at?: string
           dosage?: string | null
           form?: string | null
-          frequency?: string | null
+          frequency?: Database["public"]["Enums"]["medication_frequency"]
           high_risk?: boolean
           id?: string
           member_id: string
@@ -710,7 +710,7 @@ export type Database = {
           created_at?: string
           dosage?: string | null
           form?: string | null
-          frequency?: string | null
+          frequency?: Database["public"]["Enums"]["medication_frequency"]
           high_risk?: boolean
           id?: string
           member_id?: string
@@ -1359,6 +1359,7 @@ export type Database = {
         | "scan_imaging"
         | "other"
       glucose_context: "fasting" | "pre_meal" | "post_meal" | "bedtime"
+      medication_frequency: "daily" | "alternate_days" | "weekly" | "monthly"
       medication_source: "otc" | "prescription"
       plan_level: "basic" | "standard" | "premium"
       sos_alert_status: "open" | "acknowledged" | "resolved" | "false_alarm"
@@ -1516,6 +1517,7 @@ export const Constants = {
         "other",
       ],
       glucose_context: ["fasting", "pre_meal", "post_meal", "bedtime"],
+      medication_frequency: ["daily", "alternate_days", "weekly", "monthly"],
       medication_source: ["otc", "prescription"],
       plan_level: ["basic", "standard", "premium"],
       sos_alert_status: ["open", "acknowledged", "resolved", "false_alarm"],

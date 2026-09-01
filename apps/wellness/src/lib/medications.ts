@@ -1,5 +1,59 @@
 export type TimeOfDayBand = 'morning' | 'noon' | 'evening' | 'night';
 
+export type MedicationFrequency = 'daily' | 'alternate_days' | 'weekly' | 'monthly';
+
+export const FREQUENCY_OPTIONS: MedicationFrequency[] = [
+  'daily',
+  'alternate_days',
+  'weekly',
+  'monthly',
+];
+
+export const FREQUENCY_LABELS: Record<MedicationFrequency, string> = {
+  daily: 'Daily',
+  alternate_days: 'Alternate days',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+};
+
+function daysBetween(start: Date, target: Date): number {
+  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const targetDay = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+  return Math.round((targetDay.getTime() - startDay.getTime()) / 86400000);
+}
+
+// Cadence is computed from the medication's created_at, in the device's
+// local calendar (see daysBetween) -- not stored explicitly, since the app
+// doesn't currently let a member pick a separate start date.
+export function isMedicationDueOn(
+  startedAt: string,
+  frequency: MedicationFrequency,
+  target: Date,
+): boolean {
+  const start = new Date(startedAt);
+  const diffDays = daysBetween(start, target);
+  if (diffDays < 0) return false;
+  switch (frequency) {
+    case 'daily':
+      return true;
+    case 'alternate_days':
+      return diffDays % 2 === 0;
+    case 'weekly':
+      return diffDays % 7 === 0;
+    case 'monthly': {
+      if (target.getDate() === start.getDate()) return true;
+      // A medication started on the 31st has no match in a shorter month --
+      // fall back to that month's last day instead of never firing.
+      const lastDayOfTargetMonth = new Date(
+        target.getFullYear(),
+        target.getMonth() + 1,
+        0,
+      ).getDate();
+      return start.getDate() > lastDayOfTargetMonth && target.getDate() === lastDayOfTargetMonth;
+    }
+  }
+}
+
 export const TIME_OF_DAY_BANDS: TimeOfDayBand[] = ['morning', 'noon', 'evening', 'night'];
 
 export const BAND_LABELS: Record<TimeOfDayBand, string> = {
@@ -151,6 +205,8 @@ export interface MedicationForDoses {
   dosage: string | null;
   high_risk: boolean;
   time_of_day: TimeOfDayBand[];
+  frequency: MedicationFrequency;
+  created_at: string;
 }
 
 export interface MedicationLogForDoses {
@@ -162,12 +218,14 @@ export interface MedicationLogForDoses {
 export function buildDosesByBand(
   medications: MedicationForDoses[],
   logs: MedicationLogForDoses[],
+  today: Date,
 ): Record<TimeOfDayBand, Dose[]> {
   const takenByKey = new Map(
     logs.map((log) => [`${log.medication_id}:${log.time_of_day}`, log.taken]),
   );
   const byBand: Record<TimeOfDayBand, Dose[]> = { morning: [], noon: [], evening: [], night: [] };
   for (const med of medications) {
+    if (!isMedicationDueOn(med.created_at, med.frequency, today)) continue;
     for (const band of med.time_of_day) {
       byBand[band].push({
         key: `${med.id}:${band}`,

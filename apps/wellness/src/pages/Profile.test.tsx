@@ -179,4 +179,18 @@ describe('Profile', () => {
 
     await waitFor(() => expect(loadDraft('medical-profile')).toBeNull());
   });
+
+  it('reopens the medical profile sheet left open from before the app was backgrounded', async () => {
+    saveDraft('open-sheet:profile', 'open');
+    saveDraft('medical-profile', {
+      conditions: ['Diabetes'],
+      conditionsOther: '',
+      allergiesText: 'Peanuts',
+      notes: '',
+    });
+    renderProfile();
+
+    expect(await screen.findByRole('button', { name: 'Diabetes' })).toHaveClass('on');
+    expect(screen.getByLabelText(/allergies/i)).toHaveValue('Peanuts');
+  });
 });

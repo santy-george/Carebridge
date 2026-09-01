@@ -246,4 +246,20 @@ describe('Care', () => {
     await user.click(screen.getAllByRole('button', { name: /close/i })[0]);
     expect(loadDraft('care-team-member')).toBeNull();
   });
+
+  it('reopens the care team sheet left open from before the app was backgrounded', async () => {
+    tableResponses.care_team = { data: [], error: null };
+    saveDraft('open-sheet:care', 'care');
+    saveDraft('care-team-member', {
+      careName: 'Dr. Priya Menon',
+      careDesc: 'Primary physician',
+      carePhone: '',
+      careEmail: '',
+      careAddress: '',
+      careNotes: '',
+    });
+    render(<Care />);
+
+    expect(await screen.findByLabelText(/^name$/i)).toHaveValue('Dr. Priya Menon');
+  });
 });

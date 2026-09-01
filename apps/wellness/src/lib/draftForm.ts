@@ -61,3 +61,33 @@ export function useDraftForm<T>(key: string, active: boolean, values: T, restore
     return () => clearTimeout(id);
   }, [active, key, values]);
 }
+
+/**
+ * Remembers which sheet was open on a page across an iOS WKWebView reload
+ * (backgrounding the app reloads the current page in place -- the URL
+ * survives, but React state, including which sheet was open, does not).
+ * On mount, reopens the last sheet if it was opened within the last 10
+ * minutes and is one of `allowed`. Callers must call
+ * `clearDraft(\`open-sheet:${pageKey}\`)` alongside their existing draft
+ * clears on submit/close, or a finished sheet will reopen next launch.
+ */
+export function usePersistedSheet<S extends string>(
+  pageKey: string,
+  sheet: S | null,
+  setSheet: (s: S) => void,
+  allowed: readonly S[],
+) {
+  const storageKeyForSheet = `open-sheet:${pageKey}`;
+
+  useEffect(() => {
+    const saved = loadDraft<S>(storageKeyForSheet);
+    if (saved && (allowed as readonly string[]).includes(saved)) setSheet(saved);
+    // Mount-only: this restores whatever sheet was open when the app was
+    // last backgrounded, not something that should re-fire on every change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (sheet) saveDraft(storageKeyForSheet, sheet);
+  }, [storageKeyForSheet, sheet]);
+}

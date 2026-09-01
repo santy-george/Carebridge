@@ -13,7 +13,7 @@ import {
   type CareModel,
   type PlanLevel,
 } from '../lib/profile';
-import { clearDraft, useDraftForm } from '../lib/draftForm';
+import { clearDraft, useDraftForm, usePersistedSheet } from '../lib/draftForm';
 
 interface Member {
   full_name: string;
@@ -85,8 +85,11 @@ export function Profile() {
     },
   );
 
+  usePersistedSheet('profile', sheetOpen ? 'open' : null, () => setSheetOpen(true), ['open']);
+
   const closeSheet = () => {
     clearDraft('medical-profile');
+    clearDraft('open-sheet:profile');
     setSheetOpen(false);
   };
 
@@ -126,6 +129,7 @@ export function Profile() {
     }
     setMedicalProfile(payload);
     clearDraft('medical-profile');
+    clearDraft('open-sheet:profile');
     setSheetOpen(false);
   };
 

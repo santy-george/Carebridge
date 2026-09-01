@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
-import { clearDraft, useDraftForm } from '../lib/draftForm';
+import {
+  clearDraft,
+  loadDraft,
+  saveDraft,
+  useDraftForm,
+  usePersistedSheet,
+} from '../lib/draftForm';
 import {
   clampHydrationGoal,
   isGoalDoneToday,
@@ -81,7 +87,7 @@ export function Medications() {
   const [pharmChecked, setPharmChecked] = useState<Record<string, boolean>>({});
   const [pharmError, setPharmError] = useState(false);
 
-  const [tab, setTab] = useState<Tab>('appt');
+  const [tab, setTab] = useState<Tab>(() => loadDraft<Tab>('ui-tab:medications') ?? 'appt');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [apptProvider, setApptProvider] = useState('');
   const [apptVisitType, setApptVisitType] = useState('');
@@ -146,6 +152,12 @@ export function Medications() {
       setApptTime(v.apptTime);
     },
   );
+
+  usePersistedSheet('medications', sheet, setSheet, ['med', 'refill', 'appt']);
+
+  useEffect(() => {
+    saveDraft('ui-tab:medications', tab);
+  }, [tab]);
 
   useEffect(() => {
     let isMounted = true;
@@ -274,6 +286,7 @@ export function Medications() {
     setMedBands([]);
     setMedHighRisk(false);
     clearDraft('add-medication');
+    clearDraft('open-sheet:medications');
     setSheet(null);
   };
 
@@ -314,6 +327,7 @@ export function Medications() {
     setRefillPrescriber('');
     setRefillExpiry('');
     clearDraft('refill-stock');
+    clearDraft('open-sheet:medications');
     setSheet(null);
   };
 
@@ -321,6 +335,7 @@ export function Medications() {
     if (sheet === 'med') clearDraft('add-medication');
     if (sheet === 'refill') clearDraft('refill-stock');
     if (sheet === 'appt') clearDraft('add-appointment');
+    clearDraft('open-sheet:medications');
     setSheet(null);
   };
 
@@ -374,6 +389,7 @@ export function Medications() {
     setApptDate('');
     setApptTime('');
     clearDraft('add-appointment');
+    clearDraft('open-sheet:medications');
     setSheet(null);
   };
 

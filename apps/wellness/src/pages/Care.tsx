@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import { initialsFor, permissionLabel, type FamilyMember, type PermissionLevel } from '../lib/care';
-import { clearDraft, useDraftForm } from '../lib/draftForm';
+import { clearDraft, useDraftForm, usePersistedSheet } from '../lib/draftForm';
 
 interface CareTeamMember {
   id: string;
@@ -68,6 +68,8 @@ export function Care() {
       setInvitePermission(v.invitePermission);
     },
   );
+
+  usePersistedSheet('care', sheet, setSheet, ['care', 'invite']);
 
   useEffect(() => {
     let isMounted = true;
@@ -136,6 +138,7 @@ export function Care() {
     setCareAddress('');
     setCareNotes('');
     clearDraft('care-team-member');
+    clearDraft('open-sheet:care');
     setSheet(null);
   };
 
@@ -158,6 +161,7 @@ export function Care() {
   const closeSheet = () => {
     if (sheet === 'care') clearDraft('care-team-member');
     if (sheet === 'invite') clearDraft('invite-family');
+    clearDraft('open-sheet:care');
     setSheet(null);
   };
 

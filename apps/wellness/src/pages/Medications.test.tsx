@@ -473,4 +473,34 @@ describe('Medications', () => {
     await user.click(screen.getAllByRole('button', { name: /close/i })[3]);
     expect(loadDraft('add-appointment')).toBeNull();
   });
+
+  it('reopens the appointment sheet left open from before the app was backgrounded', async () => {
+    saveDraft('open-sheet:medications', 'appt');
+    saveDraft('add-appointment', {
+      apptProvider: 'Dr. Lee',
+      apptVisitType: '',
+      apptDate: '',
+      apptTime: '',
+    });
+    render(<Medications />);
+
+    expect(await screen.findByRole('heading', { name: /new appointment/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/provider \/ reason/i)).toHaveValue('Dr. Lee');
+  });
+
+  it('does not reopen the pharmacist sheet, since it depends on freshly-loaded stock data', async () => {
+    saveDraft('open-sheet:medications', 'pharm');
+    render(<Medications />);
+
+    expect(await screen.findByRole('button', { name: /add appointment/i })).toBeInTheDocument();
+    const pharmHeading = screen.getByRole('heading', { name: /send to pharmacist/i });
+    expect(pharmHeading.closest('.sheet')).not.toHaveClass('show');
+  });
+
+  it('remembers which tab was active before the app was backgrounded', async () => {
+    saveDraft('ui-tab:medications', 'act');
+    render(<Medications />);
+
+    expect(await screen.findByText(/hydration/i)).toBeInTheDocument();
+  });
 });

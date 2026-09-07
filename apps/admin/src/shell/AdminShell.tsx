@@ -10,7 +10,7 @@ export function AdminShell() {
   };
 
   return (
-    <div className="app">
+    <div className="app app--flat">
       <div className="main">
         <header className="topbar">
           <div className="topbar__left">

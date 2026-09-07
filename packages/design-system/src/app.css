@@ -9,13 +9,6 @@
   background: var(--surface-page);
 }
 
-/* Shells with no .sidebar item (e.g. the Admin coordinator portal's flat
-   topbar-only layout) -- without this, the lone .main child gets placed in
-   the grid's first (264px) track instead of spanning full width. */
-.app--flat {
-  grid-template-columns: 1fr;
-}
-
 /* ---- Sidebar ---- */
 .sidebar {
   position: sticky;

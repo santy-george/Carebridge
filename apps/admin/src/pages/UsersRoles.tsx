@@ -19,7 +19,7 @@ interface StaffUser {
 const PERMISSION_MATRIX: { permission: string; access: Partial<Record<UserRole, string>> }[] = [
   {
     permission: 'Members & care models',
-    access: { admin: 'Full', coordinator: 'Full', field_staff: 'Assigned' },
+    access: { admin: 'Full', coordinator: 'Assigned' },
   },
   { permission: 'Emergency centre (SOS)', access: { admin: 'Full', coordinator: 'Full' } },
   {

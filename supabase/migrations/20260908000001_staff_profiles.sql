@@ -74,11 +74,14 @@ as $$
   );
 $$;
 
--- admin becomes a true superset of coordinator everywhere it matters.
--- profiles: admin needs to read every account for the Users & Roles screen
--- (coordinators already have this via the existing "coordinators read all
--- profiles" policy -- admin needs its own policy, not a rename, so that
--- policy's name/intent stays accurate for what it actually grants).
+-- admin needs to read every account for the Users & Roles screen. There is
+-- no blanket "coordinators read all profiles" policy to piggyback on --
+-- coordinator profile reads are assignment-scoped to linked accounts only
+-- (20260829160000_scope_coordinator_access_to_assignment.sql), and stay
+-- that way; this is a genuinely new, broader grant for admin specifically.
+-- (The wider admin-superset fix in 20260909000000_admin_superset_access.sql
+-- covers is_coordinator()-gated tables elsewhere; this one is admin-only
+-- by design, since "read every account" is not something coordinator gets.)
 create policy "admins read all profiles"
   on public.profiles for select using (public.is_admin());
 

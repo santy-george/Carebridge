@@ -87,7 +87,7 @@ function iconEl(name: string) {
 }
 
 export function Sidebar() {
-  const { fullName } = useAuth();
+  const { fullName, isAdmin } = useAuth();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -141,7 +141,7 @@ export function Sidebar() {
           </span>
           <span className="user-card__txt">
             <span className="name">{fullName ?? 'Coordinator'}</span>
-            <span className="role">Care Coordinator</span>
+            <span className="role">{isAdmin ? 'Admin' : 'Care Coordinator'}</span>
           </span>
         </div>
         <span className="nav-item nav-item--foot nav-item--disabled" aria-disabled="true">

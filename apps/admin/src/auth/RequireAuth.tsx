@@ -10,12 +10,12 @@ function LoadingScreen() {
   );
 }
 
-function NotAuthorized() {
+function NotAuthorized({ message }: { message: string }) {
   return (
     <main className="content">
       <div className="card">
         <h1 className="t-heading-s">Not authorized</h1>
-        <p className="t-body-m">This account isn&apos;t set up as a coordinator.</p>
+        <p className="t-body-m">{message}</p>
         <button
           type="button"
           className="btn btn--secondary"
@@ -32,7 +32,9 @@ export function RequireCoordinator() {
   const { session, loading, roleLoaded, isCoordinator, isAdmin } = useAuth();
   if (loading || (session && !roleLoaded)) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" replace />;
-  if (!isCoordinator && !isAdmin) return <NotAuthorized />;
+  if (!isCoordinator && !isAdmin) {
+    return <NotAuthorized message="This account isn't set up as a coordinator." />;
+  }
   return <Outlet />;
 }
 
@@ -40,7 +42,9 @@ export function RequireAdmin() {
   const { session, loading, roleLoaded, isAdmin } = useAuth();
   if (loading || (session && !roleLoaded)) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" replace />;
-  if (!isAdmin) return <NotAuthorized />;
+  if (!isAdmin) {
+    return <NotAuthorized message="This page needs admin access — your account doesn't have it." />;
+  }
   return <Outlet />;
 }
 

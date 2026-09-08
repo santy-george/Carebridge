@@ -56,6 +56,7 @@ describe('RequireCoordinator', () => {
     } as never);
     renderGuard(<RequireCoordinator />, '/protected');
     expect(screen.getByText(/not authorized/i)).toBeInTheDocument();
+    expect(screen.getByText(/isn't set up as a coordinator/i)).toBeInTheDocument();
   });
 
   it('renders protected content for a signed-in coordinator', () => {
@@ -106,6 +107,10 @@ describe('RequireAdmin', () => {
     } as never);
     renderGuard(<RequireAdmin />, '/protected');
     expect(screen.getByText(/not authorized/i)).toBeInTheDocument();
+    // A real coordinator hitting an admin-only page must not be told they
+    // "aren't set up as a coordinator" -- they are one, just not an admin.
+    expect(screen.queryByText(/isn't set up as a coordinator/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/needs admin access/i)).toBeInTheDocument();
   });
 
   it('renders protected content for a signed-in admin', () => {

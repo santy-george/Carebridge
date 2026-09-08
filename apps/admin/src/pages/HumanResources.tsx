@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../auth/useAuth';
+import { StaffInviteDrawer } from '../components/StaffInviteDrawer';
 import {
   DISCIPLINE_LABELS,
   EMPLOYMENT_STATUS_CHIP_CLASS,
@@ -25,9 +27,12 @@ interface StaffRow {
 }
 
 export function HumanResources() {
+  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [staff, setStaff] = useState<StaffRow[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -49,7 +54,7 @@ export function HumanResources() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   if (loading) {
     return <div className="card">Loading…</div>;
@@ -78,6 +83,17 @@ export function HumanResources() {
           <h1>Human Resources</h1>
           <p>Field staff — nurses, caregivers, physios and doctors.</p>
         </div>
+        {isAdmin && (
+          <div className="page-header__actions">
+            <button
+              type="button"
+              className="btn btn--primary btn--sm"
+              onClick={() => setDrawerOpen(true)}
+            >
+              Add staff
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="metric-row">
@@ -143,6 +159,15 @@ export function HumanResources() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {isAdmin && (
+        <StaffInviteDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onInvited={() => setRefreshKey((k) => k + 1)}
+          defaultRole="field_staff"
+        />
       )}
     </>
   );

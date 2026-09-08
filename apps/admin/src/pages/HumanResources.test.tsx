@@ -2,6 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { HumanResources } from './HumanResources';
+import { useAuth } from '../auth/useAuth';
+
+vi.mock('../auth/useAuth', () => ({ useAuth: vi.fn() }));
 
 const tableResponses: Record<string, { data: unknown; error: unknown }> = {};
 
@@ -31,6 +34,7 @@ describe('HumanResources', () => {
   beforeEach(() => {
     for (const key of Object.keys(tableResponses)) delete tableResponses[key];
     tableResponses.staff_profiles = { data: [], error: null };
+    vi.mocked(useAuth).mockReturnValue({ isAdmin: false } as never);
   });
 
   it('shows a loading state before the initial fetch resolves', () => {
@@ -98,6 +102,25 @@ describe('HumanResources', () => {
 
     expect(await screen.findByText('2')).toBeInTheDocument(); // Total staff
     expect(screen.getAllByText('1')).toHaveLength(2); // Active: 1, Inactive: 1
+  });
+
+  it('hides the "Add staff" action for a non-admin coordinator', async () => {
+    renderPage();
+    await screen.findByText(/no staff on file yet/i);
+    expect(screen.queryByRole('button', { name: /add staff/i })).not.toBeInTheDocument();
+  });
+
+  it('shows an "Add staff" action for an admin, opening the invite drawer', async () => {
+    vi.mocked(useAuth).mockReturnValue({ isAdmin: true } as never);
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText(/no staff on file yet/i);
+    const addButton = screen.getByRole('button', { name: /add staff/i });
+    await user.click(addButton);
+
+    expect(screen.getByLabelText('Invite user')).toHaveClass('is-open');
   });
 
   it('shows a dismissible error banner when the fetch fails', async () => {

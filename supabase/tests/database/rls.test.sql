@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(114);
+select plan(122);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -27,6 +27,20 @@ values
   ('29000000-0000-0000-0000-000000000029', 'rls-test-linked-coordinator@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
 
 update public.profiles set role = 'coordinator' where id in ('c0000000-0000-0000-0000-00000000000c', '19000000-0000-0000-0000-000000000019', '29000000-0000-0000-0000-000000000029');
+
+insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role)
+values
+  ('40000000-0000-0000-0000-000000000040', 'rls-test-admin@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
+  ('50000000-0000-0000-0000-000000000050', 'rls-test-field-staff-1@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated'),
+  ('60000000-0000-0000-0000-000000000060', 'rls-test-field-staff-2@carebridgehome.test', crypt('test', gen_salt('bf')), now(), now(), now(), '{"provider":"email"}', '{}', 'authenticated', 'authenticated');
+
+update public.profiles set role = 'admin' where id = '40000000-0000-0000-0000-000000000040';
+update public.profiles set role = 'field_staff' where id in ('50000000-0000-0000-0000-000000000050', '60000000-0000-0000-0000-000000000060');
+
+insert into public.staff_profiles (id, discipline, employment_status)
+values
+  ('50000000-0000-0000-0000-000000000050', 'nurse', 'active'),
+  ('60000000-0000-0000-0000-000000000060', 'caregiver', 'active');
 
 insert into public.members (id, full_name, care_model)
 values
@@ -992,6 +1006,69 @@ select lives_ok(
 select lives_ok(
   $$ insert into storage.objects (bucket_id, name) values ('documents', 'aa000000-0000-0000-0000-00000000aaaa/assigned-coordinator-upload.txt') $$,
   'The assigned coordinator can still INSERT a storage object into Member A''s documents folder'
+);
+
+-- === Simulate the admin's session ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '40000000-0000-0000-0000-000000000040')::text, true);
+
+select is(
+  (select count(*)::int from public.profiles),
+  (select count(*)::int from public.profiles), -- sanity: query itself doesn't error
+  'admin can query profiles without error'
+);
+select ok(
+  (select count(*)::int from public.profiles) >= 8,
+  'admin sees every profile row, not just their own'
+);
+select is(
+  (select count(*)::int from public.staff_profiles),
+  2,
+  'admin sees every staff_profiles row'
+);
+
+-- Admin can write staff_profiles (full access via "admin full access to
+-- staff_profiles"), proving the policy grants insert/update, not just select.
+select lives_ok(
+  $$ update public.staff_profiles set employment_status = 'inactive' where id = '50000000-0000-0000-0000-000000000050' $$,
+  'admin can update a staff_profiles row'
+);
+update public.staff_profiles set employment_status = 'active' where id = '50000000-0000-0000-0000-000000000050';
+
+-- === Simulate field staff #1's session ===
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', '50000000-0000-0000-0000-000000000050')::text, true);
+
+select is(
+  (select count(*)::int from public.staff_profiles),
+  1,
+  'field staff sees only their own staff_profiles row, not the other field staff member''s'
+);
+select is(
+  (select id from public.staff_profiles limit 1),
+  '50000000-0000-0000-0000-000000000050',
+  'the one row field staff sees is their own'
+);
+select is(
+  (select count(*)::int from public.profiles where id = auth.uid()),
+  1,
+  'field staff can still read their own profile row via the existing owner policy'
+);
+
+-- Field staff cannot write staff_profiles at all (no insert/update/delete
+-- policy grants it) -- proves "coordinators read" and "field staff reads
+-- own" are select-only, not accidentally broader. RLS silently filters the
+-- row from the UPDATE (no USING clause matches field_staff for UPDATE), so
+-- throws_ok with '42501' would not fire -- instead we prove the row is
+-- unchanged after the attempted write.
+update public.staff_profiles set employment_status = 'inactive' where id = '50000000-0000-0000-0000-000000000050';
+
+select is(
+  (select employment_status::text from public.staff_profiles where id = '50000000-0000-0000-0000-000000000050'),
+  'active',
+  'field staff cannot update their own staff_profiles row (read-only access) -- row unchanged after attempted update'
 );
 
 -- === Simulate no session at all (anon) ===

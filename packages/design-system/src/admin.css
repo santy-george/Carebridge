@@ -80,11 +80,19 @@
 .sidebar {
   overflow: hidden;
 }
-/* Shells with no .sidebar item at all (e.g. the Admin coordinator portal's
-   flat topbar-only layout) -- must come after the rule above, which also
-   sets grid-template-columns on .app and would otherwise win the cascade. */
-.app--flat {
-  grid-template-columns: 1fr;
+/* Nav items with no screen built yet -- shown (not hidden) so the sidebar
+   still reads as the full IA, but visibly inert. */
+.nav-item--disabled {
+  color: var(--text-subtle);
+  cursor: not-allowed;
+}
+.nav-item--disabled .icon {
+  color: var(--text-subtle);
+  opacity: 0.6;
+}
+.nav-item--disabled:hover {
+  background: none;
+  color: var(--text-subtle);
 }
 .sidebar-toggle {
   width: 40px;
@@ -1197,4 +1205,87 @@
   font-size: 13px;
   color: var(--accent-text);
   font-weight: 600;
+}
+
+/* ---- Auth (sign-in) split screen --------------------------------------- */
+.auth {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: var(--surface-page);
+}
+@media (max-width: 840px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+  .auth__art {
+    display: none;
+  }
+}
+.auth__art {
+  background: linear-gradient(160deg, #57317e, #6b3fa0);
+  color: #fff;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.auth__art img {
+  height: 48px;
+  width: auto;
+  border-radius: var(--radius-base);
+  background: #fff;
+  padding: 4px;
+}
+.auth__art h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.25;
+  max-width: 420px;
+}
+.auth__art p {
+  opacity: 0.85;
+  font-size: 15px;
+  margin-top: 12px;
+  max-width: 400px;
+}
+.auth__art .feat {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 14px;
+  opacity: 0.95;
+}
+.auth__art .feat .icon {
+  width: 18px;
+  height: 18px;
+}
+.auth__form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.auth__box {
+  width: 100%;
+  max-width: 380px;
+}
+.auth__logo {
+  height: 44px;
+  width: auto;
+  margin-bottom: 26px;
+}
+.auth__box h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--text-heading);
+}
+.auth__box .lead {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 24px;
 }

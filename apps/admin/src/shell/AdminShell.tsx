@@ -1,33 +1,21 @@
-import { Link, Outlet } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { injectIconSprite } from '@carebridge/design-system';
+import { Sidebar } from './Sidebar';
+import { Topbar } from './Topbar';
 
 export function AdminShell() {
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Sign out failed:', error);
-    }
-  };
+  useEffect(() => {
+    injectIconSprite();
+  }, []);
 
   return (
-    <div className="app app--flat">
+    <div className="app">
+      <aside className="sidebar">
+        <Sidebar />
+      </aside>
       <div className="main">
-        <header className="topbar">
-          <div className="topbar__left">
-            <strong>Care Bridge Home — Admin</strong>
-            <nav style={{ display: 'flex', gap: '12px', marginLeft: '16px' }}>
-              <Link to="/">SOS Alerts</Link>
-              <Link to="/members">Members</Link>
-              <Link to="/leads">Leads</Link>
-              <Link to="/consent-requests">Consent Requests</Link>
-            </nav>
-          </div>
-          <div className="topbar__actions">
-            <button type="button" className="btn btn--secondary btn--sm" onClick={handleSignOut}>
-              Sign out
-            </button>
-          </div>
-        </header>
+        <Topbar />
         <main className="content">
           <Outlet />
         </main>

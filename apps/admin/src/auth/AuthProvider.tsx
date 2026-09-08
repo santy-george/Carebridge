@@ -7,18 +7,19 @@ export interface AuthContextValue {
   loading: boolean;
   roleLoaded: boolean;
   isCoordinator: boolean;
+  fullName: string | null;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function fetchIsCoordinator(userId: string): Promise<boolean> {
+async function fetchProfile(userId: string): Promise<{ isCoordinator: boolean; fullName: string | null }> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name')
     .eq('id', userId)
     .maybeSingle();
-  if (error || !data) return false;
-  return data.role === 'coordinator';
+  if (error || !data) return { isCoordinator: false, fullName: null };
+  return { isCoordinator: data.role === 'coordinator', fullName: data.full_name ?? null };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [roleLoaded, setRoleLoaded] = useState(false);
   const [isCoordinator, setIsCoordinator] = useState(false);
+  const [fullName, setFullName] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -36,14 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!newSession) {
         setIsCoordinator(false);
+        setFullName(null);
         setRoleLoaded(true);
         return;
       }
 
       setRoleLoaded(false);
-      const coordinator = await fetchIsCoordinator(newSession.user.id);
+      const profile = await fetchProfile(newSession.user.id);
       if (!isMounted) return;
-      setIsCoordinator(coordinator);
+      setIsCoordinator(profile.isCoordinator);
+      setFullName(profile.fullName);
       setRoleLoaded(true);
     };
 
@@ -67,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, loading, roleLoaded, isCoordinator }}>
+    <AuthContext.Provider value={{ session, loading, roleLoaded, isCoordinator, fullName }}>
       {children}
     </AuthContext.Provider>
   );

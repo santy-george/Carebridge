@@ -7,19 +7,20 @@ export interface AuthContextValue {
   loading: boolean;
   roleLoaded: boolean;
   isCoordinator: boolean;
+  isAdmin: boolean;
   fullName: string | null;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function fetchProfile(userId: string): Promise<{ isCoordinator: boolean; fullName: string | null }> {
+async function fetchProfile(userId: string): Promise<{ isCoordinator: boolean; isAdmin: boolean; fullName: string | null }> {
   const { data, error } = await supabase
     .from('profiles')
     .select('role, full_name')
     .eq('id', userId)
     .maybeSingle();
-  if (error || !data) return { isCoordinator: false, fullName: null };
-  return { isCoordinator: data.role === 'coordinator', fullName: data.full_name ?? null };
+  if (error || !data) return { isCoordinator: false, isAdmin: false, fullName: null };
+  return { isCoordinator: data.role === 'coordinator', isAdmin: data.role === 'admin', fullName: data.full_name ?? null };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [roleLoaded, setRoleLoaded] = useState(false);
   const [isCoordinator, setIsCoordinator] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!newSession) {
         setIsCoordinator(false);
+        setIsAdmin(false);
         setFullName(null);
         setRoleLoaded(true);
         return;
@@ -47,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await fetchProfile(newSession.user.id);
       if (!isMounted) return;
       setIsCoordinator(profile.isCoordinator);
+      setIsAdmin(profile.isAdmin);
       setFullName(profile.fullName);
       setRoleLoaded(true);
     };
@@ -71,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, loading, roleLoaded, isCoordinator, fullName }}>
+    <AuthContext.Provider value={{ session, loading, roleLoaded, isCoordinator, isAdmin, fullName }}>
       {children}
     </AuthContext.Provider>
   );

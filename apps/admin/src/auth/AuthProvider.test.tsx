@@ -38,13 +38,14 @@ function mockProfileRoleQuery(role: string | null) {
 }
 
 function Probe() {
-  const { loading, roleLoaded, session, isCoordinator } = useAuth();
+  const { loading, roleLoaded, session, isCoordinator, isAdmin } = useAuth();
   if (loading) return <p>loading</p>;
   return (
     <div>
       <p data-testid="session">{session ? 'has-session' : 'no-session'}</p>
       <p data-testid="role-loaded">{roleLoaded ? 'true' : 'false'}</p>
       <p data-testid="is-coordinator">{isCoordinator ? 'true' : 'false'}</p>
+      <p data-testid="is-admin">{isAdmin ? 'true' : 'false'}</p>
     </div>
   );
 }
@@ -125,6 +126,25 @@ describe('AuthProvider', () => {
     await waitFor(() => {
       expect(supabase.from).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('sets isAdmin=true when profiles.role is admin', async () => {
+    const fakeSession = { user: { id: 'user-1' } };
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: fakeSession },
+    } as never);
+    mockAuthStateChange();
+    mockProfileRoleQuery('admin');
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    expect(await screen.findByTestId('session')).toHaveTextContent('has-session');
+    expect(screen.getByTestId('is-admin')).toHaveTextContent('true');
+    expect(screen.getByTestId('is-coordinator')).toHaveTextContent('false');
   });
 
   it('tracks roleLoaded independently for a session arriving after mount', async () => {

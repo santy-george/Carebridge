@@ -49,7 +49,7 @@ const GROUPS: NavGroup[] = [
   {
     name: 'Workforce',
     items: [
-      { label: 'Human Resources', icon: 'hr' },
+      { label: 'Human Resources', icon: 'hr', to: '/human-resources' },
       { label: 'Attendance & GPS', icon: 'gps' },
     ],
   },
@@ -70,7 +70,7 @@ const GROUPS: NavGroup[] = [
   {
     name: 'Admin',
     items: [
-      { label: 'Users & Roles', icon: 'shield' },
+      { label: 'Users & Roles', icon: 'shield', to: '/users-roles' },
       { label: 'Settings', icon: 'cog' },
     ],
   },

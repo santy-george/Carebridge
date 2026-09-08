@@ -198,7 +198,11 @@ export function UsersRoles() {
           <p>Admin access, role assignment and account status.</p>
         </div>
         <div className="page-header__actions">
-          <button type="button" className="btn btn--primary btn--sm" onClick={() => setDrawerOpen(true)}>
+          <button
+            type="button"
+            className="btn btn--primary btn--sm"
+            onClick={() => setDrawerOpen(true)}
+          >
             Invite user
           </button>
         </div>

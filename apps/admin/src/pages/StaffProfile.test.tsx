@@ -9,7 +9,8 @@ function mockTable() {
   const builder = {
     select: () => builder,
     eq: () => builder,
-    maybeSingle: () => Promise.resolve(tableResponses.staff_profiles ?? { data: null, error: null }),
+    maybeSingle: () =>
+      Promise.resolve(tableResponses.staff_profiles ?? { data: null, error: null }),
   };
   return builder;
 }
@@ -44,7 +45,7 @@ describe('StaffProfile', () => {
     expect(await screen.findByText(/not found/i)).toBeInTheDocument();
   });
 
-  it('shows the staff member\'s profile, and payment settings', async () => {
+  it("shows the staff member's profile, and payment settings", async () => {
     tableResponses.staff_profiles = {
       data: {
         id: 's1',

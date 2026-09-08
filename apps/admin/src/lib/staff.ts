@@ -1,10 +1,5 @@
 export type StaffDiscipline =
-  | 'nurse'
-  | 'caregiver'
-  | 'physiotherapist'
-  | 'doctor'
-  | 'nurse_coordinator'
-  | 'other';
+  'nurse' | 'caregiver' | 'physiotherapist' | 'doctor' | 'nurse_coordinator' | 'other';
 
 export const DISCIPLINE_LABELS: Record<StaffDiscipline, string> = {
   nurse: 'Nurse',
@@ -49,7 +44,8 @@ export const RATE_TYPE_LABELS: Record<StaffRateType, string> = {
   hourly: 'Hourly',
 };
 
-export type UserRole = 'admin' | 'coordinator' | 'field_staff' | 'finance' | 'management' | 'member';
+export type UserRole =
+  'admin' | 'coordinator' | 'field_staff' | 'finance' | 'management' | 'member';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Admin',

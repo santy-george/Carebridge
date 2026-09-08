@@ -72,8 +72,24 @@ describe('HumanResources', () => {
   it('shows a real total-staff count in the metric row, and active/inactive breakdown', async () => {
     tableResponses.staff_profiles = {
       data: [
-        { id: 's1', discipline: 'nurse', qualification: null, pcc_status: 'verified', service_area: null, employment_status: 'active', profiles: { full_name: 'A' } },
-        { id: 's2', discipline: 'caregiver', qualification: null, pcc_status: 'pending', service_area: null, employment_status: 'inactive', profiles: { full_name: 'B' } },
+        {
+          id: 's1',
+          discipline: 'nurse',
+          qualification: null,
+          pcc_status: 'verified',
+          service_area: null,
+          employment_status: 'active',
+          profiles: { full_name: 'A' },
+        },
+        {
+          id: 's2',
+          discipline: 'caregiver',
+          qualification: null,
+          pcc_status: 'pending',
+          service_area: null,
+          employment_status: 'inactive',
+          profiles: { full_name: 'B' },
+        },
       ],
       error: null,
     };

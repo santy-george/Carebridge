@@ -133,7 +133,10 @@ export function Sidebar() {
       </nav>
       <div className="sidebar__foot">
         <div className="user-card">
-          <span className="avatar avatar--sm" style={{ background: 'var(--purple-300)', color: '#fff' }}>
+          <span
+            className="avatar avatar--sm"
+            style={{ background: 'var(--purple-300)', color: '#fff' }}
+          >
             {fullName ? initialsFor(fullName) : '—'}
           </span>
           <span className="user-card__txt">
@@ -149,7 +152,13 @@ export function Sidebar() {
           type="button"
           className="nav-item nav-item--foot"
           onClick={handleSignOut}
-          style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+          }}
         >
           {iconEl('logout')}
           <span className="nav-item__label">Log out</span>

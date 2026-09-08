@@ -13,14 +13,20 @@ export interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function fetchProfile(userId: string): Promise<{ isCoordinator: boolean; isAdmin: boolean; fullName: string | null }> {
+async function fetchProfile(
+  userId: string,
+): Promise<{ isCoordinator: boolean; isAdmin: boolean; fullName: string | null }> {
   const { data, error } = await supabase
     .from('profiles')
     .select('role, full_name')
     .eq('id', userId)
     .maybeSingle();
   if (error || !data) return { isCoordinator: false, isAdmin: false, fullName: null };
-  return { isCoordinator: data.role === 'coordinator', isAdmin: data.role === 'admin', fullName: data.full_name ?? null };
+  return {
+    isCoordinator: data.role === 'coordinator',
+    isAdmin: data.role === 'admin',
+    fullName: data.full_name ?? null,
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -75,7 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, loading, roleLoaded, isCoordinator, isAdmin, fullName }}>
+    <AuthContext.Provider
+      value={{ session, loading, roleLoaded, isCoordinator, isAdmin, fullName }}
+    >
       {children}
     </AuthContext.Provider>
   );

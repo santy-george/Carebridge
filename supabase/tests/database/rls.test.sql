@@ -11,7 +11,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(122);
+select plan(124);
 
 -- Fixtures: two members (A owned by user A, B owned by user B), one
 -- coordinator assigned to Member A only, one coordinator (g) assigned to
@@ -1035,6 +1035,26 @@ select lives_ok(
   'admin can update a staff_profiles row'
 );
 update public.staff_profiles set employment_status = 'active' where id = '50000000-0000-0000-0000-000000000050';
+
+-- Proves the admin-superset fix (20260909000000_admin_superset_access.sql):
+-- is_coordinator() now admits admin, so an unscoped ("any coordinator")
+-- table like sos_alerts opens up to admin too, without a dedicated admin
+-- policy ever being added to sos_alerts itself.
+select is(
+  (select count(*)::int from public.sos_alerts),
+  1,
+  'admin sees sos_alerts rows via the widened is_coordinator(), with no dedicated admin policy on that table'
+);
+
+-- Proves the assignment-scoping bypass specifically: Member B
+-- (bb000000-...-bbbb) has zero care_assignments rows for this admin (or
+-- for anyone) -- a coordinator with no assignment would see nothing here,
+-- but is_assigned_coordinator() now short-circuits true for admin.
+select is(
+  (select count(*)::int from public.members where id = 'bb000000-0000-0000-0000-00000000bbbb'),
+  1,
+  'admin reads a member they have no care_assignments row for at all -- proves the assignment-scoping bypass, not just is_coordinator() widening'
+);
 
 -- === Simulate field staff #1's session ===
 reset role;

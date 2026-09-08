@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { useAuth } from './useAuth';
-import { RedirectIfAuthenticated, RequireCoordinator } from './RequireAuth';
+import { RedirectIfAuthenticated, RequireAdmin, RequireCoordinator } from './RequireAuth';
 
 vi.mock('./useAuth', () => ({ useAuth: vi.fn() }));
 vi.mock('../lib/supabase', () => ({ supabase: { auth: { signOut: vi.fn() } } }));
@@ -28,6 +28,7 @@ describe('RequireCoordinator', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: false,
+      isAdmin: false,
     } as never);
     renderGuard(<RequireCoordinator />, '/protected');
     expect(screen.getByText('login page')).toBeInTheDocument();
@@ -39,6 +40,7 @@ describe('RequireCoordinator', () => {
       loading: false,
       roleLoaded: false,
       isCoordinator: false,
+      isAdmin: false,
     } as never);
     renderGuard(<RequireCoordinator />, '/protected');
     expect(screen.getByText('Loading…')).toBeInTheDocument();
@@ -50,6 +52,7 @@ describe('RequireCoordinator', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: false,
+      isAdmin: false,
     } as never);
     renderGuard(<RequireCoordinator />, '/protected');
     expect(screen.getByText(/not authorized/i)).toBeInTheDocument();
@@ -61,8 +64,59 @@ describe('RequireCoordinator', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: true,
+      isAdmin: false,
     } as never);
     renderGuard(<RequireCoordinator />, '/protected');
+    expect(screen.getByText('protected content')).toBeInTheDocument();
+  });
+
+  it('renders protected content for a signed-in admin (admin is a superset of coordinator)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      roleLoaded: true,
+      isCoordinator: false,
+      isAdmin: true,
+    } as never);
+    renderGuard(<RequireCoordinator />, '/protected');
+    expect(screen.getByText('protected content')).toBeInTheDocument();
+  });
+});
+
+describe('RequireAdmin', () => {
+  it('redirects to /login with no session', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: null,
+      loading: false,
+      roleLoaded: true,
+      isCoordinator: false,
+      isAdmin: false,
+    } as never);
+    renderGuard(<RequireAdmin />, '/protected');
+    expect(screen.getByText('login page')).toBeInTheDocument();
+  });
+
+  it('shows a not-authorized message for a signed-in coordinator (not admin)', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      roleLoaded: true,
+      isCoordinator: true,
+      isAdmin: false,
+    } as never);
+    renderGuard(<RequireAdmin />, '/protected');
+    expect(screen.getByText(/not authorized/i)).toBeInTheDocument();
+  });
+
+  it('renders protected content for a signed-in admin', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      session: {},
+      loading: false,
+      roleLoaded: true,
+      isCoordinator: false,
+      isAdmin: true,
+    } as never);
+    renderGuard(<RequireAdmin />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
   });
 });
@@ -74,6 +128,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: false,
+      isAdmin: false,
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();
@@ -85,6 +140,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: true,
+      isAdmin: false,
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('home page')).toBeInTheDocument();
@@ -96,6 +152,7 @@ describe('RedirectIfAuthenticated', () => {
       loading: false,
       roleLoaded: true,
       isCoordinator: false,
+      isAdmin: false,
     } as never);
     renderGuard(<RedirectIfAuthenticated />, '/protected');
     expect(screen.getByText('protected content')).toBeInTheDocument();

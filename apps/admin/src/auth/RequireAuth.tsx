@@ -29,16 +29,24 @@ function NotAuthorized() {
 }
 
 export function RequireCoordinator() {
-  const { session, loading, roleLoaded, isCoordinator } = useAuth();
+  const { session, loading, roleLoaded, isCoordinator, isAdmin } = useAuth();
   if (loading || (session && !roleLoaded)) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" replace />;
-  if (!isCoordinator) return <NotAuthorized />;
+  if (!isCoordinator && !isAdmin) return <NotAuthorized />;
+  return <Outlet />;
+}
+
+export function RequireAdmin() {
+  const { session, loading, roleLoaded, isAdmin } = useAuth();
+  if (loading || (session && !roleLoaded)) return <LoadingScreen />;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <NotAuthorized />;
   return <Outlet />;
 }
 
 export function RedirectIfAuthenticated() {
-  const { session, loading, roleLoaded, isCoordinator } = useAuth();
+  const { session, loading, roleLoaded, isCoordinator, isAdmin } = useAuth();
   if (loading || (session && !roleLoaded)) return <LoadingScreen />;
-  if (session && isCoordinator) return <Navigate to="/" replace />;
+  if (session && (isCoordinator || isAdmin)) return <Navigate to="/" replace />;
   return <Outlet />;
 }

@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -1152,6 +1153,65 @@ export type Database = {
           },
         ]
       }
+      staff_profiles: {
+        Row: {
+          created_at: string
+          discipline: Database["public"]["Enums"]["staff_discipline"] | null
+          emergency_duty_rate: number | null
+          employment_status: Database["public"]["Enums"]["employment_status"]
+          experience_years: number | null
+          id: string
+          languages: string[]
+          pcc_status: Database["public"]["Enums"]["pcc_status"]
+          qualification: string | null
+          rate_type: Database["public"]["Enums"]["staff_rate_type"] | null
+          service_area: string | null
+          service_radius_km: number | null
+          updated_at: string
+          visit_rate: number | null
+        }
+        Insert: {
+          created_at?: string
+          discipline?: Database["public"]["Enums"]["staff_discipline"] | null
+          emergency_duty_rate?: number | null
+          employment_status?: Database["public"]["Enums"]["employment_status"]
+          experience_years?: number | null
+          id: string
+          languages?: string[]
+          pcc_status?: Database["public"]["Enums"]["pcc_status"]
+          qualification?: string | null
+          rate_type?: Database["public"]["Enums"]["staff_rate_type"] | null
+          service_area?: string | null
+          service_radius_km?: number | null
+          updated_at?: string
+          visit_rate?: number | null
+        }
+        Update: {
+          created_at?: string
+          discipline?: Database["public"]["Enums"]["staff_discipline"] | null
+          emergency_duty_rate?: number | null
+          employment_status?: Database["public"]["Enums"]["employment_status"]
+          experience_years?: number | null
+          id?: string
+          languages?: string[]
+          pcc_status?: Database["public"]["Enums"]["pcc_status"]
+          qualification?: string | null
+          rate_type?: Database["public"]["Enums"]["staff_rate_type"] | null
+          service_area?: string | null
+          service_radius_km?: number | null
+          updated_at?: string
+          visit_rate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       upgrade_leads: {
         Row: {
           created_at: string
@@ -1307,6 +1367,7 @@ export type Database = {
         Returns: string
       }
       get_home_dashboard: { Args: { p_member_id: string }; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       is_assigned_coordinator: {
         Args: { p_member_id: string }
         Returns: boolean
@@ -1316,6 +1377,9 @@ export type Database = {
         Returns: boolean
       }
       is_coordinator: { Args: never; Returns: boolean }
+      is_field_staff: { Args: never; Returns: boolean }
+      is_finance: { Args: never; Returns: boolean }
+      is_management: { Args: never; Returns: boolean }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
       member_update_preserves_clinical_fields: {
         Args: {
@@ -1358,15 +1422,31 @@ export type Database = {
         | "prescription"
         | "scan_imaging"
         | "other"
+      employment_status: "active" | "inactive"
       glucose_context: "fasting" | "pre_meal" | "post_meal" | "bedtime"
       medication_frequency: "daily" | "alternate_days" | "weekly" | "monthly"
       medication_source: "otc" | "prescription"
+      pcc_status: "not_submitted" | "pending" | "verified"
       plan_level: "basic" | "standard" | "premium"
       sos_alert_status: "open" | "acknowledged" | "resolved" | "false_alarm"
       sos_alert_type: "manual" | "wearable_fall"
+      staff_discipline:
+        | "nurse"
+        | "caregiver"
+        | "physiotherapist"
+        | "doctor"
+        | "nurse_coordinator"
+        | "other"
+      staff_rate_type: "per_visit" | "monthly" | "hourly"
       time_of_day_band: "morning" | "noon" | "evening" | "night"
       upgrade_lead_status: "new" | "contacted" | "converted" | "declined"
-      user_role: "member" | "coordinator"
+      user_role:
+        | "member"
+        | "coordinator"
+        | "admin"
+        | "field_staff"
+        | "finance"
+        | "management"
       vital_type:
         | "weight_kg"
         | "height_cm"
@@ -1516,15 +1596,33 @@ export const Constants = {
         "scan_imaging",
         "other",
       ],
+      employment_status: ["active", "inactive"],
       glucose_context: ["fasting", "pre_meal", "post_meal", "bedtime"],
       medication_frequency: ["daily", "alternate_days", "weekly", "monthly"],
       medication_source: ["otc", "prescription"],
+      pcc_status: ["not_submitted", "pending", "verified"],
       plan_level: ["basic", "standard", "premium"],
       sos_alert_status: ["open", "acknowledged", "resolved", "false_alarm"],
       sos_alert_type: ["manual", "wearable_fall"],
+      staff_discipline: [
+        "nurse",
+        "caregiver",
+        "physiotherapist",
+        "doctor",
+        "nurse_coordinator",
+        "other",
+      ],
+      staff_rate_type: ["per_visit", "monthly", "hourly"],
       time_of_day_band: ["morning", "noon", "evening", "night"],
       upgrade_lead_status: ["new", "contacted", "converted", "declined"],
-      user_role: ["member", "coordinator"],
+      user_role: [
+        "member",
+        "coordinator",
+        "admin",
+        "field_staff",
+        "finance",
+        "management",
+      ],
       vital_type: [
         "weight_kg",
         "height_cm",

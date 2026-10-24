@@ -83,5 +83,15 @@ export async function registerPushToken(userId: string): Promise<void> {
   }
   if (receive !== 'granted') return;
 
+  // Android 8+ needs the channel to exist before the first push arrives; the
+  // send-push function targets channel id 'default'.
+  if (Capacitor.getPlatform() === 'android') {
+    await PushNotifications.createChannel({
+      id: 'default',
+      name: 'Care Bridge alerts',
+      importance: 4,
+    });
+  }
+
   await PushNotifications.register();
 }

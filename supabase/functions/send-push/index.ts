@@ -1,4 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { sendToFcmDevice, type PushSendResult } from './fcm.ts';
+import { sendToDevices, type TokenRow } from './routing.ts';
 
 // Phase 3 push send-side. UNVERIFIED AGAINST A REAL DEVICE as of writing --
 // there is no APNs Auth Key yet (Notion: "Push (iOS) -- device-side
@@ -17,11 +19,8 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 // the reusable "send a push to a user's registered devices" primitive that
 // a future trigger calls into.
 //
-// Android/FCM is out of scope -- Phase 3 scope was explicitly narrowed
-// 2026-08-11 to iOS push + email only (see project_phase3_scope_narrowed
-// memory / Notion). device_push_tokens rows with platform='android' are
-// silently skipped, not errored on, so this function doesn't need to change
-// shape when FCM eventually gets built.
+// Android is delivered via fcm.ts using the FCM_SERVICE_ACCOUNT_JSON secret;
+// per-platform dispatch and dead-token selection live in routing.ts.
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -110,19 +109,12 @@ async function getApnsProviderToken(): Promise<string> {
   return token;
 }
 
-interface ApnsSendResult {
-  token: string;
-  ok: boolean;
-  status: number;
-  reason?: string;
-}
-
 async function sendToApnsDevice(
   deviceToken: string,
   title: string,
   body: string,
   data: Record<string, string> | undefined,
-): Promise<ApnsSendResult> {
+): Promise<PushSendResult> {
   const bundleId = Deno.env.get('APNS_BUNDLE_ID');
   const environment = Deno.env.get('APNS_ENVIRONMENT') === 'production' ? 'production' : 'sandbox';
   if (!bundleId) {
@@ -224,7 +216,7 @@ Deno.serve(async (req: Request) => {
       .from('device_push_tokens')
       .select('token, platform')
       .eq('user_id', user_id)
-      .eq('platform', 'ios');
+      .in('platform', ['ios', 'android']);
     if (tokenError) {
       return new Response(JSON.stringify({ error: tokenError.message }), {
         status: 500,
@@ -238,17 +230,15 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const results = await Promise.all(
-      tokenRows.map((row: { token: string }) => sendToApnsDevice(row.token, title, body, data)),
-    );
+    const { results, deadTokens } = await sendToDevices(tokenRows as TokenRow[], title, body, data, {
+      sendIos: sendToApnsDevice,
+      sendAndroid: sendToFcmDevice,
+    });
 
-    // 410/BadDeviceToken means Apple has permanently invalidated this token
-    // (app uninstalled, device reset, etc.) -- clean it up so future sends
-    // don't keep paying for a dead token. Best-effort: a failed delete here
-    // doesn't fail the response, since the actual sends already happened.
-    const deadTokens = results
-      .filter((r) => r.status === 410 || r.reason === 'BadDeviceToken')
-      .map((r) => r.token);
+    // Dead tokens (APNs 410/BadDeviceToken, FCM UNREGISTERED) are permanently
+    // invalid -- clean them up so future sends don't keep paying for them.
+    // Best-effort: a failed delete here doesn't fail the response, since the
+    // actual sends already happened.
     if (deadTokens.length > 0) {
       await adminClient.from('device_push_tokens').delete().in('token', deadTokens);
     }

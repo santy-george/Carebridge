@@ -166,3 +166,27 @@ Santhosh ran the parity checklist on device: all screens and flows reported OK (
 - Hardware Back button: not applicable. The device uses gesture navigation (`navigation_mode=2`), so there is no Back button; back is the edge swipe. No custom handler is registered, so Capacitor's default (webview history back, exit at root) applies. Edge-swipe behaviour not separately verified.
 - Defect fixed: `registerHealthKit` ran on Android, where no `HealthKitBridge` plugin exists, throwing and reporting a Sentry error on every sign-in. Now iOS-only (with test).
 - Wearables: nothing syncs from the Fitbit Versa 4. No Android wearable pipeline exists; that is the Stage 2 gate (Task 8).
+
+## Stage 1 results: ColorOS push and email (2026-11-15, Oppo A6X, default battery settings)
+
+Pushes sent through `send-push` to the member's Android token; arrival read from `dumpsys notification`.
+
+| State | Result |
+|---|---|
+| App in background | Arrived within 8 s |
+| Process "killed" (`am kill`) | Arrived. Caveat: on ColorOS `am kill` did not stop the process (same pid before and after), so this is not a true killed-app test |
+| Screen off, immediate | Arrived |
+| Screen off 10 min, then push | Arrived by the first 5 s check |
+| App in foreground | Not tested; by design Capacitor forwards to JS with no banner |
+
+No Auto-launch or unrestricted-battery toggles were needed in any tested state. Not covered: swiping the app out of recents and a long idle or overnight period.
+
+Email: a `send-email` test message (Resend shared sender, to the account owner's inbox) arrived and its link opened correctly in the browser on the Oppo. Custom sending domain is still needed before emailing real members.
+
+## Stage 2 gate: Fitbit Health Connect check (2026-11-15) — inconclusive
+
+- The Fitbit app is now branded **Google Health** (package `com.fitbit.FitbitMobile`). Health Connect has no launcher icon on this device (Android 16); reachable via the `android.health.connect.action.MANAGE_HEALTH_DATA` intent.
+- Versa 4 paired and active over Bluetooth. Google Health writes to Health Connect; permissions for heart rate, HRV, resting heart rate, respiratory rate, SpO2, sleep and steps were granted after being off.
+- Health Connect Data and access lists heart rate, HRV, respiratory rate, resting heart rate and skin temperature. **No oxygen saturation entries.**
+- Newest heart rate day found was Thu 29 Oct (one-minute entries); 30 Oct had no data. The watch may not have been worn, or SpO2 (sampled in sleep) may not have synced yet.
+- Open: re-check after the Versa 4 is worn overnight and synced.

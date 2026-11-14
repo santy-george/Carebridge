@@ -101,3 +101,11 @@ reconnect state, and Disconnect.
 Real account end to end: connect from the Oppo, confirm the 14 Nov 96% night appears as `spo2`
 with `device_vendor = google_health`, run sync twice and confirm no duplicates, revoke access at
 myaccount.google.com and confirm `needs_reconnect`, disconnect and confirm the token row is gone.
+
+## Setup record (2026-11-15)
+
+- Google Cloud project `care-bridge-a11d1` (shown as "Care Bridge", owner sanabraham@gmail.com, the existing Firebase project). Google Health API enabled.
+- Google Auth Platform: app name "Care Bridge Home", External, support/contact email sanabraham@gmail.com. Restricted scope `googlehealth.health_metrics_and_measurements.readonly` added under Data access.
+- **Publishing status: Testing.** "Publish app" is locked until Branding has a privacy policy URL (and home page). In Testing only test users can connect and refresh tokens expire after 7 days. Test users: sanabraham@gmail.com. The 100-user cap counts over the app's lifetime.
+- Web OAuth client "Care Bridge Home - Fitbit (Supabase)", redirect `https://bbthbboakoicoyiuclll.supabase.co/functions/v1/google-health-callback`. Client ID/secret/redirect stored only as Supabase secrets `GOOGLE_HEALTH_CLIENT_ID|SECRET|REDIRECT_URI`.
+- Hosted cron: `pg_cron` job `google-health-sync` at `17 * * * *` calls the function via `pg_net` with a service_role JWT read from Vault secret `google_health_sync_key`. Created directly on hosted (not in migrations, which would point a local stack at production). Manual run returned 200.

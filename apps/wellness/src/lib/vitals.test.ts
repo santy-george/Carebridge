@@ -3,6 +3,7 @@ import {
   calculateBmi,
   categorizeBmi,
   classifyBloodPressure,
+  newerReading,
   classifyGlucose,
   classifyHeartRate,
   classifySpo2,
@@ -137,5 +138,21 @@ describe('hasLowStockAlert', () => {
   });
   it('is false for an empty stock list', () => {
     expect(hasLowStockAlert([])).toBe(false);
+  });
+});
+
+describe('newerReading', () => {
+  const manual = { value: 97, recorded_at: '2026-11-10T08:00:00Z' };
+  const watch = { value: 95.9, recorded_at: '2026-11-14T06:30:00Z' };
+
+  it('picks the more recent of two readings', () => {
+    expect(newerReading(manual, watch)).toBe(watch);
+    expect(newerReading(watch, manual)).toBe(watch);
+  });
+
+  it('falls back to whichever exists', () => {
+    expect(newerReading(null, watch)).toBe(watch);
+    expect(newerReading(manual, null)).toBe(manual);
+    expect(newerReading(null, null)).toBeNull();
   });
 });

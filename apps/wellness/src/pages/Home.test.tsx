@@ -59,6 +59,7 @@ describe('Home', () => {
       glucose: null,
       heart_rate: null,
       respiratory_rate: null,
+      spo2: null,
       steps: null,
       sleep_sessions: [],
     };
@@ -118,6 +119,12 @@ describe('Home', () => {
     expect(screen.getByText('15')).toBeInTheDocument();
     expect(screen.getByText('Normal')).toBeInTheDocument();
     expect(screen.queryByText('Glucose')).not.toBeInTheDocument();
+  });
+
+  it('shows wearable SpO2 in the SpO2 ring when there is no manual reading', async () => {
+    dashboardData.spo2 = { value: 95.9, recorded_at: '2026-11-14T06:30:00Z' };
+    renderHome();
+    expect(await screen.findByText('95.9')).toBeInTheDocument();
   });
 
   it('shows the real step count when daily_activity_totals has data', async () => {

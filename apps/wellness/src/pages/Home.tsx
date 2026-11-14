@@ -13,6 +13,8 @@ import {
   classifySpo2,
   glucoseContextLabel,
   type GlucoseContext,
+  newerReading,
+  type TimedValue,
 } from '../lib/vitals';
 
 interface MedicalProfile {
@@ -107,6 +109,7 @@ export function Home() {
   const [bpError, setBpError] = useState(false);
   const [heartRate, setHeartRate] = useState<HeartRateRow | null>(null);
   const [respiratoryRate, setRespiratoryRate] = useState<RespiratoryRateRow | null>(null);
+  const [wearableSpo2, setWearableSpo2] = useState<TimedValue | null>(null);
   const [steps, setSteps] = useState<StepsRow | null>(null);
   const [sleepMinutes, setSleepMinutes] = useState<number | null>(null);
 
@@ -130,6 +133,7 @@ export function Home() {
           glucose: LatestGlucose | null;
           heart_rate: HeartRateRow | null;
           respiratory_rate: RespiratoryRateRow | null;
+          spo2: TimedValue | null;
           steps: StepsRow | null;
           sleep_sessions: SleepSegment[];
         };
@@ -141,6 +145,7 @@ export function Home() {
         setGlucose(dashboard.glucose);
         setHeartRate(dashboard.heart_rate);
         setRespiratoryRate(dashboard.respiratory_rate);
+        setWearableSpo2(dashboard.spo2 ?? null);
         setSteps(dashboard.steps);
         const sleepRows = dashboard.sleep_sessions;
         const totalSleepMinutes = sleepRows.reduce(
@@ -263,7 +268,7 @@ export function Home() {
     : [];
 
   const bp = latestByType(vitals, 'blood_pressure');
-  const spo2 = latestByType(vitals, 'spo2_pct');
+  const spo2 = newerReading<TimedValue>(latestByType(vitals, 'spo2_pct'), wearableSpo2);
   const bpStatus = bp ? classifyBloodPressure(bp.value) : null;
   const spo2Status = spo2 ? classifySpo2(spo2.value) : null;
   const glucoseStatus = glucose ? classifyGlucose(glucose.value_mg_dl, glucose.context) : null;

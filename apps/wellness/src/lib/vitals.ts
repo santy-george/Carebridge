@@ -138,3 +138,16 @@ export function hasLowStockAlert(stock: { qty: number; doses_per_day: number }[]
     return Math.floor(item.qty / dosesPerDay) <= 7;
   });
 }
+
+export interface TimedValue {
+  value: number;
+  recorded_at: string;
+}
+
+// SpO2 arrives two ways: entered by hand (vitals_readings) or from a wearable
+// (Apple Watch samples, Fitbit nightly averages). Show the newer of the two.
+export function newerReading<T extends TimedValue>(a: T | null, b: T | null): T | null {
+  if (!a) return b;
+  if (!b) return a;
+  return Date.parse(b.recorded_at) > Date.parse(a.recorded_at) ? b : a;
+}

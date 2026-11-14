@@ -159,7 +159,9 @@ export async function registerHealthKit(userId: string, memberId: string): Promi
   activeUserId = userId;
   activeMemberId = memberId;
 
-  if (!Capacitor.isNativePlatform()) return;
+  // HealthKitBridge is iOS-only; Android has no equivalent plugin yet, so
+  // calling it there would throw and report a Sentry error on every sign-in.
+  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') return;
 
   attachListeners();
 

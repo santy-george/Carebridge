@@ -7,6 +7,7 @@ const invokeMock = vi.fn();
 const { mockPlugin, mockCapacitor } = vi.hoisted(() => {
   const mockCapacitor = {
     isNativePlatform: vi.fn(() => true),
+    getPlatform: vi.fn(() => 'ios'),
   };
   const mockPlugin = {
     requestAuthorization: vi.fn(),
@@ -57,11 +58,18 @@ describe('registerHealthKit', () => {
     mockPlugin.requestAuthorization.mockResolvedValue({ granted: true });
     mockPlugin.startObserving.mockResolvedValue(undefined);
     mockCapacitor.isNativePlatform.mockReturnValue(true);
+    mockCapacitor.getPlatform.mockReturnValue('ios');
     invokeMock.mockResolvedValue({ data: { ok: true, inserted: 0 }, error: null });
   });
 
   it('is a no-op on a non-native platform', async () => {
     mockCapacitor.isNativePlatform.mockReturnValue(false);
+    await registerHealthKit('user-1', 'member-1');
+    expect(mockPlugin.requestAuthorization).not.toHaveBeenCalled();
+  });
+
+  it('is a no-op on Android, which has no HealthKit bridge', async () => {
+    mockCapacitor.getPlatform.mockReturnValue('android');
     await registerHealthKit('user-1', 'member-1');
     expect(mockPlugin.requestAuthorization).not.toHaveBeenCalled();
   });

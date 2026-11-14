@@ -58,6 +58,18 @@ interface HealthKitBridgePlugin {
   // Android only: Health Connect cannot push to a backgrounded app, so the
   // plugin is asked to pull on resume.
   syncNow?(): Promise<void>;
+  // Android only: the WorkManager job that uploads while the app is closed.
+  enableBackgroundSync?(options: {
+    supabaseUrl: string;
+    anonKey: string;
+    memberId: string;
+    deviceToken: string;
+  }): Promise<void>;
+  disableBackgroundSync?(): Promise<void>;
+  backgroundSyncStatus?(): Promise<{
+    enabledForMemberId: string | null;
+    backgroundPermission: boolean;
+  }>;
   addListener(
     eventName: 'healthKitSamples',
     listenerFunc: (data: { readings: HealthKitReading[] }) => void,
@@ -173,9 +185,47 @@ function attachListeners(): void {
   });
 }
 
+// Android background sync: trade the session for a device upload key (see
+// register-wearable-device) and hand it to the native job. Only on the
+// member's own record, and only once per member: a key already enabled for
+// this member is left alone, so an app open does not mint a new key.
+async function ensureBackgroundSync(memberId: string): Promise<void> {
+  const plugin = bridge();
+  const status = await plugin.backgroundSyncStatus?.();
+  if (!status?.backgroundPermission || status.enabledForMemberId === memberId) return;
+
+  const { data, error } = await supabase.functions.invoke('register-wearable-device', {
+    body: { member_id: memberId, platform: 'android' },
+  });
+  if (error || typeof data?.token !== 'string') {
+    throw toSentryError(error, 'register-wearable-device returned no token');
+  }
+  await plugin.enableBackgroundSync?.({
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    memberId,
+    deviceToken: data.token,
+  });
+}
+
+// Sign-out: stop the background job and forget its key on this phone.
+export async function stopWearableBackgroundSync(): Promise<void> {
+  if (!Capacitor.isNativePlatform() || !isAndroid()) return;
+  try {
+    await bridge().disableBackgroundSync?.();
+  } catch (error) {
+    console.error('Stopping background sync failed:', error);
+  }
+}
+
 // Called once per signed-in session (see AuthProvider), same call-site shape
-// as registerPushToken. No-op on the web build.
-export async function registerHealthKit(userId: string, memberId: string): Promise<void> {
+// as registerPushToken. No-op on the web build. isSelf: the selected member is
+// the signed-in person's own record (gates Android background sync).
+export async function registerHealthKit(
+  userId: string,
+  memberId: string,
+  isSelf = false,
+): Promise<void> {
   activeUserId = userId;
   activeMemberId = memberId;
 
@@ -188,6 +238,7 @@ export async function registerHealthKit(userId: string, memberId: string): Promi
     const { granted } = await bridge().requestAuthorization();
     if (!granted) return;
     await bridge().startObserving();
+    if (isAndroid() && isSelf) await ensureBackgroundSync(memberId);
   } catch (error) {
     console.error('Wearable registration failed:', error);
     Sentry.captureException(toSentryError(error, 'HealthKit registration failed'));

@@ -13,6 +13,9 @@ const { mockPlugin, mockCapacitor } = vi.hoisted(() => {
     requestAuthorization: vi.fn(),
     startObserving: vi.fn(),
     syncNow: vi.fn(),
+    enableBackgroundSync: vi.fn(),
+    disableBackgroundSync: vi.fn(),
+    backgroundSyncStatus: vi.fn(),
     addListener: vi.fn((eventName: string, cb: (data: unknown) => void) => {
       listeners[eventName] = cb;
       return Promise.resolve({ remove: vi.fn() });
@@ -48,7 +51,12 @@ vi.mock('@sentry/react', () => ({
   withScope: vi.fn((callback) => callback({ setUser: vi.fn(), setTag: vi.fn() })),
 }));
 
-import { registerHealthKit, __resetHealthKitStateForTests, FLUSH_BATCH_SIZE } from './healthkit';
+import {
+  registerHealthKit,
+  stopWearableBackgroundSync,
+  __resetHealthKitStateForTests,
+  FLUSH_BATCH_SIZE,
+} from './healthkit';
 
 describe('registerHealthKit', () => {
   beforeEach(() => {
@@ -59,6 +67,12 @@ describe('registerHealthKit', () => {
     mockPlugin.requestAuthorization.mockResolvedValue({ granted: true });
     mockPlugin.startObserving.mockResolvedValue(undefined);
     mockPlugin.syncNow.mockResolvedValue(undefined);
+    mockPlugin.enableBackgroundSync.mockResolvedValue(undefined);
+    mockPlugin.disableBackgroundSync.mockResolvedValue(undefined);
+    mockPlugin.backgroundSyncStatus.mockResolvedValue({
+      enabledForMemberId: null,
+      backgroundPermission: true,
+    });
     mockCapacitor.isNativePlatform.mockReturnValue(true);
     mockCapacitor.getPlatform.mockReturnValue('ios');
     invokeMock.mockResolvedValue({ data: { ok: true, inserted: 0 }, error: null });
@@ -191,6 +205,58 @@ describe('registerHealthKit', () => {
     await Promise.resolve();
     expect(invokeMock).toHaveBeenCalledWith('ingest-wearable', {
       body: { member_id: 'member-1', rhythm_events: events },
+    });
+  });
+
+  describe('Android background sync', () => {
+    beforeEach(() => {
+      mockCapacitor.getPlatform.mockReturnValue('android');
+      invokeMock.mockResolvedValue({ data: { token: 'cbdt_test' }, error: null });
+    });
+
+    it('trades the session for a device key and enables the job on the member own record', async () => {
+      await registerHealthKit('user-1', 'member-1', true);
+      expect(invokeMock).toHaveBeenCalledWith('register-wearable-device', {
+        body: { member_id: 'member-1', platform: 'android' },
+      });
+      expect(mockPlugin.enableBackgroundSync).toHaveBeenCalledWith(
+        expect.objectContaining({ memberId: 'member-1', deviceToken: 'cbdt_test' }),
+      );
+    });
+
+    it('does nothing for a family member viewing someone else', async () => {
+      await registerHealthKit('user-1', 'member-1', false);
+      expect(invokeMock).not.toHaveBeenCalledWith('register-wearable-device', expect.anything());
+      expect(mockPlugin.enableBackgroundSync).not.toHaveBeenCalled();
+    });
+
+    it('does not mint a new key when the job already runs for this member', async () => {
+      mockPlugin.backgroundSyncStatus.mockResolvedValue({
+        enabledForMemberId: 'member-1',
+        backgroundPermission: true,
+      });
+      await registerHealthKit('user-1', 'member-1', true);
+      expect(invokeMock).not.toHaveBeenCalledWith('register-wearable-device', expect.anything());
+    });
+
+    it('does nothing without the background-read permission', async () => {
+      mockPlugin.backgroundSyncStatus.mockResolvedValue({
+        enabledForMemberId: null,
+        backgroundPermission: false,
+      });
+      await registerHealthKit('user-1', 'member-1', true);
+      expect(mockPlugin.enableBackgroundSync).not.toHaveBeenCalled();
+    });
+
+    it('never runs on iOS', async () => {
+      mockCapacitor.getPlatform.mockReturnValue('ios');
+      await registerHealthKit('user-1', 'member-1', true);
+      expect(mockPlugin.backgroundSyncStatus).not.toHaveBeenCalled();
+    });
+
+    it('stops the job on sign-out', async () => {
+      await stopWearableBackgroundSync();
+      expect(mockPlugin.disableBackgroundSync).toHaveBeenCalled();
     });
   });
 });

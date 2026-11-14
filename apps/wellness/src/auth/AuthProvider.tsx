@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { toSentryError } from '../lib/toSentryError';
 import { capacitorPreferencesStorage } from '../lib/storage-adapter';
 import { registerPushToken } from '../lib/push';
-import { registerHealthKit } from '../lib/healthkit';
+import { registerHealthKit, stopWearableBackgroundSync } from '../lib/healthkit';
 
 export interface MemberLink {
   memberId: string;
@@ -171,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // mount (finding 8). Every subsequent real change (SIGNED_IN,
       // SIGNED_OUT, TOKEN_REFRESHED, ...) still goes through applySession.
       if (event === 'INITIAL_SESSION') return;
+      if (event === 'SIGNED_OUT') void stopWearableBackgroundSync();
       void applySession(newSession);
     });
 
@@ -194,11 +195,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // effort, independent of the auth-loading critical path, never blocks the
   // app. Needs selectedMemberId (not just the session) since readings are
   // ingested against a specific member.
+  const selectedIsSelf = memberLinks.find((l) => l.memberId === selectedMemberId)?.isSelf ?? false;
   useEffect(() => {
     const userId = session?.user.id;
     if (!userId || !selectedMemberId) return;
-    void registerHealthKit(userId, selectedMemberId);
-  }, [session?.user.id, selectedMemberId]);
+    void registerHealthKit(userId, selectedMemberId, selectedIsSelf);
+  }, [session?.user.id, selectedMemberId, selectedIsSelf]);
 
   const refreshMemberLinks = async () => {
     if (!session) return;

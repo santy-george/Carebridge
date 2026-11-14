@@ -1,5 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { dropKnown, instantKey } from '../_shared/dedupe.ts';
+import { hashDeviceToken, looksLikeDeviceToken } from '../_shared/deviceToken.ts';
 
 export { dropKnown };
 
@@ -15,7 +16,7 @@ export { dropKnown };
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-token',
   'Content-Type': 'application/json',
 };
 
@@ -178,20 +179,43 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Extract the caller's user id from their (platform-verified) JWT --
-    // the gateway's own verify_jwt has already checked the signature before
-    // this code runs, same trust boundary send-push/send-email rely on for
-    // the `role` claim; here we trust `sub` the same way.
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const jwt = authHeader.replace(/^Bearer\s+/i, '');
-    const claimsSegment = jwt.split('.')[1];
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    // Two ways in. The app in the foreground sends the member's own JWT (the
+    // gateway's verify_jwt has checked its signature; we trust `sub`). The
+    // Android background job has no session: it sends the anon key to pass
+    // the gateway plus an x-device-token issued by register-wearable-device,
+    // which is bound to one user and one member and checked here.
     let callerId: string | undefined;
-    try {
-      callerId = claimsSegment
-        ? JSON.parse(atob(claimsSegment.replace(/-/g, '+').replace(/_/g, '/')))?.sub
-        : undefined;
-    } catch {
-      callerId = undefined;
+    let deviceToken: { id: string; member_id: string } | null = null;
+    const rawDeviceToken = req.headers.get('x-device-token');
+    if (rawDeviceToken !== null) {
+      if (!looksLikeDeviceToken(rawDeviceToken)) {
+        return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders });
+      }
+      const { data: tok } = await adminClient
+        .from('wearable_device_tokens')
+        .select('id, user_id, member_id')
+        .eq('token_hash', await hashDeviceToken(rawDeviceToken))
+        .is('revoked_at', null)
+        .maybeSingle();
+      if (!tok) {
+        return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders });
+      }
+      callerId = tok.user_id;
+      deviceToken = { id: tok.id, member_id: tok.member_id };
+    } else {
+      const jwt = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
+      const claimsSegment = jwt.split('.')[1];
+      try {
+        callerId = claimsSegment
+          ? JSON.parse(atob(claimsSegment.replace(/-/g, '+').replace(/_/g, '/')))?.sub
+          : undefined;
+      } catch {
+        callerId = undefined;
+      }
     }
     if (!callerId) {
       return new Response(JSON.stringify({ error: 'unauthorized' }), {
@@ -221,18 +245,25 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    // A device key uploads for its own member only, and only Health Connect data.
+    if (deviceToken && (body.member_id !== deviceToken.member_id || deviceVendor !== 'health_connect')) {
+      return new Response(JSON.stringify({ error: 'device key not valid for this upload' }), {
+        status: 403,
+        headers: corsHeaders,
+      });
+    }
 
     // Ownership check: the caller may only ingest readings for a member
-    // they're actually linked to, never an arbitrary id.
-    const { data: link, error: linkError } = await adminClient
+    // they're actually linked to, never an arbitrary id. A device key also
+    // needs the link to still be the member's own login: removing or
+    // demoting the link disables the key.
+    let linkQuery = adminClient
       .from('member_links')
       .select('member_id')
       .eq('user_id', callerId)
-      .eq('member_id', body.member_id)
-      .maybeSingle();
+      .eq('member_id', body.member_id);
+    if (deviceToken) linkQuery = linkQuery.eq('is_self', true);
+    const { data: link, error: linkError } = await linkQuery.maybeSingle();
     if (linkError) {
       return new Response(JSON.stringify({ error: linkError.message }), {
         status: 500,
@@ -244,6 +275,13 @@ Deno.serve(async (req: Request) => {
         status: 403,
         headers: corsHeaders,
       });
+    }
+
+    if (deviceToken) {
+      await adminClient
+        .from('wearable_device_tokens')
+        .update({ last_used_at: new Date().toISOString() })
+        .eq('id', deviceToken.id);
     }
 
     const results: Record<string, { inserted: number; error?: string }> = {};

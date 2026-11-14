@@ -53,6 +53,7 @@ class HealthConnectBridgePlugin : Plugin() {
         const val TAG = "HealthConnectBridge"
         val MIN_SYNC_INTERVAL: Duration = Duration.ofMinutes(10)
         val LOOKBACK_FAST: Duration = Duration.ofHours(24)
+        val HR_SETTLE: Duration = Duration.ofMinutes(60)
         val LOOKBACK_SLOW: Duration = Duration.ofDays(7)
     }
 
@@ -196,13 +197,16 @@ class HealthConnectBridgePlugin : Plugin() {
         JSObject().put("reading_type", type).put("value", value).put("recorded_at", at.toString())
 
     // The watch writes about one heart-rate sample a minute. Averaging into
-    // five-minute buckets keeps a day to ~288 rows instead of ~1,440. Only
-    // buckets that have fully ended are sent, so a bucket's average is final
-    // and a repeat of it has an identical timestamp for the server to drop.
+    // five-minute buckets keeps a day to ~288 rows instead of ~1,440. The
+    // server keeps the first copy of a bucket, so a bucket is only sent once
+    // its average is final: the watch reaches Health Connect in batches,
+    // ~20 minutes behind on the Versa 4, so buckets newer than HR_SETTLE are
+    // left for a later sync rather than sent half-filled.
     private suspend fun syncHeartRate(client: HealthConnectClient, now: Instant, out: JSArray) {
         val bucketSeconds = 300L
         val from = now.minus(LOOKBACK_FAST)
-        val openBucketStart = Instant.ofEpochSecond(now.epochSecond / bucketSeconds * bucketSeconds)
+        val settled = now.minus(HR_SETTLE)
+        val openBucketStart = Instant.ofEpochSecond(settled.epochSecond / bucketSeconds * bucketSeconds)
 
         val buckets = sortedMapOf<Long, MutableList<Long>>()
         for (record in readAll(client, HeartRateRecord::class, from, openBucketStart)) {

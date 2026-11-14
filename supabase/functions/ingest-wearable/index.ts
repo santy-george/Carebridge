@@ -95,6 +95,46 @@ export function dropKnown<T>(rows: T[], known: Set<string>, keyOf: (row: T) => s
 
 const instantKey = (v: string) => new Date(v).toISOString();
 
+const PAGE_SIZE = 1000; // PostgREST's max-rows cap; larger pages are silently truncated
+
+// Keys of rows already stored for this batch. Queried per reading_type over
+// that type's own time span: one query over the whole batch would span the
+// slow types' 7-day window and pull a week of 5-minute heart rate, past the
+// row cap, and the truncated set would let duplicates through. Paged anyway.
+async function knownStreamingKeys(
+  // deno-lint-ignore no-explicit-any
+  client: any,
+  memberId: string,
+  vendor: string,
+  rows: { reading_type: string; recorded_at: string }[],
+): Promise<Set<string>> {
+  const byType = new Map<string, number[]>();
+  for (const r of rows) {
+    const list = byType.get(r.reading_type) ?? [];
+    list.push(Date.parse(r.recorded_at));
+    byType.set(r.reading_type, list);
+  }
+  const known = new Set<string>();
+  for (const [type, times] of byType) {
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await client
+        .from('wearable_readings')
+        .select('recorded_at')
+        .eq('member_id', memberId)
+        .eq('device_vendor', vendor)
+        .eq('reading_type', type)
+        .gte('recorded_at', new Date(Math.min(...times)).toISOString())
+        .lte('recorded_at', new Date(Math.max(...times)).toISOString())
+        .order('recorded_at')
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw new Error(error.message);
+      for (const e of data ?? []) known.add(`${type}|${instantKey(e.recorded_at)}`);
+      if (!data || data.length < PAGE_SIZE) break;
+    }
+  }
+  return known;
+}
+
 export function resolveDeviceVendor(v: unknown): string | null {
   if (v === undefined) return DEFAULT_DEVICE_VENDOR;
   return typeof v === 'string' && ALLOWED_DEVICE_VENDORS.has(v) ? v : null;
@@ -253,24 +293,16 @@ Deno.serve(async (req: Request) => {
         let firstError: string | undefined;
         let streamingToInsert = streamingRows;
         if (deviceVendor === 'health_connect' && streamingRows.length) {
-          const times = streamingRows.map((r) => Date.parse(r.recorded_at));
-          const { data: existing, error: existingError } = await adminClient
-            .from('wearable_readings')
-            .select('reading_type, recorded_at')
-            .eq('member_id', body.member_id)
-            .eq('device_vendor', deviceVendor)
-            .gte('recorded_at', new Date(Math.min(...times)).toISOString())
-            .lte('recorded_at', new Date(Math.max(...times)).toISOString());
-          if (existingError) {
-            firstError = existingError.message;
-            streamingToInsert = [];
-          } else {
-            const known = new Set((existing ?? []).map((e) => `${e.reading_type}|${instantKey(e.recorded_at)}`));
+          try {
+            const known = await knownStreamingKeys(adminClient, body.member_id, deviceVendor, streamingRows);
             streamingToInsert = dropKnown(
               streamingRows,
               known,
               (r) => `${r.reading_type}|${instantKey(r.recorded_at)}`,
             );
+          } catch (e) {
+            firstError = e instanceof Error ? e.message : String(e);
+            streamingToInsert = [];
           }
         }
         if (streamingToInsert.length) {

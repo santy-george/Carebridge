@@ -190,3 +190,8 @@ Email: a `send-email` test message (Resend shared sender, to the account owner's
 - Health Connect Data and access lists heart rate, HRV, respiratory rate, resting heart rate and skin temperature. **No oxygen saturation entries.**
 - Newest heart rate day found was Thu 29 Oct (one-minute entries); 30 Oct had no data. The watch may not have been worn, or SpO2 (sampled in sleep) may not have synced yet.
 - Open: re-check after the Versa 4 is worn overnight and synced.
+
+### Stage 2 gate re-check (2026-11-15, 09:43)
+- **Heart rate: confirmed live.** Health Connect has minute-level entries up to 9:20 am the same day, source Google Health (Versa 4). Freshness is no longer an issue.
+- **Oxygen saturation: still absent.** Data types listed under Vitals: heart rate, HRV, respiratory rate, resting heart rate, skin temperature. No SpO2 after an overnight wear.
+- Open question: whether the Versa 4 records SpO2 at all (Google Health app may show it but not export it). Decision needed: build HR-only Stage 2, or pick another route for SpO2.

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { supabase } from '../lib/supabase';
+import { FitbitConnection } from '../components/FitbitConnection';
 
 export function More() {
   const { memberLinks, selectedMemberId, selectMember } = useAuth();
@@ -112,6 +113,10 @@ export function More() {
           </span>
         </Link>
       </div>
+
+      {selectedMemberId && memberLinks.find((l) => l.memberId === selectedMemberId)?.isSelf && (
+        <FitbitConnection memberId={selectedMemberId} />
+      )}
 
       <div className="card">
         {memberLinks.length > 1 && (

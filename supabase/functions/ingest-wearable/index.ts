@@ -1,4 +1,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { dropKnown, instantKey } from '../_shared/dedupe.ts';
+
+export { dropKnown };
 
 // Phase C wearable ingestion. Different trust model than send-push/send-email:
 // those are service_role-only-caller functions, invoked only by privileged
@@ -75,25 +78,6 @@ interface IngestRequest {
 function isValidTimestamp(v: unknown): v is string {
   return typeof v === 'string' && !Number.isNaN(Date.parse(v));
 }
-
-// Health Connect is pulled, not pushed: the app re-reads a trailing window on
-// every sync instead of trusting a saved position (a crash between "read" and
-// "uploaded" would otherwise lose data for good). So the same rows arrive
-// repeatedly and must be dropped here. Returns the rows whose key is not
-// already stored.
-export function dropKnown<T>(rows: T[], known: Set<string>, keyOf: (row: T) => string): T[] {
-  const seen = new Set(known);
-  const fresh: T[] = [];
-  for (const row of rows) {
-    const key = keyOf(row);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    fresh.push(row);
-  }
-  return fresh;
-}
-
-const instantKey = (v: string) => new Date(v).toISOString();
 
 const PAGE_SIZE = 1000; // PostgREST's max-rows cap; larger pages are silently truncated
 

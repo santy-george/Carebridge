@@ -887,6 +887,41 @@ export type Database = {
           },
         ]
       }
+      oauth_states: {
+        Row: {
+          code_verifier: string
+          expires_at: string
+          member_id: string
+          provider: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          code_verifier: string
+          expires_at?: string
+          member_id: string
+          provider: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          code_verifier?: string
+          expires_at?: string
+          member_id?: string
+          provider?: string
+          state?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oauth_states_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       preventive_plan_goals: {
         Row: {
           completed_at: string | null
@@ -1436,6 +1471,53 @@ export type Database = {
           },
         ]
       }
+      wearable_connections: {
+        Row: {
+          connected_at: string
+          connected_by: string | null
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          member_id: string
+          provider: string
+          refresh_token_secret_id: string
+          scopes: string
+          status: string
+        }
+        Insert: {
+          connected_at?: string
+          connected_by?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          member_id: string
+          provider: string
+          refresh_token_secret_id: string
+          scopes: string
+          status?: string
+        }
+        Update: {
+          connected_at?: string
+          connected_by?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          member_id?: string
+          provider?: string
+          refresh_token_secret_id?: string
+          scopes?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_connections_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wearable_readings: {
         Row: {
           device_id: string | null
@@ -1566,6 +1648,19 @@ export type Database = {
           status: Database["public"]["Enums"]["visit_status"]
         }[]
       }
+      get_wearable_connection_status: {
+        Args: { p_member_id: string }
+        Returns: {
+          connected_at: string
+          last_synced_at: string
+          provider: string
+          status: string
+        }[]
+      }
+      get_wearable_refresh_token: {
+        Args: { p_member_id: string; p_provider: string }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       is_assigned_coordinator: {
         Args: { p_member_id: string }
@@ -1632,6 +1727,16 @@ export type Database = {
           p_submit: boolean
           p_temperature_c: number
           p_visit_id: string
+        }
+        Returns: undefined
+      }
+      store_wearable_connection: {
+        Args: {
+          p_member_id: string
+          p_provider: string
+          p_refresh_token: string
+          p_scopes: string
+          p_user_id: string
         }
         Returns: undefined
       }

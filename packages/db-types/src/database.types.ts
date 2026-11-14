@@ -1494,6 +1494,13 @@ export type Database = {
         Args: { p_lat: number; p_lng: number; p_visit_id: string }
         Returns: undefined
       }
+      close_unattended_visit: {
+        Args: {
+          p_status: Database["public"]["Enums"]["visit_status"]
+          p_visit_id: string
+        }
+        Returns: undefined
+      }
       create_family_invite: {
         Args: {
           p_member_id: string
@@ -1523,6 +1530,42 @@ export type Database = {
           status: Database["public"]["Enums"]["visit_status"]
         }[]
       }
+      get_visit_reports_admin: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          bp_diastolic: number
+          bp_systolic: number
+          glucose_mgdl: number
+          member_id: string
+          member_name: string
+          notes: string
+          pulse: number
+          scheduled_start: string
+          service_type: string
+          spo2: number
+          staff_name: string
+          submitted_at: string
+          temperature_c: number
+          visit_id: string
+        }[]
+      }
+      get_visits_admin: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          checkin_at: string
+          checkout_at: string
+          id: string
+          member_id: string
+          member_name: string
+          report_submitted: boolean
+          scheduled_end: string
+          scheduled_start: string
+          service_type: string
+          staff_id: string
+          staff_name: string
+          status: Database["public"]["Enums"]["visit_status"]
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_assigned_coordinator: {
         Args: { p_member_id: string }
@@ -1537,6 +1580,15 @@ export type Database = {
       is_field_staff_user: { Args: { p_user_id: string }; Returns: boolean }
       is_finance: { Args: never; Returns: boolean }
       is_management: { Args: never; Returns: boolean }
+      list_assignable_staff: {
+        Args: never
+        Returns: {
+          discipline: string
+          full_name: string
+          id: string
+          service_area: string
+        }[]
+      }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
       member_update_preserves_clinical_fields: {
         Args: {

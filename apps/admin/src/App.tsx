@@ -9,6 +9,8 @@ import { Leads } from './pages/Leads';
 import { ConsentRequests } from './pages/ConsentRequests';
 import { HumanResources } from './pages/HumanResources';
 import { StaffProfile } from './pages/StaffProfile';
+import { Visits } from './pages/Visits';
+import { VisitReports } from './pages/VisitReports';
 import { UsersRoles } from './pages/UsersRoles';
 import { AdminShell } from './shell/AdminShell';
 
@@ -29,6 +31,8 @@ function App() {
               <Route path="/consent-requests" element={<ConsentRequests />} />
               <Route path="/human-resources" element={<HumanResources />} />
               <Route path="/human-resources/:id" element={<StaffProfile />} />
+              <Route path="/visits" element={<Visits />} />
+              <Route path="/visit-reports" element={<VisitReports />} />
             </Route>
           </Route>
           <Route element={<RequireAdmin />}>

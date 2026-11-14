@@ -41,8 +41,8 @@ const GROUPS: NavGroup[] = [
     name: 'Operations',
     items: [
       { label: 'Scheduler', icon: 'scheduler' },
-      { label: 'Visits & Duties', icon: 'duties' },
-      { label: 'Visit Reports', icon: 'document' },
+      { label: 'Visits & Duties', icon: 'duties', to: '/visits' },
+      { label: 'Visit Reports', icon: 'document', to: '/visit-reports' },
       { label: 'Area Allocation', icon: 'pin' },
     ],
   },

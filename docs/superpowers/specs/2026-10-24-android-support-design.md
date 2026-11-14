@@ -201,3 +201,8 @@ Email: a `send-email` test message (Resend shared sender, to the account owner's
 - Health Connect permissions are not the cause: Google Health has Oxygen saturation allowed under both read and write (Vitals 10/10 read, 8/8 write).
 - Despite that, Health Connect Data and access lists no oxygen saturation entries. So Google Health holds SpO2 but is not writing it (or has not yet) to Health Connect.
 - Not yet tried: waiting for tonight's reading to see if a new one is exported after permission was granted; toggling the Oxygen saturation write permission off/on to force a re-export.
+
+### SpO2 after permission toggle (2026-11-15, 09:49)
+- Oxygen saturation write permission toggled off/on, Google Health opened and refreshed, Health Connect re-read after about 20s: **still no oxygen saturation entries.**
+- Other nightly metrics do export (HRV, resting heart rate, respiratory rate, skin temperature), so SpO2 is specifically not being written, not nightly data in general.
+- Remaining untried: a full night's wear after the toggle (tomorrow morning check). If still absent, treat SpO2 as unavailable via Health Connect for Versa 4.

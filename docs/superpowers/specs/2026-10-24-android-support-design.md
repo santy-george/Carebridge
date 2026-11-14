@@ -158,3 +158,11 @@ support; Google Health API once access opens).
 - Does the Fitbit app write HR, SpO2, HRV to Health Connect for the Versa 4? Answered only by
   the phone check in Stage 2 step 1.
 - Will ColorOS deliver FCM to a swiped-away app with default settings? Answered in Stage 1 step 5.
+
+## Stage 1 results (2026-11-15, Oppo A6X, debug build)
+
+Santhosh ran the parity checklist on device: all screens and flows reported OK ("generally everything seems to be OK").
+
+- Hardware Back button: not applicable. The device uses gesture navigation (`navigation_mode=2`), so there is no Back button; back is the edge swipe. No custom handler is registered, so Capacitor's default (webview history back, exit at root) applies. Edge-swipe behaviour not separately verified.
+- Defect fixed: `registerHealthKit` ran on Android, where no `HealthKitBridge` plugin exists, throwing and reporting a Sentry error on every sign-in. Now iOS-only (with test).
+- Wearables: nothing syncs from the Fitbit Versa 4. No Android wearable pipeline exists; that is the Stage 2 gate (Task 8).

@@ -1266,6 +1266,135 @@ export type Database = {
           },
         ]
       }
+      visit_reports: {
+        Row: {
+          bp_diastolic: number | null
+          bp_systolic: number | null
+          created_at: string
+          glucose_mgdl: number | null
+          notes: string | null
+          pulse: number | null
+          spo2: number | null
+          submitted_at: string | null
+          temperature_c: number | null
+          updated_at: string
+          visit_id: string
+        }
+        Insert: {
+          bp_diastolic?: number | null
+          bp_systolic?: number | null
+          created_at?: string
+          glucose_mgdl?: number | null
+          notes?: string | null
+          pulse?: number | null
+          spo2?: number | null
+          submitted_at?: string | null
+          temperature_c?: number | null
+          updated_at?: string
+          visit_id: string
+        }
+        Update: {
+          bp_diastolic?: number | null
+          bp_systolic?: number | null
+          created_at?: string
+          glucose_mgdl?: number | null
+          notes?: string | null
+          pulse?: number | null
+          spo2?: number | null
+          submitted_at?: string | null
+          temperature_c?: number | null
+          updated_at?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_reports_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: true
+            referencedRelation: "visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visits: {
+        Row: {
+          checkin_at: string | null
+          checkin_lat: number | null
+          checkin_lng: number | null
+          checkout_at: string | null
+          checkout_lat: number | null
+          checkout_lng: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          member_id: string
+          scheduled_end: string
+          scheduled_start: string
+          service_type: string
+          staff_id: string
+          status: Database["public"]["Enums"]["visit_status"]
+          updated_at: string
+        }
+        Insert: {
+          checkin_at?: string | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
+          checkout_at?: string | null
+          checkout_lat?: number | null
+          checkout_lng?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          member_id: string
+          scheduled_end: string
+          scheduled_start: string
+          service_type: string
+          staff_id: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          updated_at?: string
+        }
+        Update: {
+          checkin_at?: string | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
+          checkout_at?: string | null
+          checkout_lat?: number | null
+          checkout_lng?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          member_id?: string
+          scheduled_end?: string
+          scheduled_start?: string
+          service_type?: string
+          staff_id?: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visits_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vitals_readings: {
         Row: {
           created_at: string
@@ -1357,6 +1486,14 @@ export type Database = {
     }
     Functions: {
       can_access_member: { Args: { p_member_id: string }; Returns: boolean }
+      check_in_visit: {
+        Args: { p_lat: number; p_lng: number; p_visit_id: string }
+        Returns: undefined
+      }
+      check_out_visit: {
+        Args: { p_lat: number; p_lng: number; p_visit_id: string }
+        Returns: undefined
+      }
       create_family_invite: {
         Args: {
           p_member_id: string
@@ -1366,6 +1503,26 @@ export type Database = {
         Returns: string
       }
       get_home_dashboard: { Args: { p_member_id: string }; Returns: Json }
+      get_my_visits: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          allergies: string[]
+          checkin_at: string
+          checkout_at: string
+          conditions: string[]
+          id: string
+          member_address: string
+          member_id: string
+          member_location: string
+          member_name: string
+          member_phone: string
+          report_submitted: boolean
+          scheduled_end: string
+          scheduled_start: string
+          service_type: string
+          status: Database["public"]["Enums"]["visit_status"]
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_assigned_coordinator: {
         Args: { p_member_id: string }
@@ -1377,6 +1534,7 @@ export type Database = {
       }
       is_coordinator: { Args: never; Returns: boolean }
       is_field_staff: { Args: never; Returns: boolean }
+      is_field_staff_user: { Args: { p_user_id: string }; Returns: boolean }
       is_finance: { Args: never; Returns: boolean }
       is_management: { Args: never; Returns: boolean }
       member_owns: { Args: { p_member_id: string }; Returns: boolean }
@@ -1408,6 +1566,20 @@ export type Database = {
         Args: {
           p_member_id: string
           p_scope: Database["public"]["Enums"]["consent_scope"]
+        }
+        Returns: undefined
+      }
+      save_visit_report: {
+        Args: {
+          p_bp_diastolic: number
+          p_bp_systolic: number
+          p_glucose_mgdl: number
+          p_notes: string
+          p_pulse: number
+          p_spo2: number
+          p_submit: boolean
+          p_temperature_c: number
+          p_visit_id: string
         }
         Returns: undefined
       }
@@ -1446,6 +1618,12 @@ export type Database = {
         | "field_staff"
         | "finance"
         | "management"
+      visit_status:
+        | "scheduled"
+        | "in_progress"
+        | "completed"
+        | "missed"
+        | "cancelled"
       vital_type:
         | "weight_kg"
         | "height_cm"
@@ -1621,6 +1799,13 @@ export const Constants = {
         "field_staff",
         "finance",
         "management",
+      ],
+      visit_status: [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "missed",
+        "cancelled",
       ],
       vital_type: [
         "weight_kg",

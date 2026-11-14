@@ -115,6 +115,64 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0(@types/node@24.13.3)
 
+  apps/field:
+    dependencies:
+      '@capacitor/android':
+        specifier: ^8.5.0
+        version: 8.5.0(@capacitor/core@8.5.0)
+      '@capacitor/core':
+        specifier: ^8.5.0
+        version: 8.5.0
+      '@capacitor/ios':
+        specifier: ^8.5.0
+        version: 8.5.0(@capacitor/core@8.5.0)
+      '@capacitor/preferences':
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.5.0)
+      '@carebridge/db-types':
+        specifier: workspace:*
+        version: link:../../packages/db-types
+      '@carebridge/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@sentry/react':
+        specifier: ^10.69.0
+        version: 10.69.0(react@19.2.8)
+      '@supabase/supabase-js':
+        specifier: ^2.112.1
+        version: 2.112.1
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.8
+        version: 19.2.8(react@19.2.8)
+      react-router-dom:
+        specifier: ^7.18.2
+        version: 7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+    devDependencies:
+      '@capacitor/cli':
+        specifier: ^8.5.0
+        version: 8.5.0
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.4(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.4
+        version: 6.0.5(vite@8.2.0(@types/node@24.13.3))
+      typescript:
+        specifier: ~6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.2.0
+        version: 8.2.0(@types/node@24.13.3)
+
   apps/wellness:
     dependencies:
       '@capacitor/android':

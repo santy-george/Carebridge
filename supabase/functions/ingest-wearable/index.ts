@@ -20,6 +20,9 @@ const STREAMING_READING_TYPES = new Set([
   'heart_rate',
   'spo2',
   'heart_rate_variability_sdnn',
+  // Health Connect reports RMSSD, a different HRV measure from Apple's SDNN;
+  // stored under its own type so the two are never mixed in one series.
+  'heart_rate_variability_rmssd',
   'resting_heart_rate',
   'respiratory_rate',
   'walking_speed',
@@ -34,6 +37,8 @@ const DAILY_CUMULATIVE_READING_TYPES = new Set([
   'apple_stand_time',
 ]);
 const ALLOWED_READING_TYPES = new Set([...STREAMING_READING_TYPES, ...DAILY_CUMULATIVE_READING_TYPES]);
+const ALLOWED_DEVICE_VENDORS = new Set(['apple_watch', 'health_connect']);
+const DEFAULT_DEVICE_VENDOR = 'apple_watch';
 const ALLOWED_SLEEP_STAGES = new Set(['in_bed', 'asleep_core', 'asleep_deep', 'asleep_rem', 'awake']);
 
 export function isDailyCumulativeType(readingType: string): boolean {
@@ -60,6 +65,7 @@ interface RhythmEventInput {
 }
 interface IngestRequest {
   member_id: string;
+  device_vendor?: string;
   readings?: ReadingInput[];
   sleep_sessions?: SleepSessionInput[];
   ecg_readings?: EcgReadingInput[];
@@ -68,6 +74,30 @@ interface IngestRequest {
 
 function isValidTimestamp(v: unknown): v is string {
   return typeof v === 'string' && !Number.isNaN(Date.parse(v));
+}
+
+// Health Connect is pulled, not pushed: the app re-reads a trailing window on
+// every sync instead of trusting a saved position (a crash between "read" and
+// "uploaded" would otherwise lose data for good). So the same rows arrive
+// repeatedly and must be dropped here. Returns the rows whose key is not
+// already stored.
+export function dropKnown<T>(rows: T[], known: Set<string>, keyOf: (row: T) => string): T[] {
+  const seen = new Set(known);
+  const fresh: T[] = [];
+  for (const row of rows) {
+    const key = keyOf(row);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    fresh.push(row);
+  }
+  return fresh;
+}
+
+const instantKey = (v: string) => new Date(v).toISOString();
+
+export function resolveDeviceVendor(v: unknown): string | null {
+  if (v === undefined) return DEFAULT_DEVICE_VENDOR;
+  return typeof v === 'string' && ALLOWED_DEVICE_VENDORS.has(v) ? v : null;
 }
 
 export function isValidReading(r: unknown): r is ReadingInput {
@@ -159,6 +189,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const deviceVendor = resolveDeviceVendor(body.device_vendor);
+    if (!deviceVendor) {
+      return new Response(JSON.stringify({ error: 'unknown device_vendor' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -194,7 +232,7 @@ Deno.serve(async (req: Request) => {
           .filter((r) => !isDailyCumulativeType(r.reading_type))
           .map((r) => ({
             member_id: body.member_id,
-            device_vendor: 'apple_watch',
+            device_vendor: deviceVendor,
             device_id: null,
             reading_type: r.reading_type,
             value: r.value,
@@ -204,7 +242,7 @@ Deno.serve(async (req: Request) => {
           .filter((r) => isDailyCumulativeType(r.reading_type))
           .map((r) => ({
             member_id: body.member_id,
-            device_vendor: 'apple_watch',
+            device_vendor: deviceVendor,
             reading_type: r.reading_type,
             day: r.recorded_at.slice(0, 10),
             value: r.value,
@@ -213,10 +251,32 @@ Deno.serve(async (req: Request) => {
 
         let inserted = 0;
         let firstError: string | undefined;
-        if (streamingRows.length) {
-          const { error } = await adminClient.from('wearable_readings').insert(streamingRows);
+        let streamingToInsert = streamingRows;
+        if (deviceVendor === 'health_connect' && streamingRows.length) {
+          const times = streamingRows.map((r) => Date.parse(r.recorded_at));
+          const { data: existing, error: existingError } = await adminClient
+            .from('wearable_readings')
+            .select('reading_type, recorded_at')
+            .eq('member_id', body.member_id)
+            .eq('device_vendor', deviceVendor)
+            .gte('recorded_at', new Date(Math.min(...times)).toISOString())
+            .lte('recorded_at', new Date(Math.max(...times)).toISOString());
+          if (existingError) {
+            firstError = existingError.message;
+            streamingToInsert = [];
+          } else {
+            const known = new Set((existing ?? []).map((e) => `${e.reading_type}|${instantKey(e.recorded_at)}`));
+            streamingToInsert = dropKnown(
+              streamingRows,
+              known,
+              (r) => `${r.reading_type}|${instantKey(r.recorded_at)}`,
+            );
+          }
+        }
+        if (streamingToInsert.length) {
+          const { error } = await adminClient.from('wearable_readings').insert(streamingToInsert);
           if (error) firstError = error.message;
-          else inserted += streamingRows.length;
+          else inserted += streamingToInsert.length;
         }
         if (dailyRows.length) {
           const { error } = await adminClient
@@ -235,13 +295,29 @@ Deno.serve(async (req: Request) => {
       } else {
         const rows = body.sleep_sessions.map((s) => ({
           member_id: body.member_id,
-          device_vendor: 'apple_watch',
+          device_vendor: deviceVendor,
           started_at: s.started_at,
           ended_at: s.ended_at,
           stage: s.stage,
         }));
-        const { error } = await adminClient.from('sleep_sessions').insert(rows);
-        results.sleep_sessions = error ? { inserted: 0, error: error.message } : { inserted: rows.length };
+        let sleepRows = rows;
+        if (deviceVendor === 'health_connect') {
+          const { data: existing } = await adminClient
+            .from('sleep_sessions')
+            .select('started_at, ended_at, stage')
+            .eq('member_id', body.member_id)
+            .eq('device_vendor', deviceVendor)
+            .gte('started_at', new Date(Math.min(...rows.map((r) => Date.parse(r.started_at)))).toISOString());
+          const sleepKey = (r: { started_at: string; ended_at: string; stage: string }) =>
+            `${r.stage}|${instantKey(r.started_at)}|${instantKey(r.ended_at)}`;
+          sleepRows = dropKnown(rows, new Set((existing ?? []).map(sleepKey)), sleepKey);
+        }
+        const { error } = sleepRows.length
+          ? await adminClient.from('sleep_sessions').insert(sleepRows)
+          : { error: null };
+        results.sleep_sessions = error
+          ? { inserted: 0, error: error.message }
+          : { inserted: sleepRows.length };
       }
     }
 
@@ -251,7 +327,7 @@ Deno.serve(async (req: Request) => {
       } else {
         const rows = body.ecg_readings.map((e) => ({
           member_id: body.member_id,
-          device_vendor: 'apple_watch',
+          device_vendor: deviceVendor,
           recorded_at: e.recorded_at,
           classification: e.classification,
           average_heart_rate: e.average_heart_rate ?? null,
@@ -267,7 +343,7 @@ Deno.serve(async (req: Request) => {
       } else {
         const rows = body.rhythm_events.map((e) => ({
           member_id: body.member_id,
-          device_vendor: 'apple_watch',
+          device_vendor: deviceVendor,
           recorded_at: e.recorded_at,
         }));
         const { error } = await adminClient.from('rhythm_events').insert(rows);

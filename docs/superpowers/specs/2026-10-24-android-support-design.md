@@ -206,3 +206,11 @@ Email: a `send-email` test message (Resend shared sender, to the account owner's
 - Oxygen saturation write permission toggled off/on, Google Health opened and refreshed, Health Connect re-read after about 20s: **still no oxygen saturation entries.**
 - Other nightly metrics do export (HRV, resting heart rate, respiratory rate, skin temperature), so SpO2 is specifically not being written, not nightly data in general.
 - Remaining untried: a full night's wear after the toggle (tomorrow morning check). If still absent, treat SpO2 as unavailable via Health Connect for Versa 4.
+
+## Stage 2 built (2026-11-15): Health Connect reader
+- `HealthConnectBridgePlugin.kt` (read-only) emits the same `healthKitSamples` / `healthKitSleepSessions` events as the iOS plugin; `healthkit.ts` picks the plugin by platform, tags uploads `device_vendor: health_connect`, and asks the plugin to sync on app resume (Health Connect cannot push to a backgrounded app; syncs throttled to 10 min).
+- Types: heart rate (5-minute averages), resting heart rate, respiratory rate, HRV, SpO2, steps (Health Connect aggregate), sleep stages. HRV is stored as `heart_rate_variability_rmssd`, never mixed with Apple's SDNN.
+- **Verified on the Oppo A6X against hosted:** 278 heart-rate buckets (24 h), 7 each of HRV/resting HR/respiratory rate, steps, 47 sleep rows. **SpO2: permission granted, reader asks for it, zero rows** — Health Connect holds none from Google Health. Conclusive for the Versa 4 via this route.
+- Design lesson: an earlier version kept a read cursor and advanced it before upload; a crash lost data permanently. Now no cursor: a fixed trailing window is re-read and `ingest-wearable` drops rows it already has (`dropKnown`).
+- Device quirk: Google Health writes zero-length step records that make the Health Connect record reader throw; steps use the aggregate API and every type's sync is guarded so one failure cannot crash the app.
+- minSdk raised 24 to 26 (Health Connect client). Not yet done: privacy-policy page behind the rationale intent (currently opens the app), Home/Health UI for RMSSD, Play Console Health Connect declaration.

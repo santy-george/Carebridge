@@ -5,6 +5,8 @@ import {
   isValidEcgReading,
   isValidRhythmEvent,
   isDailyCumulativeType,
+  resolveDeviceVendor,
+  dropKnown,
 } from './index.ts';
 
 Deno.test('isValidReading accepts a known reading_type with a numeric value and valid timestamp', () => {
@@ -65,4 +67,33 @@ Deno.test('isValidRhythmEvent accepts a valid timestamp', () => {
 
 Deno.test('isValidRhythmEvent rejects a missing timestamp', () => {
   assertEquals(isValidRhythmEvent({}), false);
+});
+
+Deno.test('resolveDeviceVendor defaults to apple_watch when omitted', () => {
+  assertEquals(resolveDeviceVendor(undefined), 'apple_watch');
+});
+
+Deno.test('resolveDeviceVendor accepts health_connect and rejects unknown vendors', () => {
+  assertEquals(resolveDeviceVendor('health_connect'), 'health_connect');
+  assertEquals(resolveDeviceVendor('garmin'), null);
+  assertEquals(resolveDeviceVendor(5), null);
+});
+
+Deno.test('isValidReading accepts the Health Connect RMSSD HRV type', () => {
+  assertEquals(
+    isValidReading({ reading_type: 'heart_rate_variability_rmssd', value: 28, recorded_at: '2026-11-15T04:00:00Z' }),
+    true,
+  );
+});
+
+Deno.test('dropKnown skips rows already stored and repeats within the batch', () => {
+  const rows = [{ k: 'a' }, { k: 'b' }, { k: 'b' }, { k: 'c' }];
+  assertEquals(
+    dropKnown(rows, new Set(['a']), (r) => r.k).map((r) => r.k),
+    ['b', 'c'],
+  );
+});
+
+Deno.test('dropKnown returns everything when nothing is known', () => {
+  assertEquals(dropKnown([{ k: 'a' }], new Set(), (r) => r.k).length, 1);
 });

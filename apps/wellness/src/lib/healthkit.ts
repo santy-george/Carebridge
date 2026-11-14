@@ -4,9 +4,11 @@ import * as Sentry from '@sentry/react';
 import { supabase } from './supabase';
 import { toSentryError } from './toSentryError';
 
-// Read-only HealthKit integration: streams new samples from the native
-// HealthKitBridge plugin (apps/wellness/ios/App/App/HealthKitBridge.swift)
-// into ingest-wearable. Never writes to HealthKit. Best-effort, same posture
+// Read-only wearable integration: streams new samples from the native
+// HealthKitBridge plugin on iOS (apps/wellness/ios/App/App/HealthKitBridge.swift)
+// or HealthConnectBridge on Android (HealthConnectBridgePlugin.kt) into
+// ingest-wearable. Both plugins emit the same events, so everything below the
+// platform switch is shared. Never writes. Best-effort, same posture
 // as push.ts -- a member may not own a Watch at all, so permission denial or
 // any failure here must never block the app.
 
@@ -16,6 +18,7 @@ type NumericReadingType =
   | 'heart_rate'
   | 'spo2'
   | 'heart_rate_variability_sdnn'
+  | 'heart_rate_variability_rmssd'
   | 'resting_heart_rate'
   | 'respiratory_rate'
   | 'walking_speed'
@@ -52,6 +55,9 @@ interface HealthKitRhythmEvent {
 interface HealthKitBridgePlugin {
   requestAuthorization(): Promise<{ granted: boolean }>;
   startObserving(): Promise<void>;
+  // Android only: Health Connect cannot push to a backgrounded app, so the
+  // plugin is asked to pull on resume.
+  syncNow?(): Promise<void>;
   addListener(
     eventName: 'healthKitSamples',
     listenerFunc: (data: { readings: HealthKitReading[] }) => void,
@@ -71,6 +77,15 @@ interface HealthKitBridgePlugin {
 }
 
 const HealthKitBridge = registerPlugin<HealthKitBridgePlugin>('HealthKitBridge');
+const HealthConnectBridge = registerPlugin<HealthKitBridgePlugin>('HealthConnectBridge');
+
+function isAndroid(): boolean {
+  return Capacitor.getPlatform() === 'android';
+}
+
+function bridge(): HealthKitBridgePlugin {
+  return isAndroid() ? HealthConnectBridge : HealthKitBridge;
+}
 
 let readingsQueue: HealthKitReading[] = [];
 let sleepQueue: HealthKitSleepSession[] = [];
@@ -97,6 +112,7 @@ function queuedCount(): number {
 async function flush(): Promise<void> {
   if (queuedCount() === 0 || !activeMemberId) return;
   const body: Record<string, unknown> = { member_id: activeMemberId };
+  if (isAndroid()) body.device_vendor = 'health_connect';
   if (readingsQueue.length) body.readings = readingsQueue;
   if (sleepQueue.length) body.sleep_sessions = sleepQueue;
   if (ecgQueue.length) body.ecg_readings = ecgQueue;
@@ -129,19 +145,19 @@ function attachListeners(): void {
   if (listenersAttached) return;
   listenersAttached = true;
 
-  void HealthKitBridge.addListener('healthKitSamples', (data) => {
+  void bridge().addListener('healthKitSamples', (data) => {
     readingsQueue.push(...data.readings);
     flushIfBatchFull();
   });
-  void HealthKitBridge.addListener('healthKitSleepSessions', (data) => {
+  void bridge().addListener('healthKitSleepSessions', (data) => {
     sleepQueue.push(...data.sessions);
     flushIfBatchFull();
   });
-  void HealthKitBridge.addListener('healthKitEcgReadings', (data) => {
+  void bridge().addListener('healthKitEcgReadings', (data) => {
     ecgQueue.push(...data.readings);
     flushIfBatchFull();
   });
-  void HealthKitBridge.addListener('healthKitRhythmEvents', (data) => {
+  void bridge().addListener('healthKitRhythmEvents', (data) => {
     rhythmQueue.push(...data.events);
     flushIfBatchFull();
   });
@@ -149,6 +165,10 @@ function attachListeners(): void {
   void App.addListener('appStateChange', (state) => {
     if (!state.isActive) {
       void flush();
+    } else if (isAndroid()) {
+      bridge()
+        .syncNow?.()
+        .catch((error) => console.error('Health Connect sync failed:', error));
     }
   });
 }
@@ -159,18 +179,17 @@ export async function registerHealthKit(userId: string, memberId: string): Promi
   activeUserId = userId;
   activeMemberId = memberId;
 
-  // HealthKitBridge is iOS-only; Android has no equivalent plugin yet, so
-  // calling it there would throw and report a Sentry error on every sign-in.
-  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') return;
+  const platform = Capacitor.getPlatform();
+  if (!Capacitor.isNativePlatform() || (platform !== 'ios' && platform !== 'android')) return;
 
   attachListeners();
 
   try {
-    const { granted } = await HealthKitBridge.requestAuthorization();
+    const { granted } = await bridge().requestAuthorization();
     if (!granted) return;
-    await HealthKitBridge.startObserving();
+    await bridge().startObserving();
   } catch (error) {
-    console.error('HealthKit registration failed:', error);
+    console.error('Wearable registration failed:', error);
     Sentry.captureException(toSentryError(error, 'HealthKit registration failed'));
   }
 }

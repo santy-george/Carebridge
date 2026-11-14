@@ -12,6 +12,7 @@ const { mockPlugin, mockCapacitor } = vi.hoisted(() => {
   const mockPlugin = {
     requestAuthorization: vi.fn(),
     startObserving: vi.fn(),
+    syncNow: vi.fn(),
     addListener: vi.fn((eventName: string, cb: (data: unknown) => void) => {
       listeners[eventName] = cb;
       return Promise.resolve({ remove: vi.fn() });
@@ -57,6 +58,7 @@ describe('registerHealthKit', () => {
     __resetHealthKitStateForTests();
     mockPlugin.requestAuthorization.mockResolvedValue({ granted: true });
     mockPlugin.startObserving.mockResolvedValue(undefined);
+    mockPlugin.syncNow.mockResolvedValue(undefined);
     mockCapacitor.isNativePlatform.mockReturnValue(true);
     mockCapacitor.getPlatform.mockReturnValue('ios');
     invokeMock.mockResolvedValue({ data: { ok: true, inserted: 0 }, error: null });
@@ -68,10 +70,58 @@ describe('registerHealthKit', () => {
     expect(mockPlugin.requestAuthorization).not.toHaveBeenCalled();
   });
 
-  it('is a no-op on Android, which has no HealthKit bridge', async () => {
-    mockCapacitor.getPlatform.mockReturnValue('android');
+  it('is a no-op on an unsupported native platform', async () => {
+    mockCapacitor.getPlatform.mockReturnValue('windows');
     await registerHealthKit('user-1', 'member-1');
     expect(mockPlugin.requestAuthorization).not.toHaveBeenCalled();
+  });
+
+  it('requests authorization and starts observing on Android via Health Connect', async () => {
+    mockCapacitor.getPlatform.mockReturnValue('android');
+    await registerHealthKit('user-1', 'member-1');
+    expect(mockPlugin.requestAuthorization).toHaveBeenCalled();
+    expect(mockPlugin.startObserving).toHaveBeenCalled();
+  });
+
+  it('tags Android uploads with the health_connect vendor, and iOS uploads with none', async () => {
+    mockCapacitor.getPlatform.mockReturnValue('android');
+    await registerHealthKit('user-1', 'member-1');
+    listeners.healthKitSamples({
+      readings: Array.from({ length: FLUSH_BATCH_SIZE }, () => ({
+        reading_type: 'heart_rate',
+        value: 70,
+        recorded_at: '2026-11-15T04:00:00Z',
+      })),
+    });
+    await vi.waitFor(() => expect(invokeMock).toHaveBeenCalledTimes(1));
+    expect(invokeMock.mock.calls[0][1].body.device_vendor).toBe('health_connect');
+
+    invokeMock.mockClear();
+    __resetHealthKitStateForTests();
+    mockCapacitor.getPlatform.mockReturnValue('ios');
+    await registerHealthKit('user-1', 'member-1');
+    listeners.healthKitSamples({
+      readings: Array.from({ length: FLUSH_BATCH_SIZE }, () => ({
+        reading_type: 'heart_rate',
+        value: 70,
+        recorded_at: '2026-11-15T04:00:00Z',
+      })),
+    });
+    await vi.waitFor(() => expect(invokeMock).toHaveBeenCalledTimes(1));
+    expect(invokeMock.mock.calls[0][1].body.device_vendor).toBeUndefined();
+  });
+
+  it('asks the Android plugin to sync when the app returns to the foreground', async () => {
+    mockCapacitor.getPlatform.mockReturnValue('android');
+    await registerHealthKit('user-1', 'member-1');
+    appListeners.appStateChange({ isActive: true });
+    expect(mockPlugin.syncNow).toHaveBeenCalled();
+  });
+
+  it('does not call syncNow on iOS, where HealthKit pushes observer updates', async () => {
+    await registerHealthKit('user-1', 'member-1');
+    appListeners.appStateChange({ isActive: true });
+    expect(mockPlugin.syncNow).not.toHaveBeenCalled();
   });
 
   it('requests authorization and starts observing on a native platform', async () => {

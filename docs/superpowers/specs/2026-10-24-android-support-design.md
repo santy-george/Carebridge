@@ -195,3 +195,9 @@ Email: a `send-email` test message (Resend shared sender, to the account owner's
 - **Heart rate: confirmed live.** Health Connect has minute-level entries up to 9:20 am the same day, source Google Health (Versa 4). Freshness is no longer an issue.
 - **Oxygen saturation: still absent.** Data types listed under Vitals: heart rate, HRV, respiratory rate, resting heart rate, skin temperature. No SpO2 after an overnight wear.
 - Open question: whether the Versa 4 records SpO2 at all (Google Health app may show it but not export it). Decision needed: build HR-only Stage 2, or pick another route for SpO2.
+
+### SpO2 troubleshooting (2026-11-15, 09:46)
+- Versa 4 does record SpO2: Google Health Vitals shows a nightly average per day, Mon–Sat this week (last night 96%). Today shows "No data" until tonight's sleep is processed. It is a **nightly sleep average, not per-minute samples**.
+- Health Connect permissions are not the cause: Google Health has Oxygen saturation allowed under both read and write (Vitals 10/10 read, 8/8 write).
+- Despite that, Health Connect Data and access lists no oxygen saturation entries. So Google Health holds SpO2 but is not writing it (or has not yet) to Health Connect.
+- Not yet tried: waiting for tonight's reading to see if a new one is exported after permission was granted; toggling the Oxygen saturation write permission off/on to force a re-export.

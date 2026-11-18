@@ -19,7 +19,6 @@ import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.reflect.KClass
 
@@ -87,7 +86,7 @@ object HealthConnectReader {
         if (allowed(RestingHeartRateRecord::class)) guarded("resting_heart_rate") { restingHeartRate(client, now, readings) }
         if (allowed(RespiratoryRateRecord::class)) guarded("respiratory_rate") { respiratoryRate(client, now, readings) }
         if (allowed(HeartRateVariabilityRmssdRecord::class)) guarded("hrv") { hrv(client, now, readings) }
-        if (allowed(StepsRecord::class)) guarded("steps") { steps(client, now, readings) }
+        if (allowed(StepsRecord::class)) guarded("steps") { steps(client, now, heartRateLookback, readings) }
         if (allowed(SleepSessionRecord::class)) guarded("sleep") { sleep(client, now, sessions) }
         // Counts only, never values: enough to tell "Health Connect had nothing"
         // from "the sync never ran" when data stops arriving.
@@ -179,16 +178,16 @@ object HealthConnectReader {
     }
 
     // Daily cumulative: the server upserts one total per day, so today and
-    // yesterday are re-sent every sync. Each total is stamped at local noon,
-    // so the server's UTC date slice lands on the member's local calendar day
-    // (IST is UTC+5:30; a midnight stamp would slip a day).
-    private suspend fun steps(client: HealthConnectClient, now: Instant, out: JSArray) {
+    // yesterday are re-sent every sync, plus every day of an outage catch-up
+    // (see StepDays). Each total is stamped at local noon, so the server's UTC
+    // date slice lands on the member's local calendar day (IST is UTC+5:30; a
+    // midnight stamp would slip a day).
+    private suspend fun steps(client: HealthConnectClient, now: Instant, lookback: Duration, out: JSArray) {
         val zone = ZoneId.systemDefault()
-        val today = LocalDate.now(zone)
         // Aggregate rather than read raw records: Health Connect de-duplicates
         // overlapping sources itself, and Google Health writes some zero-length
         // step records that the record reader throws on.
-        for (day in listOf(today.minusDays(1), today)) {
+        for (day in StepDays.days(now, lookback, zone)) {
             val start = day.atStartOfDay(zone).toInstant()
             val end = minOf(day.plusDays(1).atStartOfDay(zone).toInstant(), now)
             if (!end.isAfter(start)) continue

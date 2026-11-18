@@ -140,7 +140,13 @@ class HealthConnectBridgePlugin : Plugin() {
         if (!syncLock.tryLock()) return
         try {
             lastSyncAt = Instant.now()
-            val batch = HealthConnectReader.read(client, HEART_RATE_LOOKBACK)
+            // Reads the background job's marker to catch up after an outage, but
+            // never advances it: the web layer does this upload, so success
+            // isn't visible here. Without background sync this stays at 24h.
+            val memberId = BackgroundSync.load(context)?.memberId
+            val newestStored = memberId?.let { BackgroundSync.newestStoredHeartRate(context, it) }
+            val lookback = HeartRateWindow.lookback(lastSyncAt, newestStored, HEART_RATE_LOOKBACK)
+            val batch = HealthConnectReader.read(client, lookback)
             if (batch.readings.length() > 0) {
                 notifyListeners("healthKitSamples", JSObject().put("readings", batch.readings))
             }

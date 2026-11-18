@@ -28,9 +28,10 @@ import kotlin.reflect.KClass
  * foreground plugin (which hands the result to the web layer) and the
  * background worker (which uploads it itself). Read-only.
  *
- * Every read covers a fixed trailing window with no saved position: the server
- * drops rows it already has, so a crash or failed upload between "read" and
- * "stored" can never lose data.
+ * Every read covers a trailing window and the server drops rows it already
+ * has, so a crash or failed upload between "read" and "stored" can never lose
+ * data. Heart rate's window stretches after an outage (see HeartRateWindow);
+ * its marker only moves once the server has accepted the rows.
  */
 object HealthConnectReader {
     private const val TAG = "HealthConnectReader"
@@ -55,7 +56,7 @@ object HealthConnectReader {
             null
         }
 
-    class Batch(val readings: JSArray, val sessions: JSArray) {
+    class Batch(val readings: JSArray, val sessions: JSArray, val newestHeartRate: Instant?) {
         val isEmpty get() = readings.length() == 0 && sessions.length() == 0
     }
 
@@ -78,14 +79,17 @@ object HealthConnectReader {
             }
         }
 
-        if (allowed(HeartRateRecord::class)) guarded("heart_rate") { heartRate(client, now, heartRateLookback, readings) }
+        var newestHeartRate: Instant? = null
+        if (allowed(HeartRateRecord::class)) {
+            guarded("heart_rate") { newestHeartRate = heartRate(client, now, heartRateLookback, readings) }
+        }
         if (allowed(OxygenSaturationRecord::class)) guarded("spo2") { spo2(client, now, readings) }
         if (allowed(RestingHeartRateRecord::class)) guarded("resting_heart_rate") { restingHeartRate(client, now, readings) }
         if (allowed(RespiratoryRateRecord::class)) guarded("respiratory_rate") { respiratoryRate(client, now, readings) }
         if (allowed(HeartRateVariabilityRmssdRecord::class)) guarded("hrv") { hrv(client, now, readings) }
         if (allowed(StepsRecord::class)) guarded("steps") { steps(client, now, readings) }
         if (allowed(SleepSessionRecord::class)) guarded("sleep") { sleep(client, now, sessions) }
-        return Batch(readings, sessions)
+        return Batch(readings, sessions, newestHeartRate)
     }
 
     private suspend fun <T : Record> readAll(
@@ -120,12 +124,13 @@ object HealthConnectReader {
     // its average is final: the watch reaches Health Connect in batches,
     // ~20 minutes behind on the Versa 4, so buckets newer than HR_SETTLE are
     // left for a later sync rather than sent half-filled.
-    private suspend fun heartRate(client: HealthConnectClient, now: Instant, lookback: Duration, out: JSArray) {
+    // Returns the newest bucket sent, or null if none.
+    private suspend fun heartRate(client: HealthConnectClient, now: Instant, lookback: Duration, out: JSArray): Instant? {
         val bucketSeconds = 300L
         val from = now.minus(lookback)
         val settled = now.minus(HR_SETTLE)
         val openBucketStart = Instant.ofEpochSecond(settled.epochSecond / bucketSeconds * bucketSeconds)
-        if (!from.isBefore(openBucketStart)) return
+        if (!from.isBefore(openBucketStart)) return null
 
         val buckets = sortedMapOf<Long, MutableList<Long>>()
         for (record in readAll(client, HeartRateRecord::class, from, openBucketStart)) {
@@ -138,6 +143,7 @@ object HealthConnectReader {
         for ((bucket, values) in buckets) {
             out.put(reading("heart_rate", values.average(), Instant.ofEpochSecond(bucket)))
         }
+        return if (buckets.isEmpty()) null else Instant.ofEpochSecond(buckets.lastKey())
     }
 
     private suspend fun spo2(client: HealthConnectClient, now: Instant, out: JSArray) {

@@ -15,6 +15,7 @@ import com.getcapacitor.JSObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /**
@@ -66,6 +67,23 @@ object BackgroundSync {
             .enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
     }
 
+    // Newest heart-rate bucket the server accepted, per member: a different
+    // member on this phone must not inherit another member's position.
+    fun newestStoredHeartRate(context: Context, memberId: String): Instant? {
+        val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (p.getString("hr_marker_member_id", null) != memberId) return null
+        val millis = p.getLong("hr_marker_epoch_ms", -1L)
+        return if (millis < 0) null else Instant.ofEpochMilli(millis)
+    }
+
+    fun recordStoredHeartRate(context: Context, memberId: String, uploadedNewest: Instant?) {
+        val next = HeartRateWindow.advance(newestStoredHeartRate(context, memberId), uploadedNewest) ?: return
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString("hr_marker_member_id", memberId)
+            .putLong("hr_marker_epoch_ms", next.toEpochMilli())
+            .apply()
+    }
+
     fun disable(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()
         WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
@@ -109,12 +127,21 @@ class HealthConnectSyncWorker(context: Context, params: WorkerParameters) : Coro
         if (BackgroundSync.backgroundPermission !in granted) return Result.success()
 
         // Heart rate settles for an hour before it is sent, so a 6-hour window
-        // re-covers several runs' worth while keeping each upload small.
-        val batch = HealthConnectReader.read(client, Duration.ofHours(6))
+        // re-covers several runs' worth while keeping each upload small; after
+        // an outage the window reaches back to the last stored bucket instead.
+        val lookback = HeartRateWindow.lookback(
+            Instant.now(),
+            BackgroundSync.newestStoredHeartRate(applicationContext, config.memberId),
+            Duration.ofHours(6),
+        )
+        val batch = HealthConnectReader.read(client, lookback)
         if (batch.isEmpty) return Result.success()
 
         return when (val status = BackgroundSync.upload(config, batch)) {
-            in 200..299 -> Result.success()
+            in 200..299 -> {
+                BackgroundSync.recordStoredHeartRate(applicationContext, config.memberId, batch.newestHeartRate)
+                Result.success()
+            }
             401, 403 -> {
                 Log.w("BackgroundSync", "device key rejected ($status); disabling background sync")
                 BackgroundSync.disable(applicationContext)

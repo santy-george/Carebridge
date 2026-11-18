@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 
+// Release signing: credentials live outside the repo (see ~/.carebridge-signing/keystore.properties,
+// or point CAREBRIDGE_KEYSTORE_PROPERTIES at another file). Without it, release builds are unsigned.
+def keystoreProps = new Properties()
+def keystoreFile = new File(System.getenv('CAREBRIDGE_KEYSTORE_PROPERTIES') ?: "${System.getProperty('user.home')}/.carebridge-signing/keystore.properties")
+if (keystoreFile.exists()) {
+    keystoreFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace = "com.carebridgehome.wellness"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -20,8 +28,21 @@ android {
     kotlinOptions {
         jvmTarget = '21'
     }
+    signingConfigs {
+        release {
+            if (keystoreProps['storeFile']) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (keystoreProps['storeFile']) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

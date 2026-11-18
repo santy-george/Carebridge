@@ -89,6 +89,14 @@ object HealthConnectReader {
         if (allowed(HeartRateVariabilityRmssdRecord::class)) guarded("hrv") { hrv(client, now, readings) }
         if (allowed(StepsRecord::class)) guarded("steps") { steps(client, now, readings) }
         if (allowed(SleepSessionRecord::class)) guarded("sleep") { sleep(client, now, sessions) }
+        // Counts only, never values: enough to tell "Health Connect had nothing"
+        // from "the sync never ran" when data stops arriving.
+        val counts = mutableMapOf<String, Int>()
+        for (i in 0 until readings.length()) {
+            val type = readings.getJSONObject(i).optString("reading_type")
+            counts[type] = (counts[type] ?: 0) + 1
+        }
+        Log.i(TAG, "read hrLookback=${heartRateLookback.toHours()}h readings=$counts sleepRows=${sessions.length()}")
         return Batch(readings, sessions, newestHeartRate)
     }
 

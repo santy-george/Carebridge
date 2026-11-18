@@ -20,8 +20,14 @@ object HeartRateWindow {
     /** Re-covers buckets around the marker; the server drops the duplicates. */
     private val OVERLAP: Duration = Duration.ofHours(1)
 
-    fun lookback(now: Instant, newestStored: Instant?, floor: Duration): Duration {
-        if (newestStored == null || newestStored.isAfter(now)) return floor
+    /**
+     * whenUnknown applies when no marker exists yet (fresh install, update from
+     * a build without one, new member). The background job passes MAX_LOOKBACK
+     * so its first run catches up once; the server drops rows it already has.
+     */
+    fun lookback(now: Instant, newestStored: Instant?, floor: Duration, whenUnknown: Duration = floor): Duration {
+        if (newestStored == null) return whenUnknown
+        if (newestStored.isAfter(now)) return floor
         val gap = Duration.between(newestStored, now).plus(OVERLAP)
         return when {
             gap < floor -> floor

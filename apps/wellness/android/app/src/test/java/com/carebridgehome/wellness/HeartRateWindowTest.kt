@@ -10,8 +10,12 @@ class HeartRateWindowTest {
     private val floor = Duration.ofHours(6)
 
     @Test
-    fun `no stored heart rate yet reads only the floor window`() {
+    fun `no stored heart rate yet reads the whenUnknown window`() {
         assertEquals(floor, HeartRateWindow.lookback(now, null, floor))
+        assertEquals(
+            HeartRateWindow.MAX_LOOKBACK,
+            HeartRateWindow.lookback(now, null, floor, whenUnknown = HeartRateWindow.MAX_LOOKBACK),
+        )
     }
 
     @Test

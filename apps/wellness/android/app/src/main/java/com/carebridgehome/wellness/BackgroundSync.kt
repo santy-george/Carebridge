@@ -133,6 +133,7 @@ class HealthConnectSyncWorker(context: Context, params: WorkerParameters) : Coro
             Instant.now(),
             BackgroundSync.newestStoredHeartRate(applicationContext, config.memberId),
             Duration.ofHours(6),
+            whenUnknown = HeartRateWindow.MAX_LOOKBACK,
         )
         val batch = HealthConnectReader.read(client, lookback)
         if (batch.isEmpty) return Result.success()

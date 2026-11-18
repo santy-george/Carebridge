@@ -76,6 +76,7 @@ const WEARABLE_READING_TYPES = [
   'spo2',
   'resting_heart_rate',
   'heart_rate_variability_sdnn',
+  'heart_rate_variability_rmssd',
   'respiratory_rate',
   'walking_speed',
   'apple_walking_steadiness',
@@ -141,6 +142,7 @@ const UNITS: Record<string, string> = {
   walking_speed: 'm/s',
   apple_walking_steadiness: '%',
   heart_rate_variability_sdnn: 'ms',
+  heart_rate_variability_rmssd: 'ms',
   vo2_max: 'ml/kg/min',
   apple_sleeping_wrist_temperature: '°C',
 };
@@ -459,6 +461,15 @@ export function Health() {
     });
   }
 
+  // HRV arrives as two different measures: SDNN from Apple Watch, RMSSD from
+  // Health Connect (Fitbit etc). They aren't comparable, so each keeps its own
+  // row and series; the measure is named only when a member has both.
+  const hasBothHrv =
+    (wearableByType.heart_rate_variability_sdnn?.length ?? 0) > 0 &&
+    (wearableByType.heart_rate_variability_rmssd?.length ?? 0) > 0;
+  const hrvName = (measure: string) =>
+    hasBothHrv ? `Heart rate variability (${measure})` : 'Heart rate variability';
+
   // Trend-only wearable metrics -- no established population "normal
   // range", so no chip, no range line, no risk-framed suggestion.
   const trendMetrics: {
@@ -470,7 +481,13 @@ export function Health() {
     {
       id: 'heart_rate_variability_sdnn',
       category: 'Cardiovascular',
-      name: 'Heart rate variability',
+      name: hrvName('SDNN'),
+      note: NOTES.heart_rate_variability_sdnn,
+    },
+    {
+      id: 'heart_rate_variability_rmssd',
+      category: 'Cardiovascular',
+      name: hrvName('RMSSD'),
       note: NOTES.heart_rate_variability_sdnn,
     },
     {

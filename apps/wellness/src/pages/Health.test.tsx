@@ -208,6 +208,51 @@ describe('Health', () => {
     expect(screen.queryByText(/suggested next step/i)).not.toBeInTheDocument();
   });
 
+  it('shows Health Connect HRV (RMSSD) as a trend-only row', async () => {
+    tableResponses.wearable_readings = {
+      data: [
+        {
+          reading_type: 'heart_rate_variability_rmssd',
+          value: 31.6,
+          recorded_at: '2026-11-18T08:00:00Z',
+        },
+      ],
+      error: null,
+    };
+    render(<Health />);
+
+    const row = await screen.findByRole('button', { name: /heart rate variability/i });
+    expect(row).toHaveTextContent('31.6 ms');
+    expect(row).not.toHaveTextContent(/rmssd|sdnn/i); // one source: plain name
+    expect(row).not.toHaveTextContent(/normal|low|high|elevated|active/i);
+  });
+
+  it('keeps SDNN and RMSSD HRV as separate, labelled rows when both exist', async () => {
+    tableResponses.wearable_readings = {
+      data: [
+        {
+          reading_type: 'heart_rate_variability_sdnn',
+          value: 42.3,
+          recorded_at: '2026-11-18T08:00:00Z',
+        },
+        {
+          reading_type: 'heart_rate_variability_rmssd',
+          value: 31.6,
+          recorded_at: '2026-11-18T08:00:00Z',
+        },
+      ],
+      error: null,
+    };
+    render(<Health />);
+
+    expect(
+      await screen.findByRole('button', { name: /heart rate variability \(sdnn\)/i }),
+    ).toHaveTextContent('42.3 ms');
+    expect(
+      screen.getByRole('button', { name: /heart rate variability \(rmssd\)/i }),
+    ).toHaveTextContent('31.6 ms');
+  });
+
   it('shows a daily activity total (active energy) as a chip-classified row', async () => {
     tableResponses.daily_activity_totals = {
       data: [{ reading_type: 'active_energy_burned', value: 45, day: '2026-08-20' }],

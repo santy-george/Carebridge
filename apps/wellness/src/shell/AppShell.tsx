@@ -76,7 +76,7 @@ export function AppShell() {
   return (
     <div className="stack">
       <div className="brand-strip">
-        <img src="/cbh-logo.png" alt="Care Bridge Home" />
+        <img src="/cb360-logo.png" alt="Care Bridge 360" />
         <div className="tbar__actions">
           <Link
             className="iconbtn"

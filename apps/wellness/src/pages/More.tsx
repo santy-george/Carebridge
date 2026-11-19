@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { supabase } from '../lib/supabase';
 import { FitbitConnection } from '../components/FitbitConnection';
+import { openPrivacyPolicy } from '../lib/privacyPolicy';
 
 export function More() {
   const { memberLinks, selectedMemberId, selectMember } = useAuth();
@@ -139,6 +140,14 @@ export function More() {
         <Link className="btn btn--secondary" to="/link-member">
           Link another member
         </Link>
+
+        <button
+          className="btn btn--secondary"
+          type="button"
+          onClick={() => void openPrivacyPolicy()}
+        >
+          Privacy policy
+        </button>
 
         <button className="btn btn--secondary" type="button" onClick={handleSignOut}>
           Sign out

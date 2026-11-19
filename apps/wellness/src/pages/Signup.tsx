@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import { supabase } from '../lib/supabase';
 import { toSentryError } from '../lib/toSentryError';
+import { PRIVACY_POLICY_URL, openPrivacyPolicy } from '../lib/privacyPolicy';
 
 export function Signup() {
   const [email, setEmail] = useState('');
@@ -107,7 +108,16 @@ export function Signup() {
           <p style={{ fontSize: '13px', marginBottom: '8px' }}>
             Care Bridge Home will collect and use your name, contact details, medical information,
             vitals, medications, and location during SOS alerts to coordinate your home care. This
-            is visible to your linked family members and assigned care coordinator.
+            is visible to your linked family members and assigned care coordinator.{' '}
+            <a
+              href={PRIVACY_POLICY_URL}
+              onClick={(event) => {
+                event.preventDefault();
+                void openPrivacyPolicy();
+              }}
+            >
+              Privacy policy
+            </a>
           </p>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
             <input

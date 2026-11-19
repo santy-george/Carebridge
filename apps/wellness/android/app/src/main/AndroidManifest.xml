@@ -56,6 +56,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- SOS attaches a best-effort location; foreground only, asked at SOS time. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- Health Connect, read-only. Never write. -->
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />

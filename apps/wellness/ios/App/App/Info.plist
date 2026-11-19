@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Care Bridge Wellness</string>
+	<string>Care Bridge 360</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -25,7 +25,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Care Bridge Home uses your camera to photograph lab reports, prescriptions, and scans for your records.</string>
+	<string>Care Bridge 360 uses your camera to photograph lab reports, prescriptions and scans for your records.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Care Bridge reads health data from Apple Health, such as heart rate, blood oxygen, heart rate variability, breathing rate, activity, sleep, walking steadiness, ECG and irregular rhythm alerts, so you and your care team can follow your health.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

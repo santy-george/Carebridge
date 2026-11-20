@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { useAuth } from '../auth/useAuth';
 import { supabase } from '../lib/supabase';
 import { FitbitConnection } from '../components/FitbitConnection';
@@ -115,9 +116,13 @@ export function More() {
         </Link>
       </div>
 
-      {selectedMemberId && memberLinks.find((l) => l.memberId === selectedMemberId)?.isSelf && (
-        <FitbitConnection memberId={selectedMemberId} />
-      )}
+      {/* iOS reads wearables through Apple Health. Fitbit's Google sign-in is
+          still in Testing mode, so an App Store reviewer could not finish it. */}
+      {Capacitor.getPlatform() !== 'ios' &&
+        selectedMemberId &&
+        memberLinks.find((l) => l.memberId === selectedMemberId)?.isSelf && (
+          <FitbitConnection memberId={selectedMemberId} />
+        )}
 
       <div className="card">
         {memberLinks.length > 1 && (
